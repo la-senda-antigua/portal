@@ -6,9 +6,9 @@ In this repository we have code for the church's website.
 
 ### Current developers for 2024
 
-- Hugo Quinonez
-- David Chachon
+- Hugo Quiñónez
+- David Chacon
 - Samuel Chacon
 - Jeremiah Eguizabal
 - Josue Bautista
-- Elias Quinonez
+- Elias Quiñónez
