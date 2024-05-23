@@ -1,11 +1,14 @@
-# Josue Bautista
+# La Senda Antigua Web Portal
 
-### about me 
----
+In this repository we have code for the church's website.
 
-my name is Josh, I'm trying my best to be a software developer
-some areas I'm good in are: 
-- audio set ups / mixing
-- technology 
+## Developers
 
+### Current developers for 2024
 
+- Hugo Quiñónez
+- David Chacon
+- Samuel Chacon
+- Jeremiah Eguizabal
+- Josue Bautista
+- Elias Quiñónez
