@@ -1,8 +1,14 @@
-# Hugo Quiñónez
-### About me
----
+# La Senda Antigua Web Portal
 
-Saludos desde la hermana República de Guatemala.
-No olviden.
+In this repository we have code for the church's website.
 
-> Un hombre sin panza... es como un cielo sin estrellas.
+## Developers
+
+### Current developers for 2024
+
+- Hugo Quiñónez
+- David Chacon
+- Samuel Chacon
+- Jeremiah Eguizabal
+- Josue Bautista
+- Elias Quiñónez
