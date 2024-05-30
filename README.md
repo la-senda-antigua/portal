@@ -1,13 +1,14 @@
-# David Chacon
+# La Senda Antigua Web Portal
 
-## about me
----
-My name is David. I am in class.
-We are learning about development.
-- code
-- text edit
-- github
+In this repository we have code for the church's website.
 
-```
-this is markdown
-```
+## Developers
+
+### Current developers for 2024
+
+- Hugo Quiñónez
+- David Chacon
+- Samuel Chacon
+- Jeremiah Eguizabal
+- Josue Bautista
+- Elias Quiñónez
