@@ -1,10 +1,10 @@
-name: Hugo Deployment
+name: Elias Deployment
 
 on:
     workflow_dispatch:
     push:
       branches:
-        - html5_learning_hugo
+        - html5_learning_elias
         
 jobs:    
     web-deploy:        
@@ -18,7 +18,7 @@ jobs:
           uses: SamKirkland/FTP-Deploy-Action@v4.3.5
           with:
             local-dir: ./developer_website/
-            server-dir: ./testing.iglesialasendaantigua.com/developers/hugo/
+            server-dir: ./testing.iglesialasendaantigua.com/developers/elias/
             server: ${{secrets.FTP_SERVER}}
             username: ${{secrets.FTP_USERNAME}}
             password: ${{ secrets.FTP_PASSWORD }}
