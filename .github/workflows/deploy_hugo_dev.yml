@@ -19,7 +19,7 @@ jobs:
           with:
             local-dir: ./developer_website/
             server-dir: ./testing.iglesialasendaantigua.com/developers/hugo
-            server: ${{secrets.FTP_SERVER}}
+            server: ${{secrets.FTP_SERVER}}/
             username: ${{secrets.FTP_USERNAME}}
             password: ${{ secrets.FTP_PASSWORD }}
     
