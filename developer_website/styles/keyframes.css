@@ -1,0 +1,35 @@
+@keyframes slide-1{
+    0%{
+        left:0%;
+    }
+    50%{
+        left:-100%;
+    }
+    100%{
+        left:-200%;
+    }
+}
+
+@keyframes slide-2{
+    0%{
+        left:100%;
+    }
+    50%{
+        left:0%;
+    }
+    100%{
+        left:-100%;
+    }
+}
+
+@keyframes slide-3{
+    0%{
+        left:200%;
+    }
+    50%{
+        left:100%;
+    }
+    100%{
+        left:0;
+    }
+}
