@@ -1,0 +1,27 @@
+/* @keyframes slide-1{
+    0%{opacity: 1;}
+    50%{opacity: 0;}
+    100%{opacity: 0;}
+} */
+
+
+@keyframes slide-1{
+    0%{opacity:0;}
+    33%{opacity:1;}
+    66%{opacity:0;}
+    99%{opacity:0;}    
+}
+
+@keyframes slide-2{
+    0%{opacity:0;}
+    33%{opacity:0;}
+    66%{opacity:1;}
+    99%{opacity:0;}    
+}
+
+@keyframes slide-3{
+    0%{opacity:0;}
+    33%{opacity:0;}
+    66%{opacity:0;}
+    99%{opacity:1;}    
+}

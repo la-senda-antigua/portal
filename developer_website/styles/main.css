@@ -1,0 +1,53 @@
+@import "./keyframes.css";
+
+html, body {
+    font-family: sans-serif;
+}
+
+.center {
+    text-align: center;
+}
+
+
+.slider-container{
+    margin:40px auto;
+    border: 8px solid #fff;
+    box-shadow: 4px 4px 64px #ccc;
+    height: 400px;
+    width: 800px;
+    border-radius: 16px;
+    position: absolute;
+    left:0;
+    right:0;
+    overflow: hidden;
+}
+
+.slider-container img{
+    width: 100%;
+    height: 100%;
+    position:absolute;
+}
+
+#slide-1{
+    left:0;
+    animation-name: slide-1;
+    animation-duration: 12s; 
+    animation-iteration-count: infinite;
+    animation-timing-function: ease;
+}
+
+#slide-2{
+    left:0;
+    animation-name: slide-2;
+    animation-duration: 12s; 
+    animation-iteration-count: infinite;
+    animation-timing-function: ease;
+}
+
+#slide-3{
+    left:0;
+    animation-name: slide-3;
+    animation-duration: 12s; 
+    animation-iteration-count: infinite;
+    animation-timing-function: ease;
+}
