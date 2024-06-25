@@ -13,8 +13,8 @@ In this repository we have code for the church's website.
 - Josue Bautista
 - Elias Quiñónez
 
-
 ## To Create A New Page
+
 Link the main.css file to the new html page. In the main.css we have shared styles.
 colors.css holds css variables for colors.
 layout.css holds css rules for page layouts. Include in this file your layout styles if it is not in it already.
