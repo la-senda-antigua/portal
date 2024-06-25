@@ -15,7 +15,7 @@ li a {
 
 nav > ul > li {
   display: block;
-  padding: 0 16px 0 0;
+  padding: 0 24px 0 0;
   text-align: center;
   cursor: pointer;
 }
