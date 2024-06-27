@@ -1,8 +1,18 @@
 :root {
-  --base-color: #3f4a49;
-  --accent-color: #d4967d;
-  --alternate-color: #d1d9c7;
-  --text-color: #fff;
-  --base-color-translucid: rgba(63, 74, 73, 0.3);
-  --accent-color-translucid: rgba(212, 150, 125, 0.5);
+  --algae-green: 63, 74, 73;
+  --light-peach: 212, 150, 125;
+  --off-white: 209, 217, 199;
+
+  --charcoal: 56, 56, 56;
+  --bright-yellow: 255, 199, 0;
+  --light-gray: 244, 244, 243;
+
+  --base-color: rgb(var(--algae-green));
+  --accent-color: rgb(var(--light-peach));
+  --alternate-color: rgb(var(--off-white));
+
+  --text-color: #000;
+  --accent-text-color: #fff;
+
+  --base-color-translucid: rgba(var(--charcoal), 0.4);
 }

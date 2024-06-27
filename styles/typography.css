@@ -6,6 +6,10 @@ body {
   font-variation-settings: "wdth" 100;
 }
 
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 100, "GRAD" -25, "opsz" 24;
+}
+
 :root {
   --fs-xs: 12px;
   --fs-sm: 14px;

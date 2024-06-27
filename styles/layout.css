@@ -15,18 +15,20 @@ body {
 }
 
 .section .content {
-  width: 90%;
   height: calc(100% - 60px);
   padding: 30px;
   margin: auto;
   max-width: 1600px;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 header {
   height: 100%;
   text-shadow: black 1px 1px 5px;
   position: relative;
+  color: #fff;
 }
 
 header::before {
@@ -42,16 +44,15 @@ header::before {
   position: absolute;
 }
 
-header nav {
-  position: relative;
+header button {
+  text-transform: uppercase;
+  font-size: var(--fs-lg);
+  font-weight: 200;
 }
 
 .header-description {
-  position: absolute;
-  bottom: 30px;
-  left: 30px;
   font-size: var(--fs-lg);
-  width: 500px;
+  max-width: 500px;
 }
 
 .header-description h1 {

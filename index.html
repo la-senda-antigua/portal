@@ -10,6 +10,14 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
 
     <!-- styles -->
     <link rel="stylesheet" type="text/css" href="styles/main.css" />
@@ -29,14 +37,29 @@
   <body>
     <header class="section">
       <div class="content">
-        <nav>
-          <ul>
-            <li><a href="#" class="index-nav">La Senda Antigua</a></li>
-            <li
-              onmouseenter="showNavMenu(event, 'iglesia-local-menu')"
-              onmouseleave="hideNavMenu('iglesia-local-menu')"
-              class="animated-nav"
+        <nav id="menu-closed">
+          <div class="index-nav">
+            <a href="#">La Senda Antigua</a>
+            <button
+              class="open-menu material-symbols-outlined"
+              onclick="toggleNavigation()"
             >
+              drag_handle
+            </button>
+          </div>
+        </nav>
+        <nav id="menu-opened">
+          <div class="index-nav">
+            <a href="#">La Senda Antigua</a>
+            <button
+              class="close-menu material-symbols-outlined"
+              onclick="toggleNavigation()"
+            >
+              close
+            </button>
+          </div>
+          <ul>
+            <li class="animated-nav" id="iglesia-local-trigger">
               <a href="#">Iglesia local</a>
               <ul class="nav-menu" id="iglesia-local-menu">
                 <li><a href="">Servicios recientes</a></li>
@@ -45,11 +68,7 @@
                 <li><a href="">Credo doctrinal</a></li>
               </ul>
             </li>
-            <li
-              onmouseenter="showNavMenu(event, 'ministerios-menu')"
-              onmouseleave="hideNavMenu('ministerios-menu')"
-              class="animated-nav"
-            >
+            <li class="animated-nav" id="ministerios-trigger">
               <a href="#">Ministerios</a>
               <ul class="nav-menu" id="ministerios-menu">
                 <li><a href="">Memorización bíblica</a></li>
@@ -63,9 +82,10 @@
             </li>
             <li class="animated-nav"><a href="">Radio</a></li>
             <li class="animated-nav"><a href="">Contáctenos</a></li>
-            <li><button class="accent">Hacer una donación</button></li>
           </ul>
+          <button class="accent">Hacer una donación</button>
         </nav>
+        <div class="separator"></div>
         <div class="header-description">
           <h1>Bienvenidos a Iglesia La Senda Antigua</h1>
           <p class="quote">
