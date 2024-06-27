@@ -1,0 +1,78 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  color: var(--text-color);
+  font-size: var(--fs-m);
+}
+
+.section {
+}
+
+.section .content {
+  width: 90%;
+  height: calc(100% - 60px);
+  padding: 30px;
+  margin: auto;
+  max-width: 1600px;
+  position: relative;
+}
+
+header {
+  height: 100%;
+  text-shadow: black 1px 1px 5px;
+  position: relative;
+}
+
+header::before {
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-image: radial-gradient(
+    var(--base-color-translucid),
+    var(--base-color)
+  );
+  content: "";
+  position: absolute;
+}
+
+header nav {
+  position: relative;
+}
+
+.header-description {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  font-size: var(--fs-lg);
+  width: 500px;
+}
+
+.header-description h1 {
+  font-size: var(--fs-xxxl);
+  font-weight: 300;
+}
+
+.header-description .quote {
+  line-height: 36px;
+}
+
+.header-description .quote::before {
+  content: "“";
+  font-size: 80px;
+  float: left;
+  margin-right: 10px;
+  color: var(--accent-color);
+  text-shadow: none;
+}
+
+.header-description .author {
+  text-align: right;
+  font-style: italic;
+}

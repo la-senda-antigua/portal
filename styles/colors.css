@@ -1,0 +1,8 @@
+:root {
+  --base-color: #3f4a49;
+  --accent-color: #d4967d;
+  --alternate-color: #d1d9c7;
+  --text-color: #fff;
+  --base-color-translucid: rgba(63, 74, 73, 0.3);
+  --accent-color-translucid: rgba(212, 150, 125, 0.5);
+}

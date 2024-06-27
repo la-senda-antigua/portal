@@ -1,0 +1,16 @@
+@import "colors.css";
+@import "layout.css";
+@import "typography.css";
+@import "navigation.css";
+
+button {
+  padding: 16px 24px;
+  border: 1px solid var(--base-color);
+  font-family: "Noto Serif", serif;
+  font-size: var(--fs-sm);
+}
+
+button.accent {
+  background-color: var(--accent-color);
+  color: var(--text-color);
+}
