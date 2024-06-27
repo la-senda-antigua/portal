@@ -1,12 +1,5 @@
 header {
   background-image: url("../assets/pastor_preaching_sepia.jpeg");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: top;
-}
-
-.centered-content {
-  margin: auto;
 }
 
 .service-schedule-table {

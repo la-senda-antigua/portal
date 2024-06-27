@@ -11,7 +11,7 @@ body {
   font-size: var(--fs-m);
 }
 
-.section-gap {
+.section.gap {
   display: block;
   height: 40px;
 }
@@ -31,6 +31,9 @@ header {
   text-shadow: black 1px 1px 5px;
   position: relative;
   color: #fff;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
 }
 
 header::before {
