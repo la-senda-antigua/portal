@@ -4,3 +4,15 @@ header {
   background-repeat: no-repeat;
   background-position: top;
 }
+
+.centered-content {
+  margin: auto;
+}
+
+.service-schedule-table {
+  max-width: 450px;
+}
+
+.service-schedule-table td {
+  padding-bottom: 12px;
+}
