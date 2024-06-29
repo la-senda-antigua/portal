@@ -1,7 +1,7 @@
 :root {
   --algae-green: 63, 74, 73;
   --light-peach: 212, 150, 125;
-  --off-white: 209, 217, 199;
+  --off-white: 220, 217, 208;
 
   --charcoal: 56, 56, 56;
   --bright-yellow: 255, 199, 0;
@@ -29,6 +29,6 @@
   background-color: var(--alternate-color);
 }
 
-.accent-color-text{
+.accent-color-text {
   color: var(--accent-text-color);
 }

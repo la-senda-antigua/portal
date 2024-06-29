@@ -4,7 +4,7 @@
     <title>Iglesia La Senda Antigua</title>
 
     <!-- COMMON FOR EACH PAGE: -->
-     
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
@@ -18,10 +18,9 @@
     <script src="scripts/navigation.js"></script>
 
     <!-- END - COMMON FOR EACH PAGE -->
-    
+
     <!-- SPECIFIC FOR THIS PAGE: -->
     <link rel="stylesheet" type="text/css" href="styles/index.css" />
-
   </head>
   <body>
     <header class="section">
@@ -119,35 +118,94 @@
 
     <span class="section gap"></span>
 
+    <div class="section alternate-color-bg">
+      <div class="content verse-of-day">
+        <script src="scripts/verseoftheday.js"></script>
+        <script src="https://www.biblegateway.com/votd/get/?format=json&version=RVR1960&callback=BG.votdWriteCallback"></script>
+      </div>
+    </div>
+
+    <span class="section gap"></span>
+
     <div class="section">
       <div class="content">
-      <div class="card image-card left">
-        <div class="image">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div class="card image-card left">
+          <div class="image">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus"
+              width="100%"
+              height="100%"
+              style="border: 0"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+          <div class="title">
+            Nuestra ubicación
+            <span class="material-symbols-outlined">my_location</span>
+          </div>
+          <div class="text">
+            <p>Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.</p>
+            <table class="service-schedule-table">
+              <tr>
+                <td>Domingos, 9:00 a.m. - 10:00 a.m.</td>
+                <td><b>Estudio bíblico</b></td>
+              </tr>
+              <tr>
+                <td>Domingos, 10:30 a.m. - 12:30 a.m.</td>
+                <td><b>Servicio general</b></td>
+              </tr>
+              <tr>
+                <td>Martes, 7:30 p.m. - 9:00 p.m.</td>
+                <td><b>Servicio general</b></td>
+              </tr>
+            </table>
+          </div>
         </div>
-        <div class="title">Nuestra ubicación <span class="material-symbols-outlined">my_location</span> </div>
-        <div class="text">
-          <p>
-            Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.
-          </p>
-          <table class="service-schedule-table">
-            <tr>
-              <td>Domingos, 9:00 a.m. - 10:00 a.m.</td>
-              <td><b>Estudio bíblico</b></td>
-            </tr>
-            <tr>
-              <td>Domingos, 10:30 a.m. - 12:30 a.m.</td>
-              <td><b>Servicio general</b></td>
-            </tr>
-            <tr>
-              <td>Martes, 7:30 p.m. - 9:00 p.m.</td>
-              <td><b>Servicio general</b></td>
-            </tr>
-          </table>
       </div>
-    </div></div>
+    </div>
+
+    <span class="section gap"></span>
+
+    <div class="section base-color-bg accent-color-text">
+      <div class="content">
+        <h1 class="centered-content">Explore también:</h1>
+
+        <div class="quick-links">
+          <a href="">
+            <div class="card icon-card">
+              <img class="image" src="assets/icons/icons8-cinema-100.png" />
+              <div class="title">Servicios recientes</div>
+            </div>
+          </a>
+          <a href="">
+            <div class="card icon-card">
+              <img class="image" src="assets/icons/icons8-holy-bible-100.png" />
+              <div class="title">Estudios bíblicos</div>
+            </div>
+          </a>
+          <a href="">
+            <div class="card icon-card">
+              <img class="image" src="assets/icons/icons8-radio-100.png" />
+              <div class="title">Programación radial</div>
+            </div>
+          </a>
+          <a href="">
+            <div class="card icon-card">
+              <img class="image" src="assets/icons/icons8-calendar-100.png" />
+              <div class="title">Calendario de eventos</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
     <footer class="section">
-      <div class="content">&copy; 2022 My Web Page. All rights reserved.</div>
+      <div class="content">
+        &copy; 2022 My Web Page. All rights reserved.
+        <p>Icons by <a target="_blank" href="https://icons8.com">Icons8</a></p>
+      </div>
     </footer>
   </body>
 </html>

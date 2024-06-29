@@ -102,9 +102,11 @@ We have common "cards" that can be reused across all pages. These cards are html
 
 ## Useful classes
 
-Classes that can be reused across pages live in the main.css file.
-
 * `accent`: this class adds the `--accent-color` set in the colors.css as the background to the element along with the `--accent-text-color` as the text color.
+
+* `base-color-bg` adds the `--base-color` as the background property.
+
+* `accent-color-text` adds the `--accent-text-color` as the color property.
 
 * `separator`: add to a `span` or `div` to work as a separator within a `flex` container. This will take all available space and push the elements that are after it, to the end of the container.
 
