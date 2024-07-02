@@ -11,22 +11,29 @@ body {
   font-size: var(--fs-m);
 }
 
-.section {
+.section.gap {
+  display: block;
+  height: 40px;
 }
 
 .section .content {
-  width: 90%;
   height: calc(100% - 60px);
   padding: 30px;
   margin: auto;
   max-width: 1600px;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 header {
   height: 100%;
   text-shadow: black 1px 1px 5px;
   position: relative;
+  color: #fff;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
 }
 
 header::before {
@@ -42,16 +49,16 @@ header::before {
   position: absolute;
 }
 
-header nav {
-  position: relative;
+header button {
+  text-transform: uppercase;
+  font-size: var(--fs-lg);
+  font-weight: 200;
+  white-space: nowrap;
 }
 
 .header-description {
-  position: absolute;
-  bottom: 30px;
-  left: 30px;
   font-size: var(--fs-lg);
-  width: 500px;
+  max-width: 500px;
 }
 
 .header-description h1 {
@@ -75,4 +82,43 @@ header nav {
 .header-description .author {
   text-align: right;
   font-style: italic;
+}
+
+footer {
+  color: var(--base-color);
+  font-size: var(--fs-sm);
+}
+
+footer .columns {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  margin-bottom: 40px;
+}
+
+footer .column {
+  display: flex;
+  flex-direction: column;
+}
+
+footer .column p {
+  display: flex;
+}
+
+footer .column a {
+  color: var(--accent-color);
+}
+
+footer .material-symbols-outlined {
+  margin-right: 6px;
+}
+
+footer .row {
+  font-size: var(--fs-xs);
+}
+
+@media screen and (min-width: 935px) {
+  footer .columns {
+    flex-direction: row;
+  }
 }
