@@ -1,0 +1,89 @@
+header {
+  background-image: url("../assets/pastor_preaching_sepia.jpeg");
+}
+
+.service-schedule-table {
+  max-width: 450px;
+}
+
+.service-schedule-table td {
+  padding-bottom: 12px;
+}
+
+.quick-links {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.quick-links a {
+  text-decoration: none;
+  color: var(--accent-text-color);
+  padding: 40px;
+}
+
+#icons-8-legal {
+  text-align: right;
+  font-size: var(--fs-xs);
+}
+
+#icons-8-legal a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.verse-of-day {
+  display: flex;
+  flex-direction: column;
+}
+
+.verse-of-day .poweredby {
+  font-size: var(--fs-sm);
+}
+
+.verse-of-day a {
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 400;
+}
+
+.verse-of-day .quote {
+  display: flex;
+  flex-direction: column;
+}
+
+.verse-of-day .quote .text {
+  font-size: var(--fs-xxxl);
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.verse-of-day .quote .reference {
+  font-size: var(--fs-lg);
+  text-align: right;
+}
+
+.verse-of-day .legal {
+  text-align: right;
+  text-transform: uppercase;
+  font-size: var(--fs-sm);
+  margin-bottom: 20px;
+}
+
+.homeschool {
+  max-width: 1000px;
+}
+
+.homeschool button {
+  width: 200px;
+  margin: 20px 0;
+}
+
+@media screen and (min-width: 935px) {
+  .quick-links {
+    flex-direction: row;
+  }
+}
