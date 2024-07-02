@@ -122,7 +122,7 @@
 
   .image-card.right .title {
     align-self: center;
-    justify-content: right;
+    justify-content: left;
   }
 
   .image-card.right .text {

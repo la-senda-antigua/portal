@@ -16,4 +16,4 @@ function toggleNavigation() {
       mobileMenu.style.left = 0;
     }, 10);
   }
-}
+} 

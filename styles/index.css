@@ -24,9 +24,23 @@ header {
   padding: 40px;
 }
 
+#icons-8-legal {
+  text-align: right;
+  font-size: var(--fs-xs);
+}
+
+#icons-8-legal a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
 .verse-of-day {
   display: flex;
   flex-direction: column;
+}
+
+.verse-of-day .poweredby {
+  font-size: var(--fs-sm);
 }
 
 .verse-of-day a {
