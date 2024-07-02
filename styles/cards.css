@@ -127,6 +127,6 @@
 
   .image-card.right .text {
     align-self: flex-start;
-    justify-self: right;
+    text-align: justify;
   }
 }

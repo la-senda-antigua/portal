@@ -73,6 +73,15 @@ header {
   margin-bottom: 20px;
 }
 
+.homeschool {
+  max-width: 1000px;
+}
+
+.homeschool button {
+  width: 200px;
+  margin: 20px 0;
+}
+
 @media screen and (min-width: 935px) {
   .quick-links {
     flex-direction: row;
