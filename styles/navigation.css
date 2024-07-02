@@ -25,9 +25,8 @@ nav > ul {
   margin: 0;
   align-items: center;
   flex-direction: column;
-  justify-content: top;
+  justify-content: start;
   flex-grow: 1;
-  overflow: scroll;
   width: 100%;
   overflow: hidden;
 }
