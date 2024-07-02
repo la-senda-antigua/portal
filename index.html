@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
+    <link rel="stylesheet" type="text/css" href="styles/aos.css" />
+
     <link rel="stylesheet" type="text/css" href="styles/main.css?v=202407020130" />
     <link rel="icon" type="image/png" href="assets/favicons/favicon-32.png" />
     <link rel="apple-touch-icon" href="assets/favicons/favicon-180.png" />
@@ -16,6 +18,7 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 
     <script src="scripts/navigation.js"></script>
+    <script src="scripts/aos.js"></script>
 
     <!-- END - COMMON FOR EACH PAGE -->
 
@@ -75,7 +78,7 @@
           <button class="accent">contribuir</button>
         </nav>
         <div class="separator"></div>
-        <div class="header-description">
+        <div class="header-description" data-aos="fade">
           <h1>Bienvenidos a Iglesia La Senda Antigua</h1>
           <p class="quote">
             Paraos en los caminos, y mirad, y preguntad por las sendas antiguas,
@@ -91,8 +94,8 @@
     <div class="section">
       <div class="content">
         <div class="card simple-card centered-content">
-          <div class="title">Acerca de nosotros:</div>
-          <div class="text">
+          <div data-aos="fade" class="title">Acerca de nosotros:</div>
+          <div data-aos="fade" class="text">
             <br />
             Iglesia La Senda Antigua le saluda.
             <span class="material-symbols-outlined">handshake</span> &nbsp;
@@ -121,8 +124,8 @@
     <span class="section gap"></span>
 
     <!-- Verso del dia -->
-    <div class="section alternate-color-bg">
-      <div class="content verse-of-day">
+    <div class="section alternate-color-bg" data-aos="fade">
+      <div class="content verse-of-day" data-aos="fade">
         <script src="scripts/verseoftheday.js"></script>
         <script src="https://www.biblegateway.com/votd/get/?format=json&version=RVR1960&callback=BG.votdWriteCallback"></script>
       </div>
@@ -131,9 +134,9 @@
     <span class="section gap"></span>
 
     <!-- Ubicacion -->
-    <div class="section">
+    <div class="section" data-aos="fade">
       <div class="content">
-        <div class="card image-card left">
+        <div class="card image-card left" data-aos="fade">
           <div class="image">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus"
@@ -173,9 +176,9 @@
     <span class="section gap"></span>
 
   <!-- Escuela en casa -->
-    <div class="section">
+    <div class="section" data-aos="fade">
       <div class="content">
-        <div class="centered-content homeschool">
+        <div class="centered-content homeschool" data-aos="fade">
           <div class="card image-card right">
           <div class="image">
             <img src="assets/homeschool_kids.jpg?v=202407020130" />
@@ -195,31 +198,31 @@
     <span class="section gap"></span>
 
     <!-- Quick links-->
-    <div class="section base-color-bg accent-color-text">
+    <div class="section base-color-bg accent-color-text" data-aos="fade">
       <div class="content">
         <h1 class="centered-content">Explore también:</h1>
 
-        <div class="quick-links">
+        <div class="quick-links" data-aos="fade">
           <a href="">
-            <div class="card icon-card">
+            <div class="card icon-card" data-aos="fade">
               <img class="image" src="assets/icons/icons8-cinema-100.png?v=202407020130" />
               <div class="title">Servicios recientes</div>
             </div>
           </a>
           <a href="">
-            <div class="card icon-card">
+            <div class="card icon-card" data-aos="fade">
               <img class="image" src="assets/icons/icons8-holy-bible-100.png?v=202407020130" />
               <div class="title">Estudios bíblicos</div>
             </div>
           </a>
           <a href="">
-            <div class="card icon-card">
+            <div class="card icon-card" data-aos="fade">
               <img class="image" src="assets/icons/icons8-radio-100.png?v=202407020130" />
               <div class="title">Programación radial</div>
             </div>
           </a>
           <a href="">
-            <div class="card icon-card">
+            <div class="card icon-card" data-aos="fade">
               <img class="image" src="assets/icons/icons8-calendar-100.png?v=202407020130" />
               <div class="title">Calendario de eventos</div>
             </div>
@@ -232,7 +235,7 @@
     </div>
 
     <span class="section gap"></span>
-    <footer class="section">
+    <footer class="section" data-aos="fade">
       <div class="content">
         <div class="columns">
           <div class="column">
@@ -283,5 +286,8 @@
         </div>
       </div>
     </footer>
+    <script>
+      AOS.init();
+    </script>
   </body>
 </html>
