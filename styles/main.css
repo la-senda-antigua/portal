@@ -1,8 +1,8 @@
-@import "colors.css";
-@import "layout.css";
-@import "typography.css";
-@import "navigation.css";
-@import "cards.css";
+@import "colors.css?v=202407020130";
+@import "layout.css?v=202407020130";
+@import "typography.css?v=202407020130";
+@import "navigation.css?v=202407020130";
+@import "cards.css?v=202407020130";
 
 button {
   padding: 16px 24px;
