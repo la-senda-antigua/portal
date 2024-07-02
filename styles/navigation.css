@@ -84,6 +84,10 @@ nav .index-nav a {
   font-size: var(--fs-lg);
 }
 
+.animated-nav {
+  margin-bottom: 16px;
+}
+
 .animated-nav > a {
   border-bottom: 2px solid transparent;
 }
