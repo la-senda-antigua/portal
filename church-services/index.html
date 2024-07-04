@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Servicios Recientes</title>
+
+    <!-- COMMON FOR EACH PAGE: -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link rel="stylesheet" type="text/css" href="../styles/aos.css" />
+
+    <link rel="stylesheet" type="text/css" href="../styles/main.css?v=202407020130" />
+    <link rel="icon" type="image/png" href="../assets/favicons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="../assets/favicons/favicon-180.png" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+
+    <script src="../scripts/navigation.js"></script>
+    <script src="../scripts/aos.js"></script>
+
+    <!-- END - COMMON FOR EACH PAGE -->
+
+    <!-- SPECIFIC FOR THIS PAGE: -->
+    <link rel="stylesheet" type="text/css" href="chuch-services.css?v=202406032040" />
+</head>
+
+<body>
+    <header class="section">
+        <div class="content">
+            <nav id="menu-closed">
+                <div class="index-nav">
+                    <a href="#">La Senda Antigua</a>
+                    <button class="open-menu material-symbols-outlined" onclick="toggleNavigation()">
+                        drag_handle
+                    </button>
+                </div>
+            </nav>
+            <nav id="menu-opened">
+                <div class="index-nav">
+                    <a href="/">La Senda Antigua</a>
+                    <button class="close-menu material-symbols-outlined" onclick="toggleNavigation()">
+                        close
+                    </button>
+                </div>
+                <ul>
+                    <li class="animated-nav" id="iglesia-local-trigger">
+                        <a href="#">Iglesia local</a>
+                        <ul class="nav-menu" id="iglesia-local-menu">
+                            <li><a href="/church-services">Servicios recientes</a></li>
+                            <li><a href="">Enseñanzas básicas</a></li>
+                            <li><a href="">Pastor y su esposa</a></li>
+                            <li><a href="">Credo doctrinal</a></li>
+                        </ul>
+                    </li>
+                    <li class="animated-nav" id="ministerios-trigger">
+                        <a href="#">Ministerios</a>
+                        <ul class="nav-menu" id="ministerios-menu">
+                            <li><a href="">Memorización bíblica</a></li>
+                            <li><a href="">Obra misionera</a></li>
+                            <li><a href="">Ministerio de jóvenes</a></li>
+                            <li><a href="">Ministerio de niños</a></li>
+                            <li><a href="">Escuela en casa</a></li>
+                            <li><a href="">Evangelismo</a></li>
+                            <li><a href="">Coro y orquesta</a></li>
+                        </ul>
+                    </li>
+                    <li class="animated-nav"><a href="">Radio</a></li>
+                    <li class="animated-nav"><a href="">Contáctenos</a></li>
+                </ul>
+                <button class="accent">contribuir</button>
+            </nav>
+
+        </div>
+    </header>
+
+    <div class="section">
+        <div class="content">
+          <div class="card simple-card centered-content">
+            <div data-aos="fade" class="title">Servicios Recientes:</div>
+            <div data-aos="fade" class="text">
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                
+            </div>
+          </div>
+        </div>
+      </div>
+  
+
+    <footer class="section" data-aos="fade">
+        <div class="content">
+            <div class="columns">
+                <div class="column">
+                    <h3>Comuníquese</h3>
+                    <p>
+                        <span class="material-symbols-outlined">email</span>
+                        <a href="mailto:lasendaantigua.la@gmail.com">lasendaantigua.la@gmail.com</a>
+                    </p>
+                    <p>
+                        <span class="material-symbols-outlined">phone</span>
+                        <a href="tel:+16268081237">+1 (626)808-1237</a>
+                    </p>
+                </div>
+                <div class="column">
+                    <h3>Comentarios:</h3>
+                    <p>
+                        <span class="material-symbols-outlined">contact_support</span><a href="#">Contáctenos</a>
+                    </p>
+                </div>
+                <div class="column">
+                    <h3>Visite también</h3>
+                    <p>
+                        <a href="https://ministerioshebron.com" target="_blank">Ministerios Hebrón</a>
+                    </p>
+                    <p>
+                        <a href="https://www.colegiohebron.com/" target="_blank">Colegio Hebrón</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                &copy;
+
+                <script>
+                    document.write(new Date().getFullYear());
+                </script>
+
+                Todas las fotografías y videos son propiedad de Iglesia La Senda
+                Antigua. El uso de este material sin autorización es
+                estrictamente prohibido.
+            </div>
+        </div>
+    </footer>
+    <script>
+        AOS.init();
+    </script>
+</body>
+
+</html>
