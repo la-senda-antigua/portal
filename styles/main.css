@@ -1,0 +1,41 @@
+@import "colors.css?v=202407020130";
+@import "layout.css?v=202407020130";
+@import "typography.css?v=202407020130";
+@import "navigation.css?v=202407020300";
+@import "cards.css?v=202407020130";
+
+button {
+  padding: 16px 24px;
+  border: none;
+  font-family: "Noto Serif", serif;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  position: relative;
+}
+
+button:hover:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+button:active:after {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.accent {
+  background-color: var(--accent-color);
+  color: var(--accent-text-color);
+}
+
+.separator {
+  flex-grow: 10;
+}
+
+.centered-content {
+  margin: auto;
+}
