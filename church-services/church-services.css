@@ -1,0 +1,14 @@
+header::before {
+  background-image: none;
+}
+
+header {
+  /* background-image: url("../assets/pastor_preaching.jpeg"); */
+  height: 100px;
+}
+
+#menu-opened {
+  color: var(--base-color);
+  text-shadow: none;
+  font-weight: 400;
+}
