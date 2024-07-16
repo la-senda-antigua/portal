@@ -7,7 +7,7 @@ header {
   height: 100px;
 }
 
-#menu-opened {
+#menu-opened , .index-nav{
   color: var(--base-color);
   text-shadow: none;
   font-weight: 400;
