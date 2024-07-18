@@ -2,8 +2,7 @@ header::before {
   background-image: none;
 }
 
-header {
-  /* background-image: url("../assets/pastor_preaching.jpeg"); */
+header {  
   height: 100px;
 }
 
@@ -11,4 +10,17 @@ header {
   color: var(--base-color);
   text-shadow: none;
   font-weight: 400;
+}
+
+.nav-menu li {
+  display: block;
+  background-color: rgba(250, 250, 250, 0.8);
+  backdrop-filter: blur(15px);
+  padding: 4px 8px;
+}
+
+@media screen and (min-width: 935px) {
+  .section-title {
+    text-align: center;
+  } 
 }

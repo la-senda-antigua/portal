@@ -87,6 +87,31 @@
   justify-self: center;
 }
 
+
+.thumnail-card {
+  margin: 16px;
+  width: 400px;
+  text-align: center;
+}
+
+.thumnail-card .date{
+  font-size: var(--fs-sm);
+  line-height: var(--fs-xs);
+}
+.thumnail-card .title{
+  font-size: var(--fs-lg);
+  line-height: var(--fs-md);
+  font-weight: 400;
+}
+
+.thumnail-card .cover {
+  height: 220px;
+  width: 100%;
+  background-position: center !important;
+  background-size: 100% auto !important;
+  background-repeat: no-repeat !important;
+}
+
 @media screen and (min-width: 935px) {
   .image-card {
     grid-gap: 48px;
@@ -130,3 +155,5 @@
     text-align: justify;
   }
 }
+
+
