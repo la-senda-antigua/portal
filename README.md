@@ -135,3 +135,12 @@ Example:
 ```html
 <div class="content" data-aos="fade">...</div>
 ```
+
+> [!Note]
+> Include this script at the end of your page, before the body's end tag `</body>`.
+
+```html
+    <script>
+        AOS.init();
+    </script>
+```
