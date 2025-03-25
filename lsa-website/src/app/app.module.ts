@@ -1,28 +1,25 @@
-import { NgModule } from '@angular/core';
+import { inject, NgModule, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
+import { tap } from 'rxjs';
+import { AppConfigService } from './app-config.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { AppConfigService } from './app-config.service';
-import { lastValueFrom } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
 
 export function initializeApp(configService: AppConfigService) {
-  return () =>
-    lastValueFrom(configService.loadConfig()).then((config) =>
-      configService.initializeConfig(config)
-    );
+  return configService
+    .loadConfig()
+    .pipe(tap((config) => configService.initializeConfig(config)));
 }
 
-@NgModule({ declarations: [AppComponent],
-    bootstrap: [AppComponent], imports: [BrowserModule, AppRoutingModule], providers: [
-        AppConfigService,
-        {
-            provide: 'APP_INITIALIZER',
-            useFactory: initializeApp,
-            deps: [AppConfigService],
-            multi: true,
-        },
-        provideHttpClient(withInterceptorsFromDi()),
-    ] })
+@NgModule({
+  declarations: [AppComponent],
+  bootstrap: [AppComponent],
+  imports: [BrowserModule, AppRoutingModule],
+  providers: [
+    provideHttpClient(),
+    provideAppInitializer(() => initializeApp(inject(AppConfigService))),
+  ],
+})
 export class AppModule {}

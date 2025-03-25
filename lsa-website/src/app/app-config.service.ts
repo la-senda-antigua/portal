@@ -78,10 +78,42 @@ export class AppConfigService {
   constructor(private httpClient: HttpClient) {}
 
   initializeConfig(config: any) {
-    this.appConfig.set(config);
+    const _appConfig: AppConfig = {
+      title: config.title,
+      pages: []
+    }
+    for (const pageIndex in config.pages) {
+      if (Object.prototype.hasOwnProperty.call(config.pages, pageIndex)) {
+        const page = config.pages[pageIndex];
+        const _page: PageConfig = {
+          name: page.name,
+          title: page.title,
+          sections: []
+        }
+        for (const sectionIndex in page.sections) {
+          if (Object.prototype.hasOwnProperty.call(page.sections, sectionIndex)) {
+            const section = page.sections[sectionIndex];
+            const _section: SectionConfig = {
+              title: section.title,
+              name: section.name,
+              backgroundColor: section.backgroundColor,
+              backgroundImage: section.backgroundImage,
+              floatingDescription: section.floatingDescription,
+              descriptionBlock: section.descriptionBlock,
+              mapWidget: section.mapWidget,
+              imageCard: section.imageCard
+            }
+            _page.sections.push(_section);
+          }
+        }
+        _appConfig.pages.push(_page);
+      }
+    }
+    this.appConfig.set(_appConfig);
+    console.log(this.appConfig())
   }
 
   loadConfig() {
-    return this.httpClient.get<any>('/assets/config.json');
+    return this.httpClient.get<unknown>('/assets/app.config.json');
   }
 }
