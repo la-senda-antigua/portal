@@ -10,8 +10,10 @@
           "title": "Bienvenidos a Iglesia La Senda Antigua",
           "floating-description": {
             "position": "left",
-            "text-line-1": "Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
-            "text-line-2": "Jeremías 6:16"
+            "description-block":{
+              "line-1": "Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
+              "line-2": "Jeremías 6:16"
+            }
           },
           "background-image": "assets/images/home-header.jpg"
         },
@@ -38,12 +40,12 @@
               "title": "Nuestra ubicación",
               "subtitle": "Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.",
               "table": {
-                "table-1-1": "Domingos, 9:00 a.m. - 9:50 a.m.",
-                "table-1-2": "Estudio bíblico",
-                "table-2-1": "Domingos, 10:30 a.m. - 1:00 p.m.",
-                "table-2-2": "Servicio general",
-                "table-3-1": "Martes, 7:30 p.m. - 9:00 p.m.",
-                "table-3-2": "Servicio general"
+                "cell-1-1": "Domingos, 9:00 a.m. - 9:50 a.m.",
+                "cell-1-2": "Estudio bíblico",
+                "cell-2-1": "Domingos, 10:30 a.m. - 1:00 p.m.",
+                "cell-2-2": "Servicio general",
+                "cell-3-1": "Martes, 7:30 p.m. - 9:00 p.m.",
+                "cell-3-2": "Servicio general"
               }
             }
           },

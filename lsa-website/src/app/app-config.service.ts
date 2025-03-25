@@ -1,73 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { signal } from '@angular/core';
-
-export interface ButtonConfig {
-  alignment: 'left' | 'center' | 'right';
-  text: string;
-  link: string;
-  type: 'primary' | 'secondary';
-}
-
-export interface DescriptionBlockConfig {
-  line1: string;
-  line2?: string;
-  line3?: string;
-  line4?: string;
-  line5?: string;
-  button?: ButtonConfig;
-}
-
-export interface MapWidgetTableConfig {
-  cell11: string;
-  cell12: string;
-  cell21: string;
-  cell22: string;
-  cell31: string;
-  cell32: string;
-}
-
-export interface MapWidgetConfig {
-  src: string;
-  title?: string;
-  subtitle?: string;
-  table?: MapWidgetTableConfig;
-}
-
-export interface ImageCardConfig {
-  title: string;
-  image: string;
-  description: DescriptionBlockConfig;
-}
-
-export interface FloatingDescriptionConfig {
-  textLine1: string;
-  textLine2?: string;
-  button: ButtonConfig;
-  position: 'left' | 'right';
-}
-
-export interface SectionConfig {
-  title: string;
-  name: string;
-  backgroundColor?: string;
-  backgroundImage?: string;
-  floatingDescription?: FloatingDescriptionConfig;
-  descriptionBlock?: DescriptionBlockConfig;
-  mapWidget?: MapWidgetConfig;
-  imageCard?: ImageCardConfig;
-}
-
-export interface PageConfig {
-  name: string;
-  title: string;
-  sections: SectionConfig[];
-}
-
-export interface AppConfig {
-  title: string;
-  pages: PageConfig[];
-}
+import { AppConfig, PageConfig, SectionConfig, FloatingDescriptionConfig, DescriptionBlockConfig, MapWidgetConfig, MapWidgetTableConfig, ImageCardConfig } from './models/app.config.models';
 
 @Injectable({
   providedIn: 'root',
@@ -78,42 +12,109 @@ export class AppConfigService {
   constructor(private httpClient: HttpClient) {}
 
   initializeConfig(config: any) {
-    const _appConfig: AppConfig = {
-      title: config.title,
-      pages: []
-    }
-    for (const pageIndex in config.pages) {
-      if (Object.prototype.hasOwnProperty.call(config.pages, pageIndex)) {
-        const page = config.pages[pageIndex];
-        const _page: PageConfig = {
-          name: page.name,
-          title: page.title,
-          sections: []
-        }
-        for (const sectionIndex in page.sections) {
-          if (Object.prototype.hasOwnProperty.call(page.sections, sectionIndex)) {
-            const section = page.sections[sectionIndex];
-            const _section: SectionConfig = {
-              title: section.title,
-              name: section.name,
-              backgroundColor: section.backgroundColor,
-              backgroundImage: section.backgroundImage,
-              floatingDescription: section.floatingDescription,
-              descriptionBlock: section.descriptionBlock,
-              mapWidget: section.mapWidget,
-              imageCard: section.imageCard
-            }
-            _page.sections.push(_section);
-          }
-        }
-        _appConfig.pages.push(_page);
-      }
-    }
+    const _appConfig = this.parseConfig(config);
     this.appConfig.set(_appConfig);
-    console.log(this.appConfig())
+    console.log(this.appConfig());
   }
 
   loadConfig() {
     return this.httpClient.get<unknown>('/assets/app.config.json');
+  }
+
+  private parseConfig(config: any): AppConfig {
+    return {
+      title: config.title,
+      pages: config.pages.map(this.parseConfigPage.bind(this)),
+    };
+  }
+
+  private parseConfigPage(page: any): PageConfig {
+    return {
+      name: page.name,
+      title: page.title,
+      sections: page.sections.map(this.parseConfigSection.bind(this)),
+    };
+  }
+
+  private parseConfigSection(section: any): SectionConfig {
+    return {
+      title: section.title,
+      name: section.name,
+      backgroundColor: section['background-color'],
+      backgroundImage: section['background-image'],
+      floatingDescription: this.parseFloatingDescription(
+        section['floating-description']
+      ),
+      descriptionBlock: this.parseDescriptionBlock(
+        section['description-block']
+      ),
+      mapWidget: this.parseMapWidget(section['map-widget']),
+      imageCard: this.parseImageCard(section['image-card']),
+    };
+  }
+
+  private parseFloatingDescription(
+    floatingDescription: any
+  ): FloatingDescriptionConfig {
+    if(!floatingDescription) {
+      return {} as FloatingDescriptionConfig;
+    }
+    return {
+      descriptionBlock: this.parseDescriptionBlock(
+        floatingDescription['description-block']
+      ),
+      position: floatingDescription.position,
+    };
+  }
+
+  private parseDescriptionBlock(descriptionBlock: any): DescriptionBlockConfig {
+    if(!descriptionBlock) {
+      return {} as DescriptionBlockConfig;
+    }
+    return {
+      line1: descriptionBlock['line-1'],
+      line2: descriptionBlock['line-2'],
+      line3: descriptionBlock['line-3'],
+      line4: descriptionBlock['line-4'],
+      line5: descriptionBlock['line-5'],
+      button: descriptionBlock.button,
+    };
+  }
+
+  private parseMapWidget(mapWidget: any): MapWidgetConfig {
+    if(!mapWidget) {
+      return {} as MapWidgetConfig;
+    }
+    return {
+      src: mapWidget.src,
+      title: mapWidget.title,
+      subtitle: mapWidget.subtitle,
+      table: this.parseMapWidgetTable(mapWidget.table),
+    };
+  }
+
+  private parseMapWidgetTable(mapWidgetTable: any): MapWidgetTableConfig {
+    if(!mapWidgetTable) {
+      return {} as MapWidgetTableConfig;
+    }
+    return {
+      cell11: mapWidgetTable['cell-1-1'],
+      cell12: mapWidgetTable['cell-1-2'],
+      cell21: mapWidgetTable['cell-2-1'],
+      cell22: mapWidgetTable['cell-2-2'],
+      cell31: mapWidgetTable['cell-3-1'],
+      cell32: mapWidgetTable['cell-3-2'],
+    };
+  }
+
+  private parseImageCard(imageCard: any): ImageCardConfig {
+    if(!imageCard) {
+      return {} as ImageCardConfig;
+    }
+    return {
+      title: imageCard.title,
+      image: imageCard.image,
+      description: this.parseDescriptionBlock(imageCard.description),
+    };
   }
 }
