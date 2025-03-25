@@ -73,11 +73,12 @@ export interface AppConfig {
   providedIn: 'root',
 })
 export class AppConfigService {
-  readonly appConfig = signal<AppConfig>();
+  readonly appConfig = signal<AppConfig | undefined>(undefined);
 
   constructor(private httpClient: HttpClient) {}
 
   initializeConfig(config: any) {
+    this.appConfig.set(config);
   }
 
   loadConfig() {
