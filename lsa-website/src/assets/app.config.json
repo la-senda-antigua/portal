@@ -1,0 +1,71 @@
+{
+  "title": "La Senda Antigua",
+  "pages": [
+    {
+      "name": "home",
+      "title": "Bienvenidos",
+      "sections": [
+        {
+          "name": "header",
+          "title": "Bienvenidos a Iglesia La Senda Antigua",
+          "floating-description": {
+            "position": "left",
+            "text-line-1": "Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
+            "text-line-2": "Jeremías 6:16"
+          },
+          "background-image": "assets/images/home-header.jpg"
+        },
+        {
+          "name": "section-1",
+          "title": "Acerca de nosotros:",
+          "description-block": {
+            "line-1": "Iglesia La Senda Antigua le saluda. Somos una congregación de cristianos que está buscando vivir a la luz del camino antiguo, como lo denota Jeremías 6:16, donde se le exhorta al pueblo de Dios a que pregunte por las sendas antiguas.",
+            "line-2": "Al mencionar las sendas antiguas, nos referimos a los principios bíblicos que ministraron los apóstoles y los padres espirituales de la fe.",
+            "line-3": "Nuestro deseo es poder responder al Señor, atender a su instrucción de mirar atentamente a los caminos de nuestros antepasados y preguntar en la historia cristiana, cuál es el Camino de Dios y seguirlo.",
+            "line-4": "Únase con nosotros mientras adoramos y ministramos a nuestro Maravilloso Salvador y aprendamos juntos el Camino que Dios ha trazado ¡de la tierra a la Gloria!"
+          },
+          "background-color": "#f5f5f5"
+        },
+        {
+          "name": "section-2",
+          "background-color": "rgb(220, 217, 208)"
+        },
+        {
+          "name": "section-3",
+          "map-widget": {
+            "src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus",
+            "legend": {
+              "title": "Nuestra ubicación",
+              "subtitle": "Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.",
+              "table": {
+                "table-1-1": "Domingos, 9:00 a.m. - 9:50 a.m.",
+                "table-1-2": "Estudio bíblico",
+                "table-2-1": "Domingos, 10:30 a.m. - 1:00 p.m.",
+                "table-2-2": "Servicio general",
+                "table-3-1": "Martes, 7:30 p.m. - 9:00 p.m.",
+                "table-3-2": "Servicio general"
+              }
+            }
+          },
+          "background-color": "#f5f5f5"
+        },
+        {
+          "name": "section-4",
+          "image-card": {
+            "title": "Escuela en casa",
+            "description": {
+              "line-1": "En Iglesia La Senda Antigua, creemos que los padres son quienes han sido encomendados por Dios a educar a sus hijos.",
+              "line-2": "Hoy día, los hijos pasan la mayor parte de su tiempo en las escuelas y colegios, en donde son instruidos, no solamente por sus maestros, sino también por sus compañeros... ¡y hemos visto los desastrosos resultados!",
+              "line-4": "Pero ese no es el plan de Dios para nuestras familias.",
+              "button": {
+                "text": "Leer más...",
+                "link": "/homeschool"
+              }
+            },
+            "image": "assets/images/homeschool.jpg"
+          }
+        }
+      ]
+    }
+  ]
+}

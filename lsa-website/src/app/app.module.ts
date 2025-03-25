@@ -3,16 +3,29 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { HttpClientModule } from '@angular/common/http';
+import { AppConfigService } from './app-config.service';
+import { lastValueFrom } from 'rxjs';
+
+export function initializeApp(configService: AppConfigService) {
+  return () =>
+    lastValueFrom(configService.loadConfig()).then((config) =>
+      configService.initializeConfig(config)
+    );
+}
 
 @NgModule({
-  declarations: [
-    AppComponent
+  declarations: [AppComponent],
+  imports: [BrowserModule, AppRoutingModule, HttpClientModule],
+  providers: [
+    AppConfigService,
+    {
+      provide: 'APP_INITIALIZER',
+      useFactory: initializeApp,
+      deps: [AppConfigService],
+      multi: true,
+    },
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
