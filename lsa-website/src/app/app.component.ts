@@ -9,7 +9,5 @@ import { Title } from '@angular/platform-browser';
     standalone: false
 })
 export class AppComponent {
-  title = 'La Senda Antigua';
-
-  constructor(httpClient: HttpClient, titleService: Title) {}
+  
 }

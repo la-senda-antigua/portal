@@ -1,7 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { signal } from '@angular/core';
-import { AppConfig, PageConfig, SectionConfig, FloatingDescriptionConfig, DescriptionBlockConfig, MapWidgetConfig, MapWidgetTableConfig, ImageCardConfig } from './models/app.config.models';
+import {
+  AppConfig,
+  PageConfig,
+  SectionConfig,
+  FloatingDescriptionConfig,
+  DescriptionBlockConfig,
+  MapWidgetConfig,
+  MapWidgetTableConfig,
+  ImageCardConfig,
+} from '../models/app.config.models';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +23,6 @@ export class AppConfigService {
   initializeConfig(config: any) {
     const _appConfig = this.parseConfig(config);
     this.appConfig.set(_appConfig);
-    console.log(this.appConfig());
   }
 
   loadConfig() {
@@ -56,7 +64,7 @@ export class AppConfigService {
   private parseFloatingDescription(
     floatingDescription: any
   ): FloatingDescriptionConfig {
-    if(!floatingDescription) {
+    if (!floatingDescription) {
       return {} as FloatingDescriptionConfig;
     }
     return {
@@ -68,7 +76,7 @@ export class AppConfigService {
   }
 
   private parseDescriptionBlock(descriptionBlock: any): DescriptionBlockConfig {
-    if(!descriptionBlock) {
+    if (!descriptionBlock) {
       return {} as DescriptionBlockConfig;
     }
     return {
@@ -82,7 +90,7 @@ export class AppConfigService {
   }
 
   private parseMapWidget(mapWidget: any): MapWidgetConfig {
-    if(!mapWidget) {
+    if (!mapWidget) {
       return {} as MapWidgetConfig;
     }
     return {
@@ -94,7 +102,7 @@ export class AppConfigService {
   }
 
   private parseMapWidgetTable(mapWidgetTable: any): MapWidgetTableConfig {
-    if(!mapWidgetTable) {
+    if (!mapWidgetTable) {
       return {} as MapWidgetTableConfig;
     }
     return {
@@ -108,7 +116,7 @@ export class AppConfigService {
   }
 
   private parseImageCard(imageCard: any): ImageCardConfig {
-    if(!imageCard) {
+    if (!imageCard) {
       return {} as ImageCardConfig;
     }
     return {

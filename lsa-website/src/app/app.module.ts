@@ -2,10 +2,10 @@ import { inject, NgModule, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { tap } from 'rxjs';
-import { AppConfigService } from './app-config.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideHttpClient } from '@angular/common/http';
+import { AppConfigService } from './app-config/app-config.service';
 
 export function initializeApp(configService: AppConfigService) {
   return configService
