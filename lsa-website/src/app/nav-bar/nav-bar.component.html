@@ -1,0 +1,7 @@
+<mat-toolbar class="lsa-navigation-bar">
+  <a [routerLink]="link" class="title">{{ title }}</a>
+  @for (option of options; track option) {
+  <a [routerLink]="option.link" class="option">{{ option.text }}</a>
+  } @if(button){
+  <button mat-button>{{ button.text }}</button>}
+</mat-toolbar>

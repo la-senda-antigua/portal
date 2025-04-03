@@ -1,20 +1,51 @@
-
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
-@use '@angular/material' as mat;
-@use './app/color_palettes/algae_peach_colors.scss' as algae-peach;
+@use "@angular/material" as mat;
+@use "./app/color_palettes/algae_peach_colors" as algae-peach;
+@use "./styles_variables" as var;
 
 html {
-  @include mat.theme((
-    color: (
-      theme-type: light,
-      primary: algae-peach.$primary-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: "Noto Serif",
-    density: 0,
-  ));
-}/* You can add global styles to this file, and also import other style files */
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: algae-peach.$primary-palette,
+        tertiary: algae-peach.$tertiary-palette,
+      ),
+      typography: (
+        plain-family: "Helvetica Neue",
+        brand-family: "Noto Serif",
+        bold-weight: 900,
+        medium-weight: 500,
+        regular-weight: 300,
+      ),
+      density: 0,
+    )
+  );
+} /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: "Noto Serif", "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+  margin: 0;
+  font-family: "Noto Serif", "Helvetica Neue", sans-serif;
+  font-weight: 300;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 300;
+}
+
+h1 {
+  font-size: var.$fs-xxxl;
+}
+
+h2 {
+  font-size: var.$fs-xxl;
+}
+
+h3 {
+  font-size: var.$fs-xl;
+}

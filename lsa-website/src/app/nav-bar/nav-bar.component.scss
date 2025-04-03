@@ -1,0 +1,23 @@
+@use "../../styles_variables" as var;
+
+.lsa-navigation-bar {
+  //   background: none;
+  background: var(--mat-sys-secondary); // TODO set to none
+  text-shadow: black 1px 1px 5px;
+
+  a {
+    text-decoration: none;
+    color: var(--mat-sys-on-secondary);
+  }
+}
+
+.title {
+  font-size: var.$fs-xxl;
+  padding-right: 24px;
+}
+
+.option{
+    font-size: var.$fs-sm;
+    padding-right: 24px;
+    cursor: pointer;
+}
