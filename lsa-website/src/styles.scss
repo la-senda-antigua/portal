@@ -2,12 +2,13 @@
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
+@use './app/color_palettes/algae_peach_colors.scss' as algae-peach;
 
 html {
   @include mat.theme((
     color: (
       theme-type: light,
-      primary: mat.$azure-palette,
+      primary: algae-peach.$primary-palette,
       tertiary: mat.$blue-palette,
     ),
     typography: "Noto Serif",
