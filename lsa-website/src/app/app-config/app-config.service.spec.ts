@@ -5,7 +5,15 @@ import { AppConfigService } from './app-config.service';
 
 const mockConfig = {
   title: 'this is a mock',
-  pages: [{ name: 'home', title: 'home page', sections: [] }, {}],
+  pages: [
+    {
+      name: 'home', title: 'home page',
+      sections: [
+        {
+          title: 'section1', name: 'name section1',
+        }
+      ]
+    }, {}],
   themes: {},
   selectedTheme: 1,
 };
@@ -42,42 +50,27 @@ fdescribe('AppConfigService', () => {
     });
   });
 
-  // it('should parse configuration page correctly', () => {
-  //     const mockPage = {
-  //         name: 'about',
-  //         title: 'About Us',
-  //         sections: [],
-  //     };
+  it('should parse section correctly', () => {
+    const section = mockConfig.pages[0].sections![0]
+    const parsedPage = (service as any).parseConfigSection(section);
+    expect(parsedPage.title).toBe('section1');
+    expect(parsedPage.name).toBe('name section1');
+  });
 
-  //     const parsedPage = (service as any).parseConfigPage(mockPage);
-  //     expect(parsedPage.name).toBe('about');
-  //     expect(parsedPage.title).toBe('About Us');
-  //     expect(parsedPage.sections).toEqual([]);
-  // });
+  it('should parse page correctly', () => {
+    const page = mockConfig.pages[0]
+    const parsedPage = (service as any).parseConfigPage(page);
+    expect(parsedPage.title).toBe('home page');
+    expect(parsedPage.name).toBe('home');
+    expect(parsedPage.sections.length).toBe(1);
+  });
 
-  // it('should parse configuration section correctly', () => {
-  //     const mockSection = {
-  //         title: 'Section 1',
-  //         name: 'section1',
-  //         'background-color': '#fff',
-  //         'background-image': 'image.jpg',
-  //         'floating-description': null,
-  //         'description-block': null,
-  //         'map-widget': null,
-  //         'image-card': null,
-  //     };
 
-  //     const parsedSection = (service as any).parseConfigSection(mockSection);
-  //     expect(parsedSection.title).toBe('Section 1');
-  //     expect(parsedSection.name).toBe('section1');
-  //     expect(parsedSection.backgroundColor).toBe('#fff');
-  //     expect(parsedSection.backgroundImage).toBe('image.jpg');
-  // });
 
-  // it('should handle missing optional fields in parseFloatingDescription', () => {
-  //     const parsedFloatingDescription = (service as any).parseFloatingDescription(null);
-  //     expect(parsedFloatingDescription).toEqual({});
-  // });
+  it('should handle missing optional fields in parseFloatingDescription', () => {
+      const parsedFloatingDescription = (service as any).parseFloatingDescription(null);
+      expect(parsedFloatingDescription).toEqual({});
+  });
 
   // it('should handle missing optional fields in parseDescriptionBlock', () => {
   //     const parsedDescriptionBlock = (service as any).parseDescriptionBlock(null);
