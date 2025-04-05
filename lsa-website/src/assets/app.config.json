@@ -85,8 +85,18 @@
           },
           {
             "index": 2,
-            "text": "Enseñanzas básicas",
+            "text": "Enseñanzas de fundamentos",
             "link": "/fundamentals"
+          },
+          {
+            "index": 3,
+            "text": "Pastor y su esposa",
+            "link": "/pastor"
+          },
+          {
+            "index": 4,
+            "text": "Credo doctrinal",
+            "link": "/doctrine"
           }
         ]
       },
@@ -95,7 +105,11 @@
         "text": "Ministerios",
         "options": [
           { "index": 1, "text": "Memorización bíblica", "link": "/bq" },
-          { "index": 2, "text": "Obra misionera", "link": "/missions" }
+          { "index": 2, "text": "Obra misionera", "link": "/missions" },
+          { "index": 3, "text": "Ministerio de música", "link": "/music" },
+          { "index": 4, "text": "Ministerio de jóvenes", "link": "/youth" },
+          { "index": 5, "text": "Ministerio de niños", "link": "/children" },
+          { "index": 6, "text": "Escuela en casa", "link": "/homeschool"}
         ]
       },
       {
