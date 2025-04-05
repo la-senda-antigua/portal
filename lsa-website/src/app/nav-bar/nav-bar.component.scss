@@ -29,7 +29,8 @@ a {
   padding: 6px 12px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  &:hover {
+  &:hover,
+  &.active {
     border-bottom: 2px solid var(--mat-sys-primary);
   }
 }
@@ -38,4 +39,28 @@ a {
   text-shadow: none;
 }
 
+.nav-hamburger-button {
+  span {
+    display: flex;
+    font-size: var.$fs-xxxl;
+  }
 
+  @include mat.button-overrides(
+    (
+      filled-label-text-size: var.$fs-xxxl,
+      filled-label-text-weight: 300,
+    )
+  );
+}
+
+.nav-hamburger-icon {
+  font-variation-settings: "FILL" 0, "wght" 100, "GRAD" -25, "wdth" 24;
+  height: 40px;
+  width: 40px;
+  font-size: 40px;
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-on-secondary),
+    )
+  );
+}

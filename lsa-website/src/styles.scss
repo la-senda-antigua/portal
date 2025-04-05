@@ -61,12 +61,16 @@ h3 {
 }
 
 .nav-menu {
+  .menu-item{
+    min-height: 40px;
+  }
   @include mat.menu-overrides(
     (
       item-label-text-color: var(--mat-sys-on-secondary),
       container-color: transparent,
       container-elevation-shadow: 0,
-      item-label-text-weight: 300,
+      item-label-text-weight: 400,
+      item-leading-spacing: 6px
     )
   );
 }
