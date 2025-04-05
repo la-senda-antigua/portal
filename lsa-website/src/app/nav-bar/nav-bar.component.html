@@ -1,7 +1,21 @@
 <mat-toolbar class="lsa-navigation-bar">
   <a [routerLink]="link" class="title">{{ title }}</a>
-  @for (option of options; track option) {
-  <a [routerLink]="option.link" class="option">{{ option.text }}</a>
-  } @if(button){
-  <button mat-button>{{ button.text }}</button>}
+  @for (option of options; track option) { 
+    @if(option.options){
+      <mat-menu class="nav-menu" #menu="matMenu">
+        @for (menuOption of option.options; track menuOption) {
+          <a mat-menu-item [routerLink]="menuOption.link">{{ menuOption.text }}</a>
+        }
+      </mat-menu>
+      <a [matMenuTriggerFor]="menu" class="option">{{ option.text }}</a>
+    } @else{
+      <a [routerLink]="option.link" class="option">{{ option.text }}</a>
+    } 
+  }
+  <span class="spacer"></span>
+  @if(button){
+    <a [routerLink]="button.link" mat-flat-button class="donate-button">
+      {{ button.text }}
+    </a>
+  }
 </mat-toolbar>

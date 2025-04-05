@@ -85,7 +85,7 @@
           },
           {
             "index": 2,
-            "text": "Ense&#xf1;anzas básicas",
+            "text": "Enseñanzas básicas",
             "link": "/fundamentals"
           }
         ]
@@ -102,6 +102,11 @@
         "index": 3,
         "text": "Radio",
         "link": "/radio"
+      },
+      {
+        "index": 4,
+        "text": "Contáctenos",
+        "link": "/contact"
       }
     ],
     "button": {

@@ -1,23 +1,41 @@
 @use "../../styles_variables" as var;
+@use "@angular/material" as mat;
+
+@mixin anchor-common-styles {
+  text-decoration: none;
+  color: var(--mat-sys-on-secondary);
+  text-shadow: black 1px 1px 5px;
+}
 
 .lsa-navigation-bar {
-  //   background: none;
-  background: var(--mat-sys-secondary); // TODO set to none
-  text-shadow: black 1px 1px 5px;
+  background: none;
+}
 
-  a {
-    text-decoration: none;
-    color: var(--mat-sys-on-secondary);
-  }
+a {
+  @include anchor-common-styles;
+}
+
+.spacer {
+  flex: 1;
 }
 
 .title {
   font-size: var.$fs-xxl;
-  padding-right: 24px;
+  padding: 0 24px;
 }
 
-.option{
-    font-size: var.$fs-sm;
-    padding-right: 24px;
-    cursor: pointer;
+.option {
+  font-size: var.$fs-sm;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  &:hover {
+    border-bottom: 2px solid var(--mat-sys-primary);
+  }
 }
+
+.donate-button {
+  text-shadow: none;
+}
+
+

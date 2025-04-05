@@ -62,7 +62,7 @@ export interface NavigationOption {
   index: number;
   text: string;
   link?: string;
-  menu?: NavigationOption[];
+  options?: NavigationOption[];
 }
 
 export interface NavigationConfig {
