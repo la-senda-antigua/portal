@@ -15,7 +15,8 @@
               "line-2": "Jeremías 6:16"
             }
           },
-          "background-image": "assets/images/home-header.jpg"
+          "background-image": "assets/images/pastor_preaching_sepia.jpeg",
+          "background-color": "#3f4a49"
         },
         {
           "name": "section-1",
