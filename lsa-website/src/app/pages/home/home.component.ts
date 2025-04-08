@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { AppConfigService } from 'src/app/app-config.service';
+import { NavBarComponent } from "../../nav-bar/nav-bar.component";
 
 @Component({
     selector: 'lsa-home',
     standalone: true,
-    imports: [],
+    imports: [NavBarComponent],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
