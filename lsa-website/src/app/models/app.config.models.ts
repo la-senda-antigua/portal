@@ -58,7 +58,24 @@ export interface PageConfig {
   sections: SectionConfig[];
 }
 
+export interface NavigationOption {
+  index: number;
+  text: string;
+  link?: string;
+  options?: NavigationOption[];
+}
+
+export interface NavigationConfig {
+  title?: string;
+  button?: ButtonConfig;
+  options?: NavigationOption[];
+  index: number;
+  text: string;
+  link: string;
+}
+
 export interface AppConfig {
   title: string;
   pages: PageConfig[];
+  navigation: NavigationConfig;
 }

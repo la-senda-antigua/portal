@@ -1,6 +1,6 @@
 import { inject, NgModule, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { MatIconRegistry } from '@angular/material/icon';
 import { tap } from 'rxjs';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -22,4 +22,8 @@ export function initializeApp(configService: AppConfigService) {
     provideAppInitializer(() => initializeApp(inject(AppConfigService))),
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(iconRegistry: MatIconRegistry) {
+    iconRegistry.setDefaultFontSetClass('material-symbols-outlined');
+  }
+}

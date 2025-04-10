@@ -10,7 +10,8 @@ import {
   MapWidgetConfig,
   MapWidgetTableConfig,
   ImageCardConfig,
-} from '../models/app.config.models';
+  NavigationConfig,
+} from './models/app.config.models';
 
 @Injectable({
   providedIn: 'root',
@@ -33,6 +34,7 @@ export class AppConfigService {
     return {
       title: config.title,
       pages: config.pages.map(this.parseConfigPage.bind(this)),
+      navigation: this.parseNavigation(config.navigation),
     };
   }
 
@@ -124,5 +126,13 @@ export class AppConfigService {
       image: imageCard.image,
       description: this.parseDescriptionBlock(imageCard.description),
     };
+  }
+
+  private parseNavigation(navigation: any): NavigationConfig {
+    const config: NavigationConfig = {
+      ...navigation,
+      options: navigation.options?.map(this.parseNavigation.bind(this)),
+    };
+    return config;
   }
 }

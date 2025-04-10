@@ -1,0 +1,66 @@
+@use "../../styles_variables" as var;
+@use "@angular/material" as mat;
+
+@mixin anchor-common-styles {
+  text-decoration: none;
+  color: var(--mat-sys-on-secondary);
+  text-shadow: black 1px 1px 5px;
+}
+
+.lsa-navigation-bar {
+  background: none;
+}
+
+a {
+  @include anchor-common-styles;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.title {
+  font-size: var.$fs-xxl;
+  padding: 0 24px;
+}
+
+.option {
+  font-size: var.$fs-sm;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  &:hover,
+  &.active {
+    border-bottom: 2px solid var(--mat-sys-primary);
+  }
+}
+
+.donate-button {
+  text-shadow: none;
+}
+
+.nav-hamburger-button {
+  span {
+    display: flex;
+    font-size: var.$fs-xxxl;
+  }
+
+  @include mat.button-overrides(
+    (
+      filled-label-text-size: var.$fs-xxxl,
+      filled-label-text-weight: 300,
+    )
+  );
+}
+
+.nav-hamburger-icon {
+  font-variation-settings: "FILL" 0, "wght" 100, "GRAD" -25, "wdth" 24;
+  height: 40px;
+  width: 40px;
+  font-size: 40px;
+  @include mat.icon-overrides(
+    (
+      color: var(--mat-sys-on-secondary),
+    )
+  );
+}

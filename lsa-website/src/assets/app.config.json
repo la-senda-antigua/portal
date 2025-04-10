@@ -10,7 +10,7 @@
           "title": "Bienvenidos a Iglesia La Senda Antigua",
           "floating-description": {
             "position": "left",
-            "description-block":{
+            "description-block": {
               "line-1": "Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
               "line-2": "Jeremías 6:16"
             }
@@ -69,5 +69,63 @@
         }
       ]
     }
-  ]
+  ],
+  "navigation": {
+    "title": "La Senda Antigua",
+    "link": "/home",
+    "options": [
+      {
+        "index": 1,
+        "text": "Iglesia local",
+        "options": [
+          {
+            "index": 1,
+            "text": "Servicios recientes",
+            "link": "/churchservices"
+          },
+          {
+            "index": 2,
+            "text": "Enseñanzas de fundamentos",
+            "link": "/fundamentals"
+          },
+          {
+            "index": 3,
+            "text": "Pastor y su esposa",
+            "link": "/pastor"
+          },
+          {
+            "index": 4,
+            "text": "Credo doctrinal",
+            "link": "/doctrine"
+          }
+        ]
+      },
+      {
+        "index": 2,
+        "text": "Ministerios",
+        "options": [
+          { "index": 1, "text": "Memorización bíblica", "link": "/bq" },
+          { "index": 2, "text": "Obra misionera", "link": "/missions" },
+          { "index": 3, "text": "Ministerio de música", "link": "/music" },
+          { "index": 4, "text": "Ministerio de jóvenes", "link": "/youth" },
+          { "index": 5, "text": "Ministerio de niños", "link": "/children" },
+          { "index": 6, "text": "Escuela en casa", "link": "/homeschool"}
+        ]
+      },
+      {
+        "index": 3,
+        "text": "Radio",
+        "link": "/radio"
+      },
+      {
+        "index": 4,
+        "text": "Contáctenos",
+        "link": "/contact"
+      }
+    ],
+    "button": {
+      "text": "CONTRIBUIR",
+      "link": "/donate"
+    }
+  }
 }
