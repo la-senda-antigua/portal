@@ -11,7 +11,7 @@ import {
   MapWidgetTableConfig,
   ImageCardConfig,
   NavigationConfig,
-} from './models/app.config.models';
+} from '../models/app.config.models';
 
 @Injectable({
   providedIn: 'root',

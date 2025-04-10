@@ -4,7 +4,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import { AppConfigService } from '../app-config.service';
+import { AppConfigService } from '../app-config/app-config.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ButtonConfig, NavigationOption } from '../models/app.config.models';
 import { RouterLink } from '@angular/router';
