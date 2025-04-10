@@ -13,6 +13,33 @@
     }
     &-content {
       max-width: 1600px;
+      position: relative;
+      margin: 0 auto;
+      width: 100%;
+
+      .floating-description{
+        position: absolute;
+        padding: 0 16px;
+        bottom: 30px;
+        width: 500px;
+        text-shadow: black 1px 1px 5px;
+        .description-line{
+          position: relative;
+          line-height: 36px;
+        }
+        .quote{
+          font-size: 80px;
+          color: var(--mat-sys-primary);
+          position: relative;
+          top:27px;
+          margin-right: 6px;
+          line-height: 0;
+        }
+        .quote-ref{
+          font-style: italic;
+          line-height: 48px;
+        }
+      }
     }
     &-overlay{
         position: absolute;

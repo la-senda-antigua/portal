@@ -89,6 +89,8 @@ export class AppConfigService {
       line4: descriptionBlock['line-4'],
       line5: descriptionBlock['line-5'],
       button: descriptionBlock.button,
+      textColor: descriptionBlock['text-color'],
+      backgroundColor: descriptionBlock['background-color'],
     };
   }
 

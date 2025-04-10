@@ -12,6 +12,8 @@ export interface DescriptionBlockConfig {
   line4?: string;
   line5?: string;
   button?: ButtonConfig;
+  textColor?: string;
+  backgroundColor?: string;
 }
 
 export interface MapWidgetTableConfig {
