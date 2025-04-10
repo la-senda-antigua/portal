@@ -4,19 +4,80 @@ import { Observable, of } from 'rxjs';
 import { AppConfigService } from './app-config.service';
 
 const mockConfig = {
-  title: 'this is a mock',
-  pages: [
+  "title": "este es el título principal",
+  "pages": [
     {
-      name: 'home', title: 'home page',
-      sections: [
+      "name": "home",
+      "title": "este es el título de la página de inicio",
+      "sections": [
         {
-          title: 'section1', name: 'name section1',
+          "name": "header",
+          "title": "este es el título del encabezado",
+          "floating-description": {
+            "position": "left",
+            "description-block": {
+              "line-1": "este es el contenido de line-1",
+              "line-2": "este es el contenido de line-2"
+            }
+          },
+          "background-image": "assets/images/ejemplo-header.jpg"
+        },
+        {
+          "name": "section-1",
+          "title": "este es el título de la sección 1",
+          "description-block": {
+            "line-1": "este es el contenido de la sección 1, línea 1",
+            "line-2": "este es el contenido de la sección 1, línea 2"
+          },
+          "background-color": "#e0e0e0"
+        },
+        {
+          "name": "section-2",
+          "background-color": "rgb(200, 200, 200)"
         }
       ]
-    }, {}],
-  themes: {},
-  selectedTheme: 1,
+    }
+  ],
+  "navigation": {
+    "title": "este es el título de navegación",
+    "link": "/home",
+    "options": [
+      {
+        "index": 1,
+        "text": "este es el texto de la opción 1",
+        "options": [
+          {
+            "index": 1,
+            "text": "este es el texto de la subopción 1",
+            "link": "/suboption1"
+          },
+          {
+            "index": 2,
+            "text": "este es el texto de la subopción 2",
+            "link": "/suboption2"
+          }
+        ]
+      },
+      {
+        "index": 2,
+        "text": "este es el texto de la opción 2",
+        "options": [
+          { "index": 1, "text": "este es el texto de la subopción 1", "link": "/suboption3" }
+        ]
+      },
+      {
+        "index": 3,
+        "text": "este es el texto de la opción 3",
+        "link": "/contact"
+      }
+    ],
+    "button": {
+      "text": "este es el texto del botón",
+      "link": "/support"
+    }
+  }
 };
+
 
 fdescribe('AppConfigService', () => {
   let service: AppConfigService;
@@ -50,40 +111,60 @@ fdescribe('AppConfigService', () => {
     });
   });
 
-  it('should parse section correctly', () => {
-    const section = mockConfig.pages[0].sections![0]
-    const parsedPage = (service as any).parseConfigSection(section);
-    expect(parsedPage.title).toBe('section1');
-    expect(parsedPage.name).toBe('name section1');
+  it('should parse title correctly', () => {
+    service.initializeConfig(mockConfig);
+    const parsedSite = service.appConfig();
+    expect(parsedSite?.title).toBe('este es el título principal');
+  });
+  
+  it('should parse pages correctly', () => {
+    service.initializeConfig(mockConfig);
+    const parsedSite = service.appConfig();
+    expect(parsedSite?.pages).toBeDefined();
+    expect(parsedSite?.pages.length).toBe(1);
+    expect(parsedSite?.pages[0].name).toBe('home');
+    expect(parsedSite?.pages[0].title).toBe('este es el título de la página de inicio');
+  });
+  
+  it('should parse sections correctly', () => {
+    service.initializeConfig(mockConfig);
+    const parsedSite = service.appConfig();
+    const sections = parsedSite?.pages[0].sections;
+  
+    expect(sections).toBeDefined(); // Asegúrate de que sections no sea undefined
+    expect(sections?.length).toBe(3); // Cambiado a 3 según el mockConfig
+    expect(sections?.[0].title).toBe('este es el título del encabezado');
+    expect(sections?.[1].title).toBe('este es el título de la sección 1');
+    expect(sections?.[1].backgroundColor).toBe('#e0e0e0');
+  });
+  
+  it('should parse floating description correctly', () => {
+    service.initializeConfig(mockConfig);
+    const parsedSite = service.appConfig();
+    const floatingDescription = parsedSite?.pages[0].sections[0].floatingDescription;
+  
+    expect(floatingDescription).toBeDefined();
+    expect(floatingDescription?.position).toBe('left');
+    expect(floatingDescription?.descriptionBlock.line1).toBe('este es el contenido de line-1');
+  });
+  
+  it('should parse navigation correctly', () => {
+    service.initializeConfig(mockConfig);
+    const parsedSite = service.appConfig();
+    const navigation = parsedSite?.navigation;
+  
+    expect(navigation).toBeDefined(); // Asegúrate de que navigation no sea undefined
+    expect(navigation?.title).toBe('este es el título de navegación');
+    expect(navigation?.link).toBe('/home');
+  
+    const options = navigation?.options;
+    expect(options).toBeDefined(); // Asegúrate de que options no sea undefined
+    expect(options?.length).toBe(3); // Cambiado a 3 según el mockConfig
+    expect(options?.[0].text).toBe('este es el texto de la opción 1');
+    expect(options?.[1].text).toBe('este es el texto de la opción 2');
+    expect(options?.[2].text).toBe('este es el texto de la opción 3');
   });
 
-  it('should parse page correctly', () => {
-    const page = mockConfig.pages[0]
-    const parsedPage = (service as any).parseConfigPage(page);
-    expect(parsedPage.title).toBe('home page');
-    expect(parsedPage.name).toBe('home');
-    expect(parsedPage.sections.length).toBe(1);
-  });
 
 
-
-  it('should handle missing optional fields in parseFloatingDescription', () => {
-      const parsedFloatingDescription = (service as any).parseFloatingDescription(null);
-      expect(parsedFloatingDescription).toEqual({});
-  });
-
-  // it('should handle missing optional fields in parseDescriptionBlock', () => {
-  //     const parsedDescriptionBlock = (service as any).parseDescriptionBlock(null);
-  //     expect(parsedDescriptionBlock).toEqual({});
-  // });
-
-  // it('should handle missing optional fields in parseMapWidget', () => {
-  //     const parsedMapWidget = (service as any).parseMapWidget(null);
-  //     expect(parsedMapWidget).toEqual({});
-  // });
-
-  // it('should handle missing optional fields in parseImageCard', () => {
-  //     const parsedImageCard = (service as any).parseImageCard(null);
-  //     expect(parsedImageCard).toEqual({});
-  // });
 });
