@@ -9,6 +9,7 @@ import { AppConfigService } from 'src/app/app-config.service';
 import { HeaderComponent } from '../../components/header/header.component';
 import { PageConfig } from 'src/app/models/app.config.models';
 
+
 @Component({
   selector: 'lsa-home',
   standalone: true,

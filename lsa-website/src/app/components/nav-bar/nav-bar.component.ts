@@ -8,6 +8,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AppConfigService } from '../../app-config.service';
 import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
+import { CommonModule } from '@angular/common';
+import { map } from 'rxjs';
+import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
 
 @Component({
   selector: 'lsa-nav-bar',
@@ -18,6 +21,7 @@ import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
     MatMenuModule,
     RouterLink,
     CommonModule,
+    MobileMenuComponent
   ],
   templateUrl: './nav-bar.component.html',
   styleUrls: ['./nav-bar.component.scss'],
@@ -30,6 +34,7 @@ export class NavBarComponent {
 
   readonly activeOption = signal<NavigationOption | null>(null);
   readonly shouldHide = signal(false);
+  readonly showMobileMenu = signal(false)
 
   constructor(
     private configService: AppConfigService,
@@ -53,5 +58,9 @@ export class NavBarComponent {
       return;
     }
     this.activeOption.set(option);
+  }
+
+  toggleMobileMenu(){
+    this.showMobileMenu.set(!this.showMobileMenu())
   }
 }
