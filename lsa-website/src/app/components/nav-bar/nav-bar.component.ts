@@ -1,15 +1,13 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatMenuModule } from '@angular/material/menu';
-import { AppConfigService } from '../app-config/app-config.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ButtonConfig, NavigationOption } from '../models/app.config.models';
-import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { map } from 'rxjs';
+import { Component, effect, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink } from '@angular/router';
+import { AppConfigService } from '../../app-config.service';
+import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
 
 @Component({
   selector: 'lsa-nav-bar',
@@ -35,7 +33,7 @@ export class NavBarComponent {
 
   constructor(
     private configService: AppConfigService,
-    private breakpointObserver: BreakpointObserver
+    breakpointObserver: BreakpointObserver
   ) {
     breakpointObserver.observe('(max-width: 850px)').subscribe((state) => {
       this.shouldHide.set(state.matches);
