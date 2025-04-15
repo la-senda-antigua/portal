@@ -8,9 +8,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AppConfigService } from '../../app-config.service';
 import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
-import { CommonModule } from '@angular/common';
-import { map } from 'rxjs';
-import { MobileMenuComponent } from '../mobile-menu/mobile-menu.component';
+import { MobileMenuComponent } from 'src/app/mobile-menu/mobile-menu.component';
 
 @Component({
   selector: 'lsa-nav-bar',
