@@ -5,9 +5,8 @@ import {
   effect,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { AppConfigService } from 'src/app/app-config.service';
 import { HeaderComponent } from '../../components/header/header.component';
-import { PageConfig } from 'src/app/models/app.config.models';
+import { AppConfigService } from '../../app-config/app-config.service';
 
 @Component({
   selector: 'lsa-home',

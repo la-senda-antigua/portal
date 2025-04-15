@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
-import { AppConfigService } from '../../app-config.service';
 import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
+import { AppConfigService } from '../../app-config/app-config.service';
 
 @Component({
   selector: 'lsa-nav-bar',
