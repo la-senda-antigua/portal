@@ -7,6 +7,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideHttpClient } from '@angular/common/http';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MobileMenuComponent } from './components/mobile-menu/mobile-menu.component';
 
 export function initializeApp(configService: AppConfigService) {
   return configService
@@ -17,7 +19,13 @@ export function initializeApp(configService: AppConfigService) {
 @NgModule({
   declarations: [AppComponent],
   bootstrap: [AppComponent],
-  imports: [BrowserModule, AppRoutingModule, NavBarComponent],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    NavBarComponent,
+    MatSidenavModule,
+    MobileMenuComponent,
+  ],
   providers: [
     provideHttpClient(),
     provideAppInitializer(() => initializeApp(inject(AppConfigService))),

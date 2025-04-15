@@ -1,2 +1,9 @@
-<router-outlet></router-outlet>
-<lsa-nav-bar class="menu-toolbar"></lsa-nav-bar>
+<mat-drawer-container [hasBackdrop]="false">
+  <mat-drawer #mobileMenu [mode]="'over'">
+    <lsa-mobile-menu (close)="mobileMenu.toggle()"></lsa-mobile-menu>
+  </mat-drawer>
+  <mat-drawer-content>
+    <router-outlet></router-outlet>
+    <lsa-nav-bar class="menu-toolbar" (openMobileMenu)="mobileMenu.toggle()"></lsa-nav-bar>
+  </mat-drawer-content>
+</mat-drawer-container>

@@ -1,52 +1,56 @@
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, effect, output, signal } from '@angular/core';
+import { Component, effect, Input, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
-import { AppConfigService } from '../../app-config.service';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
+import { MatTreeModule } from '@angular/material/tree';
 import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { AppConfigService } from 'src/app/app-config.service';
 
 @Component({
-  selector: 'lsa-nav-bar',
+  selector: 'lsa-mobile-menu',
   imports: [
-    MatToolbarModule,
+    MatTreeModule,
     MatIconModule,
     MatButtonModule,
-    MatMenuModule,
     RouterLink,
     CommonModule,
+    MatToolbarModule
   ],
-  templateUrl: './nav-bar.component.html',
-  styleUrls: ['./nav-bar.component.scss'],
+  templateUrl: './mobile-menu.component.html',
+  styleUrl: './mobile-menu.component.scss',
 })
-export class NavBarComponent {
+export class MobileMenuComponent {
   title = '';
   homeLink = '/';
   button?: ButtonConfig;
   options: NavigationOption[] = [];
-
-  readonly openMobileMenu = output();
   readonly activeOption = signal<NavigationOption | null>(null);
-  readonly shouldHide = signal(false);
+  readonly close = output();
+  
+  treeControl = new NestedTreeControl<any>((node) => node.options);
+  dataSource = new MatTreeNestedDataSource<any>();
 
-  constructor(
-    private configService: AppConfigService,
-    breakpointObserver: BreakpointObserver
-  ) {
-    breakpointObserver.observe('(max-width: 850px)').subscribe((state) => {
-      this.shouldHide.set(state.matches);
-    });
+  constructor(private configService: AppConfigService) {
     effect(() => {
       const config = this.configService.appConfig()?.navigation;
       this.title = config?.title ?? '';
       this.homeLink = config?.link ?? '/';
       this.button = config?.button;
-      this.options = config?.options ?? [];
+      this.dataSource.data = config?.options ?? [];      
     });
   }
+
+
+  hasChild = (_: number, node: any) => {
+    console.log('checking node:', node.text, node.options);
+    return Array.isArray(node.options) && node.options.length > 0;
+  };
 
   setActiveOption(option?: NavigationOption) {
     if (!option) {
@@ -56,7 +60,4 @@ export class NavBarComponent {
     this.activeOption.set(option);
   }
 
-  toggleMobileMenu() {
-    this.openMobileMenu.emit();
-  }
 }
