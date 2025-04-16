@@ -1,0 +1,5 @@
+@for (section of pageConfig()?.sections; track $index) {
+    @if(section.name === 'header'){
+        <lsa-header [headerConfig]="section"></lsa-header>
+    }
+}
