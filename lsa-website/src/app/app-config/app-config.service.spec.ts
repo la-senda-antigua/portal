@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { AppConfigService } from './app-config.service';
 
 const mockConfig = {
@@ -78,7 +78,6 @@ const mockConfig = {
   }
 };
 
-
 fdescribe('AppConfigService', () => {
   let service: AppConfigService;
   let httpClient: HttpClient;
@@ -96,6 +95,7 @@ fdescribe('AppConfigService', () => {
     });
     service = TestBed.inject(AppConfigService);
     httpClient = TestBed.inject(HttpClient);
+    service.initializeConfig(mockConfig);
   });
 
   it('should be created', () => {
@@ -111,14 +111,12 @@ fdescribe('AppConfigService', () => {
     });
   });
 
-  it('should parse title correctly', () => {
-    service.initializeConfig(mockConfig);
+  it('should parse title correctly', () => {    
     const parsedSite = service.appConfig();
     expect(parsedSite?.title).toBe('este es el título principal');
   });
   
-  it('should parse pages correctly', () => {
-    service.initializeConfig(mockConfig);
+  it('should parse pages correctly', () => {    
     const parsedSite = service.appConfig();
     expect(parsedSite?.pages).toBeDefined();
     expect(parsedSite?.pages.length).toBe(1);
@@ -126,20 +124,18 @@ fdescribe('AppConfigService', () => {
     expect(parsedSite?.pages[0].title).toBe('este es el título de la página de inicio');
   });
   
-  it('should parse sections correctly', () => {
-    service.initializeConfig(mockConfig);
+  it('should parse sections correctly', () => {    
     const parsedSite = service.appConfig();
     const sections = parsedSite?.pages[0].sections;
   
-    expect(sections).toBeDefined(); // Asegúrate de que sections no sea undefined
-    expect(sections?.length).toBe(3); // Cambiado a 3 según el mockConfig
+    expect(sections).toBeDefined(); 
+    expect(sections?.length).toBe(3); 
     expect(sections?.[0].title).toBe('este es el título del encabezado');
     expect(sections?.[1].title).toBe('este es el título de la sección 1');
     expect(sections?.[1].backgroundColor).toBe('#e0e0e0');
   });
   
-  it('should parse floating description correctly', () => {
-    service.initializeConfig(mockConfig);
+  it('should parse floating description correctly', () => {    
     const parsedSite = service.appConfig();
     const floatingDescription = parsedSite?.pages[0].sections[0].floatingDescription;
   
@@ -148,18 +144,17 @@ fdescribe('AppConfigService', () => {
     expect(floatingDescription?.descriptionBlock.line1).toBe('este es el contenido de line-1');
   });
   
-  it('should parse navigation correctly', () => {
-    service.initializeConfig(mockConfig);
+  it('should parse navigation correctly', () => {    
     const parsedSite = service.appConfig();
     const navigation = parsedSite?.navigation;
   
-    expect(navigation).toBeDefined(); // Asegúrate de que navigation no sea undefined
+    expect(navigation).toBeDefined();
     expect(navigation?.title).toBe('este es el título de navegación');
     expect(navigation?.link).toBe('/home');
   
     const options = navigation?.options;
-    expect(options).toBeDefined(); // Asegúrate de que options no sea undefined
-    expect(options?.length).toBe(3); // Cambiado a 3 según el mockConfig
+    expect(options).toBeDefined(); 
+    expect(options?.length).toBe(3);
     expect(options?.[0].text).toBe('este es el texto de la opción 1');
     expect(options?.[1].text).toBe('este es el texto de la opción 2');
     expect(options?.[2].text).toBe('este es el texto de la opción 3');
