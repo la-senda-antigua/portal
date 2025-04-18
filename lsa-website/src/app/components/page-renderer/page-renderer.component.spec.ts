@@ -58,7 +58,7 @@ describe('PageRendererComponent', () => {
     expect(component.pageConfig()?.sections).not.toBeNull();
   });
 
-  it('should compute sections sorted with "header" first', () => {
+  it('should not include "header" in sections', () => {
     mockConfigService.appConfig.and.returnValue({
       title: '',
       navigation: { index: 1, text: '', link: '' },
@@ -76,9 +76,10 @@ describe('PageRendererComponent', () => {
     });
 
     const sections = component.sections()!;
-    expect(sections[0].name).toBe('header');
-    expect(sections[1].name).toBe('section-1');
-    expect(sections[2].name).toBe('section-2');
+    const header = sections.find((s) => s.name === 'header');
+    expect(header).toBeUndefined();
+    expect(sections[0].name).toBe('section-1');
+    expect(sections[1].name).toBe('section-2');
   });
 
   it('should set the page title using Title service', () => {

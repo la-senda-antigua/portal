@@ -46,7 +46,9 @@ export interface FloatingDescriptionConfig {
 export interface SectionConfig {
   title: string;
   name: string;
+  textAlign?: 'left' | 'center' | 'right';
   backgroundColor?: string;
+  textColor?: string;
   backgroundImage?: string;
   floatingDescription?: FloatingDescriptionConfig;
   descriptionBlock?: DescriptionBlockConfig;

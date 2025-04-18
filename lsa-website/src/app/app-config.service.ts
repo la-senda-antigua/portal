@@ -51,6 +51,8 @@ export class AppConfigService {
     return {
       title: section.title,
       name: section.name,
+      textAlign: section['text-align'],
+      textColor: section['text-color'],
       backgroundColor: section['background-color'],
       backgroundImage: section['background-image'],
       floatingDescription: this.parseFloatingDescription(
