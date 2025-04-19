@@ -32,7 +32,7 @@ html {
     )
   );
 
-  @include mat.sidenav-overrides((    
+  @include mat.sidenav-overrides((
     container-shape: 0,
     container-width: 100%
 
