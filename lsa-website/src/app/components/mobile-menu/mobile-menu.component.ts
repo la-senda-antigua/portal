@@ -1,16 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, Input, output, signal } from '@angular/core';
+import { Component, effect, output, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { RouterLink } from '@angular/router';
-import { NestedTreeControl } from '@angular/cdk/tree';
-import { MatTreeNestedDataSource } from '@angular/material/tree';
-import { MatTreeModule } from '@angular/material/tree';
-import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { AppConfigService } from 'src/app/app-config.service';
+import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
 
 @Component({
   selector: 'lsa-mobile-menu',
@@ -20,7 +16,7 @@ import { AppConfigService } from 'src/app/app-config.service';
     MatButtonModule,
     RouterLink,
     CommonModule,
-    MatToolbarModule
+    MatToolbarModule,
   ],
   templateUrl: './mobile-menu.component.html',
   styleUrl: './mobile-menu.component.scss',
@@ -32,9 +28,13 @@ export class MobileMenuComponent {
   options: NavigationOption[] = [];
   readonly activeOption = signal<NavigationOption | null>(null);
   readonly close = output();
-  
-  treeControl = new NestedTreeControl<any>((node) => node.options);
+
   dataSource = new MatTreeNestedDataSource<any>();
+  childrenAccessor = (node: any) => node.options ?? [];
+  hasChild = (_: number, node: any) => {
+    console.log('checking node:', node.text, node.options);
+    return Array.isArray(node.options) && node.options.length > 0;
+  };
 
   constructor(private configService: AppConfigService) {
     effect(() => {
@@ -42,15 +42,9 @@ export class MobileMenuComponent {
       this.title = config?.title ?? '';
       this.homeLink = config?.link ?? '/';
       this.button = config?.button;
-      this.dataSource.data = config?.options ?? [];      
+      this.dataSource.data = config?.options ?? [];
     });
   }
-
-
-  hasChild = (_: number, node: any) => {
-    console.log('checking node:', node.text, node.options);
-    return Array.isArray(node.options) && node.options.length > 0;
-  };
 
   setActiveOption(option?: NavigationOption) {
     if (!option) {
@@ -59,5 +53,4 @@ export class MobileMenuComponent {
     }
     this.activeOption.set(option);
   }
-
 }

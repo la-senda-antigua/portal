@@ -1,15 +1,7 @@
 .mobile-menu {    
-    position: fixed;
-    background-color: white;    
-    z-index: 999;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    padding: 30px;
-    text-shadow: none;      
     flex-direction: row;
     align-items: center;
+    padding: 20px;
     
     & .option{
         width: 100%;
