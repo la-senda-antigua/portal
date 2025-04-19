@@ -78,7 +78,7 @@ const mockConfig = {
   }
 };
 
-fdescribe('AppConfigService', () => {
+describe('AppConfigService', () => {
   let service: AppConfigService;
   let httpClient: HttpClient;
   beforeEach(() => {
@@ -111,49 +111,49 @@ fdescribe('AppConfigService', () => {
     });
   });
 
-  it('should parse title correctly', () => {    
+  it('should parse title correctly', () => {
     const parsedSite = service.appConfig();
     expect(parsedSite?.title).toBe('este es el título principal');
   });
-  
-  it('should parse pages correctly', () => {    
+
+  it('should parse pages correctly', () => {
     const parsedSite = service.appConfig();
     expect(parsedSite?.pages).toBeDefined();
     expect(parsedSite?.pages.length).toBe(1);
     expect(parsedSite?.pages[0].name).toBe('home');
     expect(parsedSite?.pages[0].title).toBe('este es el título de la página de inicio');
   });
-  
-  it('should parse sections correctly', () => {    
+
+  it('should parse sections correctly', () => {
     const parsedSite = service.appConfig();
     const sections = parsedSite?.pages[0].sections;
-  
-    expect(sections).toBeDefined(); 
-    expect(sections?.length).toBe(3); 
+
+    expect(sections).toBeDefined();
+    expect(sections?.length).toBe(3);
     expect(sections?.[0].title).toBe('este es el título del encabezado');
     expect(sections?.[1].title).toBe('este es el título de la sección 1');
     expect(sections?.[1].backgroundColor).toBe('#e0e0e0');
   });
-  
-  it('should parse floating description correctly', () => {    
+
+  it('should parse floating description correctly', () => {
     const parsedSite = service.appConfig();
     const floatingDescription = parsedSite?.pages[0].sections[0].floatingDescription;
-  
+
     expect(floatingDescription).toBeDefined();
     expect(floatingDescription?.position).toBe('left');
     expect(floatingDescription?.descriptionBlock.line1).toBe('este es el contenido de line-1');
   });
-  
-  it('should parse navigation correctly', () => {    
+
+  it('should parse navigation correctly', () => {
     const parsedSite = service.appConfig();
     const navigation = parsedSite?.navigation;
-  
+
     expect(navigation).toBeDefined();
     expect(navigation?.title).toBe('este es el título de navegación');
     expect(navigation?.link).toBe('/home');
-  
+
     const options = navigation?.options;
-    expect(options).toBeDefined(); 
+    expect(options).toBeDefined();
     expect(options?.length).toBe(3);
     expect(options?.[0].text).toBe('este es el texto de la opción 1');
     expect(options?.[1].text).toBe('este es el texto de la opción 2');
