@@ -1,0 +1,6 @@
+@if(headerConfig()){
+    <lsa-header [headerConfig]="headerConfig()!"></lsa-header>
+} 
+@for (section of sections(); track $index) {
+    <lsa-section-renderer [sectionConfig]="section"></lsa-section-renderer>
+}

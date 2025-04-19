@@ -1,0 +1,11 @@
+<div
+  class="section"
+  [style.backgroundColor]="backgroundColor()"
+  [style.color]="textColor()"
+  [style.textAlign]="textAlign()"
+>
+  <h1>{{ title() }}</h1>
+  @if(sectionConfig().descriptionBlock){
+    <lsa-description-block [descriptionBlockConfig]="sectionConfig().descriptionBlock!"></lsa-description-block>
+  }
+</div>
