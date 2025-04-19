@@ -11,7 +11,7 @@ import {
   MapWidgetTableConfig,
   ImageCardConfig,
   NavigationConfig,
-} from './models/app.config.models';
+} from '../models/app.config.models';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +24,6 @@ export class AppConfigService {
   initializeConfig(config: any) {
     const _appConfig = this.parseConfig(config);
     this.appConfig.set(_appConfig);
-    console.log(this.appConfig());
   }
 
   loadConfig() {
