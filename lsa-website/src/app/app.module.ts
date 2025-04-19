@@ -2,10 +2,10 @@ import { inject, NgModule, provideAppInitializer } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { tap } from 'rxjs';
-import { AppConfigService } from './app-config.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { provideHttpClient } from '@angular/common/http';
+import { AppConfigService } from './app-config/app-config.service';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 
 export function initializeApp(configService: AppConfigService) {
