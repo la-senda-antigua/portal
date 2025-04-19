@@ -8,7 +8,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
-import { AppConfigService } from '../../app-config.service';
+import { AppConfigService } from '../../app-config/app-config.service';
 import { HeaderComponent } from '../header/header.component';
 import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
 
