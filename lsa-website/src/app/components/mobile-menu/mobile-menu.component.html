@@ -7,8 +7,9 @@
     </button>
   </mat-toolbar>
 
-  <mat-accordion>
-    @for (item of options; track item) { 
+  <div class="menu-content">
+    <mat-accordion>
+      @for (item of options; track item) {
       <mat-expansion-panel class="mat-elevation-z0" hideToggle>
         <mat-expansion-panel-header
           [class.active]="isSelected(item)"
@@ -18,13 +19,14 @@
         </mat-expansion-panel-header>
 
         @for(subItem of item.options; track subItem){
-          <div class="sub-item">
-            {{ subItem.text }}
-          </div>
+        <div class="sub-item">
+          {{ subItem.text }}
+        </div>
         }
       </mat-expansion-panel>
-    }
-  </mat-accordion>
+      }
+    </mat-accordion>
+  </div>
 
   @if(button){
   <div class="button-container">

@@ -11,6 +11,7 @@
   flex-direction: column;
   flex: 1;
   padding: 20px;
+  overflow: hidden;
 
   & .header-menu {
     font-size: lsa_var.$fs-xxl;
@@ -26,9 +27,10 @@
     margin-bottom: 16px;
   }
 
-  mat-accordion {
+  .menu-content {
     flex: 1;
     padding-top: 40px;
+    overflow-x: hidden;
   }
 
   @include mat.expansion-overrides(
