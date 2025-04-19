@@ -1,29 +1,30 @@
 <div class="mobile-menu">
   <mat-toolbar>
-    <h1>{{ title }}</h1>
+    <strong>{{ title }}</strong>
     <span class="spacer"></span>
     <button mat-icon-button (click)="close.emit()">
       <mat-icon>close</mat-icon>
     </button>
   </mat-toolbar>
 
-  <mat-tree #tree [dataSource]="dataSource" [childrenAccessor]="childrenAccessor">
-    
-    <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding matTreeNodeToggle
-                   [cdkTreeNodeTypeaheadLabel]="node.text">
+  <mat-accordion>
+    @for (item of options; track item) {
 
-      <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name">
-        <mat-icon class="mat-icon-rtl-mirror">
-          {{tree.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-        </mat-icon>
-      </button>
-      {{ node.text }}
-    </mat-tree-node>
-
-    <!-- Nodo sin hijos -->
-    <mat-tree-node *matTreeNodeDef="let node">
-      <button mat-icon-button disabled></button>
-      {{ node.text }}
-    </mat-tree-node>
-  </mat-tree>
+      @if(hasChild(item)){        
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header [class.active]="isSelected(item)" (click)="setActiveOption(item)">
+            <div class="header-menu"> {{ item.text }} </div>
+          </mat-expansion-panel-header>          
+          
+          @for(subItem of item.options; track subItem){
+            <div class="sub-item">
+              {{ subItem.text }}
+            </div>
+          }
+        </mat-expansion-panel>
+      } @else {
+        <div class="header-menu"> {{ item.text }} </div>
+      }
+    }
+  </mat-accordion>
 </div>

@@ -1,16 +1,32 @@
-.mobile-menu {    
-    flex-direction: row;
-    align-items: center;
-    padding: 20px;
-    
-    & .option{
-        width: 100%;
-        border: solid 1px red;
-        text-decoration: none;
-    }
+@use "../../../styles_variables" as lsa_var;
+@use "@angular/material" as mat;
+
+.mobile-menu {  
+  padding: 20px;  
+  
+
+  & .header-menu {   
+    width: 100%; 
+    font-size: 32px ;
+    text-align: center;
+    margin-bottom: 16px;
   }
 
-  .spacer{
-    flex: 1 1 auto;
+  & .sub-item{
+    font-size: 32px ;
+    text-align: center;
+    margin-bottom: 16px;
   }
-  
+}
+
+.active {
+  & .header-menu {
+    border-bottom: 2px solid var(--mat-sys-primary);
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+* {box-shadow: none !important; }

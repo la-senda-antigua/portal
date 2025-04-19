@@ -81,3 +81,12 @@ h3 {
     )
   );
 }
+
+
+.mobile-menu {
+  @include mat.expansion-overrides((
+    container-shape: 0px,
+    header-text-line-height: auto
+  ));
+
+}
