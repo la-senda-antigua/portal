@@ -1,6 +1,6 @@
 <div class="mobile-menu">
   <mat-toolbar>
-    <strong>{{ title }}</strong>
+    <h1>{{ title }}</h1>
     <span class="spacer"></span>
     <button mat-icon-button (click)="close.emit()">
       <mat-icon>close</mat-icon>
@@ -9,7 +9,7 @@
 
   <mat-accordion>
     @for (item of options; track item) { 
-      <mat-expansion-panel hideToggle>
+      <mat-expansion-panel class="mat-elevation-z0" hideToggle>
         <mat-expansion-panel-header
           [class.active]="isSelected(item)"
           (click)="setActiveOption(item)"
