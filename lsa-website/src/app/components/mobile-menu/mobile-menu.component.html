@@ -8,30 +8,29 @@
   </mat-toolbar>
 
   <mat-accordion>
-    @for (item of options; track item) {
+    @for (item of options; track item) { 
+      <mat-expansion-panel hideToggle>
+        <mat-expansion-panel-header
+          [class.active]="isSelected(item)"
+          (click)="setActiveOption(item)"
+        >
+          <div class="header-menu">{{ item.text }}</div>
+        </mat-expansion-panel-header>
 
-    @if(hasChild(item)){
-    <mat-expansion-panel hideToggle>
-      <mat-expansion-panel-header [class.active]="isSelected(item)" (click)="setActiveOption(item)">
-        <div class="header-menu"> {{ item.text }} </div>
-      </mat-expansion-panel-header>
-
-      @for(subItem of item.options; track subItem){
-      <div class="sub-item">
-        {{ subItem.text }}
-      </div>
-      }
-    </mat-expansion-panel>
-    } @else {
-    <div class="header-menu"> {{ item.text }} </div>
-    }
+        @for(subItem of item.options; track subItem){
+          <div class="sub-item">
+            {{ subItem.text }}
+          </div>
+        }
+      </mat-expansion-panel>
     }
   </mat-accordion>
 
   @if(button){
-  <span class="spacer"></span>
-  <a [routerLink]="button.link" mat-flat-button class="donate-button">
-    {{ button.text }}
-  </a>
+  <div class="button-container">
+    <a [routerLink]="button.link" mat-flat-button class="donate-button">
+      {{ button.text }}
+    </a>
+  </div>
   }
 </div>

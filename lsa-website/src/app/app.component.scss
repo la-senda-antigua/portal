@@ -7,3 +7,23 @@
   max-width: 1600px;
 }
 
+:host {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+mat-drawer-container{
+  height: 100%;
+  overflow: hidden;
+}
+
+mat-drawer{
+  height: 100%;
+  overflow: hidden;
+}
+
+mat-drawer-content{
+  height: 100%;
+  overflow-x: hidden;
+}

@@ -1,20 +1,39 @@
 @use "../../../styles_variables" as lsa_var;
 @use "@angular/material" as mat;
 
+:host{
+  display: flex;
+  height: 100%;
+}
+
+
+
 .mobile-menu {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   padding: 20px;
 
   & .header-menu {
     width: 100%;
-    font-size: 32px ;
+    font-size: 32px;
     text-align: center;
     margin-bottom: 16px;
   }
 
-  & .sub-item{
-    font-size: 24px ;
+  & .sub-item {
+    font-size: 24px;
     text-align: center;
     margin-bottom: 16px;
+  }
+
+  mat-accordion{
+    flex:1;
+  }
+
+  .button-container{
+    display: flex;
+    justify-content: center;
   }
 }
 
@@ -27,5 +46,3 @@
 .spacer {
   flex: 1 1 auto;
 }
-
-* {box-shadow: none !important; }
