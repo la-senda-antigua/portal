@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PageRendererComponent } from './page-renderer.component';
-import { AppConfigService } from '../../app-config.service';
+import { AppConfigService } from '../../app-config/app-config.service';
 import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { HeaderComponent } from '../header/header.component';
