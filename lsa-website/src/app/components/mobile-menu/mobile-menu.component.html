@@ -1,0 +1,38 @@
+<div class="mobile-menu">
+  <mat-toolbar>
+    <h1>{{ title }}</h1>
+    <span class="spacer"></span>
+    <button mat-icon-button (click)="close.emit()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </mat-toolbar>
+
+  <div class="menu-content">
+    <mat-accordion>
+      @for (item of options; track item) {
+      <mat-expansion-panel class="mat-elevation-z0" hideToggle>
+        <mat-expansion-panel-header
+          [class.active]="isSelected(item)"
+          (click)="setActiveOption(item)"
+        >
+          <a [routerLink]="item.link" class="header-menu">{{ item.text }}</a>
+        </mat-expansion-panel-header>
+
+        @for(subItem of item.options; track subItem){
+        <a [routerLink]="subItem.link" class="sub-item">
+          {{ subItem.text }}
+        </a>
+        }
+      </mat-expansion-panel>
+      }
+    </mat-accordion>
+  </div>
+
+  @if(button){
+  <div class="button-container">
+    <a [routerLink]="button.link" mat-flat-button class="donate-button">
+      {{ button.text }}
+    </a>
+  </div>
+  }
+</div>

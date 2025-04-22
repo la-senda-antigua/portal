@@ -31,6 +31,13 @@ html {
       filled-label-text-weight: 300,
     )
   );
+
+  @include mat.sidenav-overrides((
+    container-shape: 0,
+    container-width: 100%
+
+  ));
+
 } /* You can add global styles to this file, and also import other style files */
 
 html,
@@ -74,3 +81,12 @@ h3 {
     )
   );
 }
+
+
+// .mobile-menu {
+//   @include mat.expansion-overrides((
+//     container-shape: 0px,
+//     header-text-line-height: auto
+//   ));
+
+// }

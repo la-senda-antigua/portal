@@ -1,0 +1,70 @@
+@use "../../../styles_variables" as lsa_var;
+@use "@angular/material" as mat;
+
+:host {
+  display: flex;
+  height: 100%;
+}
+
+.mobile-menu {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
+  overflow: hidden;
+
+  & .header-menu {
+    font-size: lsa_var.$fs-xxl;
+    font-weight: 300;
+    text-align: center;
+    margin: 0 auto;
+    padding: 10px;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  & .sub-item {
+    font-size: lsa_var.$fs-lg;
+    text-align: center;
+    margin-top: 16px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .menu-content {
+    flex: 1;
+    padding-top: 40px;
+    overflow-x: hidden;
+  }
+
+  @include mat.expansion-overrides(
+    (
+      container-background-color: transparent,
+      header-hover-state-layer-color: transparent,
+      header-collapsed-state-height: 66px,
+      header-expanded-state-height: 66px,
+    )
+  );
+
+  @include mat.toolbar-overrides(
+    (
+      title-text-weight: 300
+    )
+  );
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.active {
+  & .header-menu {
+    border-bottom: 2px solid var(--mat-sys-primary);
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
