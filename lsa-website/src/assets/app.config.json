@@ -24,11 +24,12 @@
           "title": "Acerca de nosotros:",
           "description-block": {
             "line-1": "Iglesia La Senda Antigua le saluda. Somos una congregación de cristianos que está buscando vivir a la luz del camino antiguo, como lo denota Jeremías 6:16, donde se le exhorta al pueblo de Dios a que pregunte por las sendas antiguas.",
-            "line-2": "Al mencionar las sendas antiguas, nos referimos a los principios bíblicos que ministraron los apóstoles y los padres espirituales de la fe.",
+            "line-2": "Al mencionar las sendas antiguas, nos referimos a las enseñanzas que nos dejaron los apóstoles y los padres espirituales de la fe.",
             "line-3": "Nuestro deseo es poder responder al Señor, atender a su instrucción de mirar atentamente a los caminos de nuestros antepasados y preguntar en la historia cristiana, cuál es el Camino de Dios y seguirlo.",
             "line-4": "Únase con nosotros mientras adoramos y ministramos a nuestro Maravilloso Salvador y aprendamos juntos el Camino que Dios ha trazado ¡de la tierra a la Gloria!"
           },
-          "background-color": "#f5f5f5"
+          "background-color": "#f5f5f5",
+          "text-align": "center"
         },
         {
           "name": "section-2",
