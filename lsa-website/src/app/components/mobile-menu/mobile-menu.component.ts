@@ -5,9 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import { RouterLink } from '@angular/router';
-import { AppConfigService } from 'src/app/app-config.service';
 import { ButtonConfig, NavigationOption } from '../../models/app.config.models';
 import {MatExpansionModule} from '@angular/material/expansion';
+import { AppConfigService } from '../../app-config/app-config.service';
 
 
 @Component({
@@ -32,7 +32,7 @@ export class MobileMenuComponent {
   readonly activeOption = signal<NavigationOption | null>(null);
   readonly close = output();
 
-  
+
   constructor(private configService: AppConfigService) {
     effect(() => {
       const config = this.configService.appConfig()?.navigation;
@@ -42,11 +42,11 @@ export class MobileMenuComponent {
       this.options = config?.options ?? [];
     });
   }
-  
-  hasChild = (node: any) =>  Array.isArray(node.options) && node.options.length > 0;
-  
 
-  setActiveOption(option?: NavigationOption) {    
+  hasChild = (node: any) =>  Array.isArray(node.options) && node.options.length > 0;
+
+
+  setActiveOption(option?: NavigationOption) {
     if (!option) {
       this.activeOption.set(null);
       return;
@@ -55,7 +55,7 @@ export class MobileMenuComponent {
     this.activeOption.set(option);
   }
 
-  isSelected(option?: NavigationOption) {    
+  isSelected(option?: NavigationOption) {
     return this.activeOption() && this.activeOption()?.index === option?.index;
   }
 
