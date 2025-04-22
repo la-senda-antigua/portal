@@ -15,13 +15,13 @@
           [class.active]="isSelected(item)"
           (click)="setActiveOption(item)"
         >
-          <div class="header-menu">{{ item.text }}</div>
+          <a [routerLink]="item.link" class="header-menu">{{ item.text }}</a>
         </mat-expansion-panel-header>
 
         @for(subItem of item.options; track subItem){
-        <div class="sub-item">
+        <a [routerLink]="subItem.link" class="sub-item">
           {{ subItem.text }}
-        </div>
+        </a>
         }
       </mat-expansion-panel>
       }

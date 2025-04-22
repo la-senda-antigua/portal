@@ -58,4 +58,5 @@ export class MobileMenuComponent {
   isSelected(option?: NavigationOption) {    
     return this.activeOption() && this.activeOption()?.index === option?.index;
   }
+
 }

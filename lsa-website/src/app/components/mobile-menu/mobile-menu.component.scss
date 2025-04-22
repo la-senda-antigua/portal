@@ -19,12 +19,17 @@
     text-align: center;
     margin: 0 auto;
     padding: 10px;
+    text-decoration: none;
+    color: inherit;
   }
-
+  
   & .sub-item {
-    font-size: 24px;
+    font-size: lsa_var.$fs-lg;
     text-align: center;
-    margin-bottom: 16px;
+    margin-top: 16px;
+    text-decoration: none;
+    color: inherit;
+    display: block;
   }
 
   .menu-content {
