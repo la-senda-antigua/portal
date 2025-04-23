@@ -43,6 +43,12 @@ export interface FloatingDescriptionConfig {
   position?: 'left' | 'right';
 }
 
+export interface VerseConfig{
+  id: number;
+  text: string;
+  reference: string;
+}
+
 export interface SectionConfig {
   title: string;
   name: string;
@@ -54,6 +60,7 @@ export interface SectionConfig {
   descriptionBlock?: DescriptionBlockConfig;
   mapWidget?: MapWidgetConfig;
   imageCard?: ImageCardConfig;
+  verseElement?: VerseConfig;
 }
 
 export interface PageConfig {

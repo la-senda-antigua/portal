@@ -8,4 +8,8 @@
   @if(sectionConfig().descriptionBlock){
     <lsa-description-block [descriptionBlockConfig]="sectionConfig().descriptionBlock!"></lsa-description-block>
   }
+
+  @if(sectionConfig().verseElement){
+    <lsa-verse-of-the-day></lsa-verse-of-the-day>
+  }
 </div>

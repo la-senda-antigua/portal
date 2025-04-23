@@ -33,6 +33,7 @@
         },
         {
           "name": "section-2",
+          "verse-element": true,
           "background-color": "rgb(220, 217, 208)"
         },
         {
