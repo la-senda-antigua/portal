@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { VerseConfig } from 'src/app/models/app.config.models';
 
 interface Verse {
   id: number;
@@ -17,6 +18,7 @@ interface Verse {
 
 export class VerseOfTheDayComponent implements OnInit {
   verseOfTheDay: Verse | null = null;
+  readonly config = input.required<VerseConfig>();
 
   constructor(private http: HttpClient) {}
 
@@ -25,8 +27,6 @@ export class VerseOfTheDayComponent implements OnInit {
       const dayOfYear = this.getDayOfYear(new Date());
       const index = dayOfYear % verses.length;
       this.verseOfTheDay = verses[index];
-
-      console.log("el verso del dia", this.verseOfTheDay)
     });
   }
 

@@ -9,7 +9,7 @@
     <lsa-description-block [descriptionBlockConfig]="sectionConfig().descriptionBlock!"></lsa-description-block>
   }
 
-  @if(sectionConfig().verseElement){
-    <lsa-verse-of-the-day></lsa-verse-of-the-day>
+  @if(sectionConfig().verseOfTheDay?.copyright){
+    <lsa-verse-of-the-day [config]="sectionConfig().verseOfTheDay!" ></lsa-verse-of-the-day>
   }
 </div>

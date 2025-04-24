@@ -1,0 +1,10 @@
+.verse-of-the-day{
+  display: flex;
+  flex-direction: column;
+  max-width: 700px;
+  margin: auto;
+
+  & .reference{
+    font-weight: bold;
+  }
+}

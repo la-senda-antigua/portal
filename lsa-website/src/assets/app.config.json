@@ -33,7 +33,11 @@
         },
         {
           "name": "section-2",
-          "verse-element": true,
+          "verse-of-the-day": {
+            "title" : "El Verso del Día",
+            "text-align": "center",
+            "copyright" : "Citas bíblicas tomadas de la Reina-Valera 1960"
+          },
           "background-color": "rgb(220, 217, 208)"
         },
         {

@@ -44,9 +44,9 @@ export interface FloatingDescriptionConfig {
 }
 
 export interface VerseConfig{
-  id: number;
-  text: string;
-  reference: string;
+  title: string;
+  copyright: string;
+  textAlign: string;
 }
 
 export interface SectionConfig {
@@ -60,7 +60,7 @@ export interface SectionConfig {
   descriptionBlock?: DescriptionBlockConfig;
   mapWidget?: MapWidgetConfig;
   imageCard?: ImageCardConfig;
-  verseElement?: VerseConfig;
+  verseOfTheDay?: VerseConfig;
 }
 
 export interface PageConfig {
