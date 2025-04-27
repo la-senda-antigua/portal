@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, input, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { VerseConfig } from 'src/app/models/app.config.models';
 
@@ -17,7 +17,8 @@ interface Verse {
 })
 
 export class VerseOfTheDayComponent implements OnInit {
-  verseOfTheDay: Verse | null = null;
+  // verseOfTheDay: Verse | null = null;
+  readonly verseOfTheDay = signal<Verse | null>(null)
   readonly config = input.required<VerseConfig>();
 
   constructor(private http: HttpClient) {}
@@ -26,7 +27,8 @@ export class VerseOfTheDayComponent implements OnInit {
     this.http.get<Verse[]>('/assets/verses.json').subscribe((verses) => {
       const dayOfYear = this.getDayOfYear(new Date());
       const index = dayOfYear % verses.length;
-      this.verseOfTheDay = verses[index];
+      this.verseOfTheDay.set(verses[index]);
+      console.log(this.verseOfTheDay())
     });
   }
 

@@ -1,10 +1,25 @@
+@use "../../../styles_variables" as lsa_var;
+
 .verse-of-the-day{
   display: flex;
-  flex-direction: column;
-  max-width: 700px;
-  margin: auto;
+  flex-direction: column; 
+  margin: 10px 5%;
+  
+  & .title{
+    text-align: left;
+    font-weight: normal;
+    font-size: lsa_var.$fs-m;
+  }
 
+  & .text{    
+    font-size: lsa_var.$fs-xxxl;
+  }
+  
   & .reference{
-    font-weight: bold;
+    font-size: lsa_var.$fs-lg;
+    font-weight: 400;
+    text-align: right;
+
+    & small{font-weight: bold;}
   }
 }

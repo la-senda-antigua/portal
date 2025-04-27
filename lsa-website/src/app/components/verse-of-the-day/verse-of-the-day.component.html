@@ -1,9 +1,11 @@
 <section class="verse-of-the-day" [style.text-align]="config().textAlign">
 
-  <p>{{config().title}}</p>
+  <h4 class="title">{{config().title}}</h4>
   <h3 class="text">
-    {{verseOfTheDay?.text}} <br>
-    <small class="reference">{{verseOfTheDay?.reference}}</small>
+    “ {{verseOfTheDay()?.text}} ”
   </h3>
-  <h4>{{config().copyright}}</h4>
+  <h4 class="reference">
+    — {{verseOfTheDay()?.reference}} <br>
+    <small>{{config().copyright}}</small>
+  </h4>
 </section>
