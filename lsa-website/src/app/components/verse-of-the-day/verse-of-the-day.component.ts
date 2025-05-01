@@ -17,7 +17,6 @@ interface Verse {
 })
 
 export class VerseOfTheDayComponent implements OnInit {
-  // verseOfTheDay: Verse | null = null;
   readonly verseOfTheDay = signal<Verse | null>(null)
   readonly config = input.required<VerseConfig>();
 

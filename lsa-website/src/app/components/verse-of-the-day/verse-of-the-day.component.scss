@@ -3,8 +3,9 @@
 .verse-of-the-day{
   display: flex;
   flex-direction: column; 
-  margin: 10px 5%;
+  margin: 10px;
   
+
   & .title{
     text-align: left;
     font-weight: normal;
@@ -17,7 +18,7 @@
   
   & .reference{
     font-size: lsa_var.$fs-lg;
-    font-weight: 400;
+    font-weight: 300;
     text-align: right;
 
     & small{font-weight: bold;}
