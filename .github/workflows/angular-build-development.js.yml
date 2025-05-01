@@ -30,4 +30,9 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ./lsa-website
     - run: npm ci
-    - run: npm run build --if-present
+    - run: npm run build -- --configuration production
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: angular-app-build
+        path: dist/lsa-website
