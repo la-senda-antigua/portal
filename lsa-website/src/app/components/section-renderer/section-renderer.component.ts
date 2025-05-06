@@ -6,10 +6,11 @@ import {
 } from '@angular/core';
 import { SectionConfig } from '../../models/app.config.models';
 import { DescriptionBlockComponent } from '../description-block/description-block.component';
+import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
 
 @Component({
   selector: 'lsa-section-renderer',
-  imports: [DescriptionBlockComponent],
+  imports: [DescriptionBlockComponent, VerseOfTheDayComponent],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

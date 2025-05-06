@@ -4,8 +4,14 @@
   [style.color]="textColor()"
   [style.textAlign]="textAlign()"
 >
-  <h1>{{ title() }}</h1>
+  
+  @if(title()){ <h1>{{ title() }}</h1>}
+  
   @if(sectionConfig().descriptionBlock){
     <lsa-description-block [descriptionBlockConfig]="sectionConfig().descriptionBlock!"></lsa-description-block>
+  }
+
+  @if(sectionConfig().verseOfTheDay?.copyright){
+    <lsa-verse-of-the-day [config]="sectionConfig().verseOfTheDay!" ></lsa-verse-of-the-day>
   }
 </div>
