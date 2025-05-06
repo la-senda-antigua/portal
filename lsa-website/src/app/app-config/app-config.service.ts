@@ -11,6 +11,7 @@ import {
   MapWidgetTableConfig,
   ImageCardConfig,
   NavigationConfig,
+  VerseConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -62,6 +63,7 @@ export class AppConfigService {
       ),
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
+      verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
     };
   }
 
@@ -139,4 +141,15 @@ export class AppConfigService {
     };
     return config;
   }
+
+  private parseVerseOfTheDay(verseOfTheDay: any) : VerseConfig {
+    if (!verseOfTheDay) return {} as VerseConfig;
+
+    return {
+      title: verseOfTheDay.title,
+      copyright: verseOfTheDay.copyright,
+      textAlign: verseOfTheDay['text-align']
+    }
+  }
+
 }

@@ -1,0 +1,26 @@
+@use "../../../styles_variables" as lsa_var;
+
+.verse-of-the-day{
+  display: flex;
+  flex-direction: column; 
+  margin: 10px;
+  
+
+  & .title{
+    text-align: left;
+    font-weight: normal;
+    font-size: lsa_var.$fs-m;
+  }
+
+  & .text{    
+    font-size: lsa_var.$fs-xxxl;
+  }
+  
+  & .reference{
+    font-size: lsa_var.$fs-lg;
+    font-weight: 300;
+    text-align: right;
+
+    & small{font-weight: bold;}
+  }
+}
