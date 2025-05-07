@@ -36,10 +36,13 @@ jobs:
     - run: npm ci
     - run: npm run build -- --configuration production
 
+    - name: List Files in Distribution Directory
+      run: ls -R ./dist/lsa-website
+
     - name: Upload files to VPS
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
         server: ftp://2605:a141:2257:2306::1
         username: $CONTABO_FTP_USER
         password: ${{ secrets.CONTABO_FTP_PWD }}
-        local-dir: ./dist/
+        local-dir: ./dist/lsa-website
