@@ -33,5 +33,11 @@ jobs:
     - run: npm ci
     - run: npm run build -- --configuration production
     
-    - name: List Files in Distribution Directory
-      run: ls -R ./dist
+    - name: Deploy files
+      uses: SamKirkland/web-deploy@v1
+      with:
+        target-server: $CONTABO_SSH_IP
+        remote-user: $CONTABO_SSH_USER
+        private-ssh-key: ${{ secrets.CONTABO_SSH_PWD }}
+        destination-path: ~/www/testing/
+        source-path: ./dist/
