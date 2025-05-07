@@ -45,4 +45,4 @@ jobs:
         server: ftp://2605:a141:2257:2306::1
         username: $CONTABO_FTP_USER
         password: ${{ secrets.CONTABO_FTP_PWD }}
-        local-dir: ./dist/lsa-website
+        local-dir: /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
