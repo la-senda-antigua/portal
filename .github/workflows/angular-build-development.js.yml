@@ -9,15 +9,12 @@ on:
     branches: [ "development" ]
 
 jobs:
-  build-and-deploy:
+  build:
     defaults:
       run:
         working-directory: ./lsa-website
 
     runs-on: ubuntu-latest
-
-    environment: 
-      name: testing
     
     strategy:
       matrix:
@@ -35,12 +32,17 @@ jobs:
         cache-dependency-path: ./lsa-website
     - run: npm ci
     - run: npm run build -- --configuration production
-  
-    - name: Deploy files
-      uses: SamKirkland/web-deploy@v1
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: 
+      name: testing
+    
+    steps:    
+    - name: Upload files to VPS
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        target-server: $CONTABO_SSH_IP
-        remote-user: $CONTABO_SSH_USER
-        private-ssh-key: ${{ secrets.CONTABO_SSH_PWD }}
-        destination-path: ~/www/testing/
-        source-path: ./dist/
+        server: ftp://2605:a141:2257:2306::1
+        username: $CONTABO_FTP_USER
+        password: ${{ secrets.CONTABO_FTP_PWD }}
+        local-dir: ./dist/
