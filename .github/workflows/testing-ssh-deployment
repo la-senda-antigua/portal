@@ -1,0 +1,43 @@
+name: Build and Deploy (SSH)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "development" ]
+
+jobs:
+  build-and-deploy:
+    defaults:
+      run:
+        working-directory: ./lsa-website
+
+    runs-on: ubuntu-latest
+    
+    environment: 
+      name: testing
+    
+    strategy:
+      matrix:
+        node-version: [22.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: ./lsa-website
+    - run: npm ci
+    - run: npm run build -- --configuration production
+    
+    - name: Upload files to VPS
+      uses: SamKirkland/web-deploy@v1
+      with:
+        target-server: ${{ vars.CONTABO_SSH_IP }}
+        remote-user: ${{ vars.CONTABO_SSH_USER }}
+        private-ssh-key: ${{ secrets.CONTABO_SSH_PWD }}
+        source-path: /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
+        destination-path: /www/testing
