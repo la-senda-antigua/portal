@@ -34,6 +34,7 @@ jobs:
     - run: npm run build -- --configuration production
     
     - name: Upload files to VPS
+      continue-on-error: true
       uses: SamKirkland/web-deploy@v1
       with:
         target-server: ${{ vars.CONTABO_SSH_IP }}
