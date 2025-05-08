@@ -35,14 +35,11 @@ jobs:
         cache-dependency-path: ./lsa-website
     - run: npm ci
     - run: npm run build -- --configuration production
-
-    - name: List Files in Distribution Directory
-      run: ls -R ./dist/lsa-website
-
+    
     - name: Upload files to VPS
       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
       with:
-        server: $CONTABO_HOST_IP
-        username: $CONTABO_FTP_USER
+        server: ${{ vars.CONTABO_HOST_IP }}
+        username: ${{ vars.CONTABO_FTP_USER }}
         password: ${{ secrets.CONTABO_FTP_PWD }}
         local-dir: /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
