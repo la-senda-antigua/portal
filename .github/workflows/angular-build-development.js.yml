@@ -5,9 +5,7 @@ name: Angular Build Development
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "development" ]
-
+  
 jobs:
   build-and-deploy:
     defaults:
