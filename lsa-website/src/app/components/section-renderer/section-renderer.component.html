@@ -14,4 +14,8 @@
   @if(sectionConfig().verseOfTheDay?.copyright){
     <lsa-verse-of-the-day [config]="sectionConfig().verseOfTheDay!" ></lsa-verse-of-the-day>
   }
+
+  @if(sectionConfig().mapWidget?.title){
+    <lsa-map-widget [config]="sectionConfig().mapWidget!"></lsa-map-widget>
+  }
 </div>
