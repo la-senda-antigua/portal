@@ -11,6 +11,6 @@ export class MapWidgetComponent {
   readonly config = input.required<MapWidgetConfig>();
 
   ngOnInit() {
-    console.log('map widget init', this.config);
+    console.log('map widget init', this.config());
   }
 }
