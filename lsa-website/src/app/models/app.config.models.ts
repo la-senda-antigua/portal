@@ -39,7 +39,8 @@ export interface ImageCardConfig {
 }
 
 export interface FooterConfig{
-  items: FooterItemConfig[]
+  items: FooterItemConfig[],
+  copyright: string,
 }
 
 export interface FooterItemConfig{

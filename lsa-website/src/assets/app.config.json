@@ -81,14 +81,14 @@
               {
                 "title" : "Comuníquese",
                 "links": [
-                  {"text": "lasendaantigua.la@gmail.com", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "envelop" },
+                  {"text": "lasendaantigua.la@gmail.com", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "mail" },
                   {"text": "+1 (626)808-1237", "href": "tel:+16268081237" , "icon" : "phone" }                
                 ]
               },
               {
                 "title" : "Comentarios:",
                 "links": [
-                  {"text": "Contáctenos", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "question" }
+                  {"text": "Contáctenos", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "live_help" }
                 ]
               },
               {
