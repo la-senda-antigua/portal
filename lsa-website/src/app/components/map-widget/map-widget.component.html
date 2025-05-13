@@ -1,7 +1,7 @@
 
 <div class="container">
   <iframe    
-    [src]="config()?.map?.src"
+    [src]="config().src"
     style="border: 0"
     allowfullscreen=""
     loading="lazy"    
@@ -14,16 +14,16 @@
 
     <table>
       <tr>
-        <td>{{ config()?.table?.["cell11"] }}</td>
-        <td class="bold">{{ config()?.table?.["cell12"] }}</td>
+        <td>{{ config().table?.["cell11"] }}</td>
+        <td class="bold">{{ config().table?.["cell12"] }}</td>
       </tr>
       <tr>
-        <td>{{ config()?.table?.["cell21"] }}</td>
-        <td class="bold">{{ config()?.table?.["cell22"] }}</td>
+        <td>{{ config().table?.["cell21"] }}</td>
+        <td class="bold">{{ config().table?.["cell22"] }}</td>
       </tr>
       <tr>
-        <td>{{ config()?.table?.["cell31"] }}</td>
-        <td class="bold">{{ config()?.table?.["cell32"] }}</td>
+        <td>{{ config().table?.["cell31"] }}</td>
+        <td class="bold">{{ config().table?.["cell32"] }}</td>
       </tr>
     </table>    
 
