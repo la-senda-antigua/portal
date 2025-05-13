@@ -26,6 +26,4 @@ export class SectionRendererComponent {
     () => this.sectionConfig().textColor ?? 'var(--mat-sys-on-background)'
   );
   readonly textAlign = computed(() => this.sectionConfig().textAlign ?? 'left');
-
-  
 }

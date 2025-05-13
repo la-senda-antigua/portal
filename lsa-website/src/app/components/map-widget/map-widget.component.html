@@ -1,6 +1,6 @@
 
 <div class="container">
-  <iframe    
+  <iframe class="map"
     [src]="safeUrl"
     style="border: 0"
     allowfullscreen=""
@@ -13,18 +13,11 @@
     <p>{{ config().subtitle }}</p>
     
     <table>
-      <tr>
-        <td>{{ config().table?.["cell11"] }}</td>
-        <td class="bold">{{ config().table?.["cell12"] }}</td>
-      </tr>
-      <tr>
-        <td>{{ config().table?.["cell21"] }}</td>
-        <td class="bold">{{ config().table?.["cell22"] }}</td>
-      </tr>
-      <tr>
-        <td>{{ config().table?.["cell31"] }}</td>
-        <td class="bold">{{ config().table?.["cell32"] }}</td>
-      </tr>
-    </table>    
-
+      @for(row of config().table?.rows; track row.index){        
+        <tr>
+          <td>{{row.columns[0].text}}</td>
+          <td class="bold">{{row.columns[1].text}}</td>
+        </tr>
+      }        
+    </table>
 </div>

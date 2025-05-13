@@ -27,7 +27,6 @@ export class VerseOfTheDayComponent implements OnInit {
       const dayOfYear = this.getDayOfYear(new Date());
       const index = dayOfYear % verses.length;
       this.verseOfTheDay.set(verses[index]);
-      console.log(this.verseOfTheDay())
     });
   }
 
