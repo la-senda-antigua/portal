@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, input } from '@angular/core';
+import { FooterConfig } from 'src/app/models/app.config.models';
 
 @Component({
   selector: 'lsa-footer',
@@ -7,5 +8,6 @@ import { Component } from '@angular/core';
   styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
-
+    readonly config = input.required<FooterConfig>();
+  
 }

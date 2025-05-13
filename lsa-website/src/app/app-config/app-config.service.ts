@@ -64,6 +64,7 @@ export class AppConfigService {
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
+      footer: section['footer']
     };
   }
 

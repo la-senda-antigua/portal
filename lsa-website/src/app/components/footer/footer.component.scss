@@ -1,0 +1,10 @@
+footer{
+    display: flex;
+    flex-direction: row;    
+    max-width: 1600px;
+    margin: auto;
+    & section{
+        flex: 1
+    }
+}
+
