@@ -1,15 +1,33 @@
-.container{
-    display: flex;    
-    flex-basis: auto;
+.container {
+    display: flex;
     max-width: 1200px;
     margin: 0 auto;
 
-    > * {
+    >* {
         flex: 1;
         margin: 10px;
     }
+
+    .map {min-height: 350px;}
+}
+
+.bold {font-weight: 500;}
+
+td {
+    padding: 10px;
 }
 
 
-.bold {font-weight: 500;}
-td{padding: 10px ;}
+@media screen and (max-width: 768px) {
+    .container {
+        flex-direction: column;
+
+        >* {
+            margin: 0;
+        }
+
+        .map {            
+            min-height: 400px;            
+        }
+    }
+}

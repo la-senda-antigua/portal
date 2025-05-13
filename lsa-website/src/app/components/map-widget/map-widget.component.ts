@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { MapWidgetConfig } from 'src/app/models/app.config.models';
+import { MapWidgetConfig } from '../../models/app.config.models';
 
 @Component({
   selector: 'lsa-map-widget',
@@ -16,6 +16,5 @@ export class MapWidgetComponent {
 
   ngOnInit() {
     this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.config().src);
-
   }
 }

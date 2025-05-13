@@ -7,8 +7,7 @@ import {
   SectionConfig,
   FloatingDescriptionConfig,
   DescriptionBlockConfig,
-  MapWidgetConfig,
-  MapWidgetTableConfig,
+  MapWidgetConfig,  
   ImageCardConfig,
   NavigationConfig,
   VerseConfig,
@@ -106,21 +105,7 @@ export class AppConfigService {
       src: mapWidget.src,
       title: mapWidget.title,
       subtitle: mapWidget.subtitle,
-      table: this.parseMapWidgetTable(mapWidget.table),
-    };
-  }
-
-  private parseMapWidgetTable(mapWidgetTable: any): MapWidgetTableConfig {
-    if (!mapWidgetTable) {
-      return {} as MapWidgetTableConfig;
-    }
-    return {
-      cell11: mapWidgetTable['cell-1-1'],
-      cell12: mapWidgetTable['cell-1-2'],
-      cell21: mapWidgetTable['cell-2-1'],
-      cell22: mapWidgetTable['cell-2-2'],
-      cell31: mapWidgetTable['cell-3-1'],
-      cell32: mapWidgetTable['cell-3-2'],
+      table: mapWidget.table
     };
   }
 
