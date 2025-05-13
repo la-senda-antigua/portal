@@ -1,4 +1,5 @@
 import { Component, input } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MapWidgetConfig } from 'src/app/models/app.config.models';
 
 @Component({
@@ -9,8 +10,12 @@ import { MapWidgetConfig } from 'src/app/models/app.config.models';
 })
 export class MapWidgetComponent {
   readonly config = input.required<MapWidgetConfig>();
+  safeUrl: SafeResourceUrl | undefined;
+
+  constructor(private sanitizer: DomSanitizer) {}
 
   ngOnInit() {
-    console.log('map widget init', this.config());
+    this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.config().src);
+
   }
 }
