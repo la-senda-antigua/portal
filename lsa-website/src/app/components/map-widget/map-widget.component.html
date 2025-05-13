@@ -1,7 +1,7 @@
 
 <div class="container">
   <iframe    
-    [src]="config().src"
+    [src]="safeUrl"
     style="border: 0"
     allowfullscreen=""
     loading="lazy"    
@@ -11,7 +11,7 @@
   <div class="info">
     <h1>{{ config().title }}</h1>
     <p>{{ config().subtitle }}</p>
-
+    
     <table>
       <tr>
         <td>{{ config().table?.["cell11"] }}</td>
