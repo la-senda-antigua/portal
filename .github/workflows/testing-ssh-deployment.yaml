@@ -1,11 +1,10 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
-
-name: Angular Build Development
+name: Build and Deploy (SSH)
 
 on:
   workflow_dispatch:
-  
+  push:
+    branches: [ "development" ]
+
 jobs:
   build-and-deploy:
     defaults:
@@ -35,9 +34,11 @@ jobs:
     - run: npm run build -- --configuration production
     
     - name: Upload files to VPS
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      continue-on-error: true
+      uses: SamKirkland/web-deploy@v1
       with:
-        server: ${{ vars.CONTABO_HOST_IP }}
-        username: ${{ vars.CONTABO_FTP_USER }}
-        password: ${{ secrets.CONTABO_FTP_PWD }}
-        local-dir: /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
+        target-server: ${{ vars.CONTABO_SSH_IP }}
+        remote-user: ${{ vars.CONTABO_SSH_USER }}
+        private-ssh-key: ${{ secrets.CONTABO_SSH_PWD }}
+        source-path: /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
+        destination-path: /www/testing
