@@ -29,6 +29,9 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ./lsa-website
 
+    - name: Install packages
+      run: npm ci
+
     - name: Confirm code builds successfully
       run: npm run build
         
