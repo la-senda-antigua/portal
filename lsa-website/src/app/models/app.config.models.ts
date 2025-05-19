@@ -16,20 +16,26 @@ export interface DescriptionBlockConfig {
   backgroundColor?: string;
 }
 
-export interface MapWidgetTableConfig {
-  cell11: string;
-  cell12: string;
-  cell21: string;
-  cell22: string;
-  cell31: string;
-  cell32: string;
+export interface TableColumnConfig {
+  index: number;
+  text: string;
+}
+
+export interface TableRowConfig {
+  index: number;
+  columns: TableColumnConfig[];
+}
+
+export interface TableConfig {
+  index: number;
+  rows: TableRowConfig[];
 }
 
 export interface MapWidgetConfig {
   src: string;
   title?: string;
   subtitle?: string;
-  table?: MapWidgetTableConfig;
+  table?: TableConfig;
 }
 
 export interface ImageCardConfig {
