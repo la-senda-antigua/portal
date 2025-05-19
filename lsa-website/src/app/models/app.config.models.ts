@@ -83,7 +83,7 @@ export interface SectionConfig {
   mapWidget?: MapWidgetConfig;
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
-  footer: FooterConfig;
+  footer?: FooterConfig;
 }
 
 export interface PageConfig {

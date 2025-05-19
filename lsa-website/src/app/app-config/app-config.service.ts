@@ -7,10 +7,11 @@ import {
   SectionConfig,
   FloatingDescriptionConfig,
   DescriptionBlockConfig,
-  MapWidgetConfig,  
+  MapWidgetConfig,
   ImageCardConfig,
   NavigationConfig,
   VerseConfig,
+  FooterConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -19,7 +20,7 @@ import {
 export class AppConfigService {
   readonly appConfig = signal<AppConfig | undefined>(undefined);
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) { }
 
   initializeConfig(config: any) {
     const _appConfig = this.parseConfig(config);
@@ -63,7 +64,7 @@ export class AppConfigService {
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
-      footer: section['footer']
+      footer: this.parseFooter(section['footer']),
     };
   }
 
@@ -128,7 +129,7 @@ export class AppConfigService {
     return config;
   }
 
-  private parseVerseOfTheDay(verseOfTheDay: any) : VerseConfig {
+  private parseVerseOfTheDay(verseOfTheDay: any): VerseConfig {
     if (!verseOfTheDay) return {} as VerseConfig;
 
     return {
@@ -138,4 +139,16 @@ export class AppConfigService {
     }
   }
 
+  private parseFooter(footer: any): FooterConfig {
+    if (!footer) return {} as FooterConfig;
+
+    if (footer.copyright) {
+      const currentYear = new Date().getFullYear();
+      let copyright: string = footer.copyright;
+      copyright = copyright.replace('[year]', currentYear.toString());
+      footer.copyright = '© ' + copyright
+    }
+
+    return footer;
+  }
 }

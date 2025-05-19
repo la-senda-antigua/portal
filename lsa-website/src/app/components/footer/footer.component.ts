@@ -9,6 +9,5 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
-    readonly config = input.required<FooterConfig>();
-  
+  readonly config = input.required<FooterConfig>();  
 }
