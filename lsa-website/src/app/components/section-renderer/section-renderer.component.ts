@@ -13,6 +13,7 @@ import { FooterComponent } from '../footer/footer.component';
 @Component({
   selector: 'lsa-section-renderer',
   imports: [DescriptionBlockComponent, VerseOfTheDayComponent, MapWidgetComponent, FooterComponent],
+
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
