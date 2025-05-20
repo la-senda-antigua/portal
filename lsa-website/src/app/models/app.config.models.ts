@@ -44,6 +44,22 @@ export interface ImageCardConfig {
   description: DescriptionBlockConfig;
 }
 
+export interface FooterConfig{
+  items: FooterItemConfig[],
+  copyright: string,
+}
+
+export interface FooterItemConfig{
+  title: string,
+  links: FooterItemLinkConfig[]
+}
+
+export interface FooterItemLinkConfig{
+  text: string,
+  href: string,
+  icon?: string
+}
+
 export interface FloatingDescriptionConfig {
   descriptionBlock: DescriptionBlockConfig;
   position?: 'left' | 'right';
@@ -67,6 +83,7 @@ export interface SectionConfig {
   mapWidget?: MapWidgetConfig;
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
+  footer?: FooterConfig;
 }
 
 export interface PageConfig {

@@ -1,0 +1,18 @@
+<footer>
+  <div class="columns">
+    @for (item of config().items; track $index) {
+      <section>
+        <h3>{{item.title}}</h3>
+
+        @for (link of item.links; track $index){
+          <a [href]="link.href" class="mat-primary">
+            @if(link.icon){<mat-icon>{{link.icon}}</mat-icon>}
+            {{link.text}}
+          </a>
+        }
+      </section>
+    }
+  </div>
+
+  <p class="copyright">{{config().copyright}}</p>
+</footer>

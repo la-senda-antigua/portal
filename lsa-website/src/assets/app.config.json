@@ -89,7 +89,35 @@
             },
             "image": "assets/images/homeschool.jpg"
           }
-        }
+        },
+        {
+          "name": "footer",
+          "footer" :  {
+            "items":[
+              {
+                "title" : "Comuníquese",
+                "links": [
+                  {"text": "lasendaantigua.la@gmail.com", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "mail" },
+                  {"text": "+1 (626)808-1237", "href": "tel:+16268081237" , "icon" : "phone" }                
+                ]
+              },
+              {
+                "title" : "Comentarios:",
+                "links": [
+                  {"text": "Contáctenos", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "live_help" }
+                ]
+              },
+              {
+                "title" : "Visite también",
+                "links": [
+                  {"text": "Ministerios Hebrón", "href": "https://ministerioshebron.com/"  },
+                  {"text": "Colegio Hebrón", "href": "https://www.colegiohebron.com/"  }                
+                ]
+              }
+            ],
+            "copyright" : "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
+        }    
       ]
     }
   ],

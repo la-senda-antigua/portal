@@ -18,4 +18,8 @@
   @if(sectionConfig().mapWidget?.src){
     <lsa-map-widget [config]="sectionConfig().mapWidget!"></lsa-map-widget>
   }
+  
+  @if(sectionConfig().footer){
+    <lsa-footer [config]="sectionConfig().footer!" ></lsa-footer>
+  }
 </div>
