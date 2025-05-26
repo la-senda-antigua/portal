@@ -16,8 +16,10 @@ const mockConfig = {
           "floating-description": {
             "position": "left",
             "description-block": {
-              "line-1": "este es el contenido de line-1",
-              "line-2": "este es el contenido de line-2"
+              "lines":[
+                "este es el contenido de line-1",
+                "este es el contenido de line-2"
+              ]
             }
           },
           "background-image": "assets/images/ejemplo-header.jpg"
@@ -26,8 +28,10 @@ const mockConfig = {
           "name": "section-1",
           "title": "este es el título de la sección 1",
           "description-block": {
-            "line-1": "este es el contenido de la sección 1, línea 1",
-            "line-2": "este es el contenido de la sección 1, línea 2"
+            "lines": [
+              "este es el contenido de la sección 1, línea 1",
+              "este es el contenido de la sección 1, línea 2"
+            ]            
           },
           "background-color": "#e0e0e0"
         },
