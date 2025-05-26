@@ -113,7 +113,8 @@ export class AppConfigService {
     return {
       title: imageCard.title,
       image: imageCard.image,
-      description: this.parseDescriptionBlock(imageCard.description),
+      backgroundColor: imageCard['background-color'],
+      description: this.parseDescriptionBlock(imageCard.description),      
     };
   }
 

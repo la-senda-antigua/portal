@@ -37,7 +37,8 @@ export interface MapWidgetConfig {
 export interface ImageCardConfig {
   title: string;
   image: string;
-  description: DescriptionBlockConfig;
+  backgroundColor?: string;
+  description: DescriptionBlockConfig;  
 }
 
 export interface FooterConfig{

@@ -94,7 +94,8 @@
                 "link": "/homeschool"
               }
             },
-            "image": "assets/images/homeschool.jpg"
+            "background-color": "#ff0000",
+            "image": "assets/images/homeschool_kids.jpg"
           }
         },        
         {

@@ -1,0 +1,21 @@
+@use "@angular/material" as mat;
+@use "../../color_palettes/algae_peach_colors" as algae-peach;
+@use "../../../styles_variables" as style_vars;
+
+.image-card-container {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+
+    >* {
+        flex: 1;
+        margin: 10px;
+    }   
+    
+    & .picture {        
+        height: 100%;    
+        min-height: 500px;
+        background-size: cover;
+        background-position: center;        
+    }
+}
