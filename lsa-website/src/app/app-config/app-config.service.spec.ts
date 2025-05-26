@@ -141,7 +141,7 @@ describe('AppConfigService', () => {
 
     expect(floatingDescription).toBeDefined();
     expect(floatingDescription?.position).toBe('left');
-    expect(floatingDescription?.descriptionBlock.line1).toBe('este es el contenido de line-1');
+    expect(floatingDescription?.descriptionBlock.lines[0]).toBe('este es el contenido de line-1');
   });
 
   it('should parse navigation correctly', () => {

@@ -17,9 +17,9 @@
     >
       <h1>{{ title() }}</h1>
       @for(line of description(); track line){
-        <div class="description-line" [class.quote-ref]="line.includes('REF')" [ngStyle]="getStyleForQuoteRef(line)">
+        <div class="description-line" [class.quote-ref]="line.includes('REF')" [ngStyle]="getStyleForQuoteRef(line)">          
           <span class="quote" *ngIf="line.includes('QUOTE')">“</span>
-          <span >{{ line.replace("QUOTE", "").replace("REF", "") }}</span>
+          <span >{{ line.replace("QUOTE", "").replace("REF", "") }}</span> 
         </div>
       }
     </div>
