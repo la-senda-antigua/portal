@@ -73,23 +73,7 @@
             }                         
           },
           "background-color": "#f5f5f5"
-        },
-        {
-          "name": "section-4",
-          "image-card": {
-            "title": "Escuela en casa",
-            "description": {
-              "line-1": "En Iglesia La Senda Antigua, creemos que los padres son quienes han sido encomendados por Dios a educar a sus hijos.",
-              "line-2": "Hoy día, los hijos pasan la mayor parte de su tiempo en las escuelas y colegios, en donde son instruidos, no solamente por sus maestros, sino también por sus compañeros... ¡y hemos visto los desastrosos resultados!",
-              "line-4": "Pero ese no es el plan de Dios para nuestras familias.",
-              "button": {
-                "text": "Leer más...",
-                "link": "/homeschool"
-              }
-            },
-            "image": "assets/images/homeschool.jpg"
-          }
-        },
+        },        
         {
           "name": "footer",
           "footer" :  {
