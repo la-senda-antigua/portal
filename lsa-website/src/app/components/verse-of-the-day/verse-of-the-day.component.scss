@@ -1,14 +1,13 @@
 @use "../../../styles_variables" as lsa_var;
 
 .verse-of-the-day{
-  display: flex;
-  width: 100vw;
+  display: flex;  
   padding: 0;
   justify-content:center;
   
   & .content{
     position:relative;
-    max-width: 1600px;
+    max-width: 1600px;    
     & .title{
       text-align: left;
       font-weight: normal;
