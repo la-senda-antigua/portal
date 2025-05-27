@@ -41,4 +41,4 @@ jobs:
         key: ${{ secrets.CONTABO_SSH_PWD }}
         source: "home/runner/work/portal/portal/lsa-website/dist/lsa-website/*"
         target: /www/testing,
-        strip_components: 8
+        rm: true
