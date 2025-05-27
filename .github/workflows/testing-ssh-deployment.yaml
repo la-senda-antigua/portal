@@ -32,6 +32,18 @@ jobs:
         cache-dependency-path: ./lsa-website
     - run: npm ci
     - run: npm run build -- --configuration production
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: lsa-website
+        path: |
+          dist
+          /home/runner/work/portal/portal/robots.txt
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: lsa-website
+        path: dist-files
     
     - name: Upload files to VPS
       uses: appleboy/scp-action@v1
@@ -39,6 +51,5 @@ jobs:
         host: ${{ vars.CONTABO_SSH_IP }}
         username: ${{ vars.CONTABO_SSH_USER }}
         key: ${{ secrets.CONTABO_SSH_PWD }}
-        source: "/home/runner/work/portal/portal/lsa-website/dist/lsa-website/,/home/runner/work/portal/portal/robots.txt"
+        source: distfiles/*
         target: /www/testing
-        strip_components: 8
