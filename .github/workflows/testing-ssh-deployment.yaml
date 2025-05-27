@@ -37,7 +37,7 @@ jobs:
       with:
         name: lsa-website
         path: |
-          dist
+          /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
           /home/runner/work/portal/portal/robots.txt
 
     - uses: actions/download-artifact@v4
@@ -53,3 +53,4 @@ jobs:
         key: ${{ secrets.CONTABO_SSH_PWD }}
         source: dist-files/*
         target: /www/testing
+        strip_components: 1
