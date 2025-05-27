@@ -53,4 +53,4 @@ jobs:
         key: ${{ secrets.CONTABO_SSH_PWD }}
         source: dist-files/*
         target: /www/testing
-        strip_components: 1
+        strip_components: 4
