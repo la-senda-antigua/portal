@@ -34,11 +34,11 @@ jobs:
     - run: npm run build -- --configuration production
     
     - name: Upload files to VPS
-      continue-on-error: true
       uses: appleboy/scp-action@v1
       with:
         host: ${{ vars.CONTABO_SSH_IP }}
         username: ${{ vars.CONTABO_SSH_USER }}
         key: ${{ secrets.CONTABO_SSH_PWD }}
         source: "/home/runner/work/portal/portal/lsa-website/dist/lsa-website/"
-        target: /www/testing
+        target: /www/testing,
+        strip_components: true
