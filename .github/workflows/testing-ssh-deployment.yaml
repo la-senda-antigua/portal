@@ -36,13 +36,15 @@ jobs:
     - uses: actions/upload-artifact@v4
       with:
         name: lsa-website
-        path: |
-          /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
-          /home/runner/work/portal/portal/robots.txt
+        path: /home/runner/work/portal/portal/lsa-website/dist/lsa-website/
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: robots
+        path: /home/runner/work/portal/portal/robots.txt        
 
     - uses: actions/download-artifact@v4
       with:
-        name: lsa-website
         path: dist-files
     
     - name: Upload files to VPS
@@ -53,4 +55,5 @@ jobs:
         key: ${{ secrets.CONTABO_SSH_PWD }}
         source: dist-files/*
         target: /www/testing
-        strip_components: 4
+        overwrite: true
+        strip_components: 1
