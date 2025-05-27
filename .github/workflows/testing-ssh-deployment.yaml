@@ -39,6 +39,6 @@ jobs:
         host: ${{ vars.CONTABO_SSH_IP }}
         username: ${{ vars.CONTABO_SSH_USER }}
         key: ${{ secrets.CONTABO_SSH_PWD }}
-        source: "/home/runner/work/portal/portal/lsa-website/dist/lsa-website/"
+        source: "home/runner/work/portal/portal/lsa-website/dist/lsa-website/*"
         target: /www/testing,
         strip_components: 8
