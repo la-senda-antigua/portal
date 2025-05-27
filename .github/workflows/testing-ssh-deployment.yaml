@@ -56,4 +56,4 @@ jobs:
         source: dist-files/*
         target: /www/testing
         overwrite: true
-        strip_components: 1
+        strip_components: 2
