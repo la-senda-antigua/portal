@@ -51,5 +51,5 @@ jobs:
         host: ${{ vars.CONTABO_SSH_IP }}
         username: ${{ vars.CONTABO_SSH_USER }}
         key: ${{ secrets.CONTABO_SSH_PWD }}
-        source: distfiles/*
+        source: dist-files/*
         target: /www/testing
