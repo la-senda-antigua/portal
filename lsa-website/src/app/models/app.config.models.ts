@@ -68,6 +68,12 @@ export interface VerseConfig{
   textAlign: string;
 }
 
+export interface QuickLinkConfig{
+  iconName: string;
+  link: string;
+  label: string;
+}
+
 export interface SectionConfig {
   title: string;
   name: string;

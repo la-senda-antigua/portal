@@ -99,6 +99,19 @@
           }
         },        
         {
+          "name": "section-5",
+          "quick-links": {
+            "title": "Explore también:",            
+            "background-color": "#3f4a49",
+            "icons": [
+              {"icon-name" : "subscriptions", "link":"/services", "label": "Servicios recientes"},
+              {"icon-name" : "menu_book", "link":"/foundation", "label": "Estudios bíblicos"},
+              {"icon-name" : "radio", "link":"/radio", "label": "Programación radial"},
+              {"icon-name" : "calendar_month", "link":"/calendar", "label": "Calendario de eventos"}
+            ]
+          }
+        },        
+        {
           "name": "footer",
           "footer" :  {
             "items":[
