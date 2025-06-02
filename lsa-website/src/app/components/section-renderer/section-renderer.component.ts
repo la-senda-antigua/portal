@@ -10,10 +10,11 @@ import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.com
 import { MapWidgetComponent } from '../map-widget/map-widget.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ImageCardComponent } from "../image-card/image-card.component";
+import { QuickLinksComponent } from "../quick-links/quick-links.component";
 
 @Component({
   selector: 'lsa-section-renderer',
-  imports: [DescriptionBlockComponent, VerseOfTheDayComponent, MapWidgetComponent, FooterComponent, ImageCardComponent],
+  imports: [DescriptionBlockComponent, VerseOfTheDayComponent, MapWidgetComponent, FooterComponent, ImageCardComponent, QuickLinksComponent],
 
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',

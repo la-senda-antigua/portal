@@ -23,6 +23,10 @@
     <lsa-image-card [config]="sectionConfig().imageCard!"></lsa-image-card>
   }
   
+  @if(sectionConfig().quickLinks?.icons){        
+    <lsa-quick-links [config]="sectionConfig().quickLinks!"></lsa-quick-links>
+  }
+  
   @if(sectionConfig().footer){
     <lsa-footer [config]="sectionConfig().footer!" ></lsa-footer>
   }

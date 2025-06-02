@@ -1,18 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import { QuickLinksConfig } from 'src/app/models/app.config.models';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'lsa-quick-links',
-  imports: [],
+  imports: [MatIconModule, RouterLink],
   templateUrl: './quick-links.component.html',
   styleUrl: './quick-links.component.scss',
 })
 export class QuickLinksComponent {
-  
-
-  textColor() {
-    throw new Error('Method not implemented.');
-  }
-  backgroundColor() {
-    throw new Error('Method not implemented.');
-  }
+  readonly config = input.required<QuickLinksConfig>();
+  readonly data = signal<QuickLinksConfig | null>(null)
 }
