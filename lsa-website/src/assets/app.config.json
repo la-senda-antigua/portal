@@ -104,11 +104,11 @@
           "text-color": "#fff",          
           "quick-links": {
             "title": "Explore también:",            
-            "icons": [
-              {"icon" : "subscriptions", "link":"/services", "label": "Servicios recientes"},
-              {"icon" : "menu_book", "link":"/foundation", "label": "Estudios bíblicos"},
-              {"icon" : "radio", "link":"/radio", "label": "Programación radial"},
-              {"icon" : "calendar_month", "link":"/calendar", "label": "Calendario de eventos"}
+            "links": [
+              {"icon" : "subscriptions", "path":"/services", "label": "Servicios recientes"},
+              {"icon" : "menu_book", "path":"/foundation", "label": "Estudios bíblicos"},
+              {"icon" : "radio", "path":"/radio", "label": "Programación radial"},
+              {"icon" : "calendar_month", "path":"/calendar", "label": "Calendario de eventos"}
             ]
           }
         },        

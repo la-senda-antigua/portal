@@ -71,12 +71,12 @@ export interface VerseConfig{
 export interface QuickLinksConfig{
   title?: string;
   backgrounColor?: string;
-  icons: IconLinkConfig[];
+  links: IconLinkConfig[];
 }
 
 export interface IconLinkConfig{
   icon?: string;
-  link?: string;
+  path?: string;
   label?: string;
 }
 

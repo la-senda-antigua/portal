@@ -1,8 +1,8 @@
 <div>
     <h1 class="title">{{config().title}}</h1>
     <div class="quick-links-container">
-      @for(item of config().icons; track item.icon){        
-        <a [routerLink]="item.link" class="option">
+      @for(item of config().links; track item.icon){        
+        <a [routerLink]="item.path" class="option">
           @if(item.icon){            
             <mat-icon>{{item.icon}}</mat-icon>
           }
