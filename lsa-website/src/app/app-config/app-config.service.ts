@@ -157,7 +157,7 @@ export class AppConfigService {
     return{
       title: quickLinks['title'],
       backgrounColor: quickLinks['background-color'],
-      links: quickLinks['icons']
+      links: quickLinks['links']
     }
   }
 }

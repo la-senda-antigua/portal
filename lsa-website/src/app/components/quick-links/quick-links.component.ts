@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, OnInit, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { QuickLinksConfig } from 'src/app/models/app.config.models';
 import { RouterLink } from '@angular/router';

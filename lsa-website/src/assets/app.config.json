@@ -105,10 +105,10 @@
           "quick-links": {
             "title": "Explore también:",            
             "links": [
-              {"icon" : "subscriptions", "path":"/services", "label": "Servicios recientes"},
-              {"icon" : "menu_book", "path":"/foundation", "label": "Estudios bíblicos"},
-              {"icon" : "radio", "path":"/radio", "label": "Programación radial"},
-              {"icon" : "calendar_month", "path":"/calendar", "label": "Calendario de eventos"}
+              {"icon" : "icons8-cinema-100.png", "path":"/services", "label": "Servicios recientes"},
+              {"icon" : "icons8-holy-bible-100.png", "path":"/foundation", "label": "Estudios bíblicos"},
+              {"icon" : "icons8-radio-100.png", "path":"/radio", "label": "Programación radial"},
+              {"icon" : "icons8-calendar-100.png", "path":"/calendar", "label": "Calendario de eventos"}
             ]
           }
         },        
