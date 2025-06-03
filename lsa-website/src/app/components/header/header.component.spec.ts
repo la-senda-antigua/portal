@@ -39,8 +39,10 @@ describe('HeaderComponent', () => {
     const mockConfig = {
       floatingDescription: {
         descriptionBlock: {
-          line1: 'Line 1',
-          line2: 'Line 2',
+          lines:[
+            'Line 1',
+            'Line 2',
+        ]
         },
       },
     };

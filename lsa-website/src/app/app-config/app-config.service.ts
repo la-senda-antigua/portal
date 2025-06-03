@@ -87,11 +87,7 @@ export class AppConfigService {
       return {} as DescriptionBlockConfig;
     }
     return {
-      line1: descriptionBlock['line-1'],
-      line2: descriptionBlock['line-2'],
-      line3: descriptionBlock['line-3'],
-      line4: descriptionBlock['line-4'],
-      line5: descriptionBlock['line-5'],
+      lines: descriptionBlock.lines || [],      
       button: descriptionBlock.button,
       textColor: descriptionBlock['text-color'],
       backgroundColor: descriptionBlock['background-color'],
@@ -117,7 +113,8 @@ export class AppConfigService {
     return {
       title: imageCard.title,
       image: imageCard.image,
-      description: this.parseDescriptionBlock(imageCard.description),
+      backgroundColor: imageCard['background-color'],
+      description: this.parseDescriptionBlock(imageCard.description),      
     };
   }
 

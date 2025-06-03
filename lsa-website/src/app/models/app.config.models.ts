@@ -6,11 +6,7 @@ export interface ButtonConfig {
 }
 
 export interface DescriptionBlockConfig {
-  line1: string;
-  line2?: string;
-  line3?: string;
-  line4?: string;
-  line5?: string;
+  lines: string[],  
   button?: ButtonConfig;
   textColor?: string;
   backgroundColor?: string;
@@ -41,7 +37,8 @@ export interface MapWidgetConfig {
 export interface ImageCardConfig {
   title: string;
   image: string;
-  description: DescriptionBlockConfig;
+  backgroundColor?: string;
+  description: DescriptionBlockConfig;  
 }
 
 export interface FooterConfig{

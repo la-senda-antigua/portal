@@ -21,17 +21,9 @@ export class HeaderComponent {
     () => this.headerConfig().backgroundImage ?? undefined
   );
 
-  readonly description = computed(() => {
-    const lines: string[] = [];
-    const block = this.headerConfig().floatingDescription?.descriptionBlock;
-    if (block) {
-      for (const [key, value] of Object.entries(block)) {
-        if (key.includes('line') && value) {
-          lines.push(value);
-        }
-      }
-    }
-    return lines;
+  readonly description = computed(() => {    
+    const block = this.headerConfig().floatingDescription?.descriptionBlock;    
+    return block?.lines || [];
   });
 
   readonly textColor = computed(

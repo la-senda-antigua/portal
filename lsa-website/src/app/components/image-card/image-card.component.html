@@ -1,0 +1,16 @@
+<div class="image-card-container">
+    <div class="description">
+        <h1>{{ config().title }}</h1>
+        @for(line of config().description.lines; track line) {
+            <p>{{ line }}</p>
+        }        
+        
+        @if (config().description.button) {            
+            <a [routerLink]="config().description.button?.link" mat-flat-button class="button">{{ config().description.button?.text }}</a>
+        }   
+    </div>
+    <div class="picture-container">
+        <div class="picture" [style.backgroundImage]="config().image ? 'url(' + config().image + ')' : ''"></div>
+    </div>
+
+</div>
