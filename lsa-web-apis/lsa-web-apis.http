@@ -1,0 +1,6 @@
+@lsa_web_apis_HostAddress = http://localhost:5089
+
+GET {{lsa_web_apis_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

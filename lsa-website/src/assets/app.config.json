@@ -99,6 +99,20 @@
           }
         },        
         {
+          "name": "section-5",
+          "background-color": "#3f4a49",
+          "text-color": "#fff",          
+          "quick-links": {
+            "title": "Explore también:",            
+            "links": [
+              {"icon" : "icons8-cinema-100.png", "path":"/services", "label": "Servicios recientes"},
+              {"icon" : "icons8-holy-bible-100.png", "path":"/foundation", "label": "Estudios bíblicos"},
+              {"icon" : "icons8-radio-100.png", "path":"/radio", "label": "Programación radial"},
+              {"icon" : "icons8-calendar-100.png", "path":"/calendar", "label": "Calendario de eventos"}
+            ]
+          }
+        },        
+        {
           "name": "footer",
           "footer" :  {
             "items":[

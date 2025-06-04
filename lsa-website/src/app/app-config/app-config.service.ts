@@ -12,6 +12,7 @@ import {
   NavigationConfig,
   VerseConfig,
   FooterConfig,
+  QuickLinksConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -47,7 +48,7 @@ export class AppConfigService {
     };
   }
 
-  private parseConfigSection(section: any): SectionConfig {
+  private parseConfigSection(section: any): SectionConfig {    
     return {
       title: section.title,
       name: section.name,
@@ -64,6 +65,7 @@ export class AppConfigService {
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
+      quickLinks: this.parseQuickLinks(section['quick-links']),
       footer: this.parseFooter(section['footer']),
     };
   }
@@ -147,5 +149,15 @@ export class AppConfigService {
     }
 
     return footer;
+  }
+
+  private parseQuickLinks(quickLinks: any): QuickLinksConfig{
+    if (!quickLinks) return {} as QuickLinksConfig
+
+    return{
+      title: quickLinks['title'],
+      backgrounColor: quickLinks['background-color'],
+      links: quickLinks['links']
+    }
   }
 }

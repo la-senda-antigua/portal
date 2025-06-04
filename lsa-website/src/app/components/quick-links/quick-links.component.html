@@ -1,0 +1,13 @@
+<div>
+    <h1 class="title">{{config().title}}</h1>
+    <div class="quick-links-container">
+      @for(item of config().links; track item.icon){        
+        <a [routerLink]="item.path" class="option">
+          @if(item.icon){            
+            <img class="icon" [src]="'/assets/icons/' + item.icon"/>
+          }
+          <div class="icon-label">{{item.label}}</div>
+        </a>
+      }
+    </div>
+</div>

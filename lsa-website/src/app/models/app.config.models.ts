@@ -68,6 +68,18 @@ export interface VerseConfig{
   textAlign: string;
 }
 
+export interface QuickLinksConfig{
+  title?: string;
+  backgrounColor?: string;
+  links: IconLinkConfig[];
+}
+
+export interface IconLinkConfig{
+  icon?: string;
+  path?: string;
+  label?: string;
+}
+
 export interface SectionConfig {
   title: string;
   name: string;
@@ -80,7 +92,8 @@ export interface SectionConfig {
   mapWidget?: MapWidgetConfig;
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
-  footer?: FooterConfig;
+  quickLinks?: QuickLinksConfig;
+  footer?: FooterConfig;  
 }
 
 export interface PageConfig {
