@@ -1,1 +1,4 @@
 .DS_Store
+
+lsa-web-apis/bin/
+lsa-web-apis/obj/
