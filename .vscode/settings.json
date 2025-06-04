@@ -1,3 +1,19 @@
 {
-    "dotnet.defaultSolution": "lsa-web-apis/lsa-web-apis.sln"
+    "dotnet.defaultSolution": "lsa-web-apis/lsa-web-apis.sln",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "154.53.61.184",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "LSA_USERS",
+            "database": "lsa_portal_users",
+            "username": "lsa-portal-admin",
+            "password": "wK7aTsZCaJMfCcfe"
+        }
+    ]
 }
