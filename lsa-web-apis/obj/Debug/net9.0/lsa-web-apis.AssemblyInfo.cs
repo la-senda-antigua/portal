@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("lsa-web-apis")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9b45a89aa6e2bc5fea49e15c52aac1e1568615fd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d3d5fce2a55f50da13e14098bbca512c1512accf")]
 [assembly: System.Reflection.AssemblyProductAttribute("lsa-web-apis")]
 [assembly: System.Reflection.AssemblyTitleAttribute("lsa-web-apis")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
