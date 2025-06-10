@@ -4,3 +4,5 @@ lsa-web-apis/bin/
 lsa-web-apis/obj/
 
 lsa-web-apis/.vscode/
+
+lsa-web-apis/Migrations/
