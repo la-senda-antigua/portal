@@ -3,6 +3,7 @@ import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { AuthGuard } from './auth.guard';
 import { ChurchServicesComponent } from './components/church-services/church-services.component';
+import { BibleCoursesComponent } from './components/bible-courses/bible-courses.component';
 
 export const routes: Routes = [
   {
@@ -17,6 +18,11 @@ export const routes: Routes = [
   {
     path: 'services',
     component: ChurchServicesComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'courses',
+    component: BibleCoursesComponent,
     canActivate: [AuthGuard]
   }
 ];
