@@ -1,0 +1,10 @@
+<div class="steram-container">
+  <h1>Stream Control</h1>
+  <button mat-fab extended (click)="toggleLive()"
+          [style.background-color]="!isOnline ? '' : '#d00'"
+          [style.color]="!isOnline ? '' : '#fff'"
+          >
+    <mat-icon>{{isOnline ? 'wifi_off': 'wifi'}}</mat-icon>
+    {{getButtonText()}}
+  </button>
+</div>

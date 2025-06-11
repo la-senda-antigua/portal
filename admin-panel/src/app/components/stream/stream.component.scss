@@ -1,0 +1,16 @@
+.steram-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  & button{
+    max-width: 300px;
+  }
+}
+
+.offline{
+  background-color: #d00;
+  color: #fff;
+}

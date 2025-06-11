@@ -4,6 +4,7 @@ import { HomeComponent } from './components/home/home.component';
 import { AuthGuard } from './auth.guard';
 import { ChurchServicesComponent } from './components/church-services/church-services.component';
 import { BibleCoursesComponent } from './components/bible-courses/bible-courses.component';
+import { StreamComponent } from './components/stream/stream.component';
 
 export const routes: Routes = [
   {
@@ -24,5 +25,10 @@ export const routes: Routes = [
     path: 'courses',
     component: BibleCoursesComponent,
     canActivate: [AuthGuard]
-  }
+  },
+  {
+    path: 'stream',
+    component: StreamComponent,
+    canActivate: [AuthGuard]
+  },
 ];
