@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using lsa_web_apis.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -26,13 +27,30 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> Login(UserDto request)
+    public async Task<ActionResult<TokenResponseDto?>> Login(UserDto request)
     {
-        var token = await authService.LoginAsync(request);
-        if (token is null)
+        var response = await authService.LoginAsync(request);
+        if (response is null)
             return BadRequest("Invalid user.");
 
-        return Ok(token);
+        return Ok(response);
+    }
+
+    [HttpPost("refresh-tokens")]
+    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequetDto request)
+    {
+        var response = await authService.RefreshTokensAsync(request);
+        if (response is null)
+            return Unauthorized("Invalid refresh token.");
+
+        return Ok(response);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public IActionResult AuthenticatedEndpoint()
+    {
+        return Ok("You are authenticated");
     }
 }
 
