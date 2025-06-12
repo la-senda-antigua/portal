@@ -34,7 +34,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: lsa-website
+        name: admin-panel
         path: /home/runner/work/portal/portal/lsa-website/dist/admin-panel/
 
     - uses: actions/upload-artifact@v4
