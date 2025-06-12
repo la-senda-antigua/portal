@@ -13,26 +13,16 @@ namespace lsa_web_apis.Services;
 
 public class AuthService(UserDbContext context, IConfiguration configuration) : IAuthService
 {
-    public async Task<TokenResponseDto?> LoginAsync(UserDto request)
+    public async Task<User?> RegisterAsync(string username, string role)
     {
-        var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.Username == request.Username);
-        if (user == null)
-        {
-            return null;
-        }
-        
-        return await CreateTokenResponse(user);
-    }
-
-    public async Task<User?> RegisterAsync(UserDto request)
-    {
-        if (await context.PortalUsers.AnyAsync(u => u.Username == request.Username))
+        if (await context.PortalUsers.AnyAsync(u => u.Username == username))
         {
             return null;
         }
         var user = new User()
         {
-            Username = request.Username,
+            Username = username,
+            Role = role,
         };
         context.PortalUsers.Add(user);
         await context.SaveChangesAsync();
@@ -45,7 +35,27 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
         if (user is null)
             return null;
-            
+
+        return await CreateTokenResponse(user);
+    }
+
+    public async Task<TokenResponseDto?> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
+    {
+        if (claimsPrincipal is null)
+        {
+            return null;
+        }
+
+        var email = claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value;
+        if (string.IsNullOrEmpty(email))
+        {
+            return null;
+        }
+
+        var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.Username.ToLower() == email.ToLower());
+        if (user is null)
+            throw new InvalidOperationException("User not found.");
+
         return await CreateTokenResponse(user);
     }
 
@@ -79,7 +89,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
     private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
     {
         var user = await context.PortalUsers.FindAsync(userId);
-        if(user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpirationDate < DateTime.UtcNow)
+        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpirationDate < DateTime.UtcNow)
         {
             return null;
         }

@@ -1,13 +1,10 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using lsa_web_apis.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace lsa_web_apis.Controllers;
 
@@ -15,25 +12,15 @@ namespace lsa_web_apis.Controllers;
 [ApiController]
 public class AuthController(IAuthService authService) : ControllerBase
 {
-
+    [Authorize(Roles = "Admin")]
     [HttpPost("register")]
-    public async Task<ActionResult<User>> Register(UserDto request)
+    public async Task<ActionResult<User>> Register(string username, string role)
     {
-        var user = await authService.RegisterAsync(request);
+        var user = await authService.RegisterAsync(username, role);
         if (user is null)
             return BadRequest("User name already in use.");
 
         return Ok(user);
-    }
-
-    [HttpPost("login")]
-    public async Task<ActionResult<TokenResponseDto?>> Login(UserDto request)
-    {
-        var response = await authService.LoginAsync(request);
-        if (response is null)
-            return BadRequest("Invalid user.");
-
-        return Ok(response);
     }
 
     [HttpPost("refresh-tokens")]
@@ -46,11 +33,27 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(response);
     }
 
-    [Authorize(Roles = "Admin")]
-    [HttpGet]
-    public IActionResult AuthenticatedEndpoint()
+    [HttpGet("google-login")]
+    public IActionResult GoogleLogin()
     {
-        return Ok("You are authenticated");
+        var redirectUrl = Url.Action("GoogleResponse", "Auth", null, Request.Scheme);
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        return Challenge(properties, "Google");
+    }
+
+    [HttpGet("google-response")]
+    public async Task<ActionResult<TokenResponseDto?>> GoogleResponse()
+    {
+        var googleAuthenticationResult = await HttpContext.AuthenticateAsync("Google");
+        if (!googleAuthenticationResult.Succeeded)
+            return BadRequest("Google authentication failed.");
+
+        var claims = googleAuthenticationResult.Principal;
+        var tokenResponse = await authService.LoginWithGoogleAsync(claims);
+        if (tokenResponse is null)
+            return BadRequest("Google login failed.");
+
+        return Ok(tokenResponse);
     }
 }
 

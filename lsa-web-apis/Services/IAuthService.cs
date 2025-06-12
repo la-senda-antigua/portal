@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 
@@ -6,7 +7,7 @@ namespace lsa_web_apis.Services;
 
 public interface IAuthService
 {
-    Task<User?> RegisterAsync(UserDto request);
-    Task<TokenResponseDto?> LoginAsync(UserDto request);
+    Task<User?> RegisterAsync(string username, string role);
     Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequetDto request);
+    Task<TokenResponseDto?> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal);
 }
