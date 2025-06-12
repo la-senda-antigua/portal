@@ -3,7 +3,7 @@ name: Admin Front
 on:
   workflow_dispatch:
   push:
-    branches: [ "development" ]
+    branches: [ "81-create-lsa-web-admin-angular-project" ]
 
 jobs:
   build-and-deploy:
