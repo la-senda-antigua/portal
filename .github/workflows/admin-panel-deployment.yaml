@@ -30,12 +30,12 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ./admin-panel
     - run: npm ci
-    - run: npm run build -- --configuration production
+    - run: npm run build -- --configuration production --output-path=dist/admin-panel
 
     - uses: actions/upload-artifact@v4
       with:
         name: admin-panel
-        path: /home/runner/work/portal/portal/lsa-website/dist/admin-panel/
+        path: ./admin-panel/dist/admin-panel/
 
     - uses: actions/upload-artifact@v4
       with:
