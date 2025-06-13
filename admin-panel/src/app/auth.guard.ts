@@ -12,11 +12,9 @@ export class AuthGuard implements CanActivate {
   ) { }
 
   canActivate(): boolean {
-    if (this.authService.validateToken()) {
-      // Si está logueado, permite acceso
+    if (this.authService.validateToken()) {      
       return true;
-    } else {
-      // Si no está logueado, redirige al login
+    } else {      
       this.router.navigate(['/login']);
       return false;
     }

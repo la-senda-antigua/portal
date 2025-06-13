@@ -1,4 +1,4 @@
-<div class="steram-container">
+<!-- <div class="steram-container">
   <h1>Stream Control</h1>
   <button mat-fab extended (click)="toggleLive()"
           [style.background-color]="!isOnline ? '' : '#d00'"
@@ -7,4 +7,27 @@
     <mat-icon>{{isOnline ? 'wifi_off': 'wifi'}}</mat-icon>
     {{getButtonText()}}
   </button>
-</div>
+</div> -->
+
+<h3>Stream</h3>
+<p>The URL inserted here will show up in iglesialasendaantigua.com</p>
+<p>Go LIVE will send a notification to users that service is LIVE.</p>
+
+<form class="steram-container" (ngSubmit)="toggleLive()">
+  <mat-form-field class="flex-grow-2">
+    <mat-label>Stream Url</mat-label>
+    <input matInput placeholder="https://rumble..." [(ngModel)]="url" [ngModelOptions]="{standalone: true}" required/>
+  </mat-form-field>
+
+  <button
+    mat-fab
+    extended    
+    [style.background-color]="!isOnline ? '' : '#d00'"
+    [style.color]="!isOnline ? '' : '#fff'"
+    [disabled]="!url || !url.trim()"
+    type="submit"
+  >
+    <mat-icon>{{ isOnline ? "wifi_off" : "wifi" }}</mat-icon>
+    {{ getButtonText() }}
+  </button>
+</form>
