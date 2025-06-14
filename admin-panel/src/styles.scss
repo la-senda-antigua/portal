@@ -1,0 +1,18 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+.container{
+    padding: 40px;
+}
+
+
+.dialog-container{  
+  padding: 16px;
+  min-width: 400px;
+}
+
+.flex-grow-1{flex-grow: 1;}
+.flex-grow-2{flex-grow: 2;}

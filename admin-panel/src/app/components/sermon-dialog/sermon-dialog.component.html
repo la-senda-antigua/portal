@@ -1,0 +1,32 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>{{ data ? "Editar Sermón" : "Agregar Sermón" }}</h2>
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Título</mat-label>
+      <input matInput formControlName="title" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Fecha</mat-label>
+      <input matInput formControlName="date" type="date" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Cover</mat-label>
+      <input matInput formControlName="cover" />
+    </mat-form-field>
+    
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Video Url</mat-label>
+      <input matInput formControlName="videoPath" />
+    </mat-form-field>
+
+    <div mat-dialog-actions align="end">
+      <button mat-button type="button" (click)="close()">Cancelar</button>
+      <button mat-flat-button color="primary"type="submit" [disabled]="form.invalid">
+        Guardar
+      </button>
+    </div>
+  </form>
+</div>
