@@ -1,0 +1,58 @@
+name: Admin Front
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "development", "88-create-github-action-to-build-and-deploy-to-adminiglesialasendaantiguacom" ]
+
+jobs:
+  build-and-deploy:
+    defaults:
+      run:
+        working-directory: ./admin-panel
+
+    runs-on: ubuntu-latest
+    
+    environment: 
+      name: testing
+    
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: ./admin-panel
+    - run: npm ci
+    - run: npm run build -- --configuration production --output-path=dist/admin-panel
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: admin-panel
+        path: ./admin-panel/dist/admin-panel/
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: robots
+        path: /home/runner/work/portal/portal/robots.txt        
+
+    - uses: actions/download-artifact@v4
+      with:
+        path: dist-files
+    
+    - name: Upload files to VPS
+      uses: appleboy/scp-action@v1
+      with:
+        host: ${{ vars.CONTABO_SSH_IP }}
+        username: ${{ vars.CONTABO_SSH_USER }}
+        key: ${{ secrets.CONTABO_SSH_PWD }}
+        source: dist-files/*
+        target: /www/admin.iglesialasendaantigua.com
+        overwrite: true
+        strip_components: 2
