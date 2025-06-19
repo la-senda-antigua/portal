@@ -30,7 +30,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
     - name: Publish
-      run: dotnet publish --configuration Release -r ubuntu.24.04-x64 --self-contained /p:PublishProfile=NoAppSettings
+      run: dotnet publish --configuration Release -r ubuntu.20.04-x64 --self-contained /p:PublishProfile=NoAppSettings
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
