@@ -1,4 +1,4 @@
-name: Build and Deploy Admin Panel (SSH)
+name: Depoy Admin Panel
 
 on:
   workflow_dispatch:

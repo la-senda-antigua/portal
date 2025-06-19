@@ -1,0 +1,53 @@
+name: Deploy APIs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "development" ]
+    paths:
+      - 'lsa-web-apis/**'
+
+jobs:
+  build-and-deploy:
+    defaults:
+      run:
+        working-directory: ./lsa-web-apis
+
+    runs-on: ubuntu-latest
+    
+    environment: 
+      name: testing
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release
+    - name: Publish
+      run: dotnet publish --configuration Release --output ./publish
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-apis-artifact
+        path: ./publish
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: web-apis-artifact
+        path: ./publish
+    
+    - name: Copy files to VPS
+      uses: appleboy/scp-action@v1
+      with:
+        host: ${{ vars.CONTABO_SSH_IP }}
+        username: ${{ vars.CONTABO_SSH_USER }}
+        key: ${{ secrets.CONTABO_SSH_PWD }}
+        source: .publish/*
+        target: /www/testing-api
+        overwrite: true

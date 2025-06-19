@@ -1,9 +1,11 @@
-name: Run unit tests on PR created
+name: Run Website Unit Tests
 
 on:
   workflow_dispatch:
   pull_request:
     branches: [ "development" ]
+    paths:
+      - 'lsa-website/**'
 
 jobs:
   ng-test:
