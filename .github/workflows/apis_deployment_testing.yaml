@@ -35,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: web-apis-artifact
-        path: /home/runner/work/portal/portal/lsa-web-apis/
+        path: /home/runner/work/portal/portal/lsa-web-apis/bin/Release/net9.0/publish
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
@@ -51,3 +51,4 @@ jobs:
         source: api-dist-files/*
         target: /www/testing-api
         overwrite: true
+        strip_components: 1
