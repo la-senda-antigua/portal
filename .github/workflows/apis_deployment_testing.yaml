@@ -30,17 +30,17 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release
     - name: Publish
-      run: dotnet publish --configuration Release --property:PublishDir=./publish
+      run: dotnet publish --configuration Release
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: web-apis-artifact
-        path: ./publish
+        path: /home/runner/work/portal/portal/lsa-web-apis/
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
         name: web-apis-artifact
-        path: ./publish
+        path: api-dist-files
     
     - name: Copy files to VPS
       uses: appleboy/scp-action@v1
@@ -48,6 +48,6 @@ jobs:
         host: ${{ vars.CONTABO_SSH_IP }}
         username: ${{ vars.CONTABO_SSH_USER }}
         key: ${{ secrets.CONTABO_SSH_PWD }}
-        source: .publish/*
+        source: api-dist-files/*
         target: /www/testing-api
         overwrite: true
