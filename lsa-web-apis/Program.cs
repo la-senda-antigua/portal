@@ -22,7 +22,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
-        // options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
         options.SaveTokens = true;
         options.Scope.Add("email");
         options.Scope.Add("profile");
