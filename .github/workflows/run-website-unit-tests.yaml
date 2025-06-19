@@ -1,4 +1,4 @@
-name: Run unit tests on PR created
+name: Run Website Unit Tests
 
 on:
   workflow_dispatch:

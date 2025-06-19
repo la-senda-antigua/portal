@@ -1,4 +1,4 @@
-name: Build and Deploy (SSH)
+name: Deploy APIs
 
 on:
   workflow_dispatch:
