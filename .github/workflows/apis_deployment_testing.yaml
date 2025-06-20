@@ -52,3 +52,13 @@ jobs:
         target: /www/testing-api
         overwrite: true
         strip_components: 1
+
+    - name: Fix permissions and restart service
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ vars.CONTABO_SSH_IP }}
+        username: ${{ vars.CONTABO_SSH_USER }}
+        key: ${{ secrets.CONTABO_SSH_PWD }}
+        script: |
+          chmod +x /www/testing-api/lsa-web-apis
+          sudo systemctl restart lsa-web-apis
