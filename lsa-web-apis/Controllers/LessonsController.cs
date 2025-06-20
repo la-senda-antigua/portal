@@ -33,7 +33,7 @@ namespace lsa_web_apis.Controllers
             return Ok(lesson);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Lesson>> CreateLesson(Lesson lesson)
         {
@@ -43,7 +43,7 @@ namespace lsa_web_apis.Controllers
             return CreatedAtAction(nameof(GetLesson), new { id = lesson.Id }, lesson);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateLesson(int id, Lesson lesson)
         {
@@ -64,7 +64,7 @@ namespace lsa_web_apis.Controllers
             return NoContent();
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLesson(int id)
         {

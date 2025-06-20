@@ -38,7 +38,7 @@ namespace lsa_web_apis.Controllers
             return Ok(preacher);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Preacher>> CreatePreacher(Preacher preacher)
         {
@@ -48,7 +48,7 @@ namespace lsa_web_apis.Controllers
             return CreatedAtAction(nameof(GetPreacher), new { id = preacher.Id }, preacher);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePreacher(int id, Preacher preacher)
         {
@@ -67,7 +67,7 @@ namespace lsa_web_apis.Controllers
             return NoContent();
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePreacher(int id)
         {

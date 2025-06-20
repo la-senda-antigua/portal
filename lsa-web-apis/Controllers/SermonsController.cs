@@ -33,7 +33,7 @@ namespace lsa_web_apis.Controllers
             return Ok(sermon);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Sermon>> CreateSermon(Sermon sermon)
         {
@@ -43,7 +43,7 @@ namespace lsa_web_apis.Controllers
             return CreatedAtAction(nameof(GetSermon), new { id = sermon.Id }, sermon);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSermon(int id, Sermon sermon)
         {
@@ -65,7 +65,7 @@ namespace lsa_web_apis.Controllers
             return NoContent();
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSermon(int id)
         {
