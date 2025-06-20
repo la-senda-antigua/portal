@@ -11,7 +11,6 @@ namespace lsa_web_apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class PreachersController : ControllerBase
     {
         private readonly SermonDbContext _context;
@@ -39,6 +38,7 @@ namespace lsa_web_apis.Controllers
             return Ok(preacher);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Preacher>> CreatePreacher(Preacher preacher)
         {
@@ -48,6 +48,7 @@ namespace lsa_web_apis.Controllers
             return CreatedAtAction(nameof(GetPreacher), new { id = preacher.Id }, preacher);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePreacher(int id, Preacher preacher)
         {
@@ -66,6 +67,7 @@ namespace lsa_web_apis.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePreacher(int id)
         {

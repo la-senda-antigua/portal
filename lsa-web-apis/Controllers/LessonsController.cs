@@ -3,14 +3,13 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
+    [ApiController]    
     public class LessonsController : ControllerBase
     {
         private readonly SermonDbContext _context;
@@ -19,7 +18,7 @@ namespace lsa_web_apis.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedResult<Lesson>>> GetLessons([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var pagedResult = await _context.Lessons.OrderByDescending(s => s.Id).ToPagedResultAsync(page, pageSize);
+            var pagedResult = await _context.Lessons.Include(l=> l.Preacher).OrderByDescending(s => s.Id).ToPagedResultAsync(page, pageSize);
             return Ok(pagedResult);
         }
 
@@ -34,6 +33,7 @@ namespace lsa_web_apis.Controllers
             return Ok(lesson);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Lesson>> CreateLesson(Lesson lesson)
         {
@@ -43,6 +43,7 @@ namespace lsa_web_apis.Controllers
             return CreatedAtAction(nameof(GetLesson), new { id = lesson.Id }, lesson);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateLesson(int id, Lesson lesson)
         {
@@ -54,7 +55,7 @@ namespace lsa_web_apis.Controllers
             existingLesson.Title = lesson.Title;
             existingLesson.Cover = lesson.Cover;
             existingLesson.Date = lesson.Date;
-            existingLesson.Preacher_Id = lesson.Preacher_Id;
+            existingLesson.PreacherId = lesson.PreacherId;
             existingLesson.VideoPath = lesson.VideoPath;
 
             _context.Lessons.Update(existingLesson);
@@ -63,6 +64,7 @@ namespace lsa_web_apis.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteLesson(int id)
         {

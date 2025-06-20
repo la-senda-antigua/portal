@@ -3,14 +3,13 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class SermonsController : ControllerBase
     {
         private readonly SermonDbContext _context;
@@ -19,7 +18,7 @@ namespace lsa_web_apis.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedResult<Sermon>>> GetSermons([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var pagedResult = await _context.Sermons.OrderByDescending(s => s.Id).ToPagedResultAsync(page, pageSize);
+            var pagedResult = await _context.Sermons.Include(s=> s.Preacher).OrderByDescending(s => s.Id).ToPagedResultAsync(page, pageSize);
             return Ok(pagedResult);
         }
 
@@ -34,6 +33,7 @@ namespace lsa_web_apis.Controllers
             return Ok(sermon);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Sermon>> CreateSermon(Sermon sermon)
         {
@@ -43,6 +43,7 @@ namespace lsa_web_apis.Controllers
             return CreatedAtAction(nameof(GetSermon), new { id = sermon.Id }, sermon);
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSermon(int id, Sermon sermon)
         {
@@ -55,7 +56,7 @@ namespace lsa_web_apis.Controllers
             existingSermon.AudioPath = sermon.AudioPath;
             existingSermon.Cover = sermon.Cover;
             existingSermon.Date = sermon.Date;
-            existingSermon.Preacher_Id = sermon.Preacher_Id;
+            existingSermon.PreacherId = sermon.PreacherId;
             existingSermon.VideoPath = sermon.VideoPath;
 
             _context.Sermons.Update(existingSermon);
@@ -64,6 +65,7 @@ namespace lsa_web_apis.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSermon(int id)
         {
