@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace lsa_web_apis.Services;
 
-public class LSAServiceHub : Hub
+public class LiveServiceHub : Hub
 {
     private static bool _isOn = false;
     private static string? _videoURL = null;

@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ILiveService, LiveService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -69,6 +70,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<LSAServiceHub>("/lsa-service-hub");
+app.MapHub<LiveServiceHub>("/lsa-service-hub");
 
 app.Run();

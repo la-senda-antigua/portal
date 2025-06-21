@@ -1,28 +1,18 @@
-using System.Reflection.Metadata;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 
 namespace lsa_web_apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LSAServiceController : ControllerBase
+    public class LSAServiceController(ILiveService _liveService) : ControllerBase
     {
-        private readonly IHubContext<LSAServiceHub> _hubContext;
-
-        public LSAServiceController(IHubContext<LSAServiceHub> hubContext)
-        {
-            _hubContext = hubContext;
-        }
-
-        [Authorize (Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPost("start")]
         public async Task<IActionResult> StartService([FromBody] string videoURL)
         {
-            LSAServiceHub.StartService(videoURL);
-            await _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
+            await _liveService.StartService(videoURL);
             return Ok();
         }
 
@@ -30,8 +20,7 @@ namespace lsa_web_apis.Controllers
         [HttpPost("end")]
         public async Task<IActionResult> EndService()
         {
-            LSAServiceHub.EndService();
-            await _hubContext.Clients.All.SendAsync(Constants.LSAServiceEndedNotification);
+            await _liveService.EndService();
             return Ok();
         }
     }
