@@ -1,0 +1,6 @@
+@use "../../../styles_variables" as lsa_var;
+
+.notification-message{
+    font-size: lsa_var.$fs-lg;
+    line-height: lsa_var.$fs-xl;
+}

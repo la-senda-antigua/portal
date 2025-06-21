@@ -12,7 +12,7 @@
             "position": "left",
             "description-block": {
               "text-color": "#ffffff",
-              "lines":[
+              "lines": [
                 "QUOTE Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
                 "REF Jeremías 6:16"
               ]
@@ -25,7 +25,7 @@
           "name": "section-1",
           "title": "Acerca de nosotros:",
           "description-block": {
-            "lines":[
+            "lines": [
               "Iglesia La Senda Antigua le saluda. Somos una congregación de cristianos que está buscando vivir a la luz del camino antiguo, como lo denota Jeremías 6:16, donde se le exhorta al pueblo de Dios a que pregunte por las sendas antiguas.",
               "Al mencionar las sendas antiguas, nos referimos a las enseñanzas que nos dejaron los apóstoles y los padres espirituales de la fe.",
               "Nuestro deseo es poder responder al Señor, atender a su instrucción de mirar atentamente a los caminos de nuestros antepasados y preguntar en la historia cristiana, cuál es el Camino de Dios y seguirlo.",
@@ -38,43 +38,43 @@
         {
           "name": "section-2",
           "verse-of-the-day": {
-            "title" : "El verso del día",
+            "title": "El verso del día",
             "text-align": "center",
-            "copyright" : "REINA-VALERA 1960"
+            "copyright": "REINA-VALERA 1960"
           },
           "background-color": "rgb(220, 217, 208)"
         },
         {
           "name": "section-3",
           "map-widget": {
-            "src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus",            
+            "src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus",
             "title": "Nuestra ubicación",
             "subtitle": "Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.",
             "table": {
-              "rows":[
+              "rows": [
                 {
-                  "index": 1, 
-                  "columns":[
-                    {"index": 1, "text": "Domingos, 9:00 a.m. - 9:50 a.m."},
-                    {"index": 2, "text": "Estudio bíblico"}
-                  ]                                
+                  "index": 1,
+                  "columns": [
+                    { "index": 1, "text": "Domingos, 9:00 a.m. - 9:50 a.m." },
+                    { "index": 2, "text": "Estudio bíblico" }
+                  ]
                 },
                 {
-                  "index": 2, 
-                  "columns":[
-                    {"index": 1, "text": "Domingos, 10:30 a.m. - 1:00 p.m."},
-                    {"index": 2, "text": "Servicio general"}
-                  ]                                
+                  "index": 2,
+                  "columns": [
+                    { "index": 1, "text": "Domingos, 10:30 a.m. - 1:00 p.m." },
+                    { "index": 2, "text": "Servicio general" }
+                  ]
                 },
                 {
-                  "index": 3, 
-                  "columns":[
-                    {"index": 1, "text": "Martes, 7:30 p.m. - 9:00 p.m."},
-                    {"index": 2, "text": "Servicio general"}
+                  "index": 3,
+                  "columns": [
+                    { "index": 1, "text": "Martes, 7:30 p.m. - 9:00 p.m." },
+                    { "index": 2, "text": "Servicio general" }
                   ]
                 }
               ]
-            }                         
+            }
           },
           "background-color": "#f5f5f5"
         },
@@ -97,49 +97,83 @@
             "background-color": "#ffffff",
             "image": "assets/images/homeschool_kids.jpg"
           }
-        },        
+        },
         {
           "name": "section-5",
           "background-color": "#3f4a49",
-          "text-color": "#fff",          
+          "text-color": "#fff",
           "quick-links": {
-            "title": "Explore también:",            
+            "title": "Explore también:",
             "links": [
-              {"icon" : "icons8-cinema-100.png", "path":"/services", "label": "Servicios recientes"},
-              {"icon" : "icons8-holy-bible-100.png", "path":"/foundation", "label": "Estudios bíblicos"},
-              {"icon" : "icons8-radio-100.png", "path":"/radio", "label": "Programación radial"},
-              {"icon" : "icons8-calendar-100.png", "path":"/calendar", "label": "Calendario de eventos"}
+              {
+                "icon": "icons8-cinema-100.png",
+                "path": "/services",
+                "label": "Servicios recientes"
+              },
+              {
+                "icon": "icons8-holy-bible-100.png",
+                "path": "/foundation",
+                "label": "Estudios bíblicos"
+              },
+              {
+                "icon": "icons8-radio-100.png",
+                "path": "/radio",
+                "label": "Programación radial"
+              },
+              {
+                "icon": "icons8-calendar-100.png",
+                "path": "/calendar",
+                "label": "Calendario de eventos"
+              }
             ]
           }
-        },        
+        },
         {
           "name": "footer",
-          "footer" :  {
-            "items":[
+          "footer": {
+            "items": [
               {
-                "title" : "Comuníquese",
+                "title": "Comuníquese",
                 "links": [
-                  {"text": "lasendaantigua.la@gmail.com", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "mail" },
-                  {"text": "+1 (626)808-1237", "href": "tel:+16268081237" , "icon" : "phone" }                
+                  {
+                    "text": "lasendaantigua.la@gmail.com",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "mail"
+                  },
+                  {
+                    "text": "+1 (626)808-1237",
+                    "href": "tel:+16268081237",
+                    "icon": "phone"
+                  }
                 ]
               },
               {
-                "title" : "Comentarios:",
+                "title": "Comentarios:",
                 "links": [
-                  {"text": "Contáctenos", "href": "mailto:lasendaantigua.la@gmail.com" , "icon" : "live_help" }
+                  {
+                    "text": "Contáctenos",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "live_help"
+                  }
                 ]
               },
               {
-                "title" : "Visite también",
+                "title": "Visite también",
                 "links": [
-                  {"text": "Ministerios Hebrón", "href": "https://ministerioshebron.com/"  },
-                  {"text": "Colegio Hebrón", "href": "https://www.colegiohebron.com/"  }                
+                  {
+                    "text": "Ministerios Hebrón",
+                    "href": "https://ministerioshebron.com/"
+                  },
+                  {
+                    "text": "Colegio Hebrón",
+                    "href": "https://www.colegiohebron.com/"
+                  }
                 ]
               }
             ],
-            "copyright" : "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+            "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
           }
-        }    
+        }
       ]
     }
   ],
@@ -182,7 +216,7 @@
           { "index": 3, "text": "Ministerio de música", "link": "/music" },
           { "index": 4, "text": "Ministerio de jóvenes", "link": "/youth" },
           { "index": 5, "text": "Ministerio de niños", "link": "/children" },
-          { "index": 6, "text": "Escuela en casa", "link": "/homeschool"}
+          { "index": 6, "text": "Escuela en casa", "link": "/homeschool" }
         ]
       },
       {
@@ -200,5 +234,14 @@
       "text": "CONTRIBUIR",
       "link": "/donate"
     }
+  },
+  "live": {
+    "title": "Estamos transmitiendo en vivo",
+    "notification": "Nuestra transmisión ha comenzado",
+    "button": {
+      "text": "Esconder"
+    },
+    "background-color": "#3f4a49",
+    "text-color": "#fff"
   }
 }

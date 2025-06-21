@@ -13,6 +13,7 @@ import {
   VerseConfig,
   FooterConfig,
   QuickLinksConfig,
+  LiveBroadcastConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -21,7 +22,7 @@ import {
 export class AppConfigService {
   readonly appConfig = signal<AppConfig | undefined>(undefined);
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {}
 
   initializeConfig(config: any) {
     const _appConfig = this.parseConfig(config);
@@ -37,9 +38,19 @@ export class AppConfigService {
       title: config.title,
       pages: config.pages.map(this.parseConfigPage.bind(this)),
       navigation: this.parseNavigation(config.navigation),
+      live: this.parseLiveConfig(config.live),
     };
   }
 
+  private parseLiveConfig(config: any): LiveBroadcastConfig {
+    return {
+      title: config.title,
+      notification: config.notification,
+      button: config.button,
+      backgroundColor: config['background-color'],
+      textColor: config['text-color'],
+    };
+  }
   private parseConfigPage(page: any): PageConfig {
     return {
       name: page.name,
@@ -48,7 +59,7 @@ export class AppConfigService {
     };
   }
 
-  private parseConfigSection(section: any): SectionConfig {    
+  private parseConfigSection(section: any): SectionConfig {
     return {
       title: section.title,
       name: section.name,
@@ -89,7 +100,7 @@ export class AppConfigService {
       return {} as DescriptionBlockConfig;
     }
     return {
-      lines: descriptionBlock.lines || [],      
+      lines: descriptionBlock.lines || [],
       button: descriptionBlock.button,
       textColor: descriptionBlock['text-color'],
       backgroundColor: descriptionBlock['background-color'],
@@ -104,7 +115,7 @@ export class AppConfigService {
       src: mapWidget.src,
       title: mapWidget.title,
       subtitle: mapWidget.subtitle,
-      table: mapWidget.table
+      table: mapWidget.table,
     };
   }
 
@@ -116,7 +127,7 @@ export class AppConfigService {
       title: imageCard.title,
       image: imageCard.image,
       backgroundColor: imageCard['background-color'],
-      description: this.parseDescriptionBlock(imageCard.description),      
+      description: this.parseDescriptionBlock(imageCard.description),
     };
   }
 
@@ -134,8 +145,8 @@ export class AppConfigService {
     return {
       title: verseOfTheDay.title,
       copyright: verseOfTheDay.copyright,
-      textAlign: verseOfTheDay['text-align']
-    }
+      textAlign: verseOfTheDay['text-align'],
+    };
   }
 
   private parseFooter(footer: any): FooterConfig {
@@ -145,19 +156,19 @@ export class AppConfigService {
       const currentYear = new Date().getFullYear();
       let copyright: string = footer.copyright;
       copyright = copyright.replace('[year]', currentYear.toString());
-      footer.copyright = '© ' + copyright
+      footer.copyright = '© ' + copyright;
     }
 
     return footer;
   }
 
-  private parseQuickLinks(quickLinks: any): QuickLinksConfig{
-    if (!quickLinks) return {} as QuickLinksConfig
+  private parseQuickLinks(quickLinks: any): QuickLinksConfig {
+    if (!quickLinks) return {} as QuickLinksConfig;
 
-    return{
+    return {
       title: quickLinks['title'],
       backgrounColor: quickLinks['background-color'],
-      links: quickLinks['links']
-    }
+      links: quickLinks['links'],
+    };
   }
 }
