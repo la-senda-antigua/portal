@@ -41,6 +41,7 @@ describe('PageRendererComponent', () => {
     mockConfigService.appConfig.and.returnValue({
       title: '',
       navigation: { index: 1, text: '', link: '' },
+      live: { title: '' },
       pages: [
         {
           name: 'test-page',
@@ -62,6 +63,7 @@ describe('PageRendererComponent', () => {
     mockConfigService.appConfig.and.returnValue({
       title: '',
       navigation: { index: 1, text: '', link: '' },
+      live: { title: '' },
       pages: [
         {
           title: '',
@@ -86,6 +88,7 @@ describe('PageRendererComponent', () => {
     mockConfigService.appConfig.and.returnValue({
       title: '',
       navigation: { index: 1, text: '', link: '' },
+      live: { title: '' },
       pages: [{ name: 'test-page', title: 'Test Page', sections: [] }],
     });
 
@@ -98,6 +101,7 @@ describe('PageRendererComponent', () => {
       title: '',
       navigation: { index: 1, text: '', link: '' },
       pages: [{ name: 'test-page', sections: [] } as any],
+      live: { title: '' },
     });
 
     fixture.detectChanges(); // Trigger effects

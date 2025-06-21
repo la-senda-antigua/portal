@@ -4,82 +4,89 @@ import { of } from 'rxjs';
 import { AppConfigService } from './app-config.service';
 
 const mockConfig = {
-  "title": "este es el título principal",
-  "pages": [
+  title: 'este es el título principal',
+  pages: [
     {
-      "name": "home",
-      "title": "este es el título de la página de inicio",
-      "sections": [
+      name: 'home',
+      title: 'este es el título de la página de inicio',
+      sections: [
         {
-          "name": "header",
-          "title": "este es el título del encabezado",
-          "floating-description": {
-            "position": "left",
-            "description-block": {
-              "lines":[
-                "este es el contenido de line-1",
-                "este es el contenido de line-2"
-              ]
-            }
+          name: 'header',
+          title: 'este es el título del encabezado',
+          'floating-description': {
+            position: 'left',
+            'description-block': {
+              lines: [
+                'este es el contenido de line-1',
+                'este es el contenido de line-2',
+              ],
+            },
           },
-          "background-image": "assets/images/ejemplo-header.jpg"
+          'background-image': 'assets/images/ejemplo-header.jpg',
         },
         {
-          "name": "section-1",
-          "title": "este es el título de la sección 1",
-          "description-block": {
-            "lines": [
-              "este es el contenido de la sección 1, línea 1",
-              "este es el contenido de la sección 1, línea 2"
-            ]            
+          name: 'section-1',
+          title: 'este es el título de la sección 1',
+          'description-block': {
+            lines: [
+              'este es el contenido de la sección 1, línea 1',
+              'este es el contenido de la sección 1, línea 2',
+            ],
           },
-          "background-color": "#e0e0e0"
+          'background-color': '#e0e0e0',
         },
         {
-          "name": "section-2",
-          "background-color": "rgb(200, 200, 200)"
-        }
-      ]
-    }
+          name: 'section-2',
+          'background-color': 'rgb(200, 200, 200)',
+        },
+      ],
+    },
   ],
-  "navigation": {
-    "title": "este es el título de navegación",
-    "link": "/home",
-    "options": [
+  navigation: {
+    title: 'este es el título de navegación',
+    link: '/home',
+    options: [
       {
-        "index": 1,
-        "text": "este es el texto de la opción 1",
-        "options": [
+        index: 1,
+        text: 'este es el texto de la opción 1',
+        options: [
           {
-            "index": 1,
-            "text": "este es el texto de la subopción 1",
-            "link": "/suboption1"
+            index: 1,
+            text: 'este es el texto de la subopción 1',
+            link: '/suboption1',
           },
           {
-            "index": 2,
-            "text": "este es el texto de la subopción 2",
-            "link": "/suboption2"
-          }
-        ]
+            index: 2,
+            text: 'este es el texto de la subopción 2',
+            link: '/suboption2',
+          },
+        ],
       },
       {
-        "index": 2,
-        "text": "este es el texto de la opción 2",
-        "options": [
-          { "index": 1, "text": "este es el texto de la subopción 1", "link": "/suboption3" }
-        ]
+        index: 2,
+        text: 'este es el texto de la opción 2',
+        options: [
+          {
+            index: 1,
+            text: 'este es el texto de la subopción 1',
+            link: '/suboption3',
+          },
+        ],
       },
       {
-        "index": 3,
-        "text": "este es el texto de la opción 3",
-        "link": "/contact"
-      }
+        index: 3,
+        text: 'este es el texto de la opción 3',
+        link: '/contact',
+      },
     ],
-    "button": {
-      "text": "este es el texto del botón",
-      "link": "/support"
-    }
-  }
+    button: {
+      text: 'este es el texto del botón',
+      link: '/support',
+    },
+  },
+  live: {
+    title: '',
+  },
 };
 
 describe('AppConfigService', () => {
@@ -125,7 +132,9 @@ describe('AppConfigService', () => {
     expect(parsedSite?.pages).toBeDefined();
     expect(parsedSite?.pages.length).toBe(1);
     expect(parsedSite?.pages[0].name).toBe('home');
-    expect(parsedSite?.pages[0].title).toBe('este es el título de la página de inicio');
+    expect(parsedSite?.pages[0].title).toBe(
+      'este es el título de la página de inicio'
+    );
   });
 
   it('should parse sections correctly', () => {
@@ -141,11 +150,14 @@ describe('AppConfigService', () => {
 
   it('should parse floating description correctly', () => {
     const parsedSite = service.appConfig();
-    const floatingDescription = parsedSite?.pages[0].sections[0].floatingDescription;
+    const floatingDescription =
+      parsedSite?.pages[0].sections[0].floatingDescription;
 
     expect(floatingDescription).toBeDefined();
     expect(floatingDescription?.position).toBe('left');
-    expect(floatingDescription?.descriptionBlock.lines[0]).toBe('este es el contenido de line-1');
+    expect(floatingDescription?.descriptionBlock.lines[0]).toBe(
+      'este es el contenido de line-1'
+    );
   });
 
   it('should parse navigation correctly', () => {
@@ -163,7 +175,4 @@ describe('AppConfigService', () => {
     expect(options?.[1].text).toBe('este es el texto de la opción 2');
     expect(options?.[2].text).toBe('este es el texto de la opción 3');
   });
-
-
-
 });

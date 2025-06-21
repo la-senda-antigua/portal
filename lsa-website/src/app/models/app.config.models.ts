@@ -6,7 +6,7 @@ export interface ButtonConfig {
 }
 
 export interface DescriptionBlockConfig {
-  lines: string[],  
+  lines: string[];
   button?: ButtonConfig;
   textColor?: string;
   backgroundColor?: string;
@@ -38,23 +38,23 @@ export interface ImageCardConfig {
   title: string;
   image: string;
   backgroundColor?: string;
-  description: DescriptionBlockConfig;  
+  description: DescriptionBlockConfig;
 }
 
-export interface FooterConfig{
-  items: FooterItemConfig[],
-  copyright: string,
+export interface FooterConfig {
+  items: FooterItemConfig[];
+  copyright: string;
 }
 
-export interface FooterItemConfig{
-  title: string,
-  links: FooterItemLinkConfig[]
+export interface FooterItemConfig {
+  title: string;
+  links: FooterItemLinkConfig[];
 }
 
-export interface FooterItemLinkConfig{
-  text: string,
-  href: string,
-  icon?: string
+export interface FooterItemLinkConfig {
+  text: string;
+  href: string;
+  icon?: string;
 }
 
 export interface FloatingDescriptionConfig {
@@ -62,19 +62,19 @@ export interface FloatingDescriptionConfig {
   position?: 'left' | 'right';
 }
 
-export interface VerseConfig{
+export interface VerseConfig {
   title: string;
   copyright: string;
   textAlign: string;
 }
 
-export interface QuickLinksConfig{
+export interface QuickLinksConfig {
   title?: string;
   backgrounColor?: string;
   links: IconLinkConfig[];
 }
 
-export interface IconLinkConfig{
+export interface IconLinkConfig {
   icon?: string;
   path?: string;
   label?: string;
@@ -93,7 +93,7 @@ export interface SectionConfig {
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
   quickLinks?: QuickLinksConfig;
-  footer?: FooterConfig;  
+  footer?: FooterConfig;
 }
 
 export interface PageConfig {
@@ -118,8 +118,17 @@ export interface NavigationConfig {
   link: string;
 }
 
+export interface LiveBroadcastConfig {
+  title: string;
+  button?: ButtonConfig;
+  notification?: string;
+  backgroundColor?: string;
+  textColor?: string;
+}
+
 export interface AppConfig {
   title: string;
   pages: PageConfig[];
   navigation: NavigationConfig;
+  live: LiveBroadcastConfig;
 }

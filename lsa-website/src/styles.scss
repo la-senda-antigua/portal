@@ -38,6 +38,10 @@ html {
 
   ));
 
+  @include mat.dialog-overrides((
+    container-shape: rectangle,
+  ));
+
 } /* You can add global styles to this file, and also import other style files */
 
 html,
