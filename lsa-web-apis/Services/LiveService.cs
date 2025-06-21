@@ -31,6 +31,15 @@ public class LiveService : ILiveService
         return _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
     }
 
+    public void ResetTimer()
+    {
+        if (_timer.Enabled)
+        {
+            _timer.Stop();
+            _timer.Start();
+        }
+    }
+    
     public Task EndService()
     {
         LiveServiceHub.EndService();

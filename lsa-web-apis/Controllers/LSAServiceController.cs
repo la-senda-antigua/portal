@@ -23,5 +23,13 @@ namespace lsa_web_apis.Controllers
             await _liveService.EndService();
             return Ok();
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("reset")] 
+        public IActionResult ResetTimer()
+        {
+            _liveService.ResetTimer();
+            return Ok();
+        }
     }
 }

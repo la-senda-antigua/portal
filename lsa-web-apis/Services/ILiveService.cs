@@ -6,4 +6,5 @@ public interface ILiveService
 {
     public Task StartService(string videoURL);
     public Task EndService();
+    public void ResetTimer();
 }
