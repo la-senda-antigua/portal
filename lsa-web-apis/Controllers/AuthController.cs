@@ -53,7 +53,25 @@ public class AuthController(IAuthService authService) : ControllerBase
         if (tokenResponse is null)
             return BadRequest("Google login failed.");
 
-        return Ok(tokenResponse);
+        var html = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>Successfully logged in</title>
+            </head>
+            <body>
+            <script>
+                window.opener.postMessage({{
+                accesToken: '{tokenResponse.AccesToken}',
+                refreshToken: '{tokenResponse.RefreshToken}'
+                }}, '*');
+                window.close();
+            </script>
+            </body>
+            </html>
+        ";
+
+        return Content(html, "text/html");
     }
 }
 
