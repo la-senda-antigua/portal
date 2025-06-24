@@ -38,7 +38,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public IActionResult GoogleLogin()
     {
         var redirectUrl = Url.Action("GoogleResponse", "Auth", null, Request.Scheme);
-        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl, Items = {{ "prompt", "select_account" }}};
         return Challenge(properties, "Google");
     }
 
