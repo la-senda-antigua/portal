@@ -4,6 +4,7 @@ using lsa_web_apis.Models;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace lsa_web_apis.Controllers;
@@ -53,25 +54,17 @@ public class AuthController(IAuthService authService) : ControllerBase
         if (tokenResponse is null)
             return BadRequest("Google login failed.");
 
-        var html = $@"
-            <!DOCTYPE html>
-            <html>
-            <head>
-            <title>Successfully logged in</title>
-            </head>
-            <body>
-            <script>
-                window.opener.postMessage({{
-                accesToken: '{tokenResponse.AccesToken}',
-                refreshToken: '{tokenResponse.RefreshToken}'
-                }}, '*');
-                window.close();
-            </script>
-            </body>
-            </html>
-        ";
+        var referer = Request.Headers["Referer"].ToString();
+        var baseUrl = new Uri(referer).GetLeftPart(UriPartial.Authority);
 
-        return Content(html, "text/html");
+        return Redirect($"{baseUrl}/auth/callback?token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}");
+    }
+
+    [Authorize]
+    [HttpGet("validate-token")]
+    public IActionResult ValidateToken()
+    {
+        return Ok();
     }
 }
 

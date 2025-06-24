@@ -5,11 +5,16 @@ import { AuthGuard } from './auth.guard';
 import { ChurchServicesComponent } from './components/church-services/church-services.component';
 import { BibleCoursesComponent } from './components/bible-courses/bible-courses.component';
 import { StreamComponent } from './components/stream/stream.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent
+  },
+  {
+    path: 'auth/callback',
+    component: AuthCallbackComponent
   },
   {
     path: '',

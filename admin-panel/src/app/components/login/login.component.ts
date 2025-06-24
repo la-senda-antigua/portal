@@ -16,10 +16,6 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.startGoogleLogin().then(() => {
-      this.router.navigate(['/']);
-    }).catch(err => {
-      console.error('Error al iniciar sesión', err);
-    });
+    this.authService.startGoogleLoginRedirect()
   }
 }

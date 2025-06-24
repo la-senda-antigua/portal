@@ -1,53 +1,40 @@
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
+import { environment } from '../../environments/environment';
+import { catchError, firstValueFrom, map, of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-
-  private loggedIn = signal<boolean>(this.validateToken());
-
-  isLoggedIn(): boolean {
-    return this.loggedIn();
-  }
-
-  login() {
-    localStorage.setItem('token', '123456');
-    this.loggedIn.set(true);
-  }
+  constructor(private http: HttpClient) {}
 
   logout() {
-    localStorage.removeItem('token')
-    this.loggedIn.set(false);
+    localStorage.removeItem('token');
   }
 
-  validateToken(): boolean {
-    return !!localStorage.getItem('token');
-  }
+  validateToken(): Promise<boolean> {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return Promise.resolve(false);
+    }
 
-  startGoogleLogin() {
-    const popup = window.open(
-      'https://testing-api.iglesialasendaantigua.com/api/Auth/google-login',
-      '_blank',
-      'width=500,height=600'
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return firstValueFrom(
+      this.http
+        .get(`${environment.apiBaseUrl}/api/Auth/validate-token`, { headers })
+        .pipe(
+          map(() => {
+            return true;
+          }),
+          catchError(() => {
+            
+            return of(false);
+          })
+        )
     );
-
-    return new Promise((resolve, reject) => {
-      const listener = (event: MessageEvent) => {
-        if (event.origin !== 'https://testing-api.iglesialasendaantigua.com') return;
-
-        const { token, refreshToken } = event.data;
-        if (token) {
-          localStorage.setItem('token', token);
-          localStorage.setItem('refreshToken', refreshToken);
-          this.loggedIn.set(true);
-          window.removeEventListener('message', listener);
-          resolve(true);
-        } else {
-          reject('No token');
-        }
-      };
-
-      window.addEventListener('message', listener);
-    });
   }
 
+  startGoogleLoginRedirect() {    
+    window.location.href = `${environment.apiBaseUrl}/api/Auth/google-login`;
+  }
 }
