@@ -11,8 +11,8 @@ namespace lsa_web_apis.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IAuthService authService) : ControllerBase
-{
+public class AuthController(IAuthService authService, IConfiguration configuration) : ControllerBase
+{    
     [Authorize(Roles = "Admin")]
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register(string username, string role)
@@ -53,9 +53,8 @@ public class AuthController(IAuthService authService) : ControllerBase
         var tokenResponse = await authService.LoginWithGoogleAsync(claims);
         if (tokenResponse is null)
             return BadRequest("Google login failed.");
-
-        var referer = Request.Headers["Referer"].ToString();
-        var baseUrl = new Uri(referer).GetLeftPart(UriPartial.Authority);
+        
+        var baseUrl = configuration.GetValue<string>("AppSettings:FrontendBaseUrl");
 
         return Redirect($"{baseUrl}/auth/callback?token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}");
     }
