@@ -32,24 +32,27 @@ export class SermonsService {
   }
 
   deleteSermon(id: number): Observable<void> {
-    return of(void 0);
+    const url = `${this.apiSermonsUrl}/${id}`;
+    return this.http.delete<void>(url);    
   }
 
   //courses section
-  getCourses(): Observable<Sermon[]> {
+  getCourses(page: number=1, pageSize: number=10): Observable<TableResult<Sermon>> {
     return this.http.get<Sermon[]>(this.apiCoursesUrl);
   }
 
-  addCourse(sermon: Sermon): Observable<Sermon> {
-    return of(sermon);
+  addCourse(course: Sermon): Observable<Sermon> {
+    return this.http.post<Sermon>(this.apiCoursesUrl, course);
   }
 
-  updateCourse(sermon: Sermon): Observable<Sermon> {
-    return of(sermon);
+  updateCourse(course: Sermon): Observable<Sermon> {
+    const url: string = `${this.apiCoursesUrl}/${course.id}`;
+    return this.http.put<Sermon>(url, course);
   }
 
   deleteCourse(id: number): Observable<void> {
-    return of(void 0);
+    const url: string = `${this.apiCoursesUrl}/${id}`;
+    return this.http.delete<void>(url);
   }
 
   //preachers section
@@ -67,10 +70,12 @@ export class SermonsService {
   }
 
   updatePreacher(preacher: Preacher): Observable<Preacher> {
-    return of(preacher);
+    const url = `${this.apiPreachersUrl}/${preacher.id}`;
+    return this.http.put<Preacher>(url, preacher);
   }
 
   deletePreacher(id: number): Observable<void> {
-    return of(void 0);
+    const url = `${this.apiPreachersUrl}/${id}`;
+    return this.http.delete<void>(url);
   }
 }

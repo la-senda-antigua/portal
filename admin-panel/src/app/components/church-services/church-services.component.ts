@@ -15,7 +15,6 @@ import { MatDialog, MatDialogRef, MatDialogContent, MatDialogActions } from '@an
 import { SermonDialogComponent } from '../sermon-dialog/sermon-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBar } from '@angular/material/progress-bar';
 
 @Component({
