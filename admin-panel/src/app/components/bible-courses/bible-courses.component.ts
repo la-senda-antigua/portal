@@ -61,7 +61,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
     this.dialogRef.afterClosed().subscribe({
       next: (confimed) => {
         if (confimed) {
-          this.sermonsService.deleteCourse(sermon.sermonId);
+          this.sermonsService.deleteCourse(sermon.id);
         }
       },
       error: (err) =>{
@@ -80,7 +80,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
         this.sermonsService.updateCourse(updatedSermon).subscribe({
           next: (result) => {
             this.dataSource.data = this.dataSource.data.map((s) =>
-              s.sermonId === result.sermonId ? result : s
+              s.id === result.id ? result : s
             );
           },
           error: (err) => {

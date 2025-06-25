@@ -1,5 +1,7 @@
+import { Preacher } from "./Preacher";
+
 export interface Sermon {
-  sermonId: number;
+  id: number;
   date: string;
   title: string;
   audioPath: string;
@@ -8,4 +10,6 @@ export interface Sermon {
   hasAudio: boolean;
   preacherName: string;
   cover: string;
+
+  preacher: Preacher;
 }

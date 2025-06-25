@@ -26,7 +26,7 @@ import { MatProgressBar } from '@angular/material/progress-bar';
   imports: [MatTableModule, MatPaginatorModule, MatIconModule, DatePipe, MatDialogContent, MatDialogActions, MatButtonModule, MatProgressSpinnerModule, CommonModule, MatProgressBar],
 })
 export class ChurchServicesComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['sermonId', 'title', 'date', 'actions'];
+  displayedColumns: string[] = ['sermonId', 'title', 'preacher', 'date', 'actions'];
   dataSource = new MatTableDataSource<Sermon>([]);
   totalItems = 0;
   pageSize = 10;
@@ -82,7 +82,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
     this.dialogRef.afterClosed().subscribe({
       next: (confimed) => {
         if (confimed) {
-          this.sermonsService.deleteSermon(sermon.sermonId);
+          this.sermonsService.deleteSermon(sermon.id);
         }
       },
       error: (err) => {
@@ -98,11 +98,10 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((updatedSermon) => {
       if (updatedSermon) {
+        updatedSermon.id = sermon.id
         this.sermonsService.updateSermon(updatedSermon).subscribe({
-          next: (result) => {
-            this.dataSource.data = this.dataSource.data.map((s) =>
-              s.sermonId === result.sermonId ? result : s
-            );
+          next: () => {
+            this.loadSermons()
           },
           error: (err) => {
             console.error('Error al actualizar sermón', err);
@@ -118,11 +117,11 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((newSermon) => {
       if (newSermon) {
         this.sermonsService.addSermon(newSermon).subscribe({
-          next: (addedSermon) => {
-            this.dataSource.data = [...this.dataSource.data, addedSermon];
+          next: () => {
+            this.loadSermons()
           },
           error: (err) => {
-            alert(err || 'Error al agregar sermón');
+            alert(err.message || 'Error al agregar sermón');
             console.error('Error al agregar sermón', err);
           },
         });

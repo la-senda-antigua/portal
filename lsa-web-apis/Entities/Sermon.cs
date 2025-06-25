@@ -10,7 +10,7 @@ public class Sermon
     public int Id { get; set; }
     public DateTime? Date { get; set; }
     public string? Title { get; set; }
-    public string? AudioPath { get; set; }
+    public string AudioPath { get; set; } = "no asignado";
     public string? VideoPath { get; set; }
     public int PreacherId { get; set; }
     public string? Cover { get; set; }
