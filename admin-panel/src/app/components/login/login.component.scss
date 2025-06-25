@@ -1,12 +1,10 @@
-
-
 .login-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  
+
   & img {
     width: 200px;
     height: 200px;
@@ -109,7 +107,7 @@
   opacity: 38%;
 }
 
-.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):active .gsi-material-button-state,
 .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
   background-color: #303030;
   opacity: 12%;
