@@ -12,8 +12,8 @@ namespace lsa_web_apis.Controllers
         [HttpPost("start")]
         public async Task<IActionResult> StartService([FromBody] string videoURL)
         {
-            await _liveService.StartService(videoURL);
-            return Ok();
+            var dateToEndService = await _liveService.StartService(videoURL);
+            return Ok(dateToEndService);
         }
 
         [Authorize(Roles = "Admin")]
@@ -28,8 +28,8 @@ namespace lsa_web_apis.Controllers
         [HttpPost("add30mins")]
         public IActionResult Add30Mins()
         {
-            _liveService.Add30Mins();
-            return Ok();
+            var dateToEndService = _liveService.Add30Mins();
+            return Ok(dateToEndService);
         }
     }
 }

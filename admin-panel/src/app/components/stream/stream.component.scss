@@ -1,17 +1,23 @@
-.steram-container{
+.steram-container {
+  width: 600px;
   display: flex;
   flex-direction: row;
-  justify-content: space-around;   
-
-  & button{
-    max-width: 300px;
-    margin-left: 8px;
+  justify-content: space-between;
+  gap: 10px;
+  & button {
+    .button-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
 }
 
-.offline{
+.offline {
   background-color: #d00;
   color: #fff;
 }
 
-.w-100{width: 100%;}
+.w-100 {
+  width: 100%;
+}

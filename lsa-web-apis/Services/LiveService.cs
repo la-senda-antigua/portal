@@ -15,30 +15,35 @@ public class LiveService : ILiveService
         _elapsedHandler = (sender, e) => EndService();
     }
 
-    public Task StartService(string videoURL)
+    public async Task<DateTime> StartService(string videoURL)
     {
         LiveServiceHub.StartService(videoURL);
         if (_timer.Enabled)
         {
             _timer.Stop();
-            _timer.Start();
+            _timer.Interval = Constants.LSAServiceTimeout;
         }
         else
         {
             _timer.Elapsed += _elapsedHandler;
-            _timer.Start();
         }
-        return _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
+        var dateWhenElapsed = DateTime.Now.AddMilliseconds(Constants.LSAServiceTimeout);
+        _timer.Start();
+        await _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
+        return dateWhenElapsed;
     }
 
-    public void Add30Mins()
+    public DateTime Add30Mins()
     {
         if (_timer.Enabled)
         {
             _timer.Stop();
             _timer.Interval += TimeSpan.FromMinutes(30).TotalMilliseconds;
+            var dateWhenElapsed = DateTime.Now.AddMilliseconds(_timer.Interval);
             _timer.Start();
+            return dateWhenElapsed;
         }
+        return DateTime.Now;
     }
 
     public Task EndService()
