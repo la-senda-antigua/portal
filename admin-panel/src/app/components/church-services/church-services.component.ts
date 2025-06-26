@@ -16,6 +16,7 @@ import { SermonDialogComponent } from '../sermon-dialog/sermon-dialog.component'
 import { MatButtonModule } from '@angular/material/button';
 import { PageEvent } from '@angular/material/paginator';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-church-services',

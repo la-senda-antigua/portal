@@ -11,7 +11,7 @@ import { Preacher } from '../models/Preacher';
 })
 export class SermonsService {
   private apiSermonsUrl = environment.apiBaseUrl + '/api/sermons';
-  private apiCoursesUrl = environment.apiBaseUrl + '/api/courses'; 
+  private apiCoursesUrl = environment.apiBaseUrl + '/api/lessons'; 
   private apiPreachersUrl = environment.apiBaseUrl + '/api/preachers';
 
   constructor(private http: HttpClient) {}
@@ -38,7 +38,8 @@ export class SermonsService {
 
   //courses section
   getCourses(page: number=1, pageSize: number=10): Observable<TableResult<Sermon>> {
-    return this.http.get<Sermon[]>(this.apiCoursesUrl);
+    const url :string = `${this.apiCoursesUrl}?page=${page}&pageSize=${pageSize}`;
+    return this.http.get<TableResult<Sermon>>(url);
   }
 
   addCourse(course: Sermon): Observable<Sermon> {

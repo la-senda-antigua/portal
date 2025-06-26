@@ -1,5 +1,5 @@
 <div class="container">
-  <h1>Bible Courses</h1>
+  <h1> <a href="/"><</a> Bible Courses</h1>
   <button mat-fab color="primary" class="add-button" (click)="onAdd()">
     <mat-icon>add</mat-icon>
   </button>
@@ -54,8 +54,9 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
   
-    <mat-paginator [pageSizeOptions]="[20, 30, 50]" showFirstLastButtons
-    ></mat-paginator>
+    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]" [pageIndex]="currentPage-1" showFirstLastButtons
+      (page)="onPageChange($event)">
+    </mat-paginator>
   </div>
 </div>
 
