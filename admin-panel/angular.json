@@ -49,7 +49,21 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
+            },
+            "testing": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.testing.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
@@ -64,6 +78,9 @@
           "configurations": {
             "production": {
               "buildTarget": "admin-panel:build:production"
+            },
+            "testing": {
+              "buildTarget": "admin-panel:build:testing"
             },
             "development": {
               "buildTarget": "admin-panel:build:development"

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -10,13 +10,12 @@ import { AuthService } from '../../services/auth.service';
   imports: [],
 
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
 
   constructor(private authService: AuthService, private router: Router) {
   }
 
-  login() {
-    this.authService.login()
-    this.router.navigate([''])
+  ngOnInit(): void {
+    this.authService.startGoogleLoginRedirect()
   }
 }

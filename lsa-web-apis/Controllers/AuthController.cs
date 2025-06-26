@@ -4,14 +4,15 @@ using lsa_web_apis.Models;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace lsa_web_apis.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(IAuthService authService) : ControllerBase
-{
+public class AuthController(IAuthService authService, IConfiguration configuration) : ControllerBase
+{    
     [Authorize(Roles = "Admin")]
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register(string username, string role)
@@ -37,7 +38,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public IActionResult GoogleLogin()
     {
         var redirectUrl = Url.Action("GoogleResponse", "Auth", null, Request.Scheme);
-        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl, Items = {{ "prompt", "select_account" }}};
         return Challenge(properties, "Google");
     }
 
@@ -52,8 +53,17 @@ public class AuthController(IAuthService authService) : ControllerBase
         var tokenResponse = await authService.LoginWithGoogleAsync(claims);
         if (tokenResponse is null)
             return BadRequest("Google login failed.");
+        
+        var baseUrl = configuration.GetValue<string>("AppSettings:FrontendBaseUrl");
 
-        return Ok(tokenResponse);
+        return Redirect($"{baseUrl}/auth/callback?token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}");
+    }
+
+    [Authorize]
+    [HttpGet("validate-token")]
+    public IActionResult ValidateToken()
+    {
+        return Ok();
     }
 }
 
