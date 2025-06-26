@@ -25,10 +25,10 @@ namespace lsa_web_apis.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("reset")] 
-        public IActionResult ResetTimer()
+        [HttpPost("add30mins")]
+        public IActionResult Add30Mins()
         {
-            _liveService.ResetTimer();
+            _liveService.Add30Mins();
             return Ok();
         }
     }

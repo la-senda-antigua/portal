@@ -31,15 +31,16 @@ public class LiveService : ILiveService
         return _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
     }
 
-    public void ResetTimer()
+    public void Add30Mins()
     {
         if (_timer.Enabled)
         {
             _timer.Stop();
+            _timer.Interval += TimeSpan.FromMinutes(30).TotalMilliseconds;
             _timer.Start();
         }
     }
-    
+
     public Task EndService()
     {
         LiveServiceHub.EndService();
