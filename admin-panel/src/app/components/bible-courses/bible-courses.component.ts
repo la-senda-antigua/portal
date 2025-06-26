@@ -115,8 +115,8 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((newCourse) => {
       if (newCourse) {
         this.sermonsService.addCourse(newCourse).subscribe({
-          next: (addedCourse) => {
-            this.dataSource.data = [...this.dataSource.data, addedCourse];
+          next: () => {
+            this.loadCourses()
           },
           error: (err) => {
             console.error('Error al agregar curso', err);

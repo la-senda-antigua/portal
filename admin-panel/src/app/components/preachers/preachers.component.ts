@@ -9,10 +9,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CommonModule } from '@angular/common';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-preachers',
-  imports: [MatTableModule, MatPaginatorModule, MatIconModule, MatDialogContent, MatDialogActions, MatButtonModule, MatProgressSpinnerModule, CommonModule, MatProgressBar],
+  imports: [MatTableModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatPaginatorModule, MatIconModule, MatDialogContent, MatDialogActions, MatButtonModule, MatProgressSpinnerModule, CommonModule, MatProgressBar],
   templateUrl: './preachers.component.html',
   styleUrl: './preachers.component.scss'
 })
@@ -23,18 +26,25 @@ export class PreachersComponent implements OnInit, AfterViewInit {
   pageSize = 10;
   currentPage = 1;
   isLoading = false;
-
+  addForm: FormGroup;
+  
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('confirmDeleteDialog') confirmDeleteDialog!: TemplateRef<any>;
+  @ViewChild('addNewDialog') addNewDialog!: TemplateRef<any>;
   dialogRef!: MatDialogRef<any>;
 
   constructor(
     private sermonsService: SermonsService,
-    private dialog: MatDialog
-  ) { }
+    private dialog: MatDialog,
+    private fb: FormBuilder,
+  ) {
+    this.addForm = this.fb.group({
+      name: ['', Validators.required]
+    });
+  }
 
   ngOnInit(): void {
-    this.loadPreachers(this.currentPage, this.pageSize)
+    this.loadPreachers(this.currentPage, this.pageSize)    
   }
 
   ngAfterViewInit(): void {
@@ -82,11 +92,47 @@ export class PreachersComponent implements OnInit, AfterViewInit {
     })
   }
 
-  onEdit(preacher: Preacher){
+  async onEdit(preacher: Preacher) {    
+    this.addForm = this.fb.group({
+      id: [preacher.id],
+      name: [preacher.name, Validators.required]
+    });
 
-  } 
+    this.dialogRef = this.dialog.open(this.addNewDialog, {
+      data: preacher
+    });
 
-  onAdd(){
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.sermonsService.updatePreacher(result).subscribe({
+          next: () => this.loadPreachers(),
+          error: (err) => console.error('Error al actualizar predicador', err)
+        });
+      }
+    });
+  }
 
+  async onAdd() {
+    this.addForm = this.fb.group({
+      id: [null],
+      name: ['', Validators.required]
+    });
+
+    this.dialogRef = this.dialog.open(this.addNewDialog, {
+      data: { name: '' , id: null},
+    });
+
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.sermonsService.addPreacher(result).subscribe({
+          next: () => {
+            this.loadPreachers(); 
+          },
+          error: (err) => {
+            console.error('Error al agregar predicador', err);
+          },
+        });
+      }
+    });
   }
 }

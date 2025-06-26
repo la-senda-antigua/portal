@@ -65,3 +65,24 @@
     </mat-dialog-actions>
   </div>
 </ng-template>
+
+<!-- ADD NEW DIALOG -->
+<ng-template #addNewDialog let-data>
+  <div class="dialog-container" [formGroup]="addForm">
+    <h2 mat-dialog-title>Predicador</h2>
+
+    <mat-dialog-content>
+      <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Nombre del predicador</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>      
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="dialogRef.close()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="dialogRef.close(addForm.value)" [disabled]="addForm.invalid">
+        Guardar
+      </button>
+    </mat-dialog-actions>
+  </div>
+</ng-template>

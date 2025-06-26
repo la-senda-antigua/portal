@@ -66,7 +66,7 @@ export class SermonsService {
     return this.http.get<TableResult<Preacher>>(url);
   }
 
-  addPreacehr(preacehr: Preacher): Observable<Preacher> {    
+  addPreacher(preacehr: Preacher): Observable<Preacher> {    
     return this.http.post<Preacher>(this.apiPreachersUrl, preacehr);    
   }
 
