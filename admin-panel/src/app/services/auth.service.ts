@@ -21,7 +21,7 @@ export class AuthService {
 
     return firstValueFrom(
       this.http
-        .get(`${environment.apiBaseUrl}/api/Auth/validate-token`, { headers })
+        .get(`${environment.apiBaseUrl}/Auth/validate-token`, { headers })
         .pipe(
           map(() => {
             return true;
