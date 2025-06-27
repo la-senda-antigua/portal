@@ -1,4 +1,5 @@
 using System.Timers;
+using lsa_web_apis.Models;
 using Microsoft.AspNetCore.SignalR;
 
 namespace lsa_web_apis.Services;
@@ -15,31 +16,43 @@ public class LiveService : ILiveService
         _elapsedHandler = (sender, e) => EndService();
     }
 
-    public Task StartService(string videoURL)
+    public async Task<LiveServiceStateDto> StartService(string videoURL)
     {
-        LiveServiceHub.StartService(videoURL);
         if (_timer.Enabled)
-        {
             _timer.Stop();
-            _timer.Start();
-        }
         else
-        {
             _timer.Elapsed += _elapsedHandler;
-            _timer.Start();
-        }
-        return _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
+
+        var dateWhenElapsed = DateTime.Now.AddMilliseconds(Constants.LSAServiceTimeout);
+        LiveServiceHub.StartService(videoURL, dateWhenElapsed);
+        _timer.Start();
+        await _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
+        return new LiveServiceStateDto
+        {
+            IsOn = true,
+            VideoURL = videoURL,
+            EndTime = dateWhenElapsed
+        };
     }
 
-    public void ResetTimer()
+    public LiveServiceStateDto Add30Mins()
     {
-        if (_timer.Enabled)
+        _timer.Stop();
+        var serviceStatus = LiveServiceHub.Add30Mins();
+        if (serviceStatus.EndTime.HasValue && serviceStatus.EndTime.Value > DateTime.Now)
         {
-            _timer.Stop();
+            _timer.Interval = (serviceStatus.EndTime.Value - DateTime.Now).TotalMilliseconds;
             _timer.Start();
         }
+
+        return serviceStatus;
     }
-    
+
+    public LiveServiceStateDto GetServiceStatus()
+    {
+        return LiveServiceHub.GetServiceStatus();
+    }
+
     public Task EndService()
     {
         LiveServiceHub.EndService();

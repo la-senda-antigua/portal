@@ -1,10 +1,12 @@
 using System;
+using lsa_web_apis.Models;
 
 namespace lsa_web_apis.Services;
 
 public interface ILiveService
 {
-    public Task StartService(string videoURL);
+    public Task<LiveServiceStateDto> StartService(string videoURL);
     public Task EndService();
-    public void ResetTimer();
+    public LiveServiceStateDto Add30Mins();
+    public LiveServiceStateDto GetServiceStatus();
 }
