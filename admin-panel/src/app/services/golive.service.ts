@@ -1,22 +1,39 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
+import { RequestManagerService } from './request-manager.service';
+
+export interface GoLiveResponse {
+  isOn: boolean;
+  endTime: Date;
+  videoURL: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class GoliveService {
-  constructor(private httpClient: HttpClient) {}
+  constructor(private requestManager: RequestManagerService) {}
 
-  goLive() {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.httpClient.post(`${environment.apiBaseUrl}/LSAService/start`, {
-      headers,
-    });
+  goLive(videoUrl: string) {
+    return this.requestManager.post<GoLiveResponse>(
+      '/LSAService/start',
+      `"${videoUrl}"`
+    );
   }
 
-  goOffline(){
-    
+  goOffline() {
+    return this.requestManager.post('/LSAService/end', {});
+  }
+
+  add30Minutes() {
+    return this.requestManager.post<GoLiveResponse>(
+      '/LSAService/add30mins',
+      {}
+    );
+  }
+
+  getLiveStatus() {
+    return this.requestManager.get<GoLiveResponse>('/LSAService/status');
   }
 }

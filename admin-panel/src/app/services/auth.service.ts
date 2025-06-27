@@ -1,40 +1,26 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { catchError, firstValueFrom, map, of } from 'rxjs';
+import { RequestManagerService } from './request-manager.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  constructor(private requestManager: RequestManagerService) {}
 
   logout() {
     localStorage.removeItem('token');
   }
 
-  validateToken(): Promise<boolean> {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return Promise.resolve(false);
-    }
-
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
-    return firstValueFrom(
-      this.http
-        .get(`${environment.apiBaseUrl}/Auth/validate-token`, { headers })
-        .pipe(
-          map(() => {
-            return true;
-          }),
-          catchError(() => {
-            
-            return of(false);
-          })
-        )
-    );
+  validateToken(): Observable<boolean> {
+    return this.requestManager
+      .get('/Auth/validate-token')
+      .pipe(
+        map(() => true),
+        catchError(() => of(false))
+      );
   }
 
-  startGoogleLoginRedirect() {    
-    window.location.href = `${environment.apiBaseUrl}/api/Auth/google-login`;
+  startGoogleLoginRedirect() {
+    window.location.href = `${environment.apiBaseUrl}/Auth/google-login`;
   }
 }

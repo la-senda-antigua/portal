@@ -1,0 +1,7 @@
+@switch (state()) { @case ('offline') {
+<span class="indicator off">Offline</span>
+} @case ('live') {
+<span matRipple class="indicator live">Live</span>
+} @case ('connecting') {
+<span class="indicator connecting">Connecting...</span>
+} }
