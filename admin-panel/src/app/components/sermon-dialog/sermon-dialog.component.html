@@ -1,14 +1,24 @@
 <div class="dialog-container">
-  <h2 mat-dialog-title>{{ data ? "Editar Sermón" : "Agregar Sermón" }}</h2>
+  <h2 mat-dialog-title>{{ data ? "Edit" : "Add New" }}</h2>
 
   <form [formGroup]="form" (ngSubmit)="save()">
     <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Título</mat-label>
+      <mat-label>Title</mat-label>
       <input matInput formControlName="title" />
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Fecha</mat-label>
+      <mat-label>Preacher</mat-label>
+      <mat-select formControlName="preacherId">        
+        <mat-option *ngFor="let preacher of preachers" [value]="preacher.id">
+          {{ preacher.name }}
+        </mat-option>
+
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Date</mat-label>
       <input matInput formControlName="date" type="date" />
     </mat-form-field>
 
@@ -23,9 +33,9 @@
     </mat-form-field>
 
     <div mat-dialog-actions align="end">
-      <button mat-button type="button" (click)="close()">Cancelar</button>
+      <button mat-button type="button" (click)="close()">Cancel</button>
       <button mat-flat-button color="primary"type="submit" [disabled]="form.invalid">
-        Guardar
+        Save
       </button>
     </div>
   </form>

@@ -21,8 +21,18 @@ namespace lsa_web_apis.Controllers
         {
 
             var pagedResult = await _context.Preachers
-            .OrderByDescending(p => p.Id)
+            .OrderBy(p => p.Id)
             .ToPagedResultAsync(page, pageSize);
+
+            return Ok(pagedResult);
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<PagedResult<Preacher>>> GetAllPreachers()
+        {
+
+            var pagedResult = await _context.Preachers
+            .OrderBy(p => p.Name).ToArrayAsync();
 
             return Ok(pagedResult);
         }

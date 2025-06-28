@@ -32,4 +32,12 @@ export class RequestManagerService {
   post<T>(url: string, body: any) {
     return this.httpClient.post<T>(`${this.apiBaseUrl}${url}`, body, { headers: this.headers });
   }
+
+  put<T>(url: string, body: any){
+    return this.httpClient.put<T>(`${this.apiBaseUrl}${url}`, body, { headers: this.headers });
+  }
+  
+  delete<T>(url: string){
+    return this.httpClient.delete<T>(`${this.apiBaseUrl}${url}`, { headers: this.headers });
+  }
 }

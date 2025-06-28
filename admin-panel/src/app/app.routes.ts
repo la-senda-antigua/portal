@@ -6,6 +6,7 @@ import { ChurchServicesComponent } from './components/church-services/church-ser
 import { BibleCoursesComponent } from './components/bible-courses/bible-courses.component';
 import { StreamComponent } from './components/stream/stream.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
+import { PreachersComponent } from './components/preachers/preachers.component';
 
 export const routes: Routes = [
   {
@@ -24,6 +25,11 @@ export const routes: Routes = [
   {
     path: 'services',
     component: ChurchServicesComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'preachers',
+    component: PreachersComponent,
     canActivate: [AuthGuard]
   },
   {
