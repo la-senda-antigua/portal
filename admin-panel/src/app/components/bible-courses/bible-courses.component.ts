@@ -60,7 +60,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('Error al cargar cursos', err);
+          console.error('Error loading', err);
           this.isLoading = false;
         }
       });      
@@ -86,7 +86,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
       },
       error: (err) =>{
         this.isLoading = false
-        console.error('Error al eliminar curso', err);
+        console.error('Error on deleting', err);
       }
     });
   }
@@ -106,7 +106,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
           },
           error: (err) => {
             this.isLoading = false
-            console.error('Error al actualizar curso', err);
+            console.error('Error on update', err);
           },
         });
       }
@@ -125,7 +125,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
           },
           error: (err) => {
             this.isLoading = false
-            console.error('Error al agregar curso', err);
+            console.error('Error on add', err);
           },
         });
       }

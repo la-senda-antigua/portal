@@ -89,7 +89,7 @@ export class PreachersComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         this.isLoading = false
-        console.error('Error al eliminar predicarod', err)
+        console.error('Error on delete', err)
       }
     })
   }
@@ -111,7 +111,7 @@ export class PreachersComponent implements OnInit, AfterViewInit {
           next: () => this.loadPreachers(),
           error: (err) => {
             this.isLoading = false
-            console.error('Error al actualizar predicador', err)
+            console.error('Error on update', err)
           }
         });
       }
@@ -137,7 +137,7 @@ export class PreachersComponent implements OnInit, AfterViewInit {
           },
           error: (err) => {
             this.isLoading = false
-            console.error('Error al agregar predicador', err);
+            console.error('Error on add', err);
           },
         });
       }

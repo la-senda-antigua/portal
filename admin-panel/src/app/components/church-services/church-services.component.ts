@@ -88,7 +88,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
       },
       error: (err) => {
         this.isLoading = false
-        console.error('Error al eliminar servicio', err);
+        console.error('Error on delete', err);
       }
     });
   }
@@ -108,7 +108,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
           },
           error: (err) => {
             this.isLoading = false
-            console.error('Error al actualizar sermón', err);
+            console.error('Error on update', err);
           },
         });
       }
@@ -127,8 +127,8 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
           },
           error: (err) => {
             this.isLoading = false
-            alert(err.message || 'Error al agregar sermón');
-            console.error('Error al agregar sermón', err);
+            alert(err.message || 'on add');
+            console.error(err);
           },
         });
       }
