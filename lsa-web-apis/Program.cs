@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:4200")
+        builder => builder.WithOrigins("http://localhost:4200", "https://*.iglesialasendaantigua.com", "https://iglesialasendaantigua.com")
                           .AllowAnyMethod()
                           .AllowAnyHeader()
                           .AllowCredentials()

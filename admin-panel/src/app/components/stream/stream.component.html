@@ -1,33 +1,51 @@
-<!-- <div class="steram-container">
-  <h1>Stream Control</h1>
-  <button mat-fab extended (click)="toggleLive()"
-          [style.background-color]="!isOnline ? '' : '#d00'"
-          [style.color]="!isOnline ? '' : '#fff'"
-          >
-    <mat-icon>{{isOnline ? 'wifi_off': 'wifi'}}</mat-icon>
-    {{getButtonText()}}
-  </button>
-</div> -->
+<span class="header">
+  <h3>Stream</h3>
+  <app-live-indicator [state]="state()"></app-live-indicator>
+</span>
+<p>The URL inserted here will be embedded to iglesialasendaantigua.com</p>
+<p>
+  You could also send a message instead of a stream URL, which will be displayed
+  on the website.
+</p>
 
-<h3>Stream</h3>
-<p>The URL inserted here will show up in iglesialasendaantigua.com</p>
-<p>Go LIVE will send a notification to users that service is LIVE.</p>
-
-<form class="steram-container" (ngSubmit)="toggleLive()">
-  <mat-form-field class="flex-grow-2">
+<div class="steram-container">
+  <mat-form-field class="flex-grow-1" appearance="outline">
     <mat-label>Stream Url</mat-label>
-    <input matInput placeholder="https://rumble..." [(ngModel)]="url" [ngModelOptions]="{standalone: true}" required/>
+    <input
+      matInput
+      placeholder="https://rumble..."
+      [(ngModel)]="url"
+      required
+    />
+    @if(state() === 'live') {
+    <mat-hint> Disconnecting in {{ timeLeft()! | hoursMinsSecs }}. </mat-hint>
+    }
   </mat-form-field>
 
+  @switch (state()) { @case ('offline') {
+  <button mat-fab extended [disabled]="!url.trim()" (click)="goLive()">
+    <span class="button-content"><mat-icon>wifi</mat-icon>&nbsp;Go Live</span>
+  </button>
+  } @case ('live') {
   <button
     mat-fab
-    extended    
-    [style.background-color]="!isOnline ? '' : '#d00'"
-    [style.color]="!isOnline ? '' : '#fff'"
-    [disabled]="!url || !url.trim()"
-    type="submit"
+    extended
+    style="background-color: green; color: white"
+    (click)="goOffline()"
   >
-    <mat-icon>{{ isOnline ? "wifi_off" : "wifi" }}</mat-icon>
-    {{ getButtonText() }}
+    <span class="button-content">
+      <mat-icon>wifi_off</mat-icon>&nbsp;Go offline
+    </span>
   </button>
-</form>
+  } @case('connecting'){
+  <button mat-fab extended disabled>
+    <span class="button-content">
+      <mat-spinner [diameter]="19"></mat-spinner>&nbsp;Connecting...
+    </span>
+  </button>
+  } } @if(state()==='live'){
+  <button mat-fab extended (click)="add30Minutes()">
+    <span class="button-content">Add 30 mins</span>
+  </button>
+  }
+</div>
