@@ -83,10 +83,12 @@ export class PreachersComponent implements OnInit, AfterViewInit {
     this.dialogRef.afterClosed().subscribe({
       next: (confirmed)=> {
         if (confirmed) {
+          this.isLoading = true
           this.sermonsService.deletePreacher(preacher.id);
         }
       },
       error: (err) => {
+        this.isLoading = false
         console.error('Error al eliminar predicarod', err)
       }
     })
@@ -104,9 +106,13 @@ export class PreachersComponent implements OnInit, AfterViewInit {
 
     this.dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isLoading = true
         this.sermonsService.updatePreacher(result).subscribe({
           next: () => this.loadPreachers(),
-          error: (err) => console.error('Error al actualizar predicador', err)
+          error: (err) => {
+            this.isLoading = false
+            console.error('Error al actualizar predicador', err)
+          }
         });
       }
     });
@@ -124,11 +130,13 @@ export class PreachersComponent implements OnInit, AfterViewInit {
 
     this.dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isLoading = true
         this.sermonsService.addPreacher(result).subscribe({
           next: () => {
             this.loadPreachers(); 
           },
           error: (err) => {
+            this.isLoading = false
             console.error('Error al agregar predicador', err);
           },
         });

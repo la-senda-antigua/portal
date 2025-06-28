@@ -80,10 +80,12 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
     this.dialogRef.afterClosed().subscribe({
       next: (confimed) => {
         if (confimed) {
+          this.isLoading = true
           this.sermonsService.deleteCourse(course.id);
         }
       },
       error: (err) =>{
+        this.isLoading = false
         console.error('Error al eliminar curso', err);
       }
     });
@@ -96,12 +98,14 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((updatedCourse) => {
       if (updatedCourse) {
+        this.isLoading = true
         updatedCourse.id = course.id;
         this.sermonsService.updateCourse(updatedCourse).subscribe({
           next: () => {
             this.loadCourses()
           },
           error: (err) => {
+            this.isLoading = false
             console.error('Error al actualizar curso', err);
           },
         });
@@ -114,11 +118,13 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((newCourse) => {
       if (newCourse) {
+        this.isLoading = true
         this.sermonsService.addCourse(newCourse).subscribe({
           next: () => {
             this.loadCourses()
           },
           error: (err) => {
+            this.isLoading = false
             console.error('Error al agregar curso', err);
           },
         });

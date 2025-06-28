@@ -82,10 +82,12 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
     this.dialogRef.afterClosed().subscribe({
       next: (confimed) => {
         if (confimed) {
+          this.isLoading = true
           this.sermonsService.deleteSermon(sermon.id);
         }
       },
       error: (err) => {
+        this.isLoading = false
         console.error('Error al eliminar servicio', err);
       }
     });
@@ -98,12 +100,14 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((updatedSermon) => {
       if (updatedSermon) {
+        this.isLoading = true
         updatedSermon.id = sermon.id
         this.sermonsService.updateSermon(updatedSermon).subscribe({
           next: () => {
             this.loadSermons()
           },
           error: (err) => {
+            this.isLoading = false
             console.error('Error al actualizar sermón', err);
           },
         });
@@ -116,11 +120,13 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe((newSermon) => {
       if (newSermon) {
+        this.isLoading = true
         this.sermonsService.addSermon(newSermon).subscribe({
           next: () => {
             this.loadSermons()
           },
           error: (err) => {
+            this.isLoading = false
             alert(err.message || 'Error al agregar sermón');
             console.error('Error al agregar sermón', err);
           },
