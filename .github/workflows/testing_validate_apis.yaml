@@ -1,0 +1,34 @@
+name: Testing - Validate - APIs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "development" ]
+    paths:
+      - 'lsa-web-apis/**'
+
+jobs:
+  build-and-deploy:
+    defaults:
+      run:
+        working-directory: ./lsa-web-apis
+
+    runs-on: ubuntu-latest
+    
+    environment: 
+      name: testing
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Confirm code builds successfully
+      run: dotnet build --configuration Release
+    - name: Run tests
+      run: dotnet test
+  
