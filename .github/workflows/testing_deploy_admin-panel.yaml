@@ -1,5 +1,4 @@
-name: Depoy Admin Panel
-
+name: Testing - Deploy - Admin Panel
 on:
   workflow_dispatch:
   push:

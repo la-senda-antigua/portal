@@ -1,4 +1,4 @@
-name: Run Website Unit Tests
+name: Testing - Validate - Website
 
 on:
   workflow_dispatch:
