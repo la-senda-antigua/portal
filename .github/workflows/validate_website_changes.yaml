@@ -1,4 +1,4 @@
-name: Testing - Validate - Website
+name: Validate Website Changes
 
 on:
   workflow_dispatch:
