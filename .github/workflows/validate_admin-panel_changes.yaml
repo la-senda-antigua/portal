@@ -1,4 +1,4 @@
-name: Testing - Validate - Admin Panel
+name: Validate Admin Panel Changes
 
 on:
   workflow_dispatch:
