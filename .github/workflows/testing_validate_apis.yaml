@@ -2,13 +2,13 @@ name: Testing - Validate - APIs
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: [ "development" ]
     paths:
       - 'lsa-web-apis/**'
 
 jobs:
-  build-and-deploy:
+  validate:
     defaults:
       run:
         working-directory: ./lsa-web-apis

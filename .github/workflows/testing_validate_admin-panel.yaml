@@ -8,8 +8,7 @@ on:
       - 'admin-panel/**'
 
 jobs:
-  ng-test:
-    
+  validate:
     defaults:
       run:
         working-directory: ./admin-panel
