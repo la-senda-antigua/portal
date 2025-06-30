@@ -8,8 +8,7 @@ on:
       - 'lsa-website/**'
 
 jobs:
-  ng-test:
-    
+  validate:
     defaults:
       run:
         working-directory: ./lsa-website
