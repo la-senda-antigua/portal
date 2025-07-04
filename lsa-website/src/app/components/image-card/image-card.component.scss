@@ -3,19 +3,27 @@
 @use "../../../styles_variables" as style_vars;
 
 .image-card-container {
-    display: flex;
-    max-width: 1200px;
-    margin: 0 auto;
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
 
-    >* {
-        flex: 1;
-        margin: 10px;
-    }   
-    
-    & .picture {        
-        height: 100%;    
-        min-height: 500px;
-        background-size: cover;
-        background-position: center;        
-    }
+  &.column {    
+    flex-direction: column-reverse;
+  }
+
+  &.row {
+    flex-direction: row;
+  }
+
+  > * {
+    flex: 1;
+    margin: 10px;
+  }
+
+  .picture {
+    height: 100%;
+    min-height: 500px;
+    background-size: cover;
+    background-position: center;
+  }
 }
