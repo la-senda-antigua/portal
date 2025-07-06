@@ -99,6 +99,11 @@ export interface SectionConfig {
 export interface PageConfig {
   name: string;
   title: string;
+  navigation?: {
+    textColor: 'light' | 'dark';
+    backgroundColor:'system'|'none';
+    useShadow: boolean;
+  };
   sections: SectionConfig[];
 }
 

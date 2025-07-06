@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { computed, Injectable } from '@angular/core';
 import { signal } from '@angular/core';
 import {
   AppConfig,
@@ -20,6 +20,19 @@ import {
   providedIn: 'root',
 })
 export class AppConfigService {
+  private _currentPageName = signal<string | undefined>(undefined);
+  get currentPageName() {
+    return this._currentPageName;
+  }
+
+  get currentPageConfig() {
+    return computed(() =>
+      this.appConfig()?.pages.find(
+        (page) => page.name === this.currentPageName()
+      )
+    );
+  }
+
   readonly appConfig = signal<AppConfig | undefined>(undefined);
 
   constructor(private httpClient: HttpClient) {}
@@ -31,6 +44,10 @@ export class AppConfigService {
 
   loadConfig() {
     return this.httpClient.get<unknown>('/assets/app.config.json');
+  }
+
+  setCurrentPageName(pageName: string) {
+    this._currentPageName.set(pageName);
   }
 
   private parseConfig(config: any): AppConfig {
@@ -55,6 +72,11 @@ export class AppConfigService {
     return {
       name: page.name,
       title: page.title,
+      navigation: {
+        textColor: page.navigation?.['text-color'] ?? 'light',
+        useShadow: page.navigation?.['use-shadow'] ?? true,
+        backgroundColor: page.navigation?.['background-color'] ?? 'none'
+      },
       sections: page.sections.map(this.parseConfigSection.bind(this)),
     };
   }

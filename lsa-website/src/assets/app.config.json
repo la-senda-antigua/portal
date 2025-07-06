@@ -4,6 +4,11 @@
     {
       "name": "home",
       "title": "Bienvenidos a La Senda Antigua",
+      "navigation": {
+        "text-color": "light",
+        "background-color": "none",
+        "use-shadow": true
+      },
       "sections": [
         {
           "name": "header",
@@ -172,6 +177,42 @@
               }
             ],
             "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
+        }
+      ]
+    },
+    {
+      "name": "churchservices",
+      "title": "Servicios recientes",
+      "navigation": {
+        "text-color": "dark",
+        "background-color": "system",
+        "use-shadow": false
+      },
+      "sections": [
+        {
+          "name": "section-1",
+          "title": "Servicios recientes",
+          "description-block": {
+            "lines": [
+              "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
+              "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
+            ]
+          },
+          "text-align": "center"
+        },
+        {
+          "name": "section-2",
+          "search-box": {
+            "place-holder": "Buscar por título o predicador",
+            "search-delay": 500
+          }
+        },
+        {
+          "name": "video-list",
+          "default-number": 6,
+          "button": {
+            "text": "Ver más"
           }
         }
       ]

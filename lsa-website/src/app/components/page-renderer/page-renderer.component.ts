@@ -77,5 +77,11 @@ export class PageRendererComponent {
         this.snackBar._openedSnackBarRef?.dismiss();
       }
     });
+
+    effect(() => {
+      if(this.pageName() != undefined) {
+        this.configService.setCurrentPageName(this.pageName()!);
+      }
+    });
   }
 }
