@@ -1,4 +1,4 @@
-<div class="image-card-container">
+<div class="image-card-container" [ngClass]="isSmallScreen() ? 'column' : 'row'">
     <div class="description">
         <h1>{{ config().title }}</h1>
         @for(line of config().description.lines; track line) {
