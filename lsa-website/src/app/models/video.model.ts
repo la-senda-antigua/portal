@@ -1,9 +1,18 @@
 export interface VideoModel {
+  id: number;
   date: Date;
   title: string;
   videoUrl: string;
   thumbnailUrl: string;
   preacher?: string;
+}
+
+export interface VideoStoreState {
+  currentPage: number;
+  pageSize: number;
+  videosInStore: ReadonlyArray<VideoModel>;
+  totalVideos: number;
+  totalPages: number;
 }
 
 export interface SermonDto {

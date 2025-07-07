@@ -196,6 +196,7 @@
           "text-align": "center",
           "video-list": {
             "size": 6,
+            "type": "preachings",
             "button": {
               "text": "Cargar más"
             },

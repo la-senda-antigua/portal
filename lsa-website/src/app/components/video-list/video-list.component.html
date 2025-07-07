@@ -6,12 +6,9 @@
     <lsa-searchbox [config]="searchBox()!"></lsa-searchbox>
 }
 
-
-
-
-
-
-
+@for(video of videos(); track video){
+<p>{{video.title}}</p>
+}
 
 @if (config().button?.text) {
     <button mat-flat-button class="button">

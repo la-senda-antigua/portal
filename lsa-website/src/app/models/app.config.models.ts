@@ -1,3 +1,5 @@
+import { VideoModel } from "./video.model";
+
 export interface ButtonConfig {
   alignment: 'left' | 'center' | 'right';
   text: string;
@@ -93,6 +95,7 @@ export interface VideoListConfig {
   button?: ButtonConfig;
   searchBox?: SearchBoxConfig;
   descriptionBlock?: DescriptionBlockConfig;
+  type: 'preachings'|'biblestudies'
 }
 
 export interface SectionConfig {

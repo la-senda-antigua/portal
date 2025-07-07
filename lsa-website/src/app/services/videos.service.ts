@@ -1,8 +1,18 @@
-import { inject, Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { GetSermonsResponse, VideoModel } from '../models/video.model';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { inject, Injectable, Signal } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { map } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import {
+  GetSermonsResponse,
+  VideoModel,
+  VideoStoreState,
+} from '../models/video.model';
+import { PreachingBatchLoaded } from '../state/videos.actions';
+import {
+  selectPreachingsInStore,
+  selectPreachingsState,
+} from '../state/videos.selectors';
 
 @Injectable({
   providedIn: 'root',
@@ -10,31 +20,45 @@ import { map, Observable } from 'rxjs';
 export class VideosService {
   private baseUrl = environment.apiUrl;
   private httpClient = inject(HttpClient);
-  preachingsCurrentPage = 0;
+  private store = inject(Store);
+  private preachingsStoreState = this.store.selectSignal(selectPreachingsState);
+  private preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
 
-  getRecentPreachings(
-    pageSize = 100,
-    loadNextPage = true
-  ): Observable<VideoModel[]> {
-    if (loadNextPage) {
-      this.preachingsCurrentPage++;
+  getPreachings(): Signal<readonly VideoModel[]> {
+    if (this.preachingsInStore().length === 0) {
+      this.loadPreachingBatch();
     }
-    return this.httpClient
+    return this.preachingsInStore;
+  }
+
+  loadPreachingBatch(pageSize = 100): void {
+    const currentPage = this.preachingsStoreState().currentPage;
+    this.httpClient
       .get<GetSermonsResponse>(
-        `${this.baseUrl}/sermons?page=${this.preachingsCurrentPage}&pageSize=${pageSize}`
+        `${this.baseUrl}/sermons?page=${currentPage}&pageSize=${pageSize}`
       )
       .pipe(
         map((response) => {
-          return response.items.map((i) => {
-            return {
-              date: new Date(i.date),
-              title: i.title,
-              videoUrl: i.videoPath,
-              thumbnailUrl: i.cover,
-              preacher: i.preacher.name,
-            } as VideoModel;
-          });
+          return {
+            currentPage: response.page,
+            pageSize: response.pageSize,
+            videosInStore: response.items.map(
+              (i) =>
+                ({
+                  date: new Date(i.date),
+                  title: i.title,
+                  videoUrl: i.videoPath,
+                  thumbnailUrl: i.cover,
+                  preacher: i.preacher.name,
+                } as VideoModel)
+            ),
+            totalVideos: response.totalItems,
+            totalPages: response.totalPages,
+          };
         })
+      )
+      .subscribe((state: VideoStoreState) =>
+        this.store.dispatch(PreachingBatchLoaded(state))
       );
   }
 }

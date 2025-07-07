@@ -113,6 +113,7 @@ export class AppConfigService {
     }
     return {
       size: videoList["size"] ?? 6,
+      type: videoList["type"] ?? 'preachings',
       button: videoList.button,
       searchBox: this.parseSearchBox(videoList["search-box"]),
       descriptionBlock: this.parseDescriptionBlock(videoList["description-block"])
