@@ -4,31 +4,36 @@
   [style.color]="textColor()"
   [style.textAlign]="textAlign()"
 >
-  
-  @if(title()){ <h1>{{ title() }}</h1>}
-  
+  @if(title()){
+  <h1>{{ title() }}</h1>
+  } 
   @if(sectionConfig().descriptionBlock){
-    <lsa-description-block [descriptionBlockConfig]="sectionConfig().descriptionBlock!"></lsa-description-block>
-  }
-
+    <lsa-description-block
+      [descriptionBlockConfig]="sectionConfig().descriptionBlock!">
+    </lsa-description-block>
+  } 
   @if(sectionConfig().verseOfTheDay?.copyright){
-    <lsa-verse-of-the-day [config]="sectionConfig().verseOfTheDay!" ></lsa-verse-of-the-day>
-  }
-
+    <lsa-verse-of-the-day
+      [config]="sectionConfig().verseOfTheDay!">
+    </lsa-verse-of-the-day>
+  } 
   @if(sectionConfig().mapWidget?.src){
     <lsa-map-widget [config]="sectionConfig().mapWidget!"></lsa-map-widget>
-  }
-
+  } 
   @if (sectionConfig().imageCard?.image){
     <lsa-image-card [config]="sectionConfig().imageCard!"></lsa-image-card>
-  }
-  
-  @if(sectionConfig().quickLinks?.links && sectionConfig().quickLinks?.links!.length > 0 ){
+  } 
+  @if(sectionConfig().quickLinks?.links && sectionConfig().quickLinks?.links!.length > 0 )
+  {
     <lsa-quick-links [config]="sectionConfig().quickLinks!"></lsa-quick-links>
-  }
-  
+  } 
   @if(sectionConfig().footer?.copyright){
-    <lsa-footer [config]="sectionConfig().footer!" ></lsa-footer>
+    <lsa-footer [config]="sectionConfig().footer!"></lsa-footer>
+  } 
+  @if(sectionConfig().searchBox?.placeHolder){
+    <lsa-searchbox [config]="sectionConfig().searchBox!"></lsa-searchbox>
   }
-
+  @if(sectionConfig().videoList?.size){
+    <lsa-video-list [config]="sectionConfig().videoList!"></lsa-video-list>
+  }
 </div>

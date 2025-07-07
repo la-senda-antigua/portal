@@ -193,26 +193,25 @@
         {
           "name": "section-1",
           "title": "Servicios recientes",
-          "description-block": {
-            "lines": [
-              "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
-              "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
-            ]
-          },
-          "text-align": "center"
-        },
-        {
-          "name": "section-2",
-          "search-box": {
-            "place-holder": "Buscar por título o predicador",
-            "search-delay": 500
-          }
-        },
-        {
-          "name": "video-list",
-          "default-number": 6,
-          "button": {
-            "text": "Ver más"
+          "text-align": "center",
+          "video-list": {
+            "size": 6,
+            "button": {
+              "text": "Ver más"
+            },
+            "description-block": {
+              "lines": [
+                "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
+                "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
+              ]
+            },
+            "search-box": {
+              "place-holder": "Buscar por título o predicador",
+              "position": "center",
+              "width": 400,
+              "search-delay": 500,
+              "icon-position": "left"
+            }
           }
         }
       ]

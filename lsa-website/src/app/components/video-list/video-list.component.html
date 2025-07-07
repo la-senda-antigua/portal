@@ -1,0 +1,20 @@
+@if(descriptionBlock()?.lines?.length){
+    <lsa-description-block [descriptionBlockConfig]="descriptionBlock()!">
+    </lsa-description-block>
+} 
+@if(searchBox()?.placeHolder != undefined){
+    <lsa-searchbox [config]="searchBox()!"></lsa-searchbox>
+}
+
+
+
+
+
+
+
+
+@if (config().button?.text) {
+    <button mat-flat-button class="button">
+        {{ config().button?.text }}
+    </button>
+}

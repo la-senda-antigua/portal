@@ -80,6 +80,21 @@ export interface IconLinkConfig {
   label?: string;
 }
 
+export interface SearchBoxConfig {
+  placeHolder: string;
+  position?: 'left' | 'center' | 'right';
+  width?: number;
+  searchDelay?: number;
+  iconPosition?: 'left' | 'right';
+}
+
+export interface VideoListConfig {
+  size: number;
+  button?: ButtonConfig;
+  searchBox?: SearchBoxConfig;
+  descriptionBlock?: DescriptionBlockConfig;
+}
+
 export interface SectionConfig {
   title: string;
   name: string;
@@ -89,10 +104,12 @@ export interface SectionConfig {
   backgroundImage?: string;
   floatingDescription?: FloatingDescriptionConfig;
   descriptionBlock?: DescriptionBlockConfig;
+  searchBox?: SearchBoxConfig;
   mapWidget?: MapWidgetConfig;
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
   quickLinks?: QuickLinksConfig;
+  videoList?: VideoListConfig;
   footer?: FooterConfig;
 }
 
@@ -101,7 +118,7 @@ export interface PageConfig {
   title: string;
   navigation?: {
     textColor: 'light' | 'dark';
-    backgroundColor:'system'|'none';
+    backgroundColor: 'system' | 'none';
     useShadow: boolean;
   };
   sections: SectionConfig[];
