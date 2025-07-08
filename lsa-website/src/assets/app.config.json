@@ -195,7 +195,7 @@
           "title": "Servicios recientes",
           "text-align": "center",
           "video-list": {
-            "size": 6,
+            "size": 10,
             "type": "preachings",
             "button": {
               "text": "Cargar más"

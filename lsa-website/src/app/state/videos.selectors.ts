@@ -12,3 +12,8 @@ export const selectPreachingsInStore = createSelector(
   selectPreachingsState,
   (state: VideoStoreState) => state.videosInStore
 );
+
+export const selectPreachingsCurrentPage = createSelector(
+  selectPreachingsState,
+  (state: VideoStoreState) => state.currentPage
+);

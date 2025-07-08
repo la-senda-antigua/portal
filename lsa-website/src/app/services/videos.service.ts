@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, Signal } from '@angular/core';
+import { inject, Injectable, signal, Signal } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -10,6 +10,7 @@ import {
 } from '../models/video.model';
 import { PreachingBatchLoaded } from '../state/videos.actions';
 import {
+  selectPreachingsCurrentPage,
   selectPreachingsInStore,
   selectPreachingsState,
 } from '../state/videos.selectors';
@@ -22,20 +23,36 @@ export class VideosService {
   private httpClient = inject(HttpClient);
   private store = inject(Store);
   private preachingsStoreState = this.store.selectSignal(selectPreachingsState);
-  private preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
+  private preachingsCurrentPage = this.store.selectSignal(
+    selectPreachingsCurrentPage
+  );
+  public preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
 
-  getPreachings(): Signal<readonly VideoModel[]> {
-    if (this.preachingsInStore().length === 0) {
-      this.loadPreachingBatch();
+  loadVideoBatch(type: 'preachings' | 'biblestudies') {
+    switch (type) {
+      case 'biblestudies':
+        break;
+      default:
+        this.loadPreachingBatch();
     }
-    return this.preachingsInStore;
   }
 
-  loadPreachingBatch(pageSize = 100): void {
-    const currentPage = this.preachingsStoreState().currentPage;
+  getTotalVideos(type: 'preachings' | 'biblestudies') {
+    switch (type) {
+      case 'biblestudies':
+        return 0;
+      default:
+        return this.preachingsStoreState().totalVideos;
+    }
+  }
+
+  private loadPreachingBatch(pageSize = 100): void {
+    const page = this.preachingsCurrentPage() + 1;
     this.httpClient
       .get<GetSermonsResponse>(
-        `${this.baseUrl}/sermons?page=${currentPage}&pageSize=${pageSize}`
+        `${
+          this.baseUrl
+        }/sermons?page=${page}&pageSize=${pageSize}`
       )
       .pipe(
         map((response) => {
