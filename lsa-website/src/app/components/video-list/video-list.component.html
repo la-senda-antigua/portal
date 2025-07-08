@@ -2,11 +2,14 @@
 <lsa-description-block [descriptionBlockConfig]="descriptionBlock()!">
 </lsa-description-block>
 } @if(searchBox()?.placeHolder != undefined){
-<lsa-searchbox [config]="searchBox()!"></lsa-searchbox>
+<lsa-searchbox
+  [config]="searchBox()!"
+  (searchQueryChange)="this.searchQuery.set($event)"
+></lsa-searchbox>
 }
 
 <div class="video-list-container">
-  @for(video of videos() | slice: 0 : currentViewSize(); track $index){
+  @for(video of filteredVideos() | slice: 0 : currentViewSize(); track $index){
   <a
     (mouseenter)="cardHovered = $index"
     (mouseleave)="cardHovered = undefined"
@@ -26,7 +29,7 @@
         <span class="video-date"> {{ video.date | date : "MMM d, y" }}</span>
       </mat-card-content>
     </mat-card>
-</a>
+  </a>
   }
 </div>
 

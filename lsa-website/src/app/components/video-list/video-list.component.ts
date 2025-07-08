@@ -39,6 +39,18 @@ export class VideoListComponent {
   readonly disableLoadMore = computed(
     () => this.videos().length >= this.videosService.getTotalVideos(this.type())
   );
+  readonly searchQuery = signal('');
+  readonly filteredVideos = computed(() => {
+    const query = this.getNoAccentString(this.searchQuery().trim());
+    if (query === '') {
+      return this.videos();
+    }
+    return this.videos().filter(
+      (video) =>
+        this.getNoAccentString(video.preacher).includes(query) ||
+        this.getNoAccentString(video.title).includes(query)
+    );
+  });
   private loadSize?: number;
   private lastThumbnailError?: string;
   cardHovered: number | undefined;
@@ -76,5 +88,16 @@ export class VideoListComponent {
     }
     this.lastThumbnailError = errorSrc;
     img.src = 'assets/images/video-default-thumbnail.jpg';
+  }
+
+  private getNoAccentString(query?: string) {
+    return (query ?? '')
+      .toLowerCase()
+      .replaceAll('á', 'a')
+      .replaceAll('é', 'e')
+      .replaceAll('í', 'i')
+      .replaceAll('ó', 'o')
+      .replaceAll('ú', 'u')
+      .replaceAll('ñ', 'n');
   }
 }

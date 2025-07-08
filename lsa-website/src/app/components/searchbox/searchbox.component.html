@@ -10,6 +10,6 @@
     }@else{
     <mat-icon matPrefix>search</mat-icon>
     }
-    <input matInput type="text" (change)="emitSearchQueryChange($event)" />
+    <input matInput type="text" (keyup)="emitSearchQueryChange($event)" />
   </mat-form-field>
 </div>

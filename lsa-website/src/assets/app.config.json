@@ -112,12 +112,12 @@
             "links": [
               {
                 "icon": "icons8-cinema-100.png",
-                "path": "/services",
+                "path": "/churchservices",
                 "label": "Servicios recientes"
               },
               {
                 "icon": "icons8-holy-bible-100.png",
-                "path": "/foundation",
+                "path": "/biblestudies",
                 "label": "Estudios bíblicos"
               },
               {
@@ -197,6 +197,8 @@
           "video-list": {
             "size": 10,
             "type": "preachings",
+            "not-found-in-recents": "No se encontraron videos recientes con el término entrado. Presione \"Cargar más\" para buscar en años anteriores",
+            "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
             "button": {
               "text": "Cargar más"
             },
