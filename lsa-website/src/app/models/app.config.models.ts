@@ -1,3 +1,5 @@
+import { VideoModel } from "./video.model";
+
 export interface ButtonConfig {
   alignment: 'left' | 'center' | 'right';
   text: string;
@@ -80,6 +82,22 @@ export interface IconLinkConfig {
   label?: string;
 }
 
+export interface SearchBoxConfig {
+  placeHolder: string;
+  position?: 'left' | 'center' | 'right';
+  width?: number;
+  searchDelay?: number;
+  iconPosition?: 'left' | 'right';
+}
+
+export interface VideoListConfig {
+  size: number;
+  button?: ButtonConfig;
+  searchBox?: SearchBoxConfig;
+  descriptionBlock?: DescriptionBlockConfig;
+  type: 'preachings'|'biblestudies'
+}
+
 export interface SectionConfig {
   title: string;
   name: string;
@@ -89,16 +107,23 @@ export interface SectionConfig {
   backgroundImage?: string;
   floatingDescription?: FloatingDescriptionConfig;
   descriptionBlock?: DescriptionBlockConfig;
+  searchBox?: SearchBoxConfig;
   mapWidget?: MapWidgetConfig;
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
   quickLinks?: QuickLinksConfig;
+  videoList?: VideoListConfig;
   footer?: FooterConfig;
 }
 
 export interface PageConfig {
   name: string;
   title: string;
+  navigation?: {
+    textColor: 'light' | 'dark';
+    backgroundColor: 'system' | 'none';
+    useShadow: boolean;
+  };
   sections: SectionConfig[];
 }
 

@@ -11,19 +11,21 @@
   display: flex;
   height: 100%;
   overflow: hidden;
+  width: 100%;
 }
 
-mat-drawer-container{
+mat-drawer-container {
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+
+mat-drawer {
   height: 100%;
   overflow: hidden;
 }
 
-mat-drawer{
-  height: 100%;
-  overflow: hidden;
-}
-
-mat-drawer-content{
+mat-drawer-content {
   height: 100%;
   overflow-x: hidden;
 }

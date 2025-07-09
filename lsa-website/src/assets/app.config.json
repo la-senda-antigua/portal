@@ -4,6 +4,11 @@
     {
       "name": "home",
       "title": "Bienvenidos a La Senda Antigua",
+      "navigation": {
+        "text-color": "light",
+        "background-color": "none",
+        "use-shadow": true
+      },
       "sections": [
         {
           "name": "header",
@@ -107,12 +112,12 @@
             "links": [
               {
                 "icon": "icons8-cinema-100.png",
-                "path": "/services",
+                "path": "/churchservices",
                 "label": "Servicios recientes"
               },
               {
                 "icon": "icons8-holy-bible-100.png",
-                "path": "/foundation",
+                "path": "/biblestudies",
                 "label": "Estudios bíblicos"
               },
               {
@@ -172,6 +177,44 @@
               }
             ],
             "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
+        }
+      ]
+    },
+    {
+      "name": "churchservices",
+      "title": "Servicios recientes",
+      "navigation": {
+        "text-color": "dark",
+        "background-color": "system",
+        "use-shadow": false
+      },
+      "sections": [
+        {
+          "name": "section-1",
+          "title": "Servicios recientes",
+          "text-align": "center",
+          "video-list": {
+            "size": 10,
+            "type": "preachings",
+            "not-found-in-recents": "No se encontraron videos recientes con el término entrado. Presione \"Cargar más\" para buscar en años anteriores",
+            "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
+            "button": {
+              "text": "Cargar más"
+            },
+            "description-block": {
+              "lines": [
+                "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
+                "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
+              ]
+            },
+            "search-box": {
+              "place-holder": "Buscar por título o predicador",
+              "position": "center",
+              "width": 400,
+              "search-delay": 500,
+              "icon-position": "left"
+            }
           }
         }
       ]

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { computed, Injectable } from '@angular/core';
 import { signal } from '@angular/core';
 import {
   AppConfig,
@@ -14,12 +14,27 @@ import {
   FooterConfig,
   QuickLinksConfig,
   LiveBroadcastConfig,
+  SearchBoxConfig,
+  VideoListConfig,
 } from '../models/app.config.models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppConfigService {
+  private _currentPageName = signal<string | undefined>(undefined);
+  get currentPageName() {
+    return this._currentPageName;
+  }
+
+  get currentPageConfig() {
+    return computed(() =>
+      this.appConfig()?.pages.find(
+        (page) => page.name === this.currentPageName()
+      )
+    );
+  }
+
   readonly appConfig = signal<AppConfig | undefined>(undefined);
 
   constructor(private httpClient: HttpClient) {}
@@ -31,6 +46,10 @@ export class AppConfigService {
 
   loadConfig() {
     return this.httpClient.get<unknown>('/assets/app.config.json');
+  }
+
+  setCurrentPageName(pageName: string) {
+    this._currentPageName.set(pageName);
   }
 
   private parseConfig(config: any): AppConfig {
@@ -55,6 +74,11 @@ export class AppConfigService {
     return {
       name: page.name,
       title: page.title,
+      navigation: {
+        textColor: page.navigation?.['text-color'] ?? 'light',
+        useShadow: page.navigation?.['use-shadow'] ?? true,
+        backgroundColor: page.navigation?.['background-color'] ?? 'none',
+      },
       sections: page.sections.map(this.parseConfigSection.bind(this)),
     };
   }
@@ -73,11 +97,39 @@ export class AppConfigService {
       descriptionBlock: this.parseDescriptionBlock(
         section['description-block']
       ),
+      searchBox: this.parseSearchBox(section['search-box']),
+      videoList: this.parseVideoListConfig(section['video-list']),
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
       quickLinks: this.parseQuickLinks(section['quick-links']),
       footer: this.parseFooter(section['footer']),
+    };
+  }
+
+  private parseVideoListConfig(videoList: any): VideoListConfig{
+    if(videoList == undefined){
+      return {} as VideoListConfig;
+    }
+    return {
+      size: videoList["size"] ?? 6,
+      type: videoList["type"] ?? 'preachings',
+      button: videoList.button,
+      searchBox: this.parseSearchBox(videoList["search-box"]),
+      descriptionBlock: this.parseDescriptionBlock(videoList["description-block"])
+    }
+  }
+
+  private parseSearchBox(searchBox: any): SearchBoxConfig {
+    if (!searchBox) {
+      return {} as SearchBoxConfig;
+    }
+    return {
+      placeHolder: searchBox['place-holder'],
+      position: searchBox['position'],
+      width: searchBox['width'],
+      searchDelay: searchBox['search-delay'],
+      iconPosition: searchBox['icon-position'],
     };
   }
 

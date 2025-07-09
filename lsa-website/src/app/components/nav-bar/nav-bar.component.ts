@@ -1,6 +1,13 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
-import { Component, effect, output, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -31,6 +38,24 @@ export class NavBarComponent {
   readonly openMobileMenu = output();
   readonly activeOption = signal<NavigationOption | null>(null);
   readonly shouldHide = signal(false);
+  readonly textColor = input<'light' | 'dark' | undefined>('light');
+  readonly useShadow = input<boolean | undefined>(true);
+  readonly backgroundColor = input<'system' | 'none' | undefined>('none');
+  readonly textColorVar = computed(() => {
+    return this.textColor() === 'light'
+      ? 'var(--mat-sys-on-secondary)'
+      : 'var(--mat-sys-on-background)';
+  });
+  readonly backgroundClass = computed(() =>
+    this.backgroundColor() === 'system'
+      ? 'nav-menu-system'
+      : 'nav-menu-transparent'
+  );
+  readonly useShadowValue = computed(() =>
+    this.useShadow() ? 'black 1px 1px 5px' : 'none'
+  );
+
+  bgColor = 'transparent';
 
   constructor(
     private configService: AppConfigService,

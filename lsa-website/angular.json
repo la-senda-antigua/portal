@@ -52,11 +52,17 @@
               ],
               "outputHashing": "all"
             },
-            "development": {
+            "testing": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.testing.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -67,11 +73,11 @@
             "production": {
               "buildTarget": "lsa-website:build:production"
             },
-            "development": {
-              "buildTarget": "lsa-website:build:development"
+            "testing": {
+              "buildTarget": "lsa-website:build:testing"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "testing"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

@@ -33,7 +33,7 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ./lsa-website
     - run: npm ci
-    - run: npm run build -- --configuration production
+    - run: npm run build -- --configuration testing
 
     - uses: actions/upload-artifact@v4
       with:

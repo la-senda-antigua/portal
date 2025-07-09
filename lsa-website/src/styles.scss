@@ -32,16 +32,18 @@ html {
     )
   );
 
-  @include mat.sidenav-overrides((
-    container-shape: 0,
-    container-width: 100%
+  @include mat.sidenav-overrides(
+    (
+      container-shape: 0,
+      container-width: 100%,
+    )
+  );
 
-  ));
-
-  @include mat.dialog-overrides((
-    container-shape: rectangle,
-  ));
-
+  @include mat.dialog-overrides(
+    (
+      container-shape: rectangle,
+    )
+  );
 } /* You can add global styles to this file, and also import other style files */
 
 html,
@@ -71,17 +73,25 @@ h3 {
   font-size: style_vars.$fs-xl;
 }
 
-.nav-menu {
-  .menu-item{
+@mixin nav-menu($background) {
+  .menu-item {
     min-height: 40px;
   }
   @include mat.menu-overrides(
     (
       item-label-text-color: var(--mat-sys-on-secondary),
-      container-color: transparent,
       container-elevation-shadow: 0,
       item-label-text-weight: 400,
-      item-leading-spacing: 6px
+      item-leading-spacing: 6px,
+      container-color: $background,
     )
   );
+}
+
+.nav-menu-transparent {
+  @include nav-menu(transparent);
+}
+
+.nav-menu-system {
+  @include nav-menu("var(--mat-sys-background)");
 }

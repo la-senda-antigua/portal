@@ -14,7 +14,7 @@ describe('PageRendererComponent', () => {
   let mockTitleService: jasmine.SpyObj<Title>;
 
   beforeEach(async () => {
-    mockConfigService = jasmine.createSpyObj('AppConfigService', ['appConfig']);
+    mockConfigService = jasmine.createSpyObj('AppConfigService', ['appConfig', 'setCurrentPageName']);
     mockActivatedRoute = {
       url: of([{ path: 'test-page' }]),
     };
@@ -103,6 +103,7 @@ describe('PageRendererComponent', () => {
       pages: [{ name: 'test-page', sections: [] } as any],
       live: { title: '' },
     });
+    mockConfigService.setCurrentPageName.and.callThrough();
 
     fixture.detectChanges(); // Trigger effects
     expect(mockTitleService.setTitle).toHaveBeenCalledWith('La Senda Antigua');

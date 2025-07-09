@@ -1,0 +1,45 @@
+@if(descriptionBlock()?.lines?.length){
+<lsa-description-block [descriptionBlockConfig]="descriptionBlock()!">
+</lsa-description-block>
+} @if(searchBox()?.placeHolder != undefined){
+<lsa-searchbox
+  [config]="searchBox()!"
+  (searchQueryChange)="this.searchQuery.set($event)"
+></lsa-searchbox>
+}
+
+<div class="video-list-container">
+  @for(video of filteredVideos() | slice: 0 : currentViewSize(); track $index){
+  <a
+    (mouseenter)="cardHovered = $index"
+    (mouseleave)="cardHovered = undefined"
+    [class.hovered]="cardHovered === $index"
+    [href]="video.videoUrl"
+    target="_blank"
+  >
+    <mat-card appearance="outlined">
+      <img
+        mat-card-image
+        [src]="video.thumbnailUrl"
+        (error)="handleMissingThumbnail($event)"
+      />
+      <mat-card-content>
+        <h3 class="video-title">{{ video.title }}</h3>
+        <span class="video-speaker">{{ video.preacher }}</span>
+        <span class="video-date"> {{ video.date | date : "MMM d, y" }}</span>
+      </mat-card-content>
+    </mat-card>
+  </a>
+  }
+</div>
+
+@if (config().button?.text) {
+<button
+  mat-flat-button
+  class="button"
+  (click)="loadMore()"
+  [disabled]="disableLoadMore()"
+>
+  {{ config().button?.text }}
+</button>
+}
