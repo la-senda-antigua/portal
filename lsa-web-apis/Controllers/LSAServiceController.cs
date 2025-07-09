@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace lsa_web_apis.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class LSAServiceController(ILiveService _liveService) : ControllerBase
     {

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace lsa_web_apis.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class AuthController(IAuthService authService, IConfiguration configuration) : ControllerBase
 {    
