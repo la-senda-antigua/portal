@@ -1,4 +1,3 @@
-using System;
 using System.Security.Claims;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;

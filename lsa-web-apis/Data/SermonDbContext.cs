@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Data;
 
-public class SermonDbContext(DbContextOptions<SermonDbContext> options) : DbContext(options)
+public class VideosDbContext(DbContextOptions<VideosDbContext> options) : DbContext(options)
 {
     public DbSet<Preacher> Preachers { get; set; }
     public DbSet<Sermon> Sermons { get; set; }

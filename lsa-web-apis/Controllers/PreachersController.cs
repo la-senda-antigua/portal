@@ -13,8 +13,8 @@ namespace lsa_web_apis.Controllers
     [ApiController]
     public class PreachersController : ControllerBase
     {
-        private readonly SermonDbContext _context;
-        public PreachersController(SermonDbContext context) => _context = context;
+        private readonly VideosDbContext _context;
+        public PreachersController(VideosDbContext context) => _context = context;
 
         [HttpGet]
         public async Task<ActionResult<PagedResult<Preacher>>> GetPreachers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)

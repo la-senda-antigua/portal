@@ -2,6 +2,7 @@ using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
+using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,14 +13,31 @@ namespace lsa_web_apis.Controllers
     [ApiController]    
     public class LessonsController : ControllerBase
     {
-        private readonly SermonDbContext _context;
-        public LessonsController(SermonDbContext context) => _context = context;
+        private readonly VideosDbContext _context;
+        private readonly IVideoRecordingService _videoRecordingService;
+        public LessonsController(VideosDbContext context)
+        {
+            _context = context;
+            _videoRecordingService = new VideoRecordingService(context);
+        }
 
         [HttpGet]
         public async Task<ActionResult<PagedResult<Lesson>>> GetLessons([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var pagedResult = await _context.Lessons.Include(l=> l.Preacher).OrderByDescending(s => s.Id).ToPagedResultAsync(page, pageSize);
             return Ok(pagedResult);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<PagedResult<Sermon>>> SearchLessons([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Search query cannot be empty");
+
+            var lessons = await _videoRecordingService.FilterVideosByQuery(query, VideoType.Lesson);
+            if (lessons is null || !lessons.Any())
+                return NotFound("No recordings found matching the search criteria");
+            return Ok(lessons);
         }
 
         [HttpGet("{id}")]
