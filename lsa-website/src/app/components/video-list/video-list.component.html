@@ -9,28 +9,21 @@
 }
 
 <div class="video-list-container">
-  @for(video of filteredVideos() | slice: 0 : currentViewSize(); track $index){
-  <a
-    (mouseenter)="cardHovered = $index"
-    (mouseleave)="cardHovered = undefined"
-    [class.hovered]="cardHovered === $index"
-    [href]="video.videoUrl"
-    target="_blank"
-  >
-    <mat-card appearance="outlined">
-      <img
-        mat-card-image
-        [src]="video.thumbnailUrl"
-        (error)="handleMissingThumbnail($event)"
-      />
-      <mat-card-content>
-        <h3 class="video-title">{{ video.title }}</h3>
-        <span class="video-speaker">{{ video.preacher }}</span>
-        <span class="video-date"> {{ video.date | date : "MMM d, y" }}</span>
-      </mat-card-content>
-    </mat-card>
-  </a>
-  }
+  @if(filteredVideos().length === 0 ){ @if(allVideosLoaded()) {
+  <p class="no-videos-found">
+    {{ config().notFound || "No videos found." }}
+  </p>
+  } @else {
+  <p class="no-videos-found">
+    {{
+      config().notFoundInRecents ||
+        "Recent videos don't match the search criteria"
+    }}
+  </p>
+  } }@else { @for(video of filteredVideos() | slice: 0 : currentViewSize();
+  track $index){
+  <lsa-video-card [video]="video"></lsa-video-card>
+  } }
 </div>
 
 @if (config().button?.text) {

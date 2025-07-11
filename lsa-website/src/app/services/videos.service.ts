@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import {
   GetSermonsResponse,
   VideoModel,
+  VideoRecordingDto,
   VideoStoreState,
 } from '../models/video.model';
 import { PreachingBatchLoaded } from '../state/videos.actions';
@@ -46,13 +47,25 @@ export class VideosService {
     }
   }
 
-  private loadPreachingBatch(pageSize = 100): void {
-    const page = this.preachingsCurrentPage() + 1;
+  loadAllSermons(): void {
+    const currentPage = this.preachingsCurrentPage();
+    const totalPages = this.preachingsStoreState().totalPages;
+    const pageSize = this.preachingsStoreState().pageSize;
+    for (let i = currentPage; i < totalPages; i++) {
+      this.loadPreachingBatch(pageSize, i + 1);
+    }
+  }
+
+  private loadPreachingBatch(
+    pageSize = 100,
+    page: number | undefined = undefined
+  ): void {
+    if (page === undefined) {
+      page = this.preachingsCurrentPage() + 1;
+    }
     this.httpClient
       .get<GetSermonsResponse>(
-        `${
-          this.baseUrl
-        }/sermons?page=${page}&pageSize=${pageSize}`
+        `${this.baseUrl}/sermons?page=${page}&pageSize=${pageSize}`
       )
       .pipe(
         map((response) => {
