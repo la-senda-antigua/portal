@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
@@ -7,22 +8,21 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { VideoListConfig } from 'src/app/models/app.config.models';
-import { DescriptionBlockComponent } from '../description-block/description-block.component';
 import { MatButtonModule } from '@angular/material/button';
-import { SearchboxComponent } from '../searchbox/searchbox.component';
+import { VideoListConfig } from 'src/app/models/app.config.models';
 import { VideosService } from 'src/app/services/videos.service';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
+import { DescriptionBlockComponent } from '../description-block/description-block.component';
+import { SearchboxComponent } from '../searchbox/searchbox.component';
+import { VideoCardComponent } from '../video-card/video-card.component';
 
 @Component({
   selector: 'lsa-video-list',
   imports: [
     DescriptionBlockComponent,
+    VideoCardComponent,
     MatButtonModule,
     SearchboxComponent,
     CommonModule,
-    MatCardModule,
   ],
   templateUrl: './video-list.component.html',
   styleUrl: './video-list.component.scss',
@@ -34,11 +34,12 @@ export class VideoListComponent {
   readonly searchBox = computed(() => this.config().searchBox);
   readonly descriptionBlock = computed(() => this.config().descriptionBlock);
   readonly type = computed(() => this.config().type);
-  readonly videos = computed(() => this.videosService.preachingsInStore());
-  readonly currentViewSize = signal(0);
-  readonly disableLoadMore = computed(
-    () => this.videos().length >= this.videosService.getTotalVideos(this.type())
+  readonly videos = computed(() =>
+    [...this.videosService.preachingsInStore()].sort((a, b) =>
+      a.date < b.date ? 1 : -1
+    )
   );
+  readonly currentViewSize = signal(0);
   readonly searchQuery = signal('');
   readonly filteredVideos = computed(() => {
     const query = this.getNoAccentString(this.searchQuery().trim());
@@ -51,9 +52,19 @@ export class VideoListComponent {
         this.getNoAccentString(video.title).includes(query)
     );
   });
+  readonly allVideosLoaded = computed(() => {
+    return (
+      this.videos().length >= this.videosService.getTotalVideos(this.type())
+    );
+  });
+  readonly disableLoadMore = computed(() => {
+    if (this.allVideosLoaded()) {
+      return this.currentViewSize() >= this.filteredVideos().length;
+    }
+    return false;
+  });
+
   private loadSize?: number;
-  private lastThumbnailError?: string;
-  cardHovered: number | undefined;
 
   constructor() {
     effect(() => {
@@ -73,6 +84,13 @@ export class VideoListComponent {
     if (this.loadSize == undefined) {
       return;
     }
+
+    const query = this.getNoAccentString(this.searchQuery().trim());
+    if (!this.allVideosLoaded() && query !== '') {
+      this.videosService.loadAllSermons();
+      return;
+    }
+
     const nextViewSize = this.currentViewSize() + this.loadSize;
     if (nextViewSize > this.videos().length) {
       this.videosService.loadVideoBatch(this.type());
@@ -82,11 +100,6 @@ export class VideoListComponent {
 
   handleMissingThumbnail(event: Event) {
     const img = event.target as HTMLImageElement;
-    const errorSrc = img.src;
-    if (this.lastThumbnailError === errorSrc) {
-      return;
-    }
-    this.lastThumbnailError = errorSrc;
     img.src = 'assets/images/video-default-thumbnail.jpg';
   }
 

@@ -95,7 +95,9 @@ export interface VideoListConfig {
   button?: ButtonConfig;
   searchBox?: SearchBoxConfig;
   descriptionBlock?: DescriptionBlockConfig;
-  type: 'preachings'|'biblestudies'
+  type: 'preachings'|'biblestudies';
+  notFoundInRecents?: string;
+  notFound?: string;
 }
 
 export interface SectionConfig {

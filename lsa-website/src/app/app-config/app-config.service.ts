@@ -116,7 +116,9 @@ export class AppConfigService {
       type: videoList["type"] ?? 'preachings',
       button: videoList.button,
       searchBox: this.parseSearchBox(videoList["search-box"]),
-      descriptionBlock: this.parseDescriptionBlock(videoList["description-block"])
+      descriptionBlock: this.parseDescriptionBlock(videoList["description-block"]),
+      notFoundInRecents: videoList["not-found-in-recents"],
+      notFound: videoList["not-found"],
     }
   }
 
