@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class SermonsController : ControllerBase
     {
