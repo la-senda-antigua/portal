@@ -32,7 +32,7 @@ export class PageRendererComponent {
   );
   readonly sections = computed(() =>
     this.pageConfig()
-      ?.sections.filter((s) => s.name !== 'header')
+      ?.sections.filter((s) => s.name!! && s.name !== 'header')
       .sort((a, b) => {
         const aIndex = a.name.replace('section-', '');
         const bIndex = b.name.replace('section-', '');
