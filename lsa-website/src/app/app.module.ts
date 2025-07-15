@@ -10,7 +10,7 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MobileMenuComponent } from './components/mobile-menu/mobile-menu.component';
 import { StoreModule } from '@ngrx/store';
-import { preachingsReducer } from './state/videos.reducers';
+import { bibleStudiesReducer, preachingsReducer } from './state/videos.reducers';
 
 export function initializeApp(configService: AppConfigService) {
   return configService
@@ -27,7 +27,7 @@ export function initializeApp(configService: AppConfigService) {
     NavBarComponent,
     MatSidenavModule,
     MobileMenuComponent,
-    StoreModule.forRoot({preachings: preachingsReducer})
+    StoreModule.forRoot({preachings: preachingsReducer, bibleStudies: bibleStudiesReducer})
   ],
   providers: [
     provideHttpClient(),

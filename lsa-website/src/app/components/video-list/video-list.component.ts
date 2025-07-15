@@ -35,9 +35,19 @@ export class VideoListComponent {
   readonly descriptionBlock = computed(() => this.config().descriptionBlock);
   readonly type = computed(() => this.config().type);
   readonly videos = computed(() =>
-    [...this.videosService.preachingsInStore()].sort((a, b) =>
-      a.date < b.date ? 1 : -1
-    )
+    {
+      switch (this.config().type) {
+        case 'biblestudies':
+          return [...this.videosService.bibleStudiesInStore()]
+          .sort((a, b) => a.date < b.date ? 1 : -1
+          )
+          
+        default:
+          return [...this.videosService.preachingsInStore()]
+          .sort((a, b) => a.date < b.date ? 1 : -1
+        )
+      }
+    }
   );
   readonly currentViewSize = signal(0);
   readonly searchQuery = signal('');

@@ -17,3 +17,15 @@ export const selectPreachingsCurrentPage = createSelector(
   selectPreachingsState,
   (state: VideoStoreState) => state.currentPage
 );
+
+export const selectBibleStudiesState = (state: AppState) => state.bibleStudies;
+
+export const selectBibleStudiesInStore = createSelector(
+  selectBibleStudiesState,
+  (state: VideoStoreState) => state.videosInStore
+);
+
+export const selectBibleStudiesCurrentPage = createSelector(
+  selectBibleStudiesState,
+  (state: VideoStoreState) => state.currentPage
+);

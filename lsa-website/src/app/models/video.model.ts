@@ -26,7 +26,7 @@ export interface VideoRecordingDto {
   preacher: { id: number; name: string };
 }
 
-export interface GetSermonsResponse {
+export interface GetVideosResponse {
   items: VideoRecordingDto[];
   totalItems: number;
   page: number;

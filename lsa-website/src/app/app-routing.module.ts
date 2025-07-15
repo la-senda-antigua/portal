@@ -6,6 +6,7 @@ const routes: Routes = [
   { path: 'home', component: PageRendererComponent },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'churchservices', component: PageRendererComponent },
+  { path: 'biblestudies', component: PageRendererComponent },
   { path: '**', redirectTo: '/home' }, // Redirect any unknown paths to home
 ];
 
