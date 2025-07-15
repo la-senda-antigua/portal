@@ -3,7 +3,6 @@ export interface VideoModel {
   date: Date;
   title: string;
   videoUrl: string;
-  audioUrl?: string;
   thumbnailUrl: string;
   preacher?: string;
 }

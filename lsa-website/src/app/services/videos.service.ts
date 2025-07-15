@@ -30,7 +30,7 @@ export class VideosService {
   private preachingsStoreState = this.store.selectSignal(selectPreachingsState);
   private preachingsCurrentPage = this.store.selectSignal(selectPreachingsCurrentPage);
   public preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
-  
+
   private bibleStudiesStoreState = this.store.selectSignal(selectBibleStudiesState);
   private bibleStudiesCurrentPage = this.store.selectSignal(selectBibleStudiesCurrentPage);
   public bibleStudiesInStore = this.store.selectSignal(selectBibleStudiesInStore);
@@ -38,7 +38,7 @@ export class VideosService {
   loadVideoBatch(type: 'preachings' | 'biblestudies') {
     switch (type) {
       case 'biblestudies':
-        this.loadPreachingBatch();
+        this.loadBibleStudiesBatch();
         break;
       default:
         this.loadPreachingBatch();
@@ -117,7 +117,7 @@ export class VideosService {
     }
     this.httpClient
       .get<GetVideosResponse>(
-        `${this.baseUrl}/lesons?page=${page}&pageSize=${pageSize}`
+        `${this.baseUrl}/lessons?page=${page}&pageSize=${pageSize}`
       )
       .pipe(
         map((response) => {
@@ -127,10 +127,10 @@ export class VideosService {
             videosInStore: response.items.map(
               (i) =>
                 ({
+                  id: i.id,
                   date: new Date(i.date),
                   title: i.title,
                   videoUrl: i.videoPath,
-                  audioUrl: i.audioPath,
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
                 } as VideoModel)
