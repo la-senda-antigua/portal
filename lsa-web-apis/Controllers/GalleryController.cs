@@ -1,0 +1,97 @@
+using lsa_web_apis.Data;
+using lsa_web_apis.Entities;
+using lsa_web_apis.Extensions;
+using lsa_web_apis.Models;
+using lsa_web_apis.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace lsa_web_apis.Controllers
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class GalleryController : ControllerBase
+    {
+        private readonly VideosDbContext _context;
+        private readonly IVideoRecordingService _videoRecordingService;
+        public GalleryController(VideosDbContext context, IVideoRecordingService videoRecordingService)
+        {
+            _context = context;
+            _videoRecordingService = videoRecordingService;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<Gallery>> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var pagedResult = await _context.Gallery.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
+            return Ok(pagedResult);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<PagedResult<Gallery>>> Search([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Search query cannot be empty");
+
+            var items = await _videoRecordingService.FilterVideosByQuery(query, VideoType.Gallery);
+            if (items is null || !items.Any())
+                return NotFound("No gallery items found matching the search criteria");
+            return Ok(items);
+        }
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Gallery>> GetGallery(int id)
+        {
+            var gallery = await _context.Gallery.FindAsync(id);
+
+            if (gallery is null)
+                return NotFound();
+
+            return Ok(gallery);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult<Gallery>> CreateGallery(Gallery gallery)
+        {
+            _context.Gallery.Add(gallery);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetGallery), new { id = gallery.Id }, gallery);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateGallery(int id, Gallery gallery)
+        {
+            if (id != gallery.Id) return BadRequest("Id does not match");
+
+            var existingGallery = await _context.Gallery.FindAsync(id);
+            if (existingGallery is null) return NotFound();
+
+            existingGallery.Title = gallery.Title;            
+            existingGallery.Cover = gallery.Cover;
+            existingGallery.Date = gallery.Date;            
+            existingGallery.VideoPath = gallery.VideoPath;
+
+            _context.Gallery.Update(existingGallery);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGallery(int id)
+        {
+            var gallery = await _context.Gallery.FindAsync(id);
+            if (gallery is null) return NotFound();
+
+            _context.Gallery.Remove(gallery);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+    }
+}
