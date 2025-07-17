@@ -53,6 +53,10 @@ export class MobileMenuComponent {
     }
 
     this.activeOption.set(option);
+
+    if(!option.options){
+      this.close.emit()
+    }
   }
 
   isSelected(option?: NavigationOption) {
