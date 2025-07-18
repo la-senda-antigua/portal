@@ -54,7 +54,8 @@ describe('PageRendererComponent', () => {
         },
       ],
     });
-
+    
+    fixture.componentRef.setInput('pageName', 'test-page');
     expect(component.pageConfig()).toBeDefined();
     expect(component.pageConfig()?.sections).not.toBeNull();
   });
@@ -76,7 +77,8 @@ describe('PageRendererComponent', () => {
         },
       ],
     });
-
+    
+    fixture.componentRef.setInput('pageName', 'test-page');
     const sections = component.sections()!;
     const header = sections.find((s) => s.name === 'header');
     expect(header).toBeUndefined();
@@ -91,7 +93,7 @@ describe('PageRendererComponent', () => {
       live: { title: '' },
       pages: [{ name: 'test-page', title: 'Test Page', sections: [] }],
     });
-
+    fixture.componentRef.setInput('pageName', 'test-page');
     fixture.detectChanges(); // Trigger effects
     expect(mockTitleService.setTitle).toHaveBeenCalledWith('Test Page');
   });
