@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  input,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -42,9 +43,8 @@ export class PageRendererComponent {
   readonly headerConfig = computed(() =>
     this.pageConfig()?.sections.find((section) => section.name === 'header')
   );
-  readonly pageName = toSignal(
-    this.activeRoute.url.pipe(map((url) => url[0].path))
-  );
+
+  readonly pageName = input<string>();  
   readonly matDialog = inject(MatDialog);
   private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
   private snackBar = inject(MatSnackBar);
@@ -78,7 +78,7 @@ export class PageRendererComponent {
       }
     });
 
-    effect(() => {
+    effect(() => {      
       if(this.pageName() != undefined) {
         this.configService.setCurrentPageName(this.pageName()!);
       }
