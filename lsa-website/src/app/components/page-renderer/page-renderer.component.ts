@@ -44,7 +44,7 @@ export class PageRendererComponent {
     this.pageConfig()?.sections.find((section) => section.name === 'header')
   );
 
-  readonly pageName = input.required<string>();  
+  readonly pageName = input<string>();  
   readonly matDialog = inject(MatDialog);
   private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
   private snackBar = inject(MatSnackBar);
