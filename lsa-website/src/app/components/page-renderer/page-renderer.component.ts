@@ -16,6 +16,7 @@ import { AppConfigService } from '../../app-config/app-config.service';
 import { HeaderComponent } from '../header/header.component';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';
 import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
+import { RadioDialogComponent } from '../radio-dialog/radio-dialog.component';
 
 @Component({
   selector: 'lsa-page-renderer',
@@ -25,7 +26,7 @@ import { SectionRendererComponent } from '../section-renderer/section-renderer.c
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageRendererComponent {
-  readonly pageConfig = computed(() =>
+  readonly pageConfig = this.configService.currentPageConfig;
     this.configService
       .appConfig()
       ?.pages?.find((page) => page.name === this.pageName())
@@ -47,6 +48,7 @@ export class PageRendererComponent {
   );
   readonly matDialog = inject(MatDialog);
   private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
+  private radioDialog?: MatDialogRef<RadioDialogComponent>;
   private snackBar = inject(MatSnackBar);
 
   constructor(
@@ -79,7 +81,23 @@ export class PageRendererComponent {
     });
 
     effect(() => {
-      if(this.pageName() != undefined) {
+      if (this.pageName() != undefined) {
+        if(this.pageName()==='radio'){
+          if(this.radioDialog !== undefined) {
+            this.radioDialog.close();
+          }
+          this.radioDialog = this.matDialog.open(RadioDialogComponent, {
+            disableClose: true,
+            hasBackdrop: true,
+          });
+          this.radioDialog.afterClosed().subscribe(() => {
+            this.radioDialog = undefined;
+          });
+          if(this.configService.currentPageName() == undefined) {
+            this.configService.setCurrentPageName('home');
+          }
+          return;
+        }
         this.configService.setCurrentPageName(this.pageName()!);
       }
     });

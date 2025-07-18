@@ -1,0 +1,31 @@
+<span mat-dialog-title> Radio La Senda Antigua </span>
+<mat-dialog-content>
+  <audio #audioElement>
+    <source [src]="'https://play10.tikast.com/proxy/lasenda?mp=/stream'" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <div class="radio-controls">
+    <button mat-icon-button (click)="togglePlay()">
+      @if(playState()==='paused'){
+      <mat-icon>play_arrow</mat-icon>
+      }@else {
+      <mat-icon>pause</mat-icon>
+      }
+    </button>
+    <div class="volume-controls">
+      <button mat-icon-button (click)="isVolumeUp.set(!isVolumeUp())">
+        @if (isVolumeUp()) {
+        <mat-icon>volume_up</mat-icon>
+        }@else {
+        <mat-icon>volume_off</mat-icon>}
+      </button>
+
+      <mat-slider [disabled]="!isVolumeUp()" [max]="100" [min]="0" [step]="10">
+        <input matSliderThumb [(value)]="volumeValue" />
+      </mat-slider>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-flat-button (click)="hideDialog()">minimizar</button>
+</mat-dialog-actions>
