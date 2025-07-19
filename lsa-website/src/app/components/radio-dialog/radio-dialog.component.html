@@ -1,0 +1,48 @@
+<span
+  class="toolbar"
+  mat-dialog-title
+  style="background-color: #3f4a49; color: #fff"
+>
+  <button mat-icon-button (click)="minimize()">
+    <mat-icon style="color: #fff">minimize</mat-icon>
+  </button>
+  <button mat-icon-button (click)="close()">
+    <mat-icon style="color: white">close</mat-icon>
+  </button>
+</span>
+<mat-dialog-content>
+  <audio #audioElement>
+    <source
+      [src]="'https://play10.tikast.com/proxy/lasenda?mp=/stream'"
+      type="audio/mpeg"
+    />
+    Your browser does not support the audio element.
+  </audio>
+  <h3 class="title">Radio La Senda Antigua</h3>
+
+  <div class="radio-controls">
+    <button mat-icon-button (click)="togglePlay()">
+      @if(playState()==='paused'){
+      <mat-icon>play_arrow</mat-icon>
+      }@else {
+      <mat-icon>pause</mat-icon>
+      }
+    </button>
+    <div class="volume-controls" *ngIf="!isMobile()">
+      <button mat-icon-button (click)="toggleMute()">
+        @if (isVolumeUp()) {
+        <mat-icon>volume_up</mat-icon>
+        }@else {
+        <mat-icon>volume_off</mat-icon>}
+      </button>
+
+      <mat-slider [max]="100" [min]="0" [step]="10">
+        <input matSliderThumb [(value)]="volumeValue" />
+      </mat-slider>
+    </div>
+  </div>
+  <div class="music-info">
+    <span class="cc_streaminfo" data-type="song" data-username="lasenda">
+    </span>
+  </div>
+</mat-dialog-content>

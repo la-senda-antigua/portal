@@ -14,7 +14,11 @@ describe('PageRendererComponent', () => {
   let mockTitleService: jasmine.SpyObj<Title>;
 
   beforeEach(async () => {
-    mockConfigService = jasmine.createSpyObj('AppConfigService', ['appConfig', 'setCurrentPageName']);
+    mockConfigService = jasmine.createSpyObj('AppConfigService', [
+      'appConfig',
+      'setCurrentPageName',
+      'currentPageConfig',
+    ]);
     mockActivatedRoute = {
       url: of([{ path: 'test-page' }]),
     };
@@ -38,20 +42,13 @@ describe('PageRendererComponent', () => {
   });
 
   it('should compute pageConfig based on appConfig and pageName', () => {
-    mockConfigService.appConfig.and.returnValue({
-      title: '',
-      navigation: { index: 1, text: '', link: '' },
-      live: { title: '' },
-      pages: [
-        {
-          name: 'test-page',
-          title: 'Test Page',
-          sections: [
-            { title: '', name: '' },
-            { title: '', name: '' },
-            { title: '', name: '' },
-          ],
-        },
+    mockConfigService.currentPageConfig.and.returnValue({
+      name: 'test-page',
+      title: 'Test Page',
+      sections: [
+        { title: '', name: '' },
+        { title: '', name: '' },
+        { title: '', name: '' },
       ],
     });
     
@@ -61,20 +58,13 @@ describe('PageRendererComponent', () => {
   });
 
   it('should not include "header" in sections', () => {
-    mockConfigService.appConfig.and.returnValue({
+    mockConfigService.currentPageConfig.and.returnValue({
       title: '',
-      navigation: { index: 1, text: '', link: '' },
-      live: { title: '' },
-      pages: [
-        {
-          title: '',
-          name: 'test-page',
-          sections: [
-            { name: 'section-2', title: '' },
-            { name: 'header', title: '' },
-            { name: 'section-1', title: '' },
-          ],
-        },
+      name: 'test-page',
+      sections: [
+        { name: 'section-2', title: '' },
+        { name: 'header', title: '' },
+        { name: 'section-1', title: '' },
       ],
     });
     
@@ -87,11 +77,10 @@ describe('PageRendererComponent', () => {
   });
 
   it('should set the page title using Title service', () => {
-    mockConfigService.appConfig.and.returnValue({
-      title: '',
-      navigation: { index: 1, text: '', link: '' },
-      live: { title: '' },
-      pages: [{ name: 'test-page', title: 'Test Page', sections: [] }],
+    mockConfigService.currentPageConfig.and.returnValue({
+      name: 'test-page',
+      title: 'Test Page',
+      sections: [],
     });
     fixture.componentRef.setInput('pageName', 'test-page');
     fixture.detectChanges(); // Trigger effects
@@ -99,13 +88,10 @@ describe('PageRendererComponent', () => {
   });
 
   it('should set default title if pageConfig title is undefined', () => {
-    mockConfigService.appConfig.and.returnValue({
-      title: '',
-      navigation: { index: 1, text: '', link: '' },
-      pages: [{ name: 'test-page', sections: [] } as any],
-      live: { title: '' },
-    });
-    mockConfigService.setCurrentPageName.and.callThrough();
+    mockConfigService.currentPageConfig.and.returnValue({
+      name: 'test-page',
+      sections: [],
+    } as any);
 
     fixture.detectChanges(); // Trigger effects
     expect(mockTitleService.setTitle).toHaveBeenCalledWith('La Senda Antigua');

@@ -6,16 +6,15 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs';
+import { Router } from '@angular/router';
 import { LsaServiceHubService } from 'src/app/lsa-service-hub/lsa-service-hub.service';
 import { AppConfigService } from '../../app-config/app-config.service';
 import { HeaderComponent } from '../header/header.component';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';
+import { RadioService } from '../radio-dialog/radio.service';
 import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
 
 @Component({
@@ -26,11 +25,7 @@ import { SectionRendererComponent } from '../section-renderer/section-renderer.c
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageRendererComponent {
-  readonly pageConfig = computed(() =>
-    this.configService
-      .appConfig()
-      ?.pages?.find((page) => page.name === this.pageName())
-  );
+  readonly pageConfig = this.configService.currentPageConfig;
   readonly sections = computed(() =>
     this.pageConfig()
       ?.sections.filter((s) => s.name!! && s.name !== 'header')
@@ -46,12 +41,13 @@ export class PageRendererComponent {
 
   readonly pageName = input<string>();  
   readonly matDialog = inject(MatDialog);
+  readonly router = inject(Router);
   private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
   private snackBar = inject(MatSnackBar);
+  private radioService = inject(RadioService);
 
   constructor(
     private configService: AppConfigService,
-    private activeRoute: ActivatedRoute,
     liveService: LsaServiceHubService,
     titleService: Title
   ) {
@@ -78,8 +74,16 @@ export class PageRendererComponent {
       }
     });
 
-    effect(() => {      
-      if(this.pageName() != undefined) {
+    effect(() => {
+      if (this.pageName() != undefined) {
+        if (this.pageName() === 'radio') {
+          this.radioService.popUpRadio();
+          if (this.configService.currentPageName() == undefined) {
+            this.configService.setCurrentPageName('home');
+          }
+          this.router.navigate([`/${this.configService.currentPageName()}`]);
+          return;
+        }
         this.configService.setCurrentPageName(this.pageName()!);
       }
     });
