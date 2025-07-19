@@ -9,13 +9,13 @@ import {
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { LsaServiceHubService } from 'src/app/lsa-service-hub/lsa-service-hub.service';
 import { AppConfigService } from '../../app-config/app-config.service';
 import { HeaderComponent } from '../header/header.component';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';
-import { RadioDialogComponent } from '../radio-dialog/radio-dialog.component';
+import { RadioService } from '../radio-dialog/radio.service';
 import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'lsa-page-renderer',
@@ -43,8 +43,8 @@ export class PageRendererComponent {
   readonly matDialog = inject(MatDialog);
   readonly router = inject(Router);
   private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
-  private radioDialog?: MatDialogRef<RadioDialogComponent>;
   private snackBar = inject(MatSnackBar);
+  private radioService = inject(RadioService);
 
   constructor(
     private configService: AppConfigService,
@@ -77,16 +77,7 @@ export class PageRendererComponent {
     effect(() => {
       if (this.pageName() != undefined) {
         if (this.pageName() === 'radio') {
-          if (this.radioDialog !== undefined) {
-            this.radioDialog.close();
-          }
-          this.radioDialog = this.matDialog.open(RadioDialogComponent, {
-            disableClose: true,
-            hasBackdrop: true,
-          });
-          this.radioDialog.afterClosed().subscribe(() => {
-            this.radioDialog = undefined;
-          });
+          this.radioService.popUpRadio();
           if (this.configService.currentPageName() == undefined) {
             this.configService.setCurrentPageName('home');
           }

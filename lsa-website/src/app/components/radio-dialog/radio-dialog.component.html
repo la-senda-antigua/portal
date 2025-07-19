@@ -28,7 +28,7 @@
       <mat-icon>pause</mat-icon>
       }
     </button>
-    <div class="volume-controls">
+    <div class="volume-controls" *ngIf="!isMobile()">
       <button mat-icon-button (click)="toggleMute()">
         @if (isVolumeUp()) {
         <mat-icon>volume_up</mat-icon>
