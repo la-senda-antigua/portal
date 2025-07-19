@@ -51,7 +51,7 @@ describe('PageRendererComponent', () => {
         { title: '', name: '' },
       ],
     });
-
+    
     fixture.componentRef.setInput('pageName', 'test-page');
     expect(component.pageConfig()).toBeDefined();
     expect(component.pageConfig()?.sections).not.toBeNull();
@@ -67,7 +67,7 @@ describe('PageRendererComponent', () => {
         { name: 'section-1', title: '' },
       ],
     });
-
+    
     fixture.componentRef.setInput('pageName', 'test-page');
     const sections = component.sections()!;
     const header = sections.find((s) => s.name === 'header');
