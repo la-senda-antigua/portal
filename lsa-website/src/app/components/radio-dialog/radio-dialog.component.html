@@ -1,9 +1,25 @@
-<span mat-dialog-title> Radio La Senda Antigua </span>
+<span
+  class="toolbar"
+  mat-dialog-title
+  style="background-color: #3f4a49; color: #fff"
+>
+  <button mat-icon-button (click)="minimize()">
+    <mat-icon style="color: #fff">minimize</mat-icon>
+  </button>
+  <button mat-icon-button (click)="close()">
+    <mat-icon style="color: white">close</mat-icon>
+  </button>
+</span>
 <mat-dialog-content>
   <audio #audioElement>
-    <source [src]="'https://play10.tikast.com/proxy/lasenda?mp=/stream'" type="audio/mpeg">
+    <source
+      [src]="'https://play10.tikast.com/proxy/lasenda?mp=/stream'"
+      type="audio/mpeg"
+    />
     Your browser does not support the audio element.
   </audio>
+  <h3 class="title">Radio La Senda Antigua</h3>
+
   <div class="radio-controls">
     <button mat-icon-button (click)="togglePlay()">
       @if(playState()==='paused'){
@@ -13,19 +29,20 @@
       }
     </button>
     <div class="volume-controls">
-      <button mat-icon-button (click)="isVolumeUp.set(!isVolumeUp())">
+      <button mat-icon-button (click)="toggleMute()">
         @if (isVolumeUp()) {
         <mat-icon>volume_up</mat-icon>
         }@else {
         <mat-icon>volume_off</mat-icon>}
       </button>
 
-      <mat-slider [disabled]="!isVolumeUp()" [max]="100" [min]="0" [step]="10">
+      <mat-slider [max]="100" [min]="0" [step]="10">
         <input matSliderThumb [(value)]="volumeValue" />
       </mat-slider>
     </div>
   </div>
+  <div class="music-info">
+    <span class="cc_streaminfo" data-type="song" data-username="lasenda">
+    </span>
+  </div>
 </mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-flat-button (click)="hideDialog()">minimizar</button>
-</mat-dialog-actions>

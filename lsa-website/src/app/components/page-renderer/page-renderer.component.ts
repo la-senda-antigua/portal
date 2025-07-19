@@ -4,19 +4,18 @@ import {
   computed,
   effect,
   inject,
+  input,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs';
 import { LsaServiceHubService } from 'src/app/lsa-service-hub/lsa-service-hub.service';
 import { AppConfigService } from '../../app-config/app-config.service';
 import { HeaderComponent } from '../header/header.component';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';
-import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
 import { RadioDialogComponent } from '../radio-dialog/radio-dialog.component';
+import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'lsa-page-renderer',
@@ -27,10 +26,6 @@ import { RadioDialogComponent } from '../radio-dialog/radio-dialog.component';
 })
 export class PageRendererComponent {
   readonly pageConfig = this.configService.currentPageConfig;
-    this.configService
-      .appConfig()
-      ?.pages?.find((page) => page.name === this.pageName())
-  );
   readonly sections = computed(() =>
     this.pageConfig()
       ?.sections.filter((s) => s.name!! && s.name !== 'header')
@@ -43,17 +38,16 @@ export class PageRendererComponent {
   readonly headerConfig = computed(() =>
     this.pageConfig()?.sections.find((section) => section.name === 'header')
   );
-  readonly pageName = toSignal(
-    this.activeRoute.url.pipe(map((url) => url[0].path))
-  );
+
+  readonly pageName = input<string>();
   readonly matDialog = inject(MatDialog);
+  readonly router = inject(Router);
   private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
   private radioDialog?: MatDialogRef<RadioDialogComponent>;
   private snackBar = inject(MatSnackBar);
 
   constructor(
     private configService: AppConfigService,
-    private activeRoute: ActivatedRoute,
     liveService: LsaServiceHubService,
     titleService: Title
   ) {
@@ -82,8 +76,8 @@ export class PageRendererComponent {
 
     effect(() => {
       if (this.pageName() != undefined) {
-        if(this.pageName()==='radio'){
-          if(this.radioDialog !== undefined) {
+        if (this.pageName() === 'radio') {
+          if (this.radioDialog !== undefined) {
             this.radioDialog.close();
           }
           this.radioDialog = this.matDialog.open(RadioDialogComponent, {
@@ -93,9 +87,10 @@ export class PageRendererComponent {
           this.radioDialog.afterClosed().subscribe(() => {
             this.radioDialog = undefined;
           });
-          if(this.configService.currentPageName() == undefined) {
+          if (this.configService.currentPageName() == undefined) {
             this.configService.setCurrentPageName('home');
           }
+          this.router.navigate([`/${this.configService.currentPageName()}`]);
           return;
         }
         this.configService.setCurrentPageName(this.pageName()!);
