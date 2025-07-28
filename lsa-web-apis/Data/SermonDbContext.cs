@@ -9,4 +9,5 @@ public class VideosDbContext(DbContextOptions<VideosDbContext> options) : DbCont
     public DbSet<Preacher> Preachers { get; set; }
     public DbSet<Sermon> Sermons { get; set; }
     public DbSet<Lesson> Lessons { get; set; }
+    public DbSet<Gallery> Gallery { get; set; }
 }

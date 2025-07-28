@@ -5,7 +5,8 @@ namespace lsa_web_apis.Services;
 public enum VideoType
 {
     Sermon,
-    Lesson
+    Lesson,
+    Gallery
 }
 public interface IVideoRecordingService
 {
