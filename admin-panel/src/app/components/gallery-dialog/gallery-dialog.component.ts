@@ -1,4 +1,4 @@
-import { Component, Inject, input, OnInit } from '@angular/core';
+import { Component, Inject,  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
@@ -11,42 +11,35 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { Sermon } from '../../models/Sermon';
-import { Preacher } from '../../models/Preacher';
 import { VideosService } from '../../services/videos.service';
-import { MatOption } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
+import { Gallery } from '../../models/Gallery';
+
 
 @Component({
-  selector: 'app-sermon-dialog',
-  standalone: true,
-  imports: [
-    CommonModule,
+  selector: 'app-gallery-dialog',
+  imports: [CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule, MatOption, MatSelectModule, CommonModule, FormsModule
-  ],
-  templateUrl: './sermon-dialog.component.html',
-  styleUrls: ['./sermon-dialog.component.scss'],
+    MatButtonModule, MatSelectModule, CommonModule, FormsModule],
+  templateUrl: './gallery-dialog.component.html',
+  styleUrl: './gallery-dialog.component.scss'
 })
-export class SermonDialogComponent implements OnInit {
+export class GalleryDialogComponent {
   form: FormGroup;
-  preachers: Preacher[] = [];  
-  preacherFilter: string = '';
 
   constructor(
     private fb: FormBuilder,
-    private dialogRef: MatDialogRef<SermonDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: Sermon,
-    private sermonsService: VideosService
+    private dialogRef: MatDialogRef<GalleryDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: Gallery,
+    private videoService: VideosService
   ) {
     this.form = this.fb.group({
       title: [data?.title || '', Validators.required],
       date: [data?.date || '', Validators.required],
       cover: [data?.cover || '', Validators.required],
       videoPath: [data?.videoPath || '', Validators.required],
-      preacherId: [data?.preacher?.id || '', Validators.required],
     });
 
     if (data) {
@@ -58,12 +51,6 @@ export class SermonDialogComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    this.sermonsService.getAllPreachers().subscribe((preachers) => {
-      this.preachers = preachers;      
-    });
-  }
-
   save() {
     if (this.form.valid) {
       this.dialogRef.close(this.form.value);
@@ -73,4 +60,5 @@ export class SermonDialogComponent implements OnInit {
   close() {
     this.dialogRef.close();
   }
+
 }

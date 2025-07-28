@@ -6,7 +6,7 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { Sermon } from '../../models/Sermon';
-import { SermonsService } from '../../services/sermons.service';
+import { VideosService } from '../../services/videos.service';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,7 +38,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
   dialogRef!: MatDialogRef<any>;
 
   constructor(
-    private sermonsService: SermonsService,
+    private videoService: VideosService,
     private dialog: MatDialog
   ) { }
 
@@ -52,7 +52,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
 
   loadSermons(currentPage: number = 1, pageSize: number = 10): void {
     this.isLoading = true;
-    this.sermonsService.getSermons(currentPage, pageSize)
+    this.videoService.getSermons(currentPage, pageSize)
       .subscribe({
         next: (response) => {
           this.dataSource.data = response.items;
@@ -83,7 +83,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
       next: (confimed) => {
         if (confimed) {
           this.isLoading = true
-          this.sermonsService.deleteSermon(sermon.id);
+          this.videoService.deleteSermon(sermon.id);
         }
       },
       error: (err) => {
@@ -102,7 +102,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
       if (updatedSermon) {
         this.isLoading = true
         updatedSermon.id = sermon.id
-        this.sermonsService.updateSermon(updatedSermon).subscribe({
+        this.videoService.updateSermon(updatedSermon).subscribe({
           next: () => {
             this.loadSermons()
           },
@@ -121,7 +121,7 @@ export class ChurchServicesComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((newSermon) => {
       if (newSermon) {
         this.isLoading = true
-        this.sermonsService.addSermon(newSermon).subscribe({
+        this.videoService.addSermon(newSermon).subscribe({
           next: () => {
             this.loadSermons()
           },

@@ -5,14 +5,16 @@ import { environment } from '../../environments/environment';
 import { TableResult } from '../models/TableResult';
 import { Preacher } from '../models/Preacher';
 import { RequestManagerService } from './request-manager.service';
+import { Gallery } from '../models/Gallery';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SermonsService {
+export class VideosService {
   private apiSermonsUrl = '/sermons';
   private apiCoursesUrl = '/lessons'; 
   private apiPreachersUrl = '/preachers';
+  private apiGalleryUrl = '/gallery';
 
   constructor(private requestManager: RequestManagerService) {}
 
@@ -79,4 +81,22 @@ export class SermonsService {
     const url = `${this.apiPreachersUrl}/${id}`;
     return this.requestManager.delete<void>(url);
   }
+
+  //gallery section
+  getGallery(page: number=1, pageSize: number=10): Observable<TableResult<Gallery>> {
+    const url :string = `${this.apiGalleryUrl}?page=${page}&pageSize=${pageSize}`;
+    return this.requestManager.get<TableResult<Gallery>>(url);
+  }
+  addGalleryItem(item: Gallery): Observable<Gallery> {
+    return this.requestManager.post<Gallery>(this.apiGalleryUrl, item);
+  }
+  updateGalleryItem(item: Gallery): Observable<Gallery> {
+    const url = `${this.apiGalleryUrl}/${item.id}`;
+    return this.requestManager.put<Gallery>(url, item);
+  }
+  deleteGalleryItem(id: number): Observable<void> {
+    const url = `${this.apiGalleryUrl}/${id}`;
+    return this.requestManager.delete<void>(url);
+  }
+  
 }

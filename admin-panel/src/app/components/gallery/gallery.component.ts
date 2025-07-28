@@ -5,27 +5,32 @@ import {
   ViewChild,
   TemplateRef,
 } from '@angular/core';
-import { Sermon } from '../../models/Sermon';
+import { Gallery } from '../../models/Gallery';
 import { VideosService } from '../../services/videos.service';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatDialog, MatDialogRef, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
-import { SermonDialogComponent } from '../sermon-dialog/sermon-dialog.component';
+
 import { MatButtonModule } from '@angular/material/button';
 import { PageEvent } from '@angular/material/paginator';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { GalleryDialogComponent } from '../gallery-dialog/gallery-dialog.component';
+
+
+
 
 @Component({
-  selector: 'app-bible-courses',
-  imports: [MatTableModule, MatPaginatorModule, MatIconModule, DatePipe, MatDialogContent, MatDialogActions, MatButtonModule, MatProgressBar, CommonModule],
-  templateUrl: './bible-courses.component.html',
-  styleUrl: './bible-courses.component.scss'
+  selector: 'app-gallery',
+  imports: [MatTableModule, MatPaginatorModule, MatIconModule, DatePipe, MatDialogContent, MatDialogActions, MatButtonModule, MatProgressSpinnerModule, CommonModule, MatProgressBar],
+  templateUrl: './gallery.component.html',
+  styleUrl: './gallery.component.scss'
 })
-export class BibleCoursesComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['sermonId', 'title', 'preacher', 'date', 'actions'];
-  dataSource = new MatTableDataSource<Sermon>([]);
+export class GalleryComponent {
+  displayedColumns: string[] = ['id', 'title', 'date', 'actions'];
+  dataSource = new MatTableDataSource<Gallery>([]);
   totalItems = 0;
   pageSize = 10;
   currentPage = 1;
@@ -36,21 +41,21 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
   dialogRef!: MatDialogRef<any>;
 
   constructor(
-    private sermonsService: VideosService,
+    private videoService: VideosService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-    this.loadCourses(this.currentPage, this.pageSize);
+    this.loadVideos(this.currentPage, this.pageSize);
   }
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
   }
 
-  loadCourses(currentPage: number = 1, pageSize: number = 10): void {
+  loadVideos(currentPage: number = 1, pageSize: number = 10): void {
     this.isLoading = true;
-    this.sermonsService.getCourses(currentPage, pageSize)
+    this.videoService.getGallery(currentPage, pageSize)
       .subscribe({
         next: (response) => {
           this.dataSource.data = response.items;
@@ -60,49 +65,49 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
           this.isLoading = false;
         },
         error: (err) => {
-          console.error('Error loading', err);
+          console.error('error loading gallery', err);
           this.isLoading = false;
         }
-      });      
+      });
   }
 
   onPageChange(event: PageEvent) {
     this.pageSize = event.pageSize;
     this.currentPage = event.pageIndex + 1;
-    this.loadCourses(this.currentPage, this.pageSize);
+    this.loadVideos(this.currentPage, this.pageSize);
   }
 
-  async onDelete(course: Sermon) {
+  async onDelete(video: Gallery) {
     this.dialogRef = this.dialog.open(this.confirmDeleteDialog, {
-      data: course,
+      data: video,
     });
 
     this.dialogRef.afterClosed().subscribe({
       next: (confimed) => {
         if (confimed) {
           this.isLoading = true
-          this.sermonsService.deleteCourse(course.id);
+          this.videoService.deleteGalleryItem(video.id);
         }
       },
-      error: (err) =>{
+      error: (err) => {
         this.isLoading = false
-        console.error('Error on deleting', err);
+        console.error('Error on delete', err);
       }
     });
   }
 
-  onEdit(course: Sermon) {
-    const dialogRef = this.dialog.open(SermonDialogComponent, {
-      data: course,
+  onEdit(item: Gallery) {
+    const dialogRef = this.dialog.open(GalleryDialogComponent, {
+      data: item,
     });
 
-    dialogRef.afterClosed().subscribe((updatedCourse) => {
-      if (updatedCourse) {
+    dialogRef.afterClosed().subscribe((updatedItem) => {
+      if (updatedItem) {
         this.isLoading = true
-        updatedCourse.id = course.id;
-        this.sermonsService.updateCourse(updatedCourse).subscribe({
+        updatedItem.id = item.id
+        this.videoService.updateGalleryItem(updatedItem).subscribe({
           next: () => {
-            this.loadCourses()
+            this.loadVideos()
           },
           error: (err) => {
             this.isLoading = false
@@ -114,21 +119,23 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
   }
 
   onAdd() {
-    const dialogRef = this.dialog.open(SermonDialogComponent);
+    const dialogRef = this.dialog.open(GalleryDialogComponent);
 
-    dialogRef.afterClosed().subscribe((newCourse) => {
-      if (newCourse) {
+    dialogRef.afterClosed().subscribe((newItem) => {
+      if (newItem) {
         this.isLoading = true
-        this.sermonsService.addCourse(newCourse).subscribe({
+        this.videoService.addGalleryItem(newItem).subscribe({
           next: () => {
-            this.loadCourses()
+            this.loadVideos()
           },
           error: (err) => {
             this.isLoading = false
-            console.error('Error on add', err);
+            alert(err.message || 'on add');
+            console.error(err);
           },
         });
       }
     });
   }
+
 }

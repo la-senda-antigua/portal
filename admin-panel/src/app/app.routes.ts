@@ -7,6 +7,7 @@ import { BibleCoursesComponent } from './components/bible-courses/bible-courses.
 import { StreamComponent } from './components/stream/stream.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { PreachersComponent } from './components/preachers/preachers.component';
+import { GalleryComponent } from './components/gallery/gallery.component';
 
 export const routes: Routes = [
   {
@@ -35,6 +36,11 @@ export const routes: Routes = [
   {
     path: 'courses',
     component: BibleCoursesComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'gallery',
+    component: GalleryComponent,
     canActivate: [AuthGuard]
   },
   {
