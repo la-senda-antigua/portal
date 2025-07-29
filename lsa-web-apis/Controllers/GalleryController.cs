@@ -25,12 +25,12 @@ namespace lsa_web_apis.Controllers
         [HttpGet]
         public async Task<ActionResult> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var pagedResult = await _context.Gallery.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
+            var pagedResult = await _context.GalleryVideos.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
             return Ok(pagedResult);
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<PagedResult<Gallery>>> Search([FromQuery] string query)
+        public async Task<ActionResult<PagedResult<GalleryVideo>>> Search([FromQuery] string query)
         {
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Search query cannot be empty");
@@ -42,9 +42,9 @@ namespace lsa_web_apis.Controllers
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<Gallery>> GetGallery(int id)
+        public async Task<ActionResult<GalleryVideo>> GetGallery(int id)
         {
-            var gallery = await _context.Gallery.FindAsync(id);
+            var gallery = await _context.GalleryVideos.FindAsync(id);
 
             if (gallery is null)
                 return NotFound();
@@ -54,9 +54,9 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Gallery>> CreateGallery(Gallery gallery)
+        public async Task<ActionResult<GalleryVideo>> CreateGallery(GalleryVideo gallery)
         {
-            _context.Gallery.Add(gallery);
+            _context.GalleryVideos.Add(gallery);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetGallery), new { id = gallery.Id }, gallery);
@@ -64,11 +64,11 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGallery(int id, Gallery gallery)
+        public async Task<IActionResult> UpdateGallery(int id, GalleryVideo gallery)
         {
             if (id != gallery.Id) return BadRequest("Id does not match");
 
-            var existingGallery = await _context.Gallery.FindAsync(id);
+            var existingGallery = await _context.GalleryVideos.FindAsync(id);
             if (existingGallery is null) return NotFound();
 
             existingGallery.Title = gallery.Title;            
@@ -76,7 +76,7 @@ namespace lsa_web_apis.Controllers
             existingGallery.Date = gallery.Date;            
             existingGallery.VideoPath = gallery.VideoPath;
 
-            _context.Gallery.Update(existingGallery);
+            _context.GalleryVideos.Update(existingGallery);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -86,10 +86,10 @@ namespace lsa_web_apis.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGallery(int id)
         {
-            var gallery = await _context.Gallery.FindAsync(id);
+            var gallery = await _context.GalleryVideos.FindAsync(id);
             if (gallery is null) return NotFound();
 
-            _context.Gallery.Remove(gallery);
+            _context.GalleryVideos.Remove(gallery);
             await _context.SaveChangesAsync();
 
             return NoContent();
