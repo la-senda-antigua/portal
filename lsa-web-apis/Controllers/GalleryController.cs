@@ -6,6 +6,7 @@ using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers
 {
@@ -22,7 +23,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Gallery>> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var pagedResult = await _context.Gallery.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
             return Ok(pagedResult);
