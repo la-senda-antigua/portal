@@ -32,6 +32,10 @@ public class VideoRecordingService : IVideoRecordingService
                                     (l.Preacher != null && !string.IsNullOrEmpty(l.Preacher.Name) && EF.Functions.Like(l.Preacher.Name, $"%{query}%")))
                                 .OrderByDescending(l => l.Id)
                                 .ToListAsync(),
+            VideoType.Gallery => await _context.GalleryVideos
+                                .Where(l => !string.IsNullOrEmpty(l.Title) && EF.Functions.Like(l.Title, $"%{query}%"))
+                                .OrderByDescending(l => l.Date)
+                                .ToListAsync(),                                    
             _ => throw new ArgumentOutOfRangeException(nameof(videoType), videoType, "Invalid video type specified"),
         };
     }
