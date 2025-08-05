@@ -5,14 +5,16 @@ import { environment } from '../../environments/environment';
 import { TableResult } from '../models/TableResult';
 import { Preacher } from '../models/Preacher';
 import { RequestManagerService } from './request-manager.service';
+import { VideoPlaylist } from '../models/VideoPlaylist';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SermonsService {
+export class VideoRecordingsService {
   private apiSermonsUrl = '/sermons';
   private apiCoursesUrl = '/lessons'; 
   private apiPreachersUrl = '/preachers';
+  private apiPlaylistsUrl = '/videoplaylist';
 
   constructor(private requestManager: RequestManagerService) {}
 
@@ -79,4 +81,23 @@ export class SermonsService {
     const url = `${this.apiPreachersUrl}/${id}`;
     return this.requestManager.delete<void>(url);
   }
+
+  //#region video playlists
+  getAllPlaylists(): Observable<VideoPlaylist[]> {
+    return this.requestManager.get<VideoPlaylist[]>(this.apiPlaylistsUrl);
+  }
+
+  addPlaylist(playlist: VideoPlaylist): Observable<VideoPlaylist> {
+    return this.requestManager.post<VideoPlaylist>(this.apiPlaylistsUrl, playlist);
+  }
+
+  updatePlaylist(playlist: VideoPlaylist): Observable<VideoPlaylist> {
+    const url = `${this.apiPlaylistsUrl}/${playlist.id}`;
+    return this.requestManager.put<VideoPlaylist>(url, playlist);
+  }
+
+  deletePlaylist(id: string): Observable<void> {
+    return this.requestManager.delete<void>(`${this.apiPlaylistsUrl}/${id}`);
+  }
+  //#endregion
 }

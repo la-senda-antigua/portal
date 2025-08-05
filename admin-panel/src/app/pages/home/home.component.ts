@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
-import { StreamComponent } from "../stream/stream.component";
+import { MatButtonModule } from '@angular/material/button';
+import { StreamComponent } from '../../components/stream/stream.component';
 
 @Component({
   selector: 'app-home',
-  imports: [MatIconModule, StreamComponent],
+  imports: [MatIconModule, MatButtonModule, StreamComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })

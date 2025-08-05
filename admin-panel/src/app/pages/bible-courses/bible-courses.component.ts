@@ -6,16 +6,16 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { Sermon } from '../../models/Sermon';
-import { SermonsService } from '../../services/sermons.service';
+import { VideoRecordingsService } from '../../services/video-recordings.service';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule, DatePipe } from '@angular/common';
 import { MatDialog, MatDialogRef, MatDialogContent, MatDialogActions } from '@angular/material/dialog';
-import { SermonDialogComponent } from '../sermon-dialog/sermon-dialog.component';
 import { MatButtonModule } from '@angular/material/button';
 import { PageEvent } from '@angular/material/paginator';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { SermonDialogComponent } from '../../components/sermon-dialog/sermon-dialog.component';
 
 @Component({
   selector: 'app-bible-courses',
@@ -36,7 +36,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
   dialogRef!: MatDialogRef<any>;
 
   constructor(
-    private sermonsService: SermonsService,
+    private sermonsService: VideoRecordingsService,
     private dialog: MatDialog
   ) {}
 

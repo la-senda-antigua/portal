@@ -13,7 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Sermon } from '../../models/Sermon';
 import { Preacher } from '../../models/Preacher';
-import { SermonsService } from '../../services/sermons.service';
+import { VideoRecordingsService } from '../../services/video-recordings.service';
 import { MatOption } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 
@@ -39,7 +39,7 @@ export class SermonDialogComponent implements OnInit {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<SermonDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Sermon,
-    private sermonsService: SermonsService
+    private sermonsService: VideoRecordingsService
   ) {
     this.form = this.fb.group({
       title: [data?.title || '', Validators.required],

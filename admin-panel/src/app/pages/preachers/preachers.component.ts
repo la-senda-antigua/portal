@@ -3,7 +3,7 @@ import { Preacher } from '../../models/Preacher';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
-import { SermonsService } from '../../services/sermons.service';
+import { VideoRecordingsService } from '../../services/video-recordings.service';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -34,7 +34,7 @@ export class PreachersComponent implements OnInit, AfterViewInit {
   dialogRef!: MatDialogRef<any>;
 
   constructor(
-    private sermonsService: SermonsService,
+    private sermonsService: VideoRecordingsService,
     private dialog: MatDialog,
     private fb: FormBuilder,
   ) {

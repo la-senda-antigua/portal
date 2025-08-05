@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  margin: 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+
+  a {
+    margin-right: 10px;
+  }
+}

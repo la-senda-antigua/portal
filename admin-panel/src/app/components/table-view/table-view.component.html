@@ -1,0 +1,64 @@
+<div class="header">
+  <a href="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
+  <h1>{{ tableTitle() }}</h1>
+</div>
+
+<div class="table-container">
+  @if (isLoading()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  } @if(tableDatasource != undefined) {
+  <table mat-table [dataSource]="tableDatasource!" class="mat-elevation-z8">
+    @for (field of datasource().columns; track $index) {
+    <ng-container [matColumnDef]="field.datasourceName">
+      <th mat-header-cell *matHeaderCellDef>{{ field.displayName}}</th>
+      <td mat-cell *matCellDef="let entry">{{ entry[field.datasourceName] }}</td>
+    </ng-container>
+    }
+     <!-- @if(showActions()){ -->
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>ACTIONS</th>
+      <td mat-cell *matCellDef="let entry">
+        <button mat-icon-button>
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td> </ng-container
+    >
+  <!-- } -->
+
+    <!-- Header & Row Declarations -->
+    <tr mat-header-row *matHeaderRowDef="columnsAndActions()"></tr>
+    <tr mat-row *matRowDef="let row; columns: columnsAndActions()"></tr>
+  </table>
+  }
+  <mat-divider></mat-divider>
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    showFirstLastButtons
+    (page)="pageChange.emit($event)"
+  >
+  </mat-paginator>
+</div>
+
+<ng-template #addDialog let-data>
+  <!-- <div class="dialog-container" [formGroup]="addForm">
+    <h2 mat-dialog-title>Add a new entry:</h2>
+
+    <mat-dialog-content>
+      <mat-form-field appearance="fill" style="width: 100%;">
+        <mat-label>Nombre del predicador</mat-label>
+        <input matInput formControlName="name" />
+      </mat-form-field>      
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="dialogRef.close()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="dialogRef.close(addForm.value)" [disabled]="addForm.invalid">
+        Guardar
+      </button>
+    </mat-dialog-actions>
+  </div> -->
+</ng-template>
