@@ -14,9 +14,9 @@ namespace lsa_web_apis.Controllers
     [ApiController]
     public class GalleryController : ControllerBase
     {
-        private readonly VideosDbContext _context;
+        private readonly VideoRecordingsDbContext _context;
         private readonly IVideoRecordingService _videoRecordingService;
-        public GalleryController(VideosDbContext context, IVideoRecordingService videoRecordingService)
+        public GalleryController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService)
         {
             _context = context;
             _videoRecordingService = videoRecordingService;
