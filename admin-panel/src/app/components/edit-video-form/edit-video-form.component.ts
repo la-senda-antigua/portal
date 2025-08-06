@@ -42,7 +42,6 @@ export interface VideoFormData extends TableViewFormData {
     MatButtonModule,
     MatOption,
     MatSelectModule,
-    CommonModule,
     FormsModule,
     MatCardModule,
     TitleCasePipe,

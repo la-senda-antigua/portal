@@ -20,6 +20,10 @@ import {
   MatPaginatorModule,
   PageEvent,
 } from '@angular/material/paginator';
+import {
+  DeleteConfirmationComponent,
+  DeleteConfirmationData,
+} from '../delete-confirmation/delete-confirmation.component';
 
 export interface TableViewColumn {
   displayName: string;
@@ -64,6 +68,8 @@ export class TableViewComponent {
   readonly datasource = input.required<TableViewDataSource>();
   readonly loadWithPagination = input<boolean>(true);
   readonly tableTitle = input.required<string>();
+  /** The names (keys) of the properties to use as values for delte confirmation */
+  readonly deleteConfirmationFields = input.required<DeleteConfirmationData>();
   readonly isLoading = input<boolean>(false);
   readonly showActions = input<boolean>(true);
   readonly columnsAndActions = computed(() => {
@@ -78,6 +84,7 @@ export class TableViewComponent {
   readonly pageChange = output<PageEvent>();
   readonly createRequest = output<any>();
   readonly editRequest = output<any>();
+  readonly deleteRequest = output<string>();
 
   readonly dialog = inject(MatDialog);
 
@@ -127,6 +134,22 @@ export class TableViewComponent {
     dialogRef.afterClosed().subscribe((form) => {
       if (form != null) {
         this.editRequest.emit(form);
+      }
+    });
+  }
+
+  openDeleteConfirmation(entry: any) {
+    const confirmationData = {
+      id: entry[this.deleteConfirmationFields().id],
+      matchingString: entry[this.deleteConfirmationFields().matchingString],
+      name: entry[this.deleteConfirmationFields().name],
+    } as DeleteConfirmationData;
+    const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
+      data: confirmationData,
+    });
+    dialogRef.afterClosed().subscribe((confirmationId) => {
+      if (confirmationId != undefined) {
+        this.deleteRequest.emit(confirmationId);
       }
     });
   }

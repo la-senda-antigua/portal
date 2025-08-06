@@ -4,9 +4,11 @@
   [tableTitle]="tableTitle"
   [createForm]="editSermonForm"
   [editForm]="editSermonForm"
+  [deleteConfirmationFields]="deleteSermonFields"
   [deleteForm]="editSermonForm"
   [viewType]="'sermon'"
   (pageChange)="onPageChange($event)"
   (createRequest)="onAdd($event)"
   (editRequest)="onEdit($event)"
+  (deleteRequest)="onDelete($event)"
 ></app-table-view>

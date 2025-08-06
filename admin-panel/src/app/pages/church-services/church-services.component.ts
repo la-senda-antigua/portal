@@ -17,6 +17,7 @@ import {
   EditVideoFormComponent,
   VideoFormData,
 } from '../../components/edit-video-form/edit-video-form.component';
+import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 
 @Component({
   selector: 'app-church-services',
@@ -51,7 +52,11 @@ export class ChurchServicesComponent implements OnInit {
     columns: this.tableCols,
   });
   readonly isLoading = signal(true);
-
+  readonly deleteSermonFields: DeleteConfirmationData = {
+    id: 'id',
+    matchingString: 'id',
+    name: 'title',
+  };
   readonly tableTitle = 'Church Services';
 
   constructor(
@@ -96,22 +101,19 @@ export class ChurchServicesComponent implements OnInit {
     this.loadSermons(event.pageIndex + 1, event.pageSize);
   }
 
-  async onDelete(sermon: Sermon) {
-    // this.dialogRef = this.dialog.open(this.confirmDeleteDialog, {
-    //   data: sermon,
-    // });
-    // this.dialogRef.afterClosed().subscribe({
-    //   next: (confimed) => {
-    //     if (confimed) {
-    //       this.isLoading = true;
-    //       this.videoRecordings.deleteSermon(sermon.id);
-    //     }
-    //   },
-    //   error: (err) => {
-    //     this.isLoading = false;
-    //     console.error('Error on delete', err);
-    //   },
-    // });
+  async onDelete(id: string) {
+    this.isLoading.set(true);
+    this.videoRecordings.deleteSermon(parseInt(id)).subscribe({
+      next: () => {
+        this.reloadSermons();
+      },
+      error: (err) => {
+        this.handleException(
+          err,
+          'There was a problem when attempting to delete this preaching.'
+        );
+      },
+    });
   }
 
   onEdit(sermonForm: VideoFormData) {
