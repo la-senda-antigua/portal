@@ -2,5 +2,9 @@
   [isLoading]="isLoading()"
   [datasource]="dataSource()"
   [tableTitle]="tableTitle"
+  [createForm]="editSermonForm"
+  [editForm]="editSermonForm"
+  [deleteForm]="editSermonForm"
   (pageChange)="onPageChange($event)"
+  (createRequest)="onAdd($event)"
 ></app-table-view>

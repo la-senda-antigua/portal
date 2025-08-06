@@ -15,7 +15,7 @@ import { MatDialog, MatDialogRef, MatDialogContent, MatDialogActions } from '@an
 import { MatButtonModule } from '@angular/material/button';
 import { PageEvent } from '@angular/material/paginator';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { SermonDialogComponent } from '../../components/sermon-dialog/sermon-dialog.component';
+import { EditVideoFormComponent } from '../../components/edit-video-form/edit-video-form.component';
 
 @Component({
   selector: 'app-bible-courses',
@@ -92,7 +92,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
   }
 
   onEdit(course: Sermon) {
-    const dialogRef = this.dialog.open(SermonDialogComponent, {
+    const dialogRef = this.dialog.open(EditVideoFormComponent, {
       data: course,
     });
 
@@ -114,7 +114,7 @@ export class BibleCoursesComponent implements OnInit, AfterViewInit {
   }
 
   onAdd() {
-    const dialogRef = this.dialog.open(SermonDialogComponent);
+    const dialogRef = this.dialog.open(EditVideoFormComponent);
 
     dialogRef.afterClosed().subscribe((newCourse) => {
       if (newCourse) {

@@ -2,7 +2,7 @@
   <a href="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
   <h1>{{ tableTitle() }}</h1>
   <span class="spacer"></span>
-  <button mat-fab><mat-icon>add_2</mat-icon></button>
+  <button mat-fab (click)="openCreateForm()"><mat-icon>add_2</mat-icon></button>
 </div>
 
 <div class="table-container">
@@ -49,22 +49,3 @@
   (page)="pageChange.emit($event)"
 >
 </mat-paginator>
-<ng-template #addDialog let-data>
-  <!-- <div class="dialog-container" [formGroup]="addForm">
-    <h2 mat-dialog-title>Add a new entry:</h2>
-
-    <mat-dialog-content>
-      <mat-form-field appearance="fill" style="width: 100%;">
-        <mat-label>Nombre del predicador</mat-label>
-        <input matInput formControlName="name" />
-      </mat-form-field>      
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close()">Cancelar</button>
-      <button mat-flat-button color="primary" (click)="dialogRef.close(addForm.value)" [disabled]="addForm.invalid">
-        Guardar
-      </button>
-    </mat-dialog-actions>
-  </div> -->
-</ng-template>

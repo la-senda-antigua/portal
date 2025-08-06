@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -13,6 +13,10 @@ import {
 } from '../../components/table-view/table-view.component';
 import { Sermon } from '../../models/Sermon';
 import { VideoRecordingsService } from '../../services/video-recordings.service';
+import {
+  EditVideoFormComponent,
+  VideoFormData,
+} from '../../components/edit-video-form/edit-video-form.component';
 
 export interface DisplaySermon {
   id: number;
@@ -38,7 +42,9 @@ export interface DisplaySermon {
   providers: [DatePipe],
 })
 export class ChurchServicesComponent implements OnInit {
-  tableCols: TableViewColumn[] = [
+  readonly tableViewComponent = viewChild(TableViewComponent);
+  readonly editSermonForm = EditVideoFormComponent;
+  readonly tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
     { displayName: 'Title', datasourceName: 'title' },
     { displayName: 'Preacher', datasourceName: 'preacher' },
@@ -49,11 +55,11 @@ export class ChurchServicesComponent implements OnInit {
     page: 1,
     pageSize: 10,
     items: [],
-    columns: this.tableCols
+    columns: this.tableCols,
   });
   readonly isLoading = signal(true);
 
-  tableTitle = 'Church Services';
+  readonly tableTitle = 'Church Services';
 
   constructor(
     private videoRecordings: VideoRecordingsService,
@@ -83,16 +89,12 @@ export class ChurchServicesComponent implements OnInit {
           pageSize: response.pageSize,
           totalItems: response.totalItems,
           items: sermons,
-          columns: this.tableCols
+          columns: this.tableCols,
         });
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('error loading sermons', err);
-        this.isLoading.set(false);
-        this.snackBar.open('There was an error loading sermons.', '', {
-          duration: 2000,
-        });
+        this.handleException(err, 'There was an error loading sermons.');
       },
     });
   }
@@ -140,22 +142,43 @@ export class ChurchServicesComponent implements OnInit {
     // });
   }
 
-  onAdd() {
-    // const dialogRef = this.dialog.open(SermonDialogComponent);
-    // dialogRef.afterClosed().subscribe((newSermon) => {
-    //   if (newSermon) {
-    //     this.isLoading = true;
-    //     this.videoRecordings.addSermon(newSermon).subscribe({
-    //       next: () => {
-    //         this.loadSermons();
-    //       },
-    //       error: (err) => {
-    //         this.isLoading = false;
-    //         alert(err.message || 'on add');
-    //         console.error(err);
-    //       },
-    //     });
-    //   }
-    // });
+  onAdd(sermonForm: VideoFormData) {
+    this.isLoading.set(true);
+    const sermon = this.parseVideoForm(sermonForm);
+    this.videoRecordings.addSermon(sermon as Sermon).subscribe({
+      next: () => {
+        const { pageSize, pageIndex } = this.tableViewComponent()!.paginator()!;
+        this.loadSermons(pageIndex + 1, pageSize);
+      },
+      error: (err) =>
+        this.handleException(err, 'There was a problem adding the preaching.'),
+    });
+  }
+
+  private parseVideoForm(videoForm: VideoFormData): Partial<Sermon> {
+    const sermon = {
+      date: videoForm.date.toISOString().substring(0, 10),
+      title: videoForm.title,
+      videoPath: videoForm.videoUrl,
+      cover: videoForm.cover,
+      preacherName: videoForm.preacherName!,
+      preacher: {
+        id: videoForm.preacherId!,
+        name: videoForm.preacherName!,
+      },
+    } as Partial<Sermon>;
+    if (videoForm.id != undefined) {
+      sermon['id'] = videoForm.id;
+    }
+
+    return sermon;
+  }
+
+  private handleException(e: Error, message: string) {
+    this.isLoading.set(false);
+    console.error(e);
+    this.snackBar.open(message, '', {
+      duration: 4000,
+    });
   }
 }

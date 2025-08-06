@@ -3,23 +3,24 @@ import {
   Component,
   computed,
   effect,
+  inject,
   input,
   output,
-  viewChild,
+  viewChild
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
-import { CommonModule, UpperCasePipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import {
   MatPaginator,
   MatPaginatorModule,
   PageEvent,
 } from '@angular/material/paginator';
-import { MatDividerModule } from '@angular/material/divider';
-import { ReactiveFormsModule } from '@angular/forms';
+import { VideoFormData } from '../edit-video-form/edit-video-form.component';
 
 export interface TableViewColumn {
   displayName: string;
@@ -43,14 +44,15 @@ export interface TableViewDataSource {
     MatTableModule,
     MatPaginatorModule,
     MatDividerModule,
-    ReactiveFormsModule,
-    CommonModule,
   ],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',
 })
 export class TableViewComponent {
   readonly paginator = viewChild(MatPaginator);
+  readonly createForm = input.required<any>();
+  readonly editForm = input.required<any>();
+  readonly deleteForm = input.required<any>();
   readonly datasource = input.required<TableViewDataSource>();
   readonly loadWithPagination = input<boolean>(true);
   readonly tableTitle = input.required<string>();
@@ -66,6 +68,9 @@ export class TableViewComponent {
   });
 
   readonly pageChange = output<PageEvent>();
+  readonly createRequest = output<any>();
+
+  readonly dialog = inject(MatDialog);
 
   tableDatasource?: MatTableDataSource<any>;
 
@@ -87,64 +92,14 @@ export class TableViewComponent {
     });
   }
 
-  // async onDelete(sermon: Sermon) {
-  //   this.dialogRef = this.dialog.open(this.confirmDeleteDialog, {
-  //     data: sermon,
-  //   });
-
-  //   this.dialogRef.afterClosed().subscribe({
-  //     next: (confimed) => {
-  //       if (confimed) {
-  //         this.isLoading = true;
-  //         this.sermonsService.deleteSermon(sermon.id);
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.isLoading = false;
-  //       console.error('Error on delete', err);
-  //     },
-  //   });
-  // }
-
-  // onEdit(sermon: Sermon) {
-  //   const dialogRef = this.dialog.open(SermonDialogComponent, {
-  //     data: sermon,
-  //   });
-
-  //   dialogRef.afterClosed().subscribe((updatedSermon) => {
-  //     if (updatedSermon) {
-  //       this.isLoading = true;
-  //       updatedSermon.id = sermon.id;
-  //       this.sermonsService.updateSermon(updatedSermon).subscribe({
-  //         next: () => {
-  //           this.loadSermons();
-  //         },
-  //         error: (err) => {
-  //           this.isLoading = false;
-  //           console.error('Error on update', err);
-  //         },
-  //       });
-  //     }
-  //   });
-  // }
-
-  // onAdd() {
-  //   const dialogRef = this.dialog.open(SermonDialogComponent);
-
-  //   dialogRef.afterClosed().subscribe((newSermon) => {
-  //     if (newSermon) {
-  //       this.isLoading = true;
-  //       this.sermonsService.addSermon(newSermon).subscribe({
-  //         next: () => {
-  //           this.loadSermons();
-  //         },
-  //         error: (err) => {
-  //           this.isLoading = false;
-  //           alert(err.message || 'on add');
-  //           console.error(err);
-  //         },
-  //       });
-  //     }
-  //   });
-  // }
+  openCreateForm() {
+    const dialogRef = this.dialog.open(this.createForm(), {
+      data: { mode: 'add', videoType: 'sermon' } as VideoFormData,
+    });
+    dialogRef.afterClosed().subscribe((form) => {
+      if (form != null) {
+        this.createRequest.emit(form);
+      }
+    });
+  }
 }
