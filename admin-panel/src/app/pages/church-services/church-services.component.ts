@@ -10,6 +10,7 @@ import {
   TableViewColumn,
   TableViewComponent,
   TableViewDataSource,
+  TableViewType,
 } from '../../components/table-view/table-view.component';
 import { Sermon, SermonDto } from '../../models/Sermon';
 import { VideoRecordingsService } from '../../services/video-recordings.service';
@@ -58,6 +59,7 @@ export class ChurchServicesComponent implements OnInit {
     name: 'title',
   };
   readonly tableTitle = 'Church Services';
+  readonly tableViewTypes = TableViewType;
 
   constructor(
     private videoRecordings: VideoRecordingsService,

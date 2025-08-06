@@ -2,7 +2,7 @@
   <a href="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
   <h1>{{ tableTitle() }}</h1>
   <span class="spacer"></span>
-  <button mat-fab (click)="openCreateForm()"><mat-icon>add_2</mat-icon></button>
+  <button mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button>
 </div>
 
 <div class="table-container">
@@ -18,7 +18,7 @@
       </td>
     </ng-container>
     }
-    <!-- @if(showActions()){ -->
+    @if(showActions()){
     <!-- Actions Column -->
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>ACTIONS</th>
@@ -35,7 +35,7 @@
         </button>
       </td>
     </ng-container>
-    <!-- } -->
+    }
 
     <!-- Header & Row Declarations -->
     <tr
@@ -50,6 +50,6 @@
 <mat-paginator
   [pageSizeOptions]="[5, 10, 25, 50]"
   showFirstLastButtons
-  (page)="pageChange.emit($event)"
+  (page)="loadWithPagination() && pageChange.emit($event)"
 >
 </mat-paginator>

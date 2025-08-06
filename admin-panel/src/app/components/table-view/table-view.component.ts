@@ -25,6 +25,19 @@ import {
   DeleteConfirmationData,
 } from '../delete-confirmation/delete-confirmation.component';
 
+export enum TableViewType {
+  'sermon' = 'sermon',
+  'biblecourse' = 'biblecourse',
+  'gallery' = 'gallery',
+  'preacher' = 'preacher',
+  'playlist' = 'playlist',
+}
+
+export enum TableViewAccessMode {
+  'add' = 'add',
+  'edit' = 'edit',
+  'delete' = 'delete',
+}
 export interface TableViewColumn {
   displayName: string;
   datasourceName: string;
@@ -39,8 +52,8 @@ export interface TableViewDataSource {
 }
 
 export interface TableViewFormData {
-  type: 'sermon' | 'biblecourse' | 'gallery' | 'preacher' | 'playlist';
-  mode: 'add' | 'edit' | 'delete';
+  type: TableViewType;
+  mode: TableViewAccessMode;
   data: any;
 }
 
@@ -58,20 +71,28 @@ export interface TableViewFormData {
   styleUrl: './table-view.component.scss',
 })
 export class TableViewComponent {
+  /** Access the MatPaginator component */
   readonly paginator = viewChild(MatPaginator);
-  readonly viewType = input.required<
-    'sermon' | 'biblecourse' | 'gallery' | 'preacher' | 'playlist'
-  >();
+  /** A flag that let's other components know what type it is being used */
+  readonly viewType = input.required<TableViewType>();
+  /** A component that will be presented in a MatDialog when user presses the Add button */
   readonly createForm = input.required<any>();
+  /** A component that will be presented in a MatDialog when user presses the Edit button */
   readonly editForm = input.required<any>();
-  readonly deleteForm = input.required<any>();
+  /** This is the source of data for the table.  */
   readonly datasource = input.required<TableViewDataSource>();
+  /** Should the table emit when page changes? Default is true. That means that the parent component will handle the pagination. */
   readonly loadWithPagination = input<boolean>(true);
+  /** The title to be presented on top of the table */
   readonly tableTitle = input.required<string>();
   /** The names (keys) of the properties to use as values for delte confirmation */
   readonly deleteConfirmationFields = input.required<DeleteConfirmationData>();
+  /** If set to true, will show an infinite progress bar animation */
   readonly isLoading = input<boolean>(false);
+  /** Whether or not to show the action column  */
   readonly showActions = input<boolean>(true);
+
+  /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
     const cols: string[] = [];
     if (this.datasource && this.datasource()) {
@@ -81,9 +102,13 @@ export class TableViewComponent {
     return cols;
   });
 
+  /** Emits when the paginator page changes, and only if loadWithPagination is true */
   readonly pageChange = output<PageEvent>();
+  /** Emits the value returned by the createForm component. */
   readonly createRequest = output<any>();
+  /** Emits the value returned by the editForm component. */
   readonly editRequest = output<any>();
+  /** Emits the Id passed in the deleteConfirmationFeilds object, when delete is confirmed.  */
   readonly deleteRequest = output<string>();
 
   readonly dialog = inject(MatDialog);
