@@ -5,7 +5,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 mat-icon {
   font-family: 'Material Symbols Outlined' !important;
-  // font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 48;
+  font-size: 20px !important;
+  margin-bottom: 5px;
 }
 
 .container{
