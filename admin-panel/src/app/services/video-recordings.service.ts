@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Sermon } from '../models/Sermon';
-import { Observable, of } from 'rxjs';
-import { environment } from '../../environments/environment';
-import { TableResult } from '../models/TableResult';
+import { Observable } from 'rxjs';
 import { Preacher } from '../models/Preacher';
-import { RequestManagerService } from './request-manager.service';
+import { Sermon, SermonDto } from '../models/Sermon';
+import { TableResult } from '../models/TableResult';
 import { VideoPlaylist } from '../models/VideoPlaylist';
+import { RequestManagerService } from './request-manager.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,8 +23,8 @@ export class VideoRecordingsService {
     return this.requestManager.get<TableResult<Sermon>>(url);    
   }
 
-  addSermon(sermon: Sermon): Observable<Sermon> {    
-    return this.requestManager.post<Sermon>(this.apiSermonsUrl, sermon);
+  addSermon(sermon: SermonDto): Observable<SermonDto> {    
+    return this.requestManager.post<SermonDto>(this.apiSermonsUrl, sermon);
   }
 
   updateSermon(sermon: Sermon): Observable<Sermon> {

@@ -11,19 +11,12 @@ import {
   TableViewComponent,
   TableViewDataSource,
 } from '../../components/table-view/table-view.component';
-import { Sermon } from '../../models/Sermon';
+import { Sermon, SermonDto } from '../../models/Sermon';
 import { VideoRecordingsService } from '../../services/video-recordings.service';
 import {
   EditVideoFormComponent,
   VideoFormData,
 } from '../../components/edit-video-form/edit-video-form.component';
-
-export interface DisplaySermon {
-  id: number;
-  preacher: string;
-  date: string;
-  title: string;
-}
 
 @Component({
   selector: 'app-church-services',
@@ -47,7 +40,7 @@ export class ChurchServicesComponent implements OnInit {
   readonly tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
     { displayName: 'Title', datasourceName: 'title' },
-    { displayName: 'Preacher', datasourceName: 'preacher' },
+    { displayName: 'Preacher', datasourceName: 'preacherName' },
     { displayName: 'Date', datasourceName: 'date' },
   ];
   readonly dataSource = signal<TableViewDataSource>({
@@ -75,15 +68,15 @@ export class ChurchServicesComponent implements OnInit {
     this.isLoading.set(true);
     this.videoRecordings.getSermons(page, pageSize).subscribe({
       next: (response) => {
-        const sermons = response.items.map(
-          (s) =>
-            ({
-              id: s.id,
-              date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
-              title: s.title,
-              preacher: s.preacher.name,
-            } as DisplaySermon)
-        );
+        const sermons = response.items.map((s) => ({
+          id: s.id,
+          date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
+          title: s.title,
+          preacherName: s.preacher.name,
+          preacherId: s.preacher.id,
+          cover: s.cover,
+          videoUrl: s.videoPath,
+        }));
         this.dataSource.set({
           page: response.page,
           pageSize: response.pageSize,
@@ -121,54 +114,45 @@ export class ChurchServicesComponent implements OnInit {
     // });
   }
 
-  onEdit(sermon: Sermon) {
-    // const dialogRef = this.dialog.open(SermonDialogComponent, {
-    //   data: sermon,
-    // });
-    // dialogRef.afterClosed().subscribe((updatedSermon) => {
-    //   if (updatedSermon) {
-    //     this.isLoading = true;
-    //     updatedSermon.id = sermon.id;
-    //     this.videoRecordings.updateSermon(updatedSermon).subscribe({
-    //       next: () => {
-    //         this.loadSermons();
-    //       },
-    //       error: (err) => {
-    //         this.isLoading = false;
-    //         console.error('Error on update', err);
-    //       },
-    //     });
-    //   }
-    // });
+  onEdit(sermonForm: VideoFormData) {
+    this.isLoading.set(true);
+    const sermon = this.parseVideoForm(sermonForm) as any;
+    this.videoRecordings.updateSermon(sermon).subscribe({
+      next: () => {
+        this.reloadSermons();
+      },
+      error: (err) => {
+        this.handleException(
+          err,
+          'There was a problem updating the preaching.'
+        );
+      },
+    });
   }
 
   onAdd(sermonForm: VideoFormData) {
     this.isLoading.set(true);
     const sermon = this.parseVideoForm(sermonForm);
-    this.videoRecordings.addSermon(sermon as Sermon).subscribe({
+    this.videoRecordings.addSermon(sermon).subscribe({
       next: () => {
-        const { pageSize, pageIndex } = this.tableViewComponent()!.paginator()!;
-        this.loadSermons(pageIndex + 1, pageSize);
+        this.reloadSermons();
       },
-      error: (err) =>
-        this.handleException(err, 'There was a problem adding the preaching.'),
+      error: (err) => {
+        this.handleException(err, 'There was a problem adding the preaching.');
+      },
     });
   }
 
-  private parseVideoForm(videoForm: VideoFormData): Partial<Sermon> {
+  private parseVideoForm(videoForm: VideoFormData): SermonDto {
     const sermon = {
-      date: videoForm.date.toISOString().substring(0, 10),
-      title: videoForm.title,
-      videoPath: videoForm.videoUrl,
-      cover: videoForm.cover,
-      preacherName: videoForm.preacherName!,
-      preacher: {
-        id: videoForm.preacherId!,
-        name: videoForm.preacherName!,
-      },
-    } as Partial<Sermon>;
-    if (videoForm.id != undefined) {
-      sermon['id'] = videoForm.id;
+      date: videoForm.data.date.toISOString().substring(0, 10),
+      title: videoForm.data.title,
+      videoPath: videoForm.data.videoUrl,
+      cover: videoForm.data.cover,
+      preacherId: videoForm.data.preacherId!,
+    } as SermonDto;
+    if (videoForm.data.id != undefined) {
+      sermon['id'] = videoForm.data.id;
     }
 
     return sermon;
@@ -180,5 +164,10 @@ export class ChurchServicesComponent implements OnInit {
     this.snackBar.open(message, '', {
       duration: 4000,
     });
+  }
+
+  private reloadSermons() {
+    const { pageSize, pageIndex } = this.tableViewComponent()!.paginator()!;
+    this.loadSermons(pageIndex + 1, pageSize);
   }
 }

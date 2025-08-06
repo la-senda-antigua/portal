@@ -13,3 +13,11 @@ export interface Sermon {
 
   preacher: Preacher;
 }
+
+export interface SermonDto{
+  id?: number;
+  date: string;
+  title: string;
+  preacherId: number;
+  videoPath: string;
+}

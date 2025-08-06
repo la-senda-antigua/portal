@@ -6,7 +6,7 @@ import {
   inject,
   input,
   output,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,6 @@ import {
   MatPaginatorModule,
   PageEvent,
 } from '@angular/material/paginator';
-import { VideoFormData } from '../edit-video-form/edit-video-form.component';
 
 export interface TableViewColumn {
   displayName: string;
@@ -33,6 +32,12 @@ export interface TableViewDataSource {
   pageSize: number;
   items: any[];
   columns: TableViewColumn[];
+}
+
+export interface TableViewFormData {
+  type: 'sermon' | 'biblecourse' | 'gallery' | 'preacher' | 'playlist';
+  mode: 'add' | 'edit' | 'delete';
+  data: any;
 }
 
 @Component({
@@ -50,6 +55,9 @@ export interface TableViewDataSource {
 })
 export class TableViewComponent {
   readonly paginator = viewChild(MatPaginator);
+  readonly viewType = input.required<
+    'sermon' | 'biblecourse' | 'gallery' | 'preacher' | 'playlist'
+  >();
   readonly createForm = input.required<any>();
   readonly editForm = input.required<any>();
   readonly deleteForm = input.required<any>();
@@ -69,6 +77,7 @@ export class TableViewComponent {
 
   readonly pageChange = output<PageEvent>();
   readonly createRequest = output<any>();
+  readonly editRequest = output<any>();
 
   readonly dialog = inject(MatDialog);
 
@@ -94,11 +103,30 @@ export class TableViewComponent {
 
   openCreateForm() {
     const dialogRef = this.dialog.open(this.createForm(), {
-      data: { mode: 'add', videoType: 'sermon' } as VideoFormData,
+      data: {
+        mode: 'add',
+        type: this.viewType(),
+        data: {},
+      } as TableViewFormData,
     });
     dialogRef.afterClosed().subscribe((form) => {
       if (form != null) {
         this.createRequest.emit(form);
+      }
+    });
+  }
+
+  openEditForm(entry: any) {
+    const dialogRef = this.dialog.open(this.editForm(), {
+      data: {
+        mode: 'edit',
+        type: this.viewType(),
+        data: { ...entry },
+      } as TableViewFormData,
+    });
+    dialogRef.afterClosed().subscribe((form) => {
+      if (form != null) {
+        this.editRequest.emit(form);
       }
     });
   }
