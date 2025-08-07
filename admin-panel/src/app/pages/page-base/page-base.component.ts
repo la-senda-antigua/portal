@@ -54,7 +54,7 @@ export class PageBaseComponent implements OnInit {
 
   onDelete(id: string) {
     this.isLoading.set(true);
-    this.service.delete(parseInt(id)).subscribe({
+    this.service.delete(id).subscribe({
       next: () => {
         this.reload();
       },

@@ -1,141 +1,77 @@
-import { Component, OnInit, signal, viewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { DatePipe } from '@angular/common';
+import { Component, viewChild } from '@angular/core';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
-import { EditIdNameFormComponent } from '../../components/edit-id-name-form/edit-id-name-form.component';
-import {
-  TableViewColumn,
-  TableViewComponent,
-  TableViewDataSource,
-  TableViewFormData,
-  TableViewType,
-} from '../../components/table-view/table-view.component';
+import { EditIdNameFormComponent, EditIdNameFormData } from '../../components/edit-id-name-form/edit-id-name-form.component';
+import { TableViewColumn, TableViewComponent } from '../../components/table-view/table-view.component';
+import { PageBaseComponent } from '../page-base/page-base.component';
+import { PlaylistsService } from '../../services/playlists.service';
 import { VideoPlaylist } from '../../models/VideoPlaylist';
-import { VideoRecordingsService } from '../../services/video-recordings.service';
 
 @Component({
   selector: 'app-playlists-view',
   imports: [TableViewComponent],
   templateUrl: './playlists-view.component.html',
   styleUrl: './playlists-view.component.scss',
+  providers: [DatePipe],
 })
-export class PlaylistsViewComponent implements OnInit {
-  readonly tableView = viewChild(TableViewComponent);
-  readonly isLoading = signal(true);
-  readonly tableCols: TableViewColumn[] = [
+export class PlaylistsViewComponent extends PageBaseComponent {
+  override tableViewComponent = viewChild(TableViewComponent);
+  override editForm = EditIdNameFormComponent;
+  override createForm = EditIdNameFormComponent;
+  override tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
     { displayName: 'Name', datasourceName: 'name' },
   ];
-  readonly dataSource = signal<TableViewDataSource>({
-    totalItems: 0,
-    page: 1,
-    pageSize: 10,
-    items: [],
-    columns: this.tableCols,
-  });
-  readonly tableName = 'Video Playlists';
-  readonly tableViewTypes = TableViewType;
-  readonly editIdAndNameComponent = EditIdNameFormComponent;
-  readonly deletePlaylistFields: DeleteConfirmationData = {
+
+  override deleteFields: DeleteConfirmationData = {
     id: 'id',
     matchingString: 'name',
     name: 'name',
   };
+  override tableTitle = 'Video Playlists';
 
-  constructor(
-    private videoService: VideoRecordingsService,
-    private snackBar: MatSnackBar
-  ) {}
-
-  ngOnInit(): void {
-    this.loadPlaylists();
+  constructor(service: PlaylistsService) {
+    super(service);
   }
 
-  loadPlaylists(): void {
+  override loadVideos(page: number, pageSize: number): void {
     this.isLoading.set(true);
-    this.videoService.getAllPlaylists().subscribe({
-      next: (playlists) => {
-        const { pageIndex, pageSize } = this.tableView()!.paginator()!;
+    this.service.getAll(page, pageSize).subscribe({
+      next: (response) => {
+        if (!(response && response.items)) {
+          this.isLoading.set(false);
+          return;
+        }
+
+        const item = response.items.map((s: VideoPlaylist) => ({
+          id: s.id,
+          name: s.name
+        }));
         this.dataSource.set({
-          totalItems: playlists.length,
-          page: pageIndex + 1,
-          pageSize,
+          page: response.page,
+          pageSize: response.pageSize,
+          totalItems: response.totalItems,
+          items: item,
           columns: this.tableCols,
-          items: playlists.sort(this.sortPlaylistsByName),
         });
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.handleException(err, 'There was a problem loadint the playlists.');
+        this.handleException(err, 'There was an error loading sermons.');
       },
     });
   }
 
-  async onDelete(id: string) {
-    this.isLoading.set(true);
-    this.videoService.deletePlaylist(id).subscribe({
-      next: () => {
-        this.loadPlaylists();
-      },
-      error: (err) => {
-        this.handleException(err, 'There was a problem deleting the playlist.');
-      },
-    });
-  }
-
-  async onEdit(playlistFormData: TableViewFormData) {
-    this.isLoading.set(true);
-    this.videoService
-      .updatePlaylist({
-        name: playlistFormData.data.name,
-        id: playlistFormData.data.id,
-      })
-      .subscribe({
-        next: () => {
-          this.loadPlaylists();
-        },
-        error: (err) => {
-          this.handleException(
-            err,
-            'There was a problem attempting to save the playlist.'
-          );
-        },
-      });
-  }
-
-  async onAdd(playlistFormData: TableViewFormData) {
-    this.isLoading.set(true);
-    this.videoService
-      .addPlaylist({ name: playlistFormData.data.name })
-      .subscribe({
-        next: () => {
-          this.loadPlaylists();
-        },
-        error: (err) => {
-          this.handleException(
-            err,
-            'There was a problem attempting to save the playlist.'
-          );
-        },
-      });
-  }
-
-  private handleException(e: Error, message: string) {
-    this.isLoading.set(false);
-    console.error(e);
-    this.snackBar.open(message, '', {
-      duration: 4000,
-    });
-  }
-
-  private sortPlaylistsByName(a: VideoPlaylist, b: VideoPlaylist) {
-    const aName = a.name.toLowerCase();
-    const bName = b.name.toLowerCase();
-    if (aName < bName) {
-      return -1;
+  override parseVideoForm(form: EditIdNameFormData): VideoPlaylist {
+    const item = {
+      id: form.data.id,
+      name: form.data.name,
+    } as VideoPlaylist;
+    if (form.data.id != undefined) {
+      item['id'] = form.data.id;
     }
-    if (aName > bName) {
-      return 1;
-    }
-    return 0;
+
+    return item;
   }
+
 }

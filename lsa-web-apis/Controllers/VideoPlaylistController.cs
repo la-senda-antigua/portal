@@ -1,5 +1,7 @@
 using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
+using lsa_web_apis.Extensions;
+using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +18,23 @@ namespace lsa_web_apis.Controllers
         {
             _context = context;
         }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet]
+        
+        [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<VideoPlaylist>>> GetAll()
         {
             var playlists = await _context.Playlists.ToListAsync();
             return Ok(playlists);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<VideoPlaylist>>> Get([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+
+            var pagedResult = await _context.Playlists
+            .OrderBy(p => p.Id)
+            .ToPagedResultAsync(page, pageSize);
+
+            return Ok(pagedResult);
         }
 
         [Authorize(Roles = "Admin")]

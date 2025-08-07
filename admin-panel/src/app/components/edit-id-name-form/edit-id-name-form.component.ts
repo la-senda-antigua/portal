@@ -16,7 +16,7 @@ import { TableViewFormData } from '../table-view/table-view.component';
 
 export interface EditIdNameFormData extends TableViewFormData {
   data: {
-    id?: number;
+    id?: any;
     name: string;
   };
 }
