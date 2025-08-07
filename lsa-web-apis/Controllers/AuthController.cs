@@ -55,7 +55,6 @@ public class AuthController(IAuthService authService, IConfiguration configurati
             return BadRequest("Google login failed.");
         
         var baseUrl = configuration.GetValue<string>("AppSettings:FrontendBaseUrl");
-
         return Redirect($"{baseUrl}/auth/callback?token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}");
     }
 

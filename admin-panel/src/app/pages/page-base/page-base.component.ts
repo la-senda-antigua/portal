@@ -11,6 +11,7 @@ import { DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
 import { VideoFormData } from '../../components/edit-video-form/edit-video-form.component';
+import { EditIdNameFormData } from '../../components/edit-id-name-form/edit-id-name-form.component';
 
 @Component({
   selector: 'app-page-base',
@@ -79,9 +80,9 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  onAdd(sermonForm: VideoFormData) {
+  onAdd(form: VideoFormData) {
     this.isLoading.set(true);
-    const video = this.parseVideoForm(sermonForm);
+    const video = this.parseVideoForm(form);
     this.service.add(video).subscribe({
       next: () => {
         this.reload();
@@ -92,7 +93,7 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  parseVideoForm(videoForm: VideoFormData) {}
+  parseVideoForm(videoForm: VideoFormData | EditIdNameFormData) {}
 
   handleException(e: Error, message: string) {
     this.isLoading.set(false);

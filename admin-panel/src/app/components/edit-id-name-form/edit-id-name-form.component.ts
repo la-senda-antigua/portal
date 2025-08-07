@@ -14,6 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TableViewFormData } from '../table-view/table-view.component';
 
+export interface EditIdNameFormData extends TableViewFormData {
+  data: {
+    id?: number;
+    name: string;
+  };
+}
+
 @Component({
   selector: 'app-edit-id-name-form',
   imports: [

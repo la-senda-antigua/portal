@@ -1,146 +1,72 @@
-import { AfterViewInit, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, viewChild } from '@angular/core';
+import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
+import { EditIdNameFormComponent, EditIdNameFormData } from '../../components/edit-id-name-form/edit-id-name-form.component';
+import { TableViewColumn, TableViewComponent } from '../../components/table-view/table-view.component';
 import { Preacher } from '../../models/Preacher';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatDialog, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
-import { VideoRecordingsService } from '../../services/video-recordings.service';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
-import { MatProgressBar } from '@angular/material/progress-bar';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { PreachersService } from '../../services/preachers.service';
+import { PageBaseComponent } from '../page-base/page-base.component';
 
 @Component({
   selector: 'app-preachers',
-  imports: [MatTableModule, MatFormFieldModule, MatInputModule, ReactiveFormsModule, MatPaginatorModule, MatIconModule, MatDialogContent, MatDialogActions, MatButtonModule, MatProgressSpinnerModule, CommonModule, MatProgressBar],
+  imports: [TableViewComponent],
   templateUrl: './preachers.component.html',
-  styleUrl: './preachers.component.scss'
+  styleUrl: './preachers.component.scss',
+  providers: [DatePipe],
 })
-export class PreachersComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['id', 'name', 'actions'];
-  dataSource = new MatTableDataSource<Preacher>([]);
-  totalItems = 0;
-  pageSize = 10;
-  currentPage = 1;
-  isLoading = false;
-  addForm: FormGroup;
-  
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild('confirmDeleteDialog') confirmDeleteDialog!: TemplateRef<any>;
-  @ViewChild('addNewDialog') addNewDialog!: TemplateRef<any>;
-  dialogRef!: MatDialogRef<any>;
+export class PreachersComponent extends PageBaseComponent {
+  override tableViewComponent = viewChild(TableViewComponent);
+  override editForm = EditIdNameFormComponent;
+  override createForm = EditIdNameFormComponent;
+  override tableCols: TableViewColumn[] = [
+    { displayName: 'Id', datasourceName: 'id' },
+    { displayName: 'Name', datasourceName: 'name' },
+  ];
 
-  constructor(
-    private sermonsService: VideoRecordingsService,
-    private dialog: MatDialog,
-    private fb: FormBuilder,
-  ) {
-    this.addForm = this.fb.group({
-      name: ['', Validators.required]
-    });
+  override deleteFields: DeleteConfirmationData = {
+    id: 'id',
+    matchingString: 'id',
+    name: 'name',
+  };
+  override tableTitle = 'Preachers';
+
+  constructor(service: PreachersService) {
+    super(service);
   }
 
-  ngOnInit(): void {
-    this.loadPreachers(this.currentPage, this.pageSize)    
-  }
-
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
-  }
-
-  loadPreachers(currentPage: number =1, pageSize: number =10): void {
-    this.isLoading = true;
-    this.sermonsService.getPreachers(currentPage, pageSize)    
-    .subscribe({
+  override loadVideos(page: number, pageSize: number): void {
+    this.isLoading.set(true);
+    this.service.getAll(page, pageSize).subscribe({
       next: (response) => {
-        this.dataSource.data = response.items;
-        this.totalItems = response.totalItems;
-        this.pageSize = response.pageSize;
-        this.currentPage = response.page;
-        this.isLoading = false;
+        const item = response.items.map((s: Preacher) => ({
+          id: s.id,
+          name: s.name
+        }));
+        this.dataSource.set({
+          page: response.page,
+          pageSize: response.pageSize,
+          totalItems: response.totalItems,
+          items: item,
+          columns: this.tableCols,
+        });
+        this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('error loading preachers', err);
-        this.isLoading = false;
-      }
-    })
-  }
-
-  onPageChange(event: PageEvent){
-    this.pageSize = event.pageSize;
-    this.currentPage = event.pageIndex + 1;
-    this.loadPreachers(this.currentPage, this.pageSize);
-  }
-
-  async onDelete(preacher: Preacher){
-    this.dialogRef = this.dialog.open(this.confirmDeleteDialog,{
-      data: preacher
-    })
-
-    this.dialogRef.afterClosed().subscribe({
-      next: (confirmed)=> {
-        if (confirmed) {
-          this.isLoading = true
-          this.sermonsService.deletePreacher(preacher.id);
-        }
+        this.handleException(err, 'There was an error loading sermons.');
       },
-      error: (err) => {
-        this.isLoading = false
-        console.error('Error on delete', err)
-      }
-    })
-  }
-
-  async onEdit(preacher: Preacher) {    
-    this.addForm = this.fb.group({
-      id: [preacher.id],
-      name: [preacher.name, Validators.required]
-    });
-
-    this.dialogRef = this.dialog.open(this.addNewDialog, {
-      data: preacher
-    });
-
-    this.dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.isLoading = true
-        this.sermonsService.updatePreacher(result).subscribe({
-          next: () => this.loadPreachers(),
-          error: (err) => {
-            this.isLoading = false
-            console.error('Error on update', err)
-          }
-        });
-      }
     });
   }
 
-  async onAdd() {
-    this.addForm = this.fb.group({
-      id: [null],
-      name: ['', Validators.required]
-    });
+  override parseVideoForm(form: EditIdNameFormData): Preacher {
+    const item = {
+      id: form.data.id,
+      name: form.data.name,
+    } as Preacher;
+    if (form.data.id != undefined) {
+      item['id'] = form.data.id;
+    }
 
-    this.dialogRef = this.dialog.open(this.addNewDialog, {
-      data: { name: '' , id: null},
-    });
-
-    this.dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.isLoading = true
-        this.sermonsService.addPreacher(result).subscribe({
-          next: () => {
-            this.loadPreachers(); 
-          },
-          error: (err) => {
-            this.isLoading = false
-            console.error('Error on add', err);
-          },
-        });
-      }
-    });
+    return item;
   }
+
 }

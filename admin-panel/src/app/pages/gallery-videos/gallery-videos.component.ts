@@ -8,13 +8,13 @@ import { PageBaseComponent } from '../page-base/page-base.component';
 import { GalleryVideo } from '../../models/GalleryVideo';
 
 @Component({
-  selector: 'app-galley-videos',
+  selector: 'app-gallery-videos',
   imports: [TableViewComponent],
-  templateUrl: './galley-videos.component.html',
-  styleUrl: './galley-videos.component.scss',
+  templateUrl: './gallery-videos.component.html',
+  styleUrl: './gallery-videos.component.scss',
   providers: [DatePipe],
 })
-export class GalleyVideosComponent extends PageBaseComponent {
+export class GalleryVideosComponent extends PageBaseComponent {
   override tableViewComponent = viewChild(TableViewComponent);
     override editForm = EditVideoFormComponent;
     override createForm = EditVideoFormComponent;
@@ -39,7 +39,7 @@ export class GalleyVideosComponent extends PageBaseComponent {
       this.isLoading.set(true);
       this.service.getAll(page, pageSize).subscribe({
         next: (response) => {
-          const sermons = response.items.map((s: any) => ({
+          const item = response.items.map((s: any) => ({
             id: s.id,
             date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
             title: s.title,
@@ -50,29 +50,29 @@ export class GalleyVideosComponent extends PageBaseComponent {
             page: response.page,
             pageSize: response.pageSize,
             totalItems: response.totalItems,
-            items: sermons,
+            items: item,
             columns: this.tableCols,
           });
           this.isLoading.set(false);
         },
         error: (err) => {
-          this.handleException(err, 'There was an error loading sermons.');
+          this.handleException(err, 'There was an error loading gallery.');
         },
       });
     }
   
     override parseVideoForm(videoForm: VideoFormData): GalleryVideo {
-      const sermon = {
+      const item = {
         date: videoForm.data.date.toISOString().substring(0, 10),
         title: videoForm.data.title,
         videoPath: videoForm.data.videoUrl,
         cover: videoForm.data.cover,        
       } as GalleryVideo;
       if (videoForm.data.id != undefined) {
-        sermon['id'] = videoForm.data.id;
+        item['id'] = videoForm.data.id;
       }
   
-      return sermon;
+      return item;
     }
   
 }

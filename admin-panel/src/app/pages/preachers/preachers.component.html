@@ -1,88 +1,13 @@
-<div class="container">
-  <h1><a href="/"><</a> Preachers</h1>
-  <button mat-fab color="primary" class="add-button" (click)="onAdd()">
-    <mat-icon>add</mat-icon>
-  </button>
-
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  </div>
-
-  <div *ngIf="!isLoading">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef>Id</th>
-        <td mat-cell *matCellDef="let preacher">{{ preacher.id }}</td>
-      </ng-container>
-      
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Name</th>
-        <td mat-cell *matCellDef="let preacher">{{ preacher.name }}</td>
-      </ng-container>
-
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Acciones</th>
-        <td mat-cell *matCellDef="let preacher">
-          <button mat-icon-button (click)="onEdit(preacher)">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="onDelete(preacher)">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <!-- Header & Row Declarations -->
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-
-    <mat-paginator
-      [length]="totalItems"
-      [pageSize]="pageSize"
-      [pageSizeOptions]="[5, 10, 25, 50]"
-      [pageIndex]="currentPage - 1"
-      showFirstLastButtons
-      (page)="onPageChange($event)"
-    >
-    </mat-paginator>
-  </div>
-</div>
-
-<!-- DELETE DIALOG -->
-<ng-template #confirmDeleteDialog let-data>
-  <div class="dialog-container">
-    <h2 mat-dialog-title>Confirmar eliminación</h2>
-    <mat-dialog-content>
-      ¿Está seguro de eliminar el predicador "{{ data.name }}"?
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close(false)">Cancelar</button>
-      <button mat-flat-button color="warn" (click)="dialogRef.close(true)">
-        Eliminar
-      </button>
-    </mat-dialog-actions>
-  </div>
-</ng-template>
-
-<!-- ADD NEW DIALOG -->
-<ng-template #addNewDialog let-data>
-  <div class="dialog-container" [formGroup]="addForm">
-    <h2 mat-dialog-title>Predicador</h2>
-
-    <mat-dialog-content>
-      <mat-form-field appearance="fill" style="width: 100%;">
-        <mat-label>Nombre del predicador</mat-label>
-        <input matInput formControlName="name" />
-      </mat-form-field>      
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close()">Cancelar</button>
-      <button mat-flat-button color="primary" (click)="dialogRef.close(addForm.value)" [disabled]="addForm.invalid">
-        Guardar
-      </button>
-    </mat-dialog-actions>
-  </div>
-</ng-template>
+<app-table-view
+  [isLoading]="isLoading()"
+  [datasource]="dataSource()"
+  [tableTitle]="tableTitle"
+  [createForm]="createForm"
+  [editForm]="editForm"
+  [deleteConfirmationFields]="deleteFields"
+  [viewType]="tableViewTypes.gallery"
+  (pageChange)="onPageChange($event)"
+  (createRequest)="onAdd($event)"
+  (editRequest)="onEdit($event)"
+  (deleteRequest)="onDelete($event)"
+></app-table-view>
