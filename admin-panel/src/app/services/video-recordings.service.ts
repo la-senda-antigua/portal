@@ -5,6 +5,7 @@ import { Sermon, SermonDto } from '../models/Sermon';
 import { TableResult } from '../models/TableResult';
 import { VideoPlaylist } from '../models/VideoPlaylist';
 import { RequestManagerService } from './request-manager.service';
+import { GalleryVideo } from '../models/GalleryVideo';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ import { RequestManagerService } from './request-manager.service';
 export class VideoRecordingsService {
   private apiSermonsUrl = '/sermons';
   private apiCoursesUrl = '/lessons'; 
+  private apiGalleryUrl = '/gallery'; 
   private apiPreachersUrl = '/preachers';
   private apiPlaylistsUrl = '/videoplaylist';
 
@@ -54,6 +56,26 @@ export class VideoRecordingsService {
 
   deleteCourse(id: number): Observable<void> {
     const url: string = `${this.apiCoursesUrl}/${id}`;
+    return this.requestManager.delete<void>(url);
+  }
+  
+  //gallery section
+  getGalleryVideos(page: number=1, pageSize: number=10): Observable<TableResult<GalleryVideo>> {
+    const url :string = `${this.apiGalleryUrl}?page=${page}&pageSize=${pageSize}`;
+    return this.requestManager.get<TableResult<GalleryVideo>>(url);
+  }
+
+  addGalleryVideo(course: GalleryVideo): Observable<GalleryVideo> {
+    return this.requestManager.post<GalleryVideo>(this.apiGalleryUrl, course);
+  }
+
+  updateGalleryVideo(course: GalleryVideo): Observable<GalleryVideo> {
+    const url: string = `${this.apiGalleryUrl}/${course.id}`;
+    return this.requestManager.put<GalleryVideo>(url, course);
+  }
+
+  deleteGalleryVideo(id: number): Observable<void> {
+    const url: string = `${this.apiGalleryUrl}/${id}`;
     return this.requestManager.delete<void>(url);
   }
 

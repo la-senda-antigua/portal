@@ -4,9 +4,7 @@ using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers
 {

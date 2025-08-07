@@ -8,6 +8,7 @@ import { PlaylistsViewComponent } from './pages/playlists-view/playlists-view.co
 import { HomeComponent } from './pages/home/home.component';
 import { ChurchServicesComponent } from './pages/church-services/church-services.component';
 import { BibleCoursesComponent } from './pages/bible-courses/bible-courses.component';
+import { GalleyVideosComponent } from './pages/galley-videos/galley-videos.component';
 
 export const routes: Routes = [
   {
@@ -36,6 +37,11 @@ export const routes: Routes = [
   {
     path: 'courses',
     component: BibleCoursesComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'gallery',
+    component: GalleyVideosComponent,
     canActivate: [AuthGuard],
   },
   {

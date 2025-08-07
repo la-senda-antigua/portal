@@ -1,38 +1,26 @@
+import { Component, signal, viewChild } from '@angular/core';
+import { TableViewColumn, TableViewComponent, TableViewDataSource, TableViewType } from '../../components/table-view/table-view.component';
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, signal, viewChild } from '@angular/core';
+import { EditVideoFormComponent, VideoFormData } from '../../components/edit-video-form/edit-video-form.component';
 import { PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
-import {
-  EditVideoFormComponent,
-  VideoFormData,
-} from '../../components/edit-video-form/edit-video-form.component';
-import {
-  TableViewColumn,
-  TableViewComponent,
-  TableViewDataSource,
-  TableViewType,
-} from '../../components/table-view/table-view.component';
-import { SermonDto } from '../../models/Sermon';
 import { VideoRecordingsService } from '../../services/video-recordings.service';
+import { GalleryVideo } from '../../models/GalleryVideo';
 
 @Component({
-  selector: 'app-church-services',
-  standalone: true,
-  templateUrl: './church-services.component.html',
-  styleUrls: ['./church-services.component.scss'],
-  imports: [    
-    TableViewComponent,
-  ],
+  selector: 'app-galley-videos',
+  imports: [TableViewComponent],
+  templateUrl: './galley-videos.component.html',
+  styleUrl: './galley-videos.component.scss',
   providers: [DatePipe],
 })
-export class ChurchServicesComponent implements OnInit {
+export class GalleyVideosComponent {
   readonly tableViewComponent = viewChild(TableViewComponent);
-  readonly editSermonForm = EditVideoFormComponent;
+  readonly editForm = EditVideoFormComponent;
   readonly tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
-    { displayName: 'Title', datasourceName: 'title' },
-    { displayName: 'Preacher', datasourceName: 'preacherName' },
+    { displayName: 'Title', datasourceName: 'title' },    
     { displayName: 'Date', datasourceName: 'date' },
   ];
   readonly dataSource = signal<TableViewDataSource>({
@@ -43,12 +31,12 @@ export class ChurchServicesComponent implements OnInit {
     columns: this.tableCols,
   });
   readonly isLoading = signal(true);
-  readonly deleteSermonFields: DeleteConfirmationData = {
+  readonly deleteFields: DeleteConfirmationData = {
     id: 'id',
-    matchingString: 'id',
+    matchingString: 'title',
     name: 'title',
   };
-  readonly tableTitle = 'Church Services';
+  readonly tableTitle = 'Gallery Videos';
   readonly tableViewTypes = TableViewType;
 
   constructor(
@@ -58,19 +46,17 @@ export class ChurchServicesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadSermons(1, 10);
+    this.loadVideos(1, 10);
   }
 
-  loadSermons(page: number, pageSize: number): void {
+  loadVideos(page: number, pageSize: number): void {
     this.isLoading.set(true);
-    this.videoRecordings.getSermons(page, pageSize).subscribe({
+    this.videoRecordings.getGalleryVideos(page, pageSize).subscribe({
       next: (response) => {
-        const sermons = response.items.map((s) => ({
+        const videos = response.items.map((s) => ({
           id: s.id,
           date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
           title: s.title,
-          preacherName: s.preacher.name,
-          preacherId: s.preacher.id,
           cover: s.cover,
           videoUrl: s.videoPath,
         }));
@@ -78,78 +64,77 @@ export class ChurchServicesComponent implements OnInit {
           page: response.page,
           pageSize: response.pageSize,
           totalItems: response.totalItems,
-          items: sermons,
+          items: videos,
           columns: this.tableCols,
         });
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.handleException(err, 'There was an error loading sermons.');
+        this.handleException(err, 'There was an error loading gallery.');
       },
     });
   }
 
   onPageChange(event: PageEvent) {
-    this.loadSermons(event.pageIndex + 1, event.pageSize);
+    this.loadVideos(event.pageIndex + 1, event.pageSize);
   }
 
   async onDelete(id: string) {
     this.isLoading.set(true);
-    this.videoRecordings.deleteSermon(parseInt(id)).subscribe({
+    this.videoRecordings.deleteGalleryVideo(parseInt(id)).subscribe({
       next: () => {
-        this.reloadSermons();
+        this.reloadVideos();
       },
       error: (err) => {
         this.handleException(
           err,
-          'There was a problem when attempting to delete this preaching.'
+          'There was a problem when attempting to delete this video.'
         );
       },
     });
   }
 
-  onEdit(sermonForm: VideoFormData) {
+  onEdit(form: VideoFormData) {
     this.isLoading.set(true);
-    const sermon = this.parseVideoForm(sermonForm) as any;
-    this.videoRecordings.updateSermon(sermon).subscribe({
+    const video = this.parseVideoForm(form) as any;
+    this.videoRecordings.updateGalleryVideo(video).subscribe({
       next: () => {
-        this.reloadSermons();
+        this.reloadVideos();
       },
       error: (err) => {
         this.handleException(
           err,
-          'There was a problem updating the preaching.'
+          'There was a problem updating the video.'
         );
       },
     });
   }
 
-  onAdd(sermonForm: VideoFormData) {
+  onAdd(form: VideoFormData) {
     this.isLoading.set(true);
-    const sermon = this.parseVideoForm(sermonForm);
-    this.videoRecordings.addSermon(sermon).subscribe({
+    const video = this.parseVideoForm(form);
+    this.videoRecordings.addGalleryVideo(video).subscribe({
       next: () => {
-        this.reloadSermons();
+        this.reloadVideos();
       },
       error: (err) => {
-        this.handleException(err, 'There was a problem adding the preaching.');
+        this.handleException(err, 'There was a problem adding the video.');
       },
     });
   }
 
-  private parseVideoForm(videoForm: VideoFormData): SermonDto {
-    const sermon = {
+  private parseVideoForm(videoForm: VideoFormData): GalleryVideo {
+    const video = {
       date: videoForm.data.date.toISOString().substring(0, 10),
       title: videoForm.data.title,
       videoPath: videoForm.data.videoUrl,
       cover: videoForm.data.cover,
-      preacherId: videoForm.data.preacherId!,
-    } as SermonDto;
+    } as GalleryVideo;
     if (videoForm.data.id != undefined) {
-      sermon['id'] = videoForm.data.id;
+      video['id'] = videoForm.data.id;
     }
 
-    return sermon;
+    return video;
   }
 
   private handleException(e: Error, message: string) {
@@ -160,8 +145,8 @@ export class ChurchServicesComponent implements OnInit {
     });
   }
 
-  private reloadSermons() {
+  private reloadVideos() {
     const { pageSize, pageIndex } = this.tableViewComponent()!.paginator()!;
-    this.loadSermons(pageIndex + 1, pageSize);
+    this.loadVideos(pageIndex + 1, pageSize);
   }
 }
