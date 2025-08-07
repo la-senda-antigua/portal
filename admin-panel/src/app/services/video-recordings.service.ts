@@ -19,66 +19,6 @@ export class VideoRecordingsService {
 
   constructor(private requestManager: RequestManagerService) {}
 
-  //sermons section
-  getSermons(page: number=1, pageSize: number=10): Observable<TableResult<Sermon>> {
-    const url :string = `${this.apiSermonsUrl}?page=${page}&pageSize=${pageSize}`;
-    return this.requestManager.get<TableResult<Sermon>>(url);    
-  }
-
-  addSermon(sermon: SermonDto): Observable<SermonDto> {    
-    return this.requestManager.post<SermonDto>(this.apiSermonsUrl, sermon);
-  }
-
-  updateSermon(sermon: Sermon): Observable<Sermon> {
-    const url = `${this.apiSermonsUrl}/${sermon.id}`;
-    return this.requestManager.put<Sermon>(url, sermon);
-  }
-
-  deleteSermon(id: number): Observable<void> {
-    const url = `${this.apiSermonsUrl}/${id}`;
-    return this.requestManager.delete<void>(url);    
-  }
-
-  //courses section
-  getCourses(page: number=1, pageSize: number=10): Observable<TableResult<Sermon>> {
-    const url :string = `${this.apiCoursesUrl}?page=${page}&pageSize=${pageSize}`;
-    return this.requestManager.get<TableResult<Sermon>>(url);
-  }
-
-  addCourse(course: Sermon): Observable<Sermon> {
-    return this.requestManager.post<Sermon>(this.apiCoursesUrl, course);
-  }
-
-  updateCourse(course: Sermon): Observable<Sermon> {
-    const url: string = `${this.apiCoursesUrl}/${course.id}`;
-    return this.requestManager.put<Sermon>(url, course);
-  }
-
-  deleteCourse(id: number): Observable<void> {
-    const url: string = `${this.apiCoursesUrl}/${id}`;
-    return this.requestManager.delete<void>(url);
-  }
-  
-  //gallery section
-  getGalleryVideos(page: number=1, pageSize: number=10): Observable<TableResult<GalleryVideo>> {
-    const url :string = `${this.apiGalleryUrl}?page=${page}&pageSize=${pageSize}`;
-    return this.requestManager.get<TableResult<GalleryVideo>>(url);
-  }
-
-  addGalleryVideo(course: GalleryVideo): Observable<GalleryVideo> {
-    return this.requestManager.post<GalleryVideo>(this.apiGalleryUrl, course);
-  }
-
-  updateGalleryVideo(course: GalleryVideo): Observable<GalleryVideo> {
-    const url: string = `${this.apiGalleryUrl}/${course.id}`;
-    return this.requestManager.put<GalleryVideo>(url, course);
-  }
-
-  deleteGalleryVideo(id: number): Observable<void> {
-    const url: string = `${this.apiGalleryUrl}/${id}`;
-    return this.requestManager.delete<void>(url);
-  }
-
   //preachers section
   getAllPreachers(): Observable<Preacher[]> {    
     return this.requestManager.get<Preacher[]>(this.apiPreachersUrl + '/getAll');
