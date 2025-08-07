@@ -95,7 +95,7 @@ export class TableViewComponent {
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
     const cols: string[] = [];
-    if (this.datasource && this.datasource()) {
+    if (this.datasource && this.datasource()?.columns?.length) {
       cols.push(...this.datasource().columns.map((c) => c.datasourceName));
     }
     cols.push('actions');

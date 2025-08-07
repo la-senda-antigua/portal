@@ -1,7 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, signal, viewChild } from '@angular/core';
-import { PageEvent } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Component, viewChild } from '@angular/core';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 import {
   EditVideoFormComponent,
@@ -10,62 +8,47 @@ import {
 import {
   TableViewColumn,
   TableViewComponent,
-  TableViewDataSource,
-  TableViewType,
 } from '../../components/table-view/table-view.component';
 import { SermonDto } from '../../models/Sermon';
-import { VideoRecordingsService } from '../../services/video-recordings.service';
+
+import { SermonsService } from '../../services/sermons.service';
+import { PageBaseComponent } from '../page-base/page-base.component';
 
 @Component({
   selector: 'app-church-services',
   standalone: true,
   templateUrl: './church-services.component.html',
   styleUrls: ['./church-services.component.scss'],
-  imports: [    
-    TableViewComponent,
-  ],
+  imports: [TableViewComponent],
   providers: [DatePipe],
 })
-export class ChurchServicesComponent implements OnInit {
-  readonly tableViewComponent = viewChild(TableViewComponent);
-  readonly editSermonForm = EditVideoFormComponent;
-  readonly tableCols: TableViewColumn[] = [
+export class ChurchServicesComponent extends PageBaseComponent {
+  override tableViewComponent = viewChild(TableViewComponent);
+  override editForm = EditVideoFormComponent;
+  override createForm = EditVideoFormComponent;
+  override tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
     { displayName: 'Title', datasourceName: 'title' },
     { displayName: 'Preacher', datasourceName: 'preacherName' },
     { displayName: 'Date', datasourceName: 'date' },
   ];
-  readonly dataSource = signal<TableViewDataSource>({
-    totalItems: 0,
-    page: 1,
-    pageSize: 10,
-    items: [],
-    columns: this.tableCols,
-  });
-  readonly isLoading = signal(true);
-  readonly deleteSermonFields: DeleteConfirmationData = {
+
+  override deleteFields: DeleteConfirmationData = {
     id: 'id',
     matchingString: 'id',
     name: 'title',
   };
-  readonly tableTitle = 'Church Services';
-  readonly tableViewTypes = TableViewType;
+  override tableTitle = 'Church Services';
 
-  constructor(
-    private videoRecordings: VideoRecordingsService,
-    private datePipe: DatePipe,
-    private snackBar: MatSnackBar
-  ) {}
-
-  ngOnInit(): void {
-    this.loadSermons(1, 10);
+  constructor(service: SermonsService) {
+    super(service);
   }
 
-  loadSermons(page: number, pageSize: number): void {
+  override loadVideos(page: number, pageSize: number): void {
     this.isLoading.set(true);
-    this.videoRecordings.getSermons(page, pageSize).subscribe({
+    this.service.getAll(page, pageSize).subscribe({
       next: (response) => {
-        const sermons = response.items.map((s) => ({
+        const sermons = response.items.map((s: any) => ({
           id: s.id,
           date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
           title: s.title,
@@ -89,55 +72,7 @@ export class ChurchServicesComponent implements OnInit {
     });
   }
 
-  onPageChange(event: PageEvent) {
-    this.loadSermons(event.pageIndex + 1, event.pageSize);
-  }
-
-  async onDelete(id: string) {
-    this.isLoading.set(true);
-    this.videoRecordings.deleteSermon(parseInt(id)).subscribe({
-      next: () => {
-        this.reloadSermons();
-      },
-      error: (err) => {
-        this.handleException(
-          err,
-          'There was a problem when attempting to delete this preaching.'
-        );
-      },
-    });
-  }
-
-  onEdit(sermonForm: VideoFormData) {
-    this.isLoading.set(true);
-    const sermon = this.parseVideoForm(sermonForm) as any;
-    this.videoRecordings.updateSermon(sermon).subscribe({
-      next: () => {
-        this.reloadSermons();
-      },
-      error: (err) => {
-        this.handleException(
-          err,
-          'There was a problem updating the preaching.'
-        );
-      },
-    });
-  }
-
-  onAdd(sermonForm: VideoFormData) {
-    this.isLoading.set(true);
-    const sermon = this.parseVideoForm(sermonForm);
-    this.videoRecordings.addSermon(sermon).subscribe({
-      next: () => {
-        this.reloadSermons();
-      },
-      error: (err) => {
-        this.handleException(err, 'There was a problem adding the preaching.');
-      },
-    });
-  }
-
-  private parseVideoForm(videoForm: VideoFormData): SermonDto {
+  override parseVideoForm(videoForm: VideoFormData): SermonDto {
     const sermon = {
       date: videoForm.data.date.toISOString().substring(0, 10),
       title: videoForm.data.title,
@@ -150,18 +85,5 @@ export class ChurchServicesComponent implements OnInit {
     }
 
     return sermon;
-  }
-
-  private handleException(e: Error, message: string) {
-    this.isLoading.set(false);
-    console.error(e);
-    this.snackBar.open(message, '', {
-      duration: 4000,
-    });
-  }
-
-  private reloadSermons() {
-    const { pageSize, pageIndex } = this.tableViewComponent()!.paginator()!;
-    this.loadSermons(pageIndex + 1, pageSize);
   }
 }

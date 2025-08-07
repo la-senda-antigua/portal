@@ -7,7 +7,7 @@ import { RequestManagerService } from './request-manager.service';
 export class VideosServiceBase {
   apiUrl = '';
   constructor(public requestManager: RequestManagerService) {}
-  getAll(): Observable<any> {
+  getAll(a:number, b:number): Observable<any> {
     return of(null);
   }
   edit(arg: any): Observable<any> {
