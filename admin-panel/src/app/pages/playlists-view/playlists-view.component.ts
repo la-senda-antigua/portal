@@ -6,6 +6,7 @@ import {
   TableViewColumn,
   TableViewComponent,
   TableViewDataSource,
+  TableViewFormData,
   TableViewType,
 } from '../../components/table-view/table-view.component';
 import { VideoPlaylist } from '../../models/VideoPlaylist';
@@ -36,7 +37,7 @@ export class PlaylistsViewComponent implements OnInit {
   readonly editIdAndNameComponent = EditIdNameFormComponent;
   readonly deletePlaylistFields: DeleteConfirmationData = {
     id: 'id',
-    matchingString: 'id',
+    matchingString: 'name',
     name: 'name',
   };
 
@@ -59,7 +60,7 @@ export class PlaylistsViewComponent implements OnInit {
           page: pageIndex + 1,
           pageSize,
           columns: this.tableCols,
-          items: playlists,
+          items: playlists.sort(this.sortPlaylistsByName),
         });
         this.isLoading.set(false);
       },
@@ -70,88 +71,52 @@ export class PlaylistsViewComponent implements OnInit {
   }
 
   async onDelete(id: string) {
-    // this.dialogRef = this.dialog.open(this.confirmDeleteDialog, {
-    //   data: playlist,
-    // });
-    // this.dialogRef
-    //   .afterClosed()
-    //   .pipe(
-    //     switchMap((confirmed) => {
-    //       if (confirmed) {
-    //         this.isLoading = true;
-    //         return this.videoService.deletePlaylist(playlist.id!);
-    //       }
-    //       return of(false);
-    //     }),
-    //     catchError((err) => {
-    //       this.isLoading = false;
-    //       console.error('Error on delete', err);
-    //       return of(false);
-    //     })
-    //   )
-    //   .subscribe();
+    this.isLoading.set(true);
+    this.videoService.deletePlaylist(id).subscribe({
+      next: () => {
+        this.loadPlaylists();
+      },
+      error: (err) => {
+        this.handleException(err, 'There was a problem deleting the playlist.');
+      },
+    });
   }
 
-  async onEdit(playlist: VideoPlaylist) {
-    // this.playlistForm = this.fb.group({
-    //   id: [playlist.id],
-    //   name: [playlist.name, Validators.required],
-    // });
-    // this.dialogRef = this.dialog.open(this.playlistConfigDialog, {
-    //   data: playlist,
-    // });
-    // this.dialogRef
-    //   .afterClosed()
-    //   .pipe(
-    //     switchMap((result) => {
-    //       if (result) {
-    //         this.isLoading = true;
-    //         return this.videoService.updatePlaylist(result);
-    //       }
-    //       return of(null);
-    //     }),
-    //     catchError((err) => {
-    //       this.isLoading = false;
-    //       console.error('Error on update', err);
-    //       return of(null);
-    //     })
-    //   )
-    //   .subscribe((result) => {
-    //     if (result) {
-    //       this.loadPlaylists();
-    //     }
-    //   });
+  async onEdit(playlistFormData: TableViewFormData) {
+    this.isLoading.set(true);
+    this.videoService
+      .updatePlaylist({
+        name: playlistFormData.data.name,
+        id: playlistFormData.data.id,
+      })
+      .subscribe({
+        next: () => {
+          this.loadPlaylists();
+        },
+        error: (err) => {
+          this.handleException(
+            err,
+            'There was a problem attempting to save the playlist.'
+          );
+        },
+      });
   }
 
-  async onAdd(playlist: VideoPlaylist) {
-    // this.playlistForm = this.fb.group({
-    //   id: [null],
-    //   name: ['', Validators.required],
-    // });
-    // this.dialogRef = this.dialog.open(this.playlistConfigDialog, {
-    //   data: { name: '', id: null },
-    // });
-    // this.dialogRef
-    //   .afterClosed()
-    //   .pipe(
-    //     switchMap((result) => {
-    //       if (result) {
-    //         this.isLoading = true;
-    //         return this.videoService.addPlaylist({ name: result.name });
-    //       }
-    //       return of(null);
-    //     }),
-    //     catchError((err) => {
-    //       this.isLoading = false;
-    //       console.error('Error on add', err);
-    //       return of(null);
-    //     })
-    //   )
-    //   .subscribe((result) => {
-    //     if (result) {
-    //       this.loadPlaylists();
-    //     }
-    //   });
+  async onAdd(playlistFormData: TableViewFormData) {
+    this.isLoading.set(true);
+    this.videoService
+      .addPlaylist({ name: playlistFormData.data.name })
+      .subscribe({
+        next: () => {
+          this.loadPlaylists();
+        },
+        error: (err) => {
+          this.handleException(
+            err,
+            'There was a problem attempting to save the playlist.'
+          );
+        },
+      });
   }
 
   private handleException(e: Error, message: string) {
@@ -160,5 +125,17 @@ export class PlaylistsViewComponent implements OnInit {
     this.snackBar.open(message, '', {
       duration: 4000,
     });
+  }
+
+  private sortPlaylistsByName(a: VideoPlaylist, b: VideoPlaylist) {
+    const aName = a.name.toLowerCase();
+    const bName = b.name.toLowerCase();
+    if (aName < bName) {
+      return -1;
+    }
+    if (aName > bName) {
+      return 1;
+    }
+    return 0;
   }
 }
