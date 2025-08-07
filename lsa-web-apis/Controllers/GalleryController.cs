@@ -4,9 +4,7 @@ using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers
 {
@@ -14,9 +12,9 @@ namespace lsa_web_apis.Controllers
     [ApiController]
     public class GalleryController : ControllerBase
     {
-        private readonly VideosDbContext _context;
+        private readonly VideoRecordingsDbContext _context;
         private readonly IVideoRecordingService _videoRecordingService;
-        public GalleryController(VideosDbContext context, IVideoRecordingService videoRecordingService)
+        public GalleryController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService)
         {
             _context = context;
             _videoRecordingService = videoRecordingService;

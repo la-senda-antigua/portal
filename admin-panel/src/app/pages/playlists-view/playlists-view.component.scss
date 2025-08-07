@@ -1,0 +1,21 @@
+a{
+    margin-right: 20px;
+}
+
+.add-button {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  border-radius: 8px;
+}
+
+.mat-mdc-dialog-surface{
+  padding: 16px !important;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}

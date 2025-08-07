@@ -1,0 +1,33 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  .spacer {
+    flex: 1;
+  }
+
+  a {
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.table-container{
+  flex:1;
+  overflow-x: hidden;
+}
+
+.plus-icon{
+  font-size: 24px;
+}

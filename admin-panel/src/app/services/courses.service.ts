@@ -7,8 +7,8 @@ import { Sermon, SermonDto } from '../models/Sermon';
 @Injectable({
   providedIn: 'root',
 })
-export class SermonsService extends VideosServiceBase {
-  override apiUrl = '/sermons';
+export class CoursesService extends VideosServiceBase {
+  override apiUrl = '/lessons';
   
   override getAll(
     page: number = 1,

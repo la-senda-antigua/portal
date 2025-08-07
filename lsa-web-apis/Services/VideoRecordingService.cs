@@ -6,9 +6,9 @@ namespace lsa_web_apis.Services;
 
 public class VideoRecordingService : IVideoRecordingService
 {
-    private VideosDbContext _context;
+    private VideoRecordingsDbContext _context;
 
-    public VideoRecordingService(VideosDbContext context)
+    public VideoRecordingService(VideoRecordingsDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }

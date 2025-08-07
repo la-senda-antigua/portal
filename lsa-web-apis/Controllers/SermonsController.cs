@@ -13,9 +13,9 @@ namespace lsa_web_apis.Controllers
     [ApiController]
     public class SermonsController : ControllerBase
     {
-        private readonly VideosDbContext _context;
+        private readonly VideoRecordingsDbContext _context;
         private readonly IVideoRecordingService _videoRecordingService;
-        public SermonsController(VideosDbContext context, IVideoRecordingService videoRecordingService)
+        public SermonsController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService)
         {
             _context = context;
             _videoRecordingService = videoRecordingService;

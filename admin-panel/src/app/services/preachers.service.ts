@@ -2,29 +2,29 @@ import { Injectable } from '@angular/core';
 import { VideosServiceBase } from './videos.service.base';
 import { Observable } from 'rxjs';
 import { TableResult } from '../models/TableResult';
-import { Sermon, SermonDto } from '../models/Sermon';
+import { Preacher } from '../models/Preacher';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SermonsService extends VideosServiceBase {
-  override apiUrl = '/sermons';
+export class PreachersService extends VideosServiceBase {
+  override apiUrl = '/preachers';
   
   override getAll(
     page: number = 1,
     pageSize: number = 10
-  ): Observable<TableResult<Sermon>> {
+  ): Observable<TableResult<Preacher>> {
     const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
-    return this.requestManager.get<TableResult<Sermon>>(url);
+    return this.requestManager.get<TableResult<Preacher>>(url);
   }
 
-  override add(sermon: SermonDto): Observable<SermonDto> {
-    return this.requestManager.post<SermonDto>(this.apiUrl, sermon);
+  override add(item: Preacher): Observable<Preacher> {
+    return this.requestManager.post<Preacher>(this.apiUrl, item);
   }
 
-  override edit(sermon: Sermon): Observable<Sermon> {
-    const url = `${this.apiUrl}/${sermon.id}`;
-    return this.requestManager.put<Sermon>(url, sermon);
+  override edit(item: Preacher): Observable<Preacher> {
+    const url = `${this.apiUrl}/${item.id}`;
+    return this.requestManager.put<Preacher>(url, item);
   }
 
   override delete(id: number): Observable<void> {
