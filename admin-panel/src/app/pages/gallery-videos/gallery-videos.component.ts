@@ -36,7 +36,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
       super(service);
     }
   
-    override loadVideos(page: number, pageSize: number): void {
+    override load(page: number, pageSize: number): void {
       this.isLoading.set(true);
       this.service.getPage(page, pageSize).subscribe({
         next: (response) => {
@@ -63,7 +63,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
       });
     }
   
-    override parseVideoForm(videoForm: VideoFormData): GalleryVideo {
+    override parseForm(videoForm: VideoFormData): GalleryVideo {
       const item = {
         date: videoForm.data.date.toISOString().substring(0, 10),
         title: videoForm.data.title,

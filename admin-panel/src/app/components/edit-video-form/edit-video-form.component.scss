@@ -3,10 +3,20 @@
   flex-direction: column;
 }
 
-mat-form-field{
+mat-form-field {
   width: 300px;
 }
 
-button{
+button {
   margin-left: 10px;
+}
+
+.option-button {
+  width: 268px;
+  margin: 0;
+  justify-content: left;
+}
+
+.red-color {
+  color: red;
 }

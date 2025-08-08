@@ -1,8 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, viewChild } from '@angular/core';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
-import { EditIdNameFormComponent, EditIdNameFormData } from '../../components/edit-id-name-form/edit-id-name-form.component';
-import { TableViewColumn, TableViewComponent } from '../../components/table-view/table-view.component';
+import {
+  EditIdNameFormComponent,
+  EditIdNameFormData,
+} from '../../components/edit-id-name-form/edit-id-name-form.component';
+import {
+  TableViewColumn,
+  TableViewComponent,
+} from '../../components/table-view/table-view.component';
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { PlaylistsService } from '../../services/playlists.service';
 import { VideoPlaylist } from '../../models/VideoPlaylist';
@@ -34,7 +40,7 @@ export class PlaylistsViewComponent extends PageBaseComponent {
     super(service);
   }
 
-  override loadVideos(page: number, pageSize: number): void {
+  override load(page: number, pageSize: number): void {
     this.isLoading.set(true);
     this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
@@ -43,15 +49,17 @@ export class PlaylistsViewComponent extends PageBaseComponent {
           return;
         }
 
-        const item = response.items.map((s: VideoPlaylist) => ({
-          id: s.id,
-          name: s.name
-        }));
+        const items = (response.items as VideoPlaylist[])
+          .map((s) => ({
+            id: s.id,
+            name: s.name,
+          }))
+          .sortByKey('name');
         this.dataSource.set({
           page: response.page,
           pageSize: response.pageSize,
           totalItems: response.totalItems,
-          items: item,
+          items,
           columns: this.tableCols,
         });
         this.isLoading.set(false);
@@ -62,7 +70,7 @@ export class PlaylistsViewComponent extends PageBaseComponent {
     });
   }
 
-  override parseVideoForm(form: EditIdNameFormData): VideoPlaylist {
+  override parseForm(form: EditIdNameFormData): VideoPlaylist {
     const item = {
       id: form.data.id,
       name: form.data.name,
@@ -73,5 +81,4 @@ export class PlaylistsViewComponent extends PageBaseComponent {
 
     return item;
   }
-
 }

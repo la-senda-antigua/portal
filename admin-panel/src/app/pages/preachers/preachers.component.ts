@@ -34,7 +34,7 @@ export class PreachersComponent extends PageBaseComponent {
     super(service);
   }
 
-  override loadVideos(page: number, pageSize: number): void {
+  override load(page: number, pageSize: number): void {
     this.isLoading.set(true);
     this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
@@ -57,7 +57,7 @@ export class PreachersComponent extends PageBaseComponent {
     });
   }
 
-  override parseVideoForm(form: EditIdNameFormData): Preacher {
+  override parseForm(form: EditIdNameFormData): Preacher {
     const item = {
       id: form.data.id,
       name: form.data.name,
