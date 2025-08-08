@@ -36,7 +36,7 @@ export class PlaylistsViewComponent extends PageBaseComponent {
 
   override loadVideos(page: number, pageSize: number): void {
     this.isLoading.set(true);
-    this.service.getAll(page, pageSize).subscribe({
+    this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
         if (!(response && response.items)) {
           this.isLoading.set(false);

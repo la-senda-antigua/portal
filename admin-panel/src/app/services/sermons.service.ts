@@ -10,7 +10,7 @@ import { Sermon, SermonDto } from '../models/Sermon';
 export class SermonsService extends VideosServiceBase {
   override apiUrl = '/sermons';
   
-  override getAll(
+  override getPage(
     page: number = 1,
     pageSize: number = 10
   ): Observable<TableResult<Sermon>> {

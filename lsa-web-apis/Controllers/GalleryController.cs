@@ -73,6 +73,7 @@ namespace lsa_web_apis.Controllers
             existingGallery.Cover = gallery.Cover;
             existingGallery.Date = gallery.Date;            
             existingGallery.VideoPath = gallery.VideoPath;
+            existingGallery.Playlist = gallery.Playlist;
 
             _context.GalleryVideos.Update(existingGallery);
             await _context.SaveChangesAsync();

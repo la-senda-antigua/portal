@@ -9,7 +9,7 @@ import {
   TableViewColumn,
   TableViewComponent,
 } from '../../components/table-view/table-view.component';
-import { SermonDto } from '../../models/Sermon';
+import { Sermon, SermonDto } from '../../models/Sermon';
 
 import { SermonsService } from '../../services/sermons.service';
 import { PageBaseComponent } from '../page-base/page-base.component';
@@ -46,9 +46,9 @@ export class ChurchServicesComponent extends PageBaseComponent {
 
   override loadVideos(page: number, pageSize: number): void {
     this.isLoading.set(true);
-    this.service.getAll(page, pageSize).subscribe({
+    this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
-        const sermons = response.items.map((s: any) => ({
+        const sermons = response.items.map((s: Sermon) => ({
           id: s.id,
           date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
           title: s.title,
@@ -56,6 +56,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
           preacherId: s.preacher.id,
           cover: s.cover,
           videoUrl: s.videoPath,
+          playlistId: s.playlist,
         }));
         this.dataSource.set({
           page: response.page,
@@ -79,6 +80,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
       videoPath: videoForm.data.videoUrl,
       cover: videoForm.data.cover,
       preacherId: videoForm.data.preacherId!,
+      playlist: videoForm.data.playlistId
     } as SermonDto;
     if (videoForm.data.id != undefined) {
       sermon['id'] = videoForm.data.id;

@@ -36,7 +36,7 @@ export class PreachersComponent extends PageBaseComponent {
 
   override loadVideos(page: number, pageSize: number): void {
     this.isLoading.set(true);
-    this.service.getAll(page, pageSize).subscribe({
+    this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
         const item = response.items.map((s: Preacher) => ({
           id: s.id,

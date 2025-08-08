@@ -6,6 +6,7 @@ import { TableViewColumn, TableViewComponent } from '../../components/table-view
 import { GalleryService } from '../../services/gallery.service';
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { GalleryVideo } from '../../models/GalleryVideo';
+import { SermonDto } from '../../models/Sermon';
 
 @Component({
   selector: 'app-gallery-videos',
@@ -37,14 +38,15 @@ export class GalleryVideosComponent extends PageBaseComponent {
   
     override loadVideos(page: number, pageSize: number): void {
       this.isLoading.set(true);
-      this.service.getAll(page, pageSize).subscribe({
+      this.service.getPage(page, pageSize).subscribe({
         next: (response) => {
-          const item = response.items.map((s: any) => ({
+          const item = response.items.map((s: GalleryVideo) => ({
             id: s.id,
             date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
             title: s.title,
             cover: s.cover,
             videoUrl: s.videoPath,
+            playlistId: s.playlist
           }));
           this.dataSource.set({
             page: response.page,
@@ -66,7 +68,8 @@ export class GalleryVideosComponent extends PageBaseComponent {
         date: videoForm.data.date.toISOString().substring(0, 10),
         title: videoForm.data.title,
         videoPath: videoForm.data.videoUrl,
-        cover: videoForm.data.cover,        
+        cover: videoForm.data.cover,
+        playlist: videoForm.data.playlistId        
       } as GalleryVideo;
       if (videoForm.data.id != undefined) {
         item['id'] = videoForm.data.id;

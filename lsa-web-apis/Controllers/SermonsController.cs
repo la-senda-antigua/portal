@@ -76,6 +76,7 @@ namespace lsa_web_apis.Controllers
             existingSermon.Date = sermon.Date;
             existingSermon.PreacherId = sermon.PreacherId;
             existingSermon.VideoPath = sermon.VideoPath;
+            existingSermon.Playlist = sermon.Playlist;
 
             _context.Sermons.Update(existingSermon);
             await _context.SaveChangesAsync();

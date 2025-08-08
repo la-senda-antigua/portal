@@ -75,6 +75,7 @@ namespace lsa_web_apis.Controllers
             existingLesson.Date = lesson.Date;
             existingLesson.PreacherId = lesson.PreacherId;
             existingLesson.VideoPath = lesson.VideoPath;
+            existingLesson.Playlist = lesson.Playlist;
 
             _context.Lessons.Update(existingLesson);
             await _context.SaveChangesAsync();

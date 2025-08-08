@@ -16,8 +16,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { VideoRecordingsService } from '../../services/video-recordings.service';
 import { TableViewFormData } from '../table-view/table-view.component';
+import { PreachersService } from '../../services/preachers.service';
+import { PlaylistsService } from '../../services/playlists.service';
 
 export interface VideoFormData extends TableViewFormData {
   data: {
@@ -28,6 +29,7 @@ export interface VideoFormData extends TableViewFormData {
     videoUrl: string;
     preacherId?: number;
     preacherName?: string;
+    playlistId?: string;
   };
 }
 
@@ -54,7 +56,8 @@ export class EditVideoFormComponent {
   readonly formBuilder = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<EditVideoFormComponent>);
   readonly formData = inject<VideoFormData>(MAT_DIALOG_DATA);
-  readonly videoService = inject(VideoRecordingsService);
+  readonly preachersService = inject(PreachersService);
+  readonly playlistService = inject(PlaylistsService);
   readonly datePipe = inject(DatePipe);
 
   readonly videoForm: FormGroup<{
@@ -62,6 +65,7 @@ export class EditVideoFormComponent {
     date: FormControl<string | null>;
     cover: FormControl<string | null>;
     videoUrl: FormControl<string | null>;
+    playlistId: FormControl<string | null>;
     preacher?: FormGroup<{
       preacherId: FormControl<number | null>;
       preacherName: FormControl<string | null>;
@@ -77,9 +81,11 @@ export class EditVideoFormComponent {
     ),
     cover: new FormControl(this.formData.data.cover, Validators.required),
     videoUrl: new FormControl(this.formData.data.videoUrl, Validators.required),
+    playlistId: new FormControl(this.formData.data.playlistId ?? null),
   });
 
-  readonly preacherList = toSignal(this.videoService.getAllPreachers());
+  readonly preacherList = toSignal(this.preachersService.getAll());
+  readonly playlists = toSignal(this.playlistService.getAll());
 
   constructor() {
     if (this.formData.type !== 'gallery') {
@@ -130,6 +136,7 @@ export class EditVideoFormComponent {
         date: new Date(this.videoForm.controls.date.value!),
         cover: this.videoForm.controls.cover.value!,
         videoUrl: this.videoForm.controls.videoUrl.value!,
+        playlistId: this.videoForm.controls.playlistId.value ?? undefined,
         preacherId:
           this.videoForm.controls.preacher?.controls?.preacherId.value ??
           undefined,

@@ -10,7 +10,7 @@ import { GalleryVideo } from '../models/GalleryVideo';
 export class GalleryService extends VideosServiceBase {
   override apiUrl = '/gallery';
   
-  override getAll(
+  override getPage(
     page: number = 1,
     pageSize: number = 10
   ): Observable<TableResult<GalleryVideo>> {

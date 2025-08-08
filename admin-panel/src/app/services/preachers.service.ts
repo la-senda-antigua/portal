@@ -9,8 +9,12 @@ import { Preacher } from '../models/Preacher';
 })
 export class PreachersService extends VideosServiceBase {
   override apiUrl = '/preachers';
-  
-  override getAll(
+
+  override getAll(): Observable<Preacher[]> {
+    return this.requestManager.get<Preacher[]>(this.apiUrl + '/getAll');
+  }
+
+  override getPage(
     page: number = 1,
     pageSize: number = 10
   ): Observable<TableResult<Preacher>> {
