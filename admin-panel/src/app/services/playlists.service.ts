@@ -10,12 +10,16 @@ import { VideoPlaylist } from '../models/VideoPlaylist';
 export class PlaylistsService extends VideosServiceBase {
   override apiUrl = '/videoplaylist';
     
-  override getAll(
+  override getPage(
     page: number = 1,
     pageSize: number = 10
   ): Observable<TableResult<VideoPlaylist>> {
     const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
     return this.requestManager.get<TableResult<VideoPlaylist>>(url);
+  }
+
+  override getAll(): Observable<VideoPlaylist[]> {
+    return this.requestManager.get<VideoPlaylist[]>(`${this.apiUrl}/getall`)
   }
 
   override add(item: VideoPlaylist): Observable<VideoPlaylist> {

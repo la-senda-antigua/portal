@@ -10,5 +10,6 @@ public class VideoRecording
     public string? Title { get; set; }
     public string? VideoPath { get; set; }
     public string? Cover { get; set; }
-    
+    public Guid? Playlist { get; set; }
+
 }

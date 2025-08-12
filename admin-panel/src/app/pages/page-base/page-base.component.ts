@@ -43,13 +43,13 @@ export class PageBaseComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadVideos(1, 10);
+    this.load(1, 10);
   }
 
-  loadVideos(page: number, pageSize: number): void {}
+  load(page: number, pageSize: number): void {}
 
   onPageChange(event: PageEvent) {
-    this.loadVideos(event.pageIndex + 1, event.pageSize);
+    this.load(event.pageIndex + 1, event.pageSize);
   }
 
   onDelete(id: string) {
@@ -69,7 +69,7 @@ export class PageBaseComponent implements OnInit {
 
   onEdit(form: VideoFormData) {
     this.isLoading.set(true);
-    const video = this.parseVideoForm(form) as any;
+    const video = this.parseForm(form) as any;
     this.service.edit(video).subscribe({
       next: () => {
         this.reload();
@@ -82,7 +82,7 @@ export class PageBaseComponent implements OnInit {
 
   onAdd(form: VideoFormData) {
     this.isLoading.set(true);
-    const video = this.parseVideoForm(form);
+    const video = this.parseForm(form);
     this.service.add(video).subscribe({
       next: () => {
         this.reload();
@@ -93,7 +93,7 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  parseVideoForm(videoForm: VideoFormData | EditIdNameFormData) {}
+  parseForm(videoForm: VideoFormData | EditIdNameFormData) {}
 
   handleException(e: Error, message: string) {
     this.isLoading.set(false);
@@ -105,6 +105,6 @@ export class PageBaseComponent implements OnInit {
 
   private reload() {
     const { pageSize, pageIndex } = this.tableViewComponent()!.paginator()!;
-    this.loadVideos(pageIndex + 1, pageSize);
+    this.load(pageIndex + 1, pageSize);
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -12,11 +12,20 @@ import {
 import { MatOption } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { VideoRecordingsService } from '../../services/video-recordings.service';
+import { VideoPlaylist } from '../../models/VideoPlaylist';
+import { PlaylistsService } from '../../services/playlists.service';
+import { PreachersService } from '../../services/preachers.service';
+import { EditIdNameFormComponent } from '../edit-id-name-form/edit-id-name-form.component';
 import { TableViewFormData } from '../table-view/table-view.component';
 
 export interface VideoFormData extends TableViewFormData {
@@ -28,6 +37,7 @@ export interface VideoFormData extends TableViewFormData {
     videoUrl: string;
     preacherId?: number;
     preacherName?: string;
+    playlistId?: string;
   };
 }
 
@@ -44,6 +54,8 @@ export interface VideoFormData extends TableViewFormData {
     MatSelectModule,
     FormsModule,
     MatCardModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
     TitleCasePipe,
   ],
   templateUrl: './edit-video-form.component.html',
@@ -54,14 +66,17 @@ export class EditVideoFormComponent {
   readonly formBuilder = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<EditVideoFormComponent>);
   readonly formData = inject<VideoFormData>(MAT_DIALOG_DATA);
-  readonly videoService = inject(VideoRecordingsService);
+  readonly preachersService = inject(PreachersService);
+  readonly playlistService = inject(PlaylistsService);
   readonly datePipe = inject(DatePipe);
+  readonly dialog = inject(MatDialog);
 
   readonly videoForm: FormGroup<{
     title: FormControl<string | null>;
     date: FormControl<string | null>;
     cover: FormControl<string | null>;
     videoUrl: FormControl<string | null>;
+    playlistId: FormControl<string | null>;
     preacher?: FormGroup<{
       preacherId: FormControl<number | null>;
       preacherName: FormControl<string | null>;
@@ -77,9 +92,13 @@ export class EditVideoFormComponent {
     ),
     cover: new FormControl(this.formData.data.cover, Validators.required),
     videoUrl: new FormControl(this.formData.data.videoUrl, Validators.required),
+    playlistId: new FormControl(this.formData.data.playlistId ?? null),
   });
 
-  readonly preacherList = toSignal(this.videoService.getAllPreachers());
+  readonly preacherList = toSignal(this.preachersService.getAll());
+  readonly playlists = signal<VideoPlaylist[]>([]);
+  readonly didAddingPlaylistFail = signal(false);
+  readonly addingPlaylist = signal<boolean>(false);
 
   constructor() {
     if (this.formData.type !== 'gallery') {
@@ -107,6 +126,7 @@ export class EditVideoFormComponent {
         })
       );
     }
+    this.refreshPlaylists();
   }
 
   save() {
@@ -115,6 +135,36 @@ export class EditVideoFormComponent {
 
   close() {
     this.dialogRef.close();
+  }
+
+  addPlaylistClick() {
+    const addPlaylistDialog = this.dialog.open(EditIdNameFormComponent, {
+      data: {
+        mode: 'add',
+        type: this.formData.type,
+        data: {},
+      },
+    });
+    addPlaylistDialog.afterClosed().subscribe((form) => {
+      if (form != null) {
+        this.addingPlaylist.set(true);
+        const playlist = { name: form.data.name } as VideoPlaylist;
+        this.playlistService.add(playlist).subscribe({
+          next: (pl) => {
+            this.videoForm.controls.playlistId.patchValue(pl.id!);
+            this.refreshPlaylists();
+            this.addingPlaylist.set(false);
+          },
+          error: (err) => this.handleAddPlaylistError(err),
+        });
+      }
+    });
+  }
+
+  private refreshPlaylists() {
+    this.playlistService
+      .getAll()
+      .subscribe((playlists) => this.playlists.set(playlists.sortByKey('name')));
   }
 
   private toVideoFormData(): VideoFormData {
@@ -130,6 +180,7 @@ export class EditVideoFormComponent {
         date: new Date(this.videoForm.controls.date.value!),
         cover: this.videoForm.controls.cover.value!,
         videoUrl: this.videoForm.controls.videoUrl.value!,
+        playlistId: this.videoForm.controls.playlistId.value ?? undefined,
         preacherId:
           this.videoForm.controls.preacher?.controls?.preacherId.value ??
           undefined,
@@ -138,5 +189,14 @@ export class EditVideoFormComponent {
           undefined,
       },
     };
+  }
+
+  private handleAddPlaylistError(err: Error) {
+    console.error(err);
+    this.addingPlaylist.set(false);
+    this.didAddingPlaylistFail.set(true);
+    setTimeout(() => {
+      this.didAddingPlaylistFail.set(false);
+    }, 4000);
   }
 }
