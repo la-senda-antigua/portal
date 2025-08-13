@@ -6,10 +6,25 @@ public class CalendarEvent
 {
     public int Id { get; set; }
     public required string Title { get; set; }
-    public DateTime StartingAt { get; set; }
-    public DateTime EndingAt { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
     public string? Description { get; set; }
-    public CalendarEventStatus Status { get; set; } = CalendarEventStatus.Upcoming;
+    private CalendarEventStatus _status;
+
+    public CalendarEventStatus Status
+    {
+        get
+        {
+            if (EndTime < DateTime.Now)
+                return CalendarEventStatus.Completed;
+            else if (StartTime <= DateTime.Now && EndTime >= DateTime.Now)
+                return CalendarEventStatus.Ongoing;
+            else if (StartTime > DateTime.Now)
+                return CalendarEventStatus.Upcoming;
+            else
+                return CalendarEventStatus.Cancelled;
+        }
+    }
 }
 
 public enum CalendarEventStatus

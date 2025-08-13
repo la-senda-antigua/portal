@@ -18,11 +18,23 @@ namespace lsa_web_apis.Controllers
             _context = context;
         }
 
-        [HttpGet]        
-        public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents()
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents(DateTime? dateTime)
         {
-            var events = await _context.CalendarEvents.ToListAsync();
-            return Ok(events);
+            var query = _context.CalendarEvents;
+            List<CalendarEvent> result = new List<CalendarEvent>();
+
+            if (dateTime is not null)
+            {
+                result = await query.Where(e => e.StartTime > dateTime).ToListAsync();
+            }
+            else
+            {
+                result = await query.ToListAsync();
+            }
+;
+            return Ok(result);
+
         }
 
         [HttpGet("{id}")]
@@ -31,15 +43,6 @@ namespace lsa_web_apis.Controllers
             var calendarEvent = await _context.CalendarEvents.FindAsync(id);
             if (calendarEvent is null) { return NotFound(); }
             return Ok(calendarEvent);
-        }
-
-        [HttpGet("upcoming")]
-        public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetUpcomingEvents()
-        {
-            var events = await _context.CalendarEvents
-                .Where(e => e.StartingAt > DateTime.UtcNow)
-                .ToListAsync();
-            return Ok(events);
         }
 
         [Authorize(Roles = "Admin")]
@@ -64,9 +67,8 @@ namespace lsa_web_apis.Controllers
 
             existingEvent.Title = calendarEvent.Title;
             existingEvent.Description = calendarEvent.Description;
-            existingEvent.StartingAt = calendarEvent.StartingAt;
-            existingEvent.EndingAt = calendarEvent.EndingAt;
-            existingEvent.Status = calendarEvent.Status;
+            existingEvent.StartTime = calendarEvent.StartTime;
+            existingEvent.EndTime = calendarEvent.EndTime;
 
             _context.CalendarEvents.Update(existingEvent);
             await _context.SaveChangesAsync();
@@ -86,5 +88,6 @@ namespace lsa_web_apis.Controllers
 
             return NoContent();
         }
+        
     }
 }
