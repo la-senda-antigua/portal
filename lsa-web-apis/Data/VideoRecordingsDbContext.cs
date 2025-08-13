@@ -13,4 +13,7 @@ public class VideoRecordingsDbContext(DbContextOptions<VideoRecordingsDbContext>
     public DbSet<GalleryVideo> GalleryVideos { get; set; }
     // Groups of related videos
     public DbSet<VideoPlaylist> Playlists { get; set; }
+
+    //Calendar events
+    public DbSet<CalendarEvent> CalendarEvents { get; set; }
 }
