@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace lsa_web_apis.Entities;
 
@@ -9,28 +10,37 @@ public class CalendarEvent
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
     public string? Description { get; set; }
+    [Column("Status")]
     private CalendarEventStatus _status;
 
+    [NotMapped]
     public CalendarEventStatus Status
     {
         get
         {
-            if (EndTime < DateTime.Now)
+            if (_status == CalendarEventStatus.Cancelled)
+                return _status;
+            else if (EndTime < DateTime.Now)
                 return CalendarEventStatus.Completed;
             else if (StartTime <= DateTime.Now && EndTime >= DateTime.Now)
-                return CalendarEventStatus.Ongoing;
+                return CalendarEventStatus.Active;
             else if (StartTime > DateTime.Now)
-                return CalendarEventStatus.Upcoming;
+                return CalendarEventStatus.Future;
             else
                 return CalendarEventStatus.Cancelled;
         }
+    }
+
+    public void CancelEvent()
+    {
+        _status = CalendarEventStatus.Cancelled;
     }
 }
 
 public enum CalendarEventStatus
 {
-    Upcoming = 0,
-    Ongoing = 1,
+    Future = 0,
+    Active = 1,
     Completed = 2,
     Cancelled = 3
 }
