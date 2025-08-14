@@ -1,5 +1,7 @@
 using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
+using lsa_web_apis.Extensions;
+using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,22 +21,37 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents(DateTime? dateTime)
+        public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents(DateTime? dateTime, bool includeCancelled = false)
         {
-            var query = _context.CalendarEvents;
+            var query = includeCancelled
+                ? _context.CalendarEvents.Where(s => s.Status != CalendarEventStatus.Cancelled)
+                : _context.CalendarEvents;
+
             List<CalendarEvent> result = new List<CalendarEvent>();
 
             if (dateTime is not null)
-            {
                 result = await query.Where(e => e.StartTime > dateTime).ToListAsync();
-            }
             else
-            {
                 result = await query.ToListAsync();
-            }
-;
-            return Ok(result);
 
+            return Ok(result);
+        }
+
+        [HttpGet("getPage")]
+        public async Task<ActionResult<PagedResult<CalendarEvent>>> GetPage(DateTime? dateTime, bool includeCancelled = false, int page = 1, int pageSize = 10)
+        {
+            var query = includeCancelled
+                ? _context.CalendarEvents.Where(s => s.Status != CalendarEventStatus.Cancelled)
+                : _context.CalendarEvents;
+
+            PagedResult<CalendarEvent> result = new();
+
+            if (dateTime is not null)
+                result = await query.Where(e => e.StartTime > dateTime).ToPagedResultAsync(page, pageSize);
+            else
+                result = await query.ToPagedResultAsync(page, pageSize);
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -90,16 +107,26 @@ namespace lsa_web_apis.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("changeStatus/{id}/{newStatus}")]
-        public async Task<ActionResult> CancelEvent(int id, CalendarEventStatus newStatus)
+        [HttpPost("cancelEvent/{id}")]
+        public async Task<ActionResult> CancelEvent(int id)
         {
             var existingEvent = await _context.CalendarEvents.FindAsync(id);
             if (existingEvent is null) { return NotFound(); }
 
-            if (newStatus == CalendarEventStatus.Cancelled)
-                existingEvent.CancelEvent();
-            else
-                existingEvent.ReactivateEvent();
+            existingEvent.CancelEvent();
+            _context.CalendarEvents.Update(existingEvent);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("reactivateEvent/{id}")]
+        public async Task<ActionResult> ReactivateEvent(int id)
+        {
+            var existingEvent = await _context.CalendarEvents.FindAsync(id);
+            if (existingEvent is null) { return NotFound(); }
+            existingEvent.ReactivateEvent();
 
             _context.CalendarEvents.Update(existingEvent);
             await _context.SaveChangesAsync();
