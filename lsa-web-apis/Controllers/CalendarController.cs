@@ -88,6 +88,23 @@ namespace lsa_web_apis.Controllers
 
             return NoContent();
         }
-        
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("changeStatus/{id}/{newStatus}")]
+        public async Task<ActionResult> CancelEvent(int id, CalendarEventStatus newStatus)
+        {
+            var existingEvent = await _context.CalendarEvents.FindAsync(id);
+            if (existingEvent is null) { return NotFound(); }
+
+            if (newStatus == CalendarEventStatus.Cancelled)
+                existingEvent.CancelEvent();
+            else
+                existingEvent.ReactivateEvent();
+
+            _context.CalendarEvents.Update(existingEvent);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
