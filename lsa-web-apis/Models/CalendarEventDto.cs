@@ -12,16 +12,6 @@ public class CalendarEventDto
     public DateTime? EndTime { get; set; }
     public string? Description { get; set; }
     private bool IsCancelled;
-    public CalendarEventDto() { }
-    public CalendarEventDto(CalendarEvent e)
-    {
-        Title = e.Title;
-        Id = e.Id;
-        StartTime = e.StartTime;
-        EndTime = e.EndTime;
-        Description = e.Description;
-        IsCancelled = e.IsCancelled;
-    }
 
     public CalendarEventStatus Status
     {
@@ -36,6 +26,16 @@ public class CalendarEventDto
             if (StartTime <= now && _endTime >= now) return CalendarEventStatus.Active;
             return CalendarEventStatus.Future;
         }
+    }
+    public CalendarEventDto() { }
+    public CalendarEventDto(CalendarEvent e)
+    {
+        Title = e.Title;
+        Id = e.Id;
+        StartTime = e.StartTime;
+        EndTime = e.EndTime;
+        Description = e.Description;
+        IsCancelled = e.IsCancelled;
     }
 }
 

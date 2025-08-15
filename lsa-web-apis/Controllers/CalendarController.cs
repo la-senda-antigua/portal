@@ -21,6 +21,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet]
+        [Route("GetEvents")]
         public async Task<ActionResult<IEnumerable<CalendarEventDto>>> GetEvents(DateTime? dateTime, bool includeCancelled = false)
         {
             var query = includeCancelled
@@ -35,7 +36,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet("getPage")]
-        public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetPage(DateTime? dateTime, bool includeCancelled = false, int page = 1, int pageSize = 10)
+        public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetPage(DateTime? dateTime, bool includeCancelled = true, int page = 1, int pageSize = 10)
         {
             var query = includeCancelled
                 ? _context.CalendarEvents.Where(s => !s.IsCancelled)
