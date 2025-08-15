@@ -4,11 +4,14 @@ using lsa_web_apis.Entities;
 
 namespace lsa_web_apis.Models;
 
-public class CalendarEventDto : CalendarEvent
+public class CalendarEventDto
 {
-    [JsonIgnore]
-    public new bool IsCancelled { get; set; }
-
+    public int Id { get; set; }
+    public string Title { get; set; } = "";
+    public DateTime StartTime { get; set; }
+    public DateTime? EndTime { get; set; }
+    public string? Description { get; set; }
+    private bool IsCancelled;
     public CalendarEventDto() { }
     public CalendarEventDto(CalendarEvent e)
     {
