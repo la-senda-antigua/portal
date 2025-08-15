@@ -5,7 +5,7 @@ import { RequestManagerService } from './request-manager.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private requestManager: RequestManagerService) {}
+  constructor(private requestManager: RequestManagerService) { }
 
   logout() {
     localStorage.removeItem('token');
@@ -21,6 +21,21 @@ export class AuthService {
   }
 
   startGoogleLoginRedirect() {
-    window.location.href = `${environment.apiBaseUrl}/Auth/google-login`;
+    const baseUrl = `${window.location.protocol}//${window.location.host}/auth/callback`
+    const callbackUrl = encodeURIComponent(baseUrl);
+    window.location.href = `${environment.apiBaseUrl}/Auth/google-login?callbackUrl=${callbackUrl}`;
+  }
+
+  refreshToken(): Observable<boolean> {
+    return this.requestManager
+      .get('/Auth/refresh-token')
+      .pipe(
+        map((response: any) => {
+          localStorage.setItem('access-token', response.accesToken);
+          localStorage.setItem('refreshToken', response.refreshToken!);
+          return true;
+        }),
+        catchError(() => of(false))
+      );
   }
 }

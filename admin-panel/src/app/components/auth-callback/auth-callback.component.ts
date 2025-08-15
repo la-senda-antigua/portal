@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-auth-callback',
@@ -9,20 +10,18 @@ import { Router } from '@angular/router';
   styleUrl: './auth-callback.component.scss',
 })
 export class AuthCallbackComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
     const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
+    const accessToken = params.get('access-token');
     const refreshToken = params.get('refreshToken');
-
-    if (token) {
-      localStorage.setItem('token', token);
+    if (accessToken) {
+      localStorage.setItem('access-token', accessToken);
       localStorage.setItem('refreshToken', refreshToken!);
-      this.router.navigate(['/']); 
+      this.router.navigate(['/']);
     } else {
-      console.error('No se recibió el token');
-      this.router.navigate(['/login']); 
+      this.authService.startGoogleLoginRedirect()
     }
   }
 }

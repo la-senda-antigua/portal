@@ -4,15 +4,14 @@ using lsa_web_apis.Models;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace lsa_web_apis.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthController(IAuthService authService, IConfiguration configuration) : ControllerBase
-{    
+public class AuthController(IAuthService authService) : ControllerBase
+{
     [Authorize(Roles = "Admin")]
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register(string username, string role)
@@ -35,10 +34,17 @@ public class AuthController(IAuthService authService, IConfiguration configurati
     }
 
     [HttpGet("google-login")]
-    public IActionResult GoogleLogin()
+    public IActionResult GoogleLogin(string callbackUrl)
     {
         var redirectUrl = Url.Action("GoogleResponse", "Auth", null, Request.Scheme);
-        var properties = new AuthenticationProperties { RedirectUri = redirectUrl, Items = {{ "prompt", "select_account" }}};
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = redirectUrl,
+            Items = {
+                { "prompt", "select_account" },
+                { "callbackUrl", callbackUrl }
+            }
+        };
         return Challenge(properties, "Google");
     }
 
@@ -53,16 +59,17 @@ public class AuthController(IAuthService authService, IConfiguration configurati
         var tokenResponse = await authService.LoginWithGoogleAsync(claims);
         if (tokenResponse is null)
             return BadRequest("Google login failed.");
+
+        var callbackUrl = googleAuthenticationResult.Properties?.Items["callbackUrl"];
+        if (string.IsNullOrEmpty(callbackUrl))
+            return BadRequest("Missing callback URL.");
         
-        var baseUrl = configuration.GetValue<string>("AppSettings:FrontendBaseUrl");
-        return Redirect($"{baseUrl}/auth/callback?token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}");
+        string finalUrl = $"{callbackUrl}?access-token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}";        
+        return Redirect(finalUrl);
     }
 
     [Authorize]
     [HttpGet("validate-token")]
-    public IActionResult ValidateToken()
-    {
-        return Ok();
-    }
+    public IActionResult ValidateToken() => Ok();
 }
 
