@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using lsa_web_apis.Data;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -21,12 +22,16 @@ builder.Services.AddCors(options =>
                           );
 });
 builder.Services.AddSignalR();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<UserDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("UsersDatabase")!));
 builder.Services.AddDbContext<VideoRecordingsDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("VideoRecordingsDatabase")!));
+builder.Services.AddDbContext<CalendarDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("VideoRecordingsDatabase")!));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddCookie()
