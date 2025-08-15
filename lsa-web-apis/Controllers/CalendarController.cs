@@ -21,35 +21,30 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CalendarEvent>>> GetEvents(DateTime? dateTime, bool includeCancelled = false)
+        public async Task<ActionResult<IEnumerable<CalendarEventDto>>> GetEvents(DateTime? dateTime, bool includeCancelled = false)
         {
             var query = includeCancelled
-                ? _context.CalendarEvents.Where(s => s.Status != CalendarEventStatus.Cancelled)
-                : _context.CalendarEvents;
-
-            List<CalendarEvent> result = new List<CalendarEvent>();
+                ? _context.CalendarEvents
+                : _context.CalendarEvents.Where(s => !s.IsCancelled);
 
             if (dateTime is not null)
-                result = await query.Where(e => e.StartTime > dateTime).ToListAsync();
-            else
-                result = await query.ToListAsync();
+                query = query.Where(e => e.StartTime > dateTime);
 
+            var result = await query.Select(e => new CalendarEventDto(e)).ToListAsync();
             return Ok(result);
         }
 
         [HttpGet("getPage")]
-        public async Task<ActionResult<PagedResult<CalendarEvent>>> GetPage(DateTime? dateTime, bool includeCancelled = false, int page = 1, int pageSize = 10)
+        public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetPage(DateTime? dateTime, bool includeCancelled = false, int page = 1, int pageSize = 10)
         {
             var query = includeCancelled
-                ? _context.CalendarEvents.Where(s => s.Status != CalendarEventStatus.Cancelled)
+                ? _context.CalendarEvents.Where(s => !s.IsCancelled)
                 : _context.CalendarEvents;
 
-            PagedResult<CalendarEvent> result = new();
-
             if (dateTime is not null)
-                result = await query.Where(e => e.StartTime > dateTime).ToPagedResultAsync(page, pageSize);
-            else
-                result = await query.ToPagedResultAsync(page, pageSize);
+                query = query.Where(e => e.StartTime > dateTime);
+
+            PagedResult<CalendarEventDto> result = await query.Select(e => new CalendarEventDto(e)).ToPagedResultAsync(page, pageSize);
 
             return Ok(result);
         }
@@ -113,7 +108,7 @@ namespace lsa_web_apis.Controllers
             var existingEvent = await _context.CalendarEvents.FindAsync(id);
             if (existingEvent is null) { return NotFound(); }
 
-            existingEvent.CancelEvent();
+            existingEvent.IsCancelled = true;
             _context.CalendarEvents.Update(existingEvent);
             await _context.SaveChangesAsync();
 
@@ -126,7 +121,7 @@ namespace lsa_web_apis.Controllers
         {
             var existingEvent = await _context.CalendarEvents.FindAsync(id);
             if (existingEvent is null) { return NotFound(); }
-            existingEvent.ReactivateEvent();
+            existingEvent.IsCancelled = false;
 
             _context.CalendarEvents.Update(existingEvent);
             await _context.SaveChangesAsync();
