@@ -1,23 +1,31 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, Signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
   GetVideosResponse,
   VideoModel,
-  VideoRecordingDto,
+  VideoPlaylist,
   VideoStoreState,
 } from '../models/video.model';
-import { BibleStudyBatchLoaded, PreachingBatchLoaded } from '../state/videos.actions';
+import {
+  BibleStudyBatchLoaded,
+  PreachingBatchLoaded,
+  VideoPlaylistsLoaded,
+} from '../state/videos.actions';
 import {
   selectBibleStudiesCurrentPage,
   selectBibleStudiesInStore,
   selectBibleStudiesState,
+  selectHydratedPlaylists,
+  selectPastorPreachingsInStore,
+  selectPlaylists,
   selectPreachingsCurrentPage,
   selectPreachingsInStore,
   selectPreachingsState,
 } from '../state/videos.selectors';
+import { VideoListType } from '../models/app.config.models';
 
 @Injectable({
   providedIn: 'root',
@@ -28,26 +36,51 @@ export class VideosService {
   private store = inject(Store);
 
   private preachingsStoreState = this.store.selectSignal(selectPreachingsState);
-  private preachingsCurrentPage = this.store.selectSignal(selectPreachingsCurrentPage);
+  private preachingsCurrentPage = this.store.selectSignal(
+    selectPreachingsCurrentPage
+  );
   public preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
+  public pastorPreachingsInStore = this.store.selectSignal(
+    selectPastorPreachingsInStore
+  );
 
-  private bibleStudiesStoreState = this.store.selectSignal(selectBibleStudiesState);
-  private bibleStudiesCurrentPage = this.store.selectSignal(selectBibleStudiesCurrentPage);
-  public bibleStudiesInStore = this.store.selectSignal(selectBibleStudiesInStore);
+  private bibleStudiesStoreState = this.store.selectSignal(
+    selectBibleStudiesState
+  );
+  private bibleStudiesCurrentPage = this.store.selectSignal(
+    selectBibleStudiesCurrentPage
+  );
+  public bibleStudiesInStore = this.store.selectSignal(
+    selectBibleStudiesInStore
+  );
 
-  loadVideoBatch(type: 'preachings' | 'biblestudies') {
-    switch (type) {
-      case 'biblestudies':
-        this.loadBibleStudiesBatch();
-        break;
-      default:
-        this.loadPreachingBatch();
+  private playlistsInStore = this.store.selectSignal(selectPlaylists);
+  public hydratedPlaylists = this.store.selectSignal(selectHydratedPlaylists);
+
+  private loadVideosTimer?: any;
+
+  loadVideoBatch(type: VideoListType) {
+    if (this.loadVideosTimer) {
+      clearTimeout(this.loadVideosTimer);
+      this.loadVideosTimer = undefined;
     }
+    this.loadVideosTimer = setTimeout(() => {
+      if( this.playlistsInStore().length === 0) {
+        this.getAllPlaylists();
+      }
+      switch (type) {
+        case VideoListType.BibleStudies:
+          this.loadBibleStudiesBatch();
+          break;
+        default:
+          this.loadPreachingBatch();
+      }
+    }, 500);
   }
 
-  getTotalVideos(type: 'preachings' | 'biblestudies') {
+  getTotalVideos(type: VideoListType): number {
     switch (type) {
-      case 'biblestudies':
+      case VideoListType.BibleStudies:
         return this.bibleStudiesStoreState().totalVideos;
       default:
         return this.preachingsStoreState().totalVideos;
@@ -87,6 +120,8 @@ export class VideosService {
                   videoUrl: i.videoPath,
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
+                  preacherId: i.preacher.id,
+                  playlist: i.playlist,
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,
@@ -143,5 +178,13 @@ export class VideosService {
       .subscribe((state: VideoStoreState) =>
         this.store.dispatch(BibleStudyBatchLoaded(state))
       );
+  }
+
+  private getAllPlaylists() {
+    this.httpClient
+      .get<VideoPlaylist[]>(`${this.baseUrl}/videoplaylist/getall`)
+      .subscribe((playlists) => {
+        this.store.dispatch(VideoPlaylistsLoaded({ playlists }));
+      });
   }
 }

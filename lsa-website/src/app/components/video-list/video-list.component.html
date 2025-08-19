@@ -20,10 +20,16 @@
         "Recent videos don't match the search criteria"
     }}
   </p>
-  } }@else { @for(video of filteredVideos() | slice: 0 : currentViewSize();
-  track $index){
-  <lsa-video-card [video]="video"></lsa-video-card>
-  } }
+  } }@else {
+    @if(type() === videoTypes.PastorPreachings) {
+      @for(playlist of playlists(); track $index){
+        <lsa-video-collage [title]="playlist.name" [videos]="playlist.videos" ></lsa-video-collage>
+      }
+    }
+    @for(video of videosWithoutPlaylists() | slice: 0 : currentViewSize(); track $index){
+      <lsa-video-card [video]="video"></lsa-video-card>
+    } 
+  }
 </div>
 
 @if (config().button?.text) {

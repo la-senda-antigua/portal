@@ -9,17 +9,19 @@ import {
   untracked,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { VideoListConfig } from 'src/app/models/app.config.models';
+import { VideoListConfig, VideoListType } from 'src/app/models/app.config.models';
 import { VideosService } from 'src/app/services/videos.service';
 import { DescriptionBlockComponent } from '../description-block/description-block.component';
 import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VideoCardComponent } from '../video-card/video-card.component';
+import { VideoCollageComponent } from '../video-collage/video-collage.component';
 
 @Component({
   selector: 'lsa-video-list',
   imports: [
     DescriptionBlockComponent,
     VideoCardComponent,
+    VideoCollageComponent,
     MatButtonModule,
     SearchboxComponent,
     CommonModule,
@@ -34,21 +36,23 @@ export class VideoListComponent {
   readonly searchBox = computed(() => this.config().searchBox);
   readonly descriptionBlock = computed(() => this.config().descriptionBlock);
   readonly type = computed(() => this.config().type);
-  readonly videos = computed(() =>
-    {
-      switch (this.config().type) {
-        case 'biblestudies':
-          return [...this.videosService.bibleStudiesInStore()]
-          .sort((a, b) => a.date < b.date ? 1 : -1
-          )
-          
-        default:
-          return [...this.videosService.preachingsInStore()]
-          .sort((a, b) => a.date < b.date ? 1 : -1
-        )
-      }
+  readonly videos = computed(() => {
+    switch (this.config().type) {
+      case 'biblestudies':
+        return [...this.videosService.bibleStudiesInStore()].sort((a, b) =>
+          a.date < b.date ? 1 : -1
+        );
+      case 'pastor-preachings':
+        return [...this.videosService.pastorPreachingsInStore()].sort((a, b) =>
+          a.date < b.date ? 1 : -1
+        );
+
+      default:
+        return [...this.videosService.preachingsInStore()].sort((a, b) =>
+          a.date < b.date ? 1 : -1
+        );
     }
-  );
+  });
   readonly currentViewSize = signal(0);
   readonly searchQuery = signal('');
   readonly filteredVideos = computed(() => {
@@ -62,6 +66,16 @@ export class VideoListComponent {
         this.getNoAccentString(video.title).includes(query)
     );
   });
+  readonly playlists = computed(() =>
+    this.videosService.hydratedPlaylists().filter((p) => p.videos.length > 0)
+  );
+  readonly videosWithoutPlaylists = computed(() => {
+    return this.filteredVideos().filter(
+      (video) =>
+        !video.playlist ||
+        video.playlist === '00000000-0000-0000-0000-000000000000'
+    );
+  });
   readonly allVideosLoaded = computed(() => {
     return (
       this.videos().length >= this.videosService.getTotalVideos(this.type())
@@ -73,6 +87,7 @@ export class VideoListComponent {
     }
     return false;
   });
+  readonly videoTypes = VideoListType;
 
   private loadSize?: number;
 

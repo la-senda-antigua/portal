@@ -95,11 +95,16 @@ export interface VideoListConfig {
   button?: ButtonConfig;
   searchBox?: SearchBoxConfig;
   descriptionBlock?: DescriptionBlockConfig;
-  type: 'preachings'|'biblestudies';
+  type: VideoListType;
   notFoundInRecents?: string;
   notFound?: string;
 }
 
+export enum VideoListType {
+  Preachings = 'preachings',
+  BibleStudies = 'biblestudies',
+  PastorPreachings = 'pastor-preachings'
+}
 export interface SectionConfig {
   title: string;
   name: string;

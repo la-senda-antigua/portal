@@ -5,6 +5,17 @@ export interface VideoModel {
   videoUrl: string;
   thumbnailUrl: string;
   preacher?: string;
+  preacherId?: number;
+  playlist?: string;
+}
+
+export interface VideoPlaylist {
+  id: string;
+  name: string;
+}
+
+export interface HydratedPlaylist extends VideoPlaylist {
+  videos: ReadonlyArray<VideoModel>;
 }
 
 export interface VideoStoreState {
@@ -13,6 +24,10 @@ export interface VideoStoreState {
   videosInStore: ReadonlyArray<VideoModel>;
   totalVideos: number;
   totalPages: number;
+}
+
+export interface PlaylistStoreState{
+  playlists: ReadonlyArray<VideoPlaylist>;
 }
 
 export interface VideoRecordingDto {
@@ -24,6 +39,7 @@ export interface VideoRecordingDto {
   cover: string;
   preacherId: number;
   preacher: { id: number; name: string };
+  playlist?: string;
 }
 
 export interface GetVideosResponse {

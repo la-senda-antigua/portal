@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { VideoStoreState } from '../models/video.model';
+import { PlaylistStoreState, VideoStoreState } from '../models/video.model';
 
 export const PreachingBatchLoaded = createAction(
   '[Preachings] Batch Loaded',
@@ -9,4 +9,9 @@ export const PreachingBatchLoaded = createAction(
 export const BibleStudyBatchLoaded = createAction(
   '[BibleStudies] Batch Loaded',
   props<VideoStoreState>()
+);
+
+export const VideoPlaylistsLoaded = createAction(
+  '[VideoPlaylists] Loaded',
+  props<PlaylistStoreState>()
 );

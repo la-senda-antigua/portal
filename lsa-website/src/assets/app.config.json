@@ -192,6 +192,25 @@
       "sections": [
         {
           "name": "section-1",
+          "title": "Mensajes del Pastor Bernardo",
+          "text-align": "center",
+          "video-list": {
+            "size": 10,
+            "type": "pastor-preachings",
+            "button": {
+              "text": "Cargar más"
+            },
+            "search-box": {
+              "place-holder": "Buscar mensaje por título",
+              "position": "center",
+              "width": 400,
+              "search-delay": 500,
+              "icon-position": "left"
+            }
+          }
+        },
+        {
+          "name": "section-2",
           "title": "Servicios recientes",
           "text-align": "center",
           "video-list": {
@@ -276,13 +295,14 @@
             "text": "Estudios bíblicos",
             "link": "/biblestudies"
           },
+          { "index": 3, "text": "Galería", "link": "/gallery" },
           {
-            "index": 3,
+            "index": 4,
             "text": "Pastor y su esposa",
             "link": "/pastor"
           },
           {
-            "index": 4,
+            "index": 5,
             "text": "Credo doctrinal",
             "link": "/doctrine"
           }
