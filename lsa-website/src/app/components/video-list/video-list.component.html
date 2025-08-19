@@ -23,12 +23,17 @@
   } }@else {
     @if(type() === videoTypes.PastorPreachings) {
       @for(playlist of playlists(); track $index){
-        <lsa-video-collage [title]="playlist.name" [videos]="playlist.videos" ></lsa-video-collage>
+        <lsa-video-collage [title]="`Serie: ${playlist.name}`" [videos]="playlist.videos" ></lsa-video-collage>
       }
+      @for(video of videosWithoutPlaylists() | slice: 0 : currentViewSize() - playlists().length; track $index){
+        <lsa-video-card [video]="video"></lsa-video-card>
+      } 
+    }@else {
+      @for(video of videosWithoutPlaylists() | slice: 0 : currentViewSize(); track $index){
+        <lsa-video-card [video]="video"></lsa-video-card>
+      } 
     }
-    @for(video of videosWithoutPlaylists() | slice: 0 : currentViewSize(); track $index){
-      <lsa-video-card [video]="video"></lsa-video-card>
-    } 
+    
   }
 </div>
 

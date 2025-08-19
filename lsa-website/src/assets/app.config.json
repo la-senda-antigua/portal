@@ -192,14 +192,12 @@
       "sections": [
         {
           "name": "section-1",
-          "title": "Mensajes del Pastor Bernardo",
+          "title": "Mensajes recientes del Pastor Bernardo",
           "text-align": "center",
           "video-list": {
-            "size": 10,
+            "size": 5,
             "type": "pastor-preachings",
-            "button": {
-              "text": "Cargar más"
-            },
+
             "search-box": {
               "place-holder": "Buscar mensaje por título",
               "position": "center",
@@ -211,7 +209,7 @@
         },
         {
           "name": "section-2",
-          "title": "Servicios recientes",
+          "title": "Otros servicios recientes",
           "text-align": "center",
           "video-list": {
             "size": 10,
@@ -223,8 +221,7 @@
             },
             "description-block": {
               "lines": [
-                "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
-                "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
+                "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual."
               ]
             },
             "search-box": {

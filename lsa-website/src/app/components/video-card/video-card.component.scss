@@ -26,7 +26,7 @@ mat-card {
 .hovered {
   @include mat.card-overrides(
     (
-      outlined-outline-color: "var(--mat-sys-primary)",
+      outlined-outline-color: "var(--mat-sys-tertiary)",
     )
   );
 }

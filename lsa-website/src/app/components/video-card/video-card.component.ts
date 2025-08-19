@@ -12,6 +12,7 @@ import { VideoModel } from 'src/app/models/video.model';
 export class VideoCardComponent {
   readonly video = input.required<VideoModel>();
   readonly loadedSuccessfully = signal<boolean>(false);
+  readonly outlined = input<boolean>(false);
   cardHovered = false;
   
 }

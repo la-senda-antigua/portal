@@ -1,7 +1,7 @@
 <a
   (mouseenter)="cardHovered = true"
   (mouseleave)="cardHovered = false"
-  [class.hovered]="cardHovered"
+  [class.hovered]="cardHovered || outlined()"
   [href]="video().videoUrl"
   target="_blank"
 >
