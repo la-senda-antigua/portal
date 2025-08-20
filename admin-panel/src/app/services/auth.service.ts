@@ -2,13 +2,16 @@ import { Injectable } from '@angular/core';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestManagerService } from './request-manager.service';
+import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private requestManager: RequestManagerService) { }
+  constructor(private requestManager: RequestManagerService, private router: Router) { }
 
   logout() {
-    localStorage.removeItem('token');
+    localStorage.removeItem('access-token');
+    localStorage.removeItem('refresh-token');
+    this.startGoogleLoginRedirect();
   }
 
   validateToken(): Observable<boolean> {
@@ -32,7 +35,7 @@ export class AuthService {
       .pipe(
         map((response: any) => {
           localStorage.setItem('access-token', response.accesToken);
-          localStorage.setItem('refreshToken', response.refreshToken!);
+          localStorage.setItem('refresh-token', response.refreshToken!);
           return true;
         }),
         catchError(() => of(false))
