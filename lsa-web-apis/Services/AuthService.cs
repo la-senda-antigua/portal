@@ -121,4 +121,21 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
 
         return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
     }
+
+    public async Task<bool> RevokeRefreshTokenAsync(string refreshToken)
+    {
+        var user = await context.PortalUsers
+            .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+        if (user == null)
+            return false;
+
+        user.RefreshToken = null;
+        user.RefreshTokenExpirationDate = null;
+
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+
 }

@@ -9,4 +9,6 @@ public interface IAuthService
     Task<User?> RegisterAsync(string username, string role);
     Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequetDto request);
     Task<TokenResponseDto?> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal);
+    public Task<bool> RevokeRefreshTokenAsync(string refreshToken);
+
 }

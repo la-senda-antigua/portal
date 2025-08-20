@@ -63,10 +63,22 @@ public class AuthController(IAuthService authService) : ControllerBase
         var callbackUrl = googleAuthenticationResult.Properties?.Items["callbackUrl"];
         if (string.IsNullOrEmpty(callbackUrl))
             return BadRequest("Missing callback URL.");
-        
-        string finalUrl = $"{callbackUrl}?access-token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}";        
+
+        string finalUrl = $"{callbackUrl}?access-token={tokenResponse.AccesToken}&refreshToken={tokenResponse.RefreshToken}";
         return Redirect(finalUrl);
     }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequetDto request)
+    {
+        var result = await authService.RevokeRefreshTokenAsync(request.RefreshToken);
+        if (!result)
+            return BadRequest("Invalid refresh token.");
+
+        return Ok();
+    }
+
 
     [Authorize]
     [HttpGet("validate-token")]
