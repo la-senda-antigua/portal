@@ -17,4 +17,9 @@ export class VideoCollageComponent {
       thumbnailUrl: this.videos()[0].thumbnailUrl,
     } as any;
   });
+  readonly collapsedVideos = computed(() =>
+    this.videos().map(
+      (v) => ({ thumbnailUrl: v.thumbnailUrl, title: this.title() } as any)
+    )
+  );
 }
