@@ -18,7 +18,7 @@ export class AuthCallbackComponent implements OnInit {
     const refreshToken = params.get('refreshToken');
     if (accessToken) {
       localStorage.setItem('access-token', accessToken);
-      localStorage.setItem('refreshToken', refreshToken!);
+      localStorage.setItem('refresh-token', refreshToken!);
       this.router.navigate(['/']);
     } else {
       this.authService.startGoogleLoginRedirect()
