@@ -103,7 +103,7 @@ export interface VideoListConfig {
 export enum VideoListType {
   Preachings = 'preachings',
   BibleStudies = 'biblestudies',
-  PastorPreachings = 'pastor-preachings'
+  GalleryVideos = 'galleryvideos',
 }
 export interface SectionConfig {
   title: string;

@@ -8,31 +8,30 @@
 ></lsa-searchbox>
 }
 
-<div class="video-list-container">
-  @if(filteredVideos().length === 0 ){ @if(allVideosLoaded()) {
-  <p class="no-videos-found">
-    {{ config().notFound || "No videos found." }}
-  </p>
-  } @else {
-  <p class="no-videos-found">
-    {{
-      config().notFoundInRecents ||
-        "Recent videos don't match the search criteria"
-    }}
-  </p>
-  } }@else { @for(video of filteredVideos() | slice: 0 : currentViewSize();
-  track $index){
-  <lsa-video-card [video]="video"></lsa-video-card>
-  } }
-</div>
+<div class="carrousel-container" #carrouselContainer>
+  <button class="left-button" mat-fab aria-label="Previous" (click)="scrollLeft()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
 
-@if (config().button?.text) {
-<button
-  mat-flat-button
-  class="button"
-  (click)="loadMore()"
-  [disabled]="disableLoadMore()"
->
-  {{ config().button?.text }}
-</button>
-}
+  <div class="video-list-container" #videoListContainer [style.left.px]="videoListContainerLeftPosition()">
+    @if(filteredVideos().length === 0 ){ @if(allVideosLoaded()) {
+    <p class="no-videos-found">
+      {{ config().notFound || "No videos found." }}
+    </p>
+    } @else {
+    <p class="no-videos-found">
+      {{
+        config().notFoundInRecents ||
+          "Recent videos don't match the search criteria"
+      }}
+    </p>
+    } }@else { @for(video of filteredVideos();
+    track $index){
+    <lsa-video-card [video]="video"></lsa-video-card>
+    } }
+  </div>
+
+  <button class="right-button" mat-fab aria-label="Next" (click)="scrollRight()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+</div>
