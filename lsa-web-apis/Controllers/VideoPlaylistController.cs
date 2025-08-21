@@ -18,7 +18,7 @@ namespace lsa_web_apis.Controllers
         {
             _context = context;
         }
-        
+
         [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<VideoPlaylist>>> GetAll()
         {
@@ -35,6 +35,55 @@ namespace lsa_web_apis.Controllers
             .ToPagedResultAsync(page, pageSize);
 
             return Ok(pagedResult);
+        }
+
+        [HttpGet("SermonPlaylists")]
+        public async Task<ActionResult<IEnumerable<HydratedVideoPlaylist>>> GetSermonPlaylists()
+        {
+            var playlists = await _context.Playlists.ToListAsync();
+            var sermons = await _context.Sermons.Where(s => s.Playlist != null && s.Playlist != Guid.Empty).ToListAsync();
+            var hydratedPlaylists = playlists.Where(pl => sermons.Any(s => s.Playlist == pl.Id)).Select(p => new HydratedVideoPlaylist
+            {
+                Id = p.Id,
+                Name = p.Name,
+                VideoIds = [.. sermons.Where(s => s.Playlist == p.Id).Select(s => s.Id)]
+            }).ToList();
+            return Ok(hydratedPlaylists);
+        }
+
+        [HttpGet("LessonPlaylists")]
+        public async Task<ActionResult<IEnumerable<HydratedVideoPlaylist>>> GetLessonPlaylists()
+        {
+            var playlists = await _context.Playlists.ToListAsync();
+            var lessons = await _context.Lessons
+            .Where(l => l.Playlist != null && l.Playlist != Guid.Empty)
+            .ToListAsync();
+
+            var hydratedPlaylists = playlists
+            .Where(p => lessons.Any(l => l.Playlist == p.Id))
+            .Select(p => new HydratedVideoPlaylist
+            {
+                Id = p.Id,
+                Name = p.Name,
+                VideoIds = lessons.Where(l => l.Playlist == p.Id).Select(l => l.Id).ToList()
+            })
+            .ToList();
+
+            return Ok(hydratedPlaylists);
+        }
+
+        [HttpGet("GalleryPlaylists")]
+        public async Task<ActionResult<IEnumerable<HydratedVideoPlaylist>>> GetGalleryPlaylists()
+        {
+            var playlists = await _context.Playlists.ToListAsync();
+            var galleries = await _context.GalleryVideos.Where(g => g.Playlist != null && g.Playlist != Guid.Empty).ToListAsync();
+            var hydratedPlaylists = playlists.Where(pl => galleries.Any(gl => gl.Playlist == pl.Id)).Select(p => new HydratedVideoPlaylist
+            {
+                Id = p.Id,
+                Name = p.Name,
+                VideoIds = [.. galleries.Where(g => g.Playlist == p.Id).Select(g => g.Id)]
+            }).ToList();
+            return Ok(hydratedPlaylists);
         }
 
         [Authorize(Roles = "Admin")]
