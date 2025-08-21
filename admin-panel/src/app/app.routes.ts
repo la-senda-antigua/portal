@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './pages/login/login.component';
 import { AuthGuard } from './auth.guard';
 import { StreamComponent } from './components/stream/stream.component';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
@@ -11,10 +10,6 @@ import { BibleCoursesComponent } from './pages/bible-courses/bible-courses.compo
 import { GalleryVideosComponent } from './pages/gallery-videos/gallery-videos.component';
 
 export const routes: Routes = [
-  {
-    path: 'login',
-    component: LoginComponent,
-  },
   {
     path: 'auth/callback',
     component: AuthCallbackComponent,
