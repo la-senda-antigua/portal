@@ -1,5 +1,3 @@
-import { VideoModel } from "./video.model";
-
 export interface ButtonConfig {
   alignment: 'left' | 'center' | 'right';
   text: string;
@@ -90,14 +88,14 @@ export interface SearchBoxConfig {
   iconPosition?: 'left' | 'right';
 }
 
-export interface VideoListConfig {
-  size: number;
-  button?: ButtonConfig;
+export interface VideoListSectionConfig{
+  initialLoad?: number;
   searchBox?: SearchBoxConfig;
   descriptionBlock?: DescriptionBlockConfig;
-  type: VideoListType;
-  notFoundInRecents?: string;
   notFound?: string;
+}
+
+export interface RecentServicesConfig extends VideoListSectionConfig {
 }
 
 export enum VideoListType {
@@ -119,7 +117,7 @@ export interface SectionConfig {
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
   quickLinks?: QuickLinksConfig;
-  videoList?: VideoListConfig;
+  recentServices?: RecentServicesConfig;
   calendarListView?: CalendarListViewConfig;
   footer?: FooterConfig;
 }

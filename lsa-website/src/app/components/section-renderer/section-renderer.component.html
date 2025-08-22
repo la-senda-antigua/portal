@@ -33,8 +33,8 @@
   @if(sectionConfig().searchBox?.placeHolder){
     <lsa-searchbox [config]="sectionConfig().searchBox!"></lsa-searchbox>
   }
-  @if(sectionConfig().videoList?.size){
-    <lsa-video-list [config]="sectionConfig().videoList!"></lsa-video-list>
+  @if(sectionConfig().recentServices?.isNullOrEmpty() === false) {
+    <lsa-preachings [config]="sectionConfig().recentServices!"></lsa-preachings>
   }
   @if(sectionConfig().calendarListView?.title){
     <lsa-calendar-list-view [config]="sectionConfig().calendarListView!"></lsa-calendar-list-view>

@@ -1,0 +1,14 @@
+@if(config().descriptionBlock?.isNullOrEmpty() === false) {
+    <lsa-description-block [descriptionBlockConfig]="config().descriptionBlock!"></lsa-description-block>
+}
+@if (config().searchBox?.isNullOrEmpty() === false) {
+    <lsa-searchbox
+        [config]="config().searchBox!"
+        (searchQueryChange)="this.searchQuery.set($event)">
+    </lsa-searchbox>
+}
+@if (filteredVideos().length === 0) {
+    {{ config().notFound }}
+} @else {
+    <lsa-video-carrousel [videos]="filteredVideos()" [moreVideosLoadedObservable]="loadingVideos$" (moreVideosRequested)="loadVideos()"></lsa-video-carrousel>
+}

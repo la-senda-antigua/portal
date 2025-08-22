@@ -1,22 +1,22 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, Injectable } from '@angular/core';
-import { signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import {
   AppConfig,
-  PageConfig,
-  SectionConfig,
-  FloatingDescriptionConfig,
   DescriptionBlockConfig,
-  MapWidgetConfig,
-  ImageCardConfig,
-  NavigationConfig,
-  VerseConfig,
+  FloatingDescriptionConfig,
   FooterConfig,
-  QuickLinksConfig,
+  ImageCardConfig,
   LiveBroadcastConfig,
+  MapWidgetConfig,
+  NavigationConfig,
+  PageConfig,
+  QuickLinksConfig,
+  RecentServicesConfig,
   SearchBoxConfig,
   VideoListConfig,
   CalendarListViewConfig,
+  SectionConfig,
+  VerseConfig
 } from '../models/app.config.models';
 
 @Injectable({
@@ -99,7 +99,7 @@ export class AppConfigService {
         section['description-block']
       ),
       searchBox: this.parseSearchBox(section['search-box']),
-      videoList: this.parseVideoListConfig(section['video-list']),
+      recentServices: this.parseRecentServicesConfig(section['recent-services']),
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
@@ -109,17 +109,14 @@ export class AppConfigService {
     };
   }
 
-  private parseVideoListConfig(videoList: any): VideoListConfig{
+  private parseRecentServicesConfig(videoList: any): RecentServicesConfig {
     if(videoList == undefined){
-      return {} as VideoListConfig;
+      return {} as RecentServicesConfig ;
     }
     return {
-      size: videoList["size"] ?? 6,
-      type: videoList["type"] ?? 'preachings',
-      button: videoList.button,
+      initialLoad: videoList["initial-load"] ?? 100,
       searchBox: this.parseSearchBox(videoList["search-box"]),
       descriptionBlock: this.parseDescriptionBlock(videoList["description-block"]),
-      notFoundInRecents: videoList["not-found-in-recents"],
       notFound: videoList["not-found"],
     }
   }

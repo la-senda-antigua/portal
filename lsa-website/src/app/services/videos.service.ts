@@ -66,16 +66,16 @@ export class VideosService {
 
   private videoBatchLoaded$ = new Subject();
 
-  loadVideoBatch(type: VideoListType) {
+  loadVideoBatch(type: VideoListType, batchSize = 100) {
     switch (type) {
       case VideoListType.BibleStudies:
-        this.loadBibleStudiesBatch();
+        this.loadBibleStudiesBatch(batchSize);
         return this.videoBatchLoaded$.asObservable();
       case VideoListType.Preachings:
-        this.loadPreachingBatch();
+        this.loadPreachingBatch(batchSize);
         return this.videoBatchLoaded$.asObservable();
       case VideoListType.GalleryVideos:
-        this.loadGalleryVideosBatch();
+        this.loadGalleryVideosBatch(batchSize);
         return this.videoBatchLoaded$.asObservable();
     }
   }
@@ -116,12 +116,6 @@ export class VideosService {
     pageSize = 100,
     page: number | undefined = undefined
   ): void {
-    this.httpClient
-      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/SermonPlaylists`)
-      .subscribe((playlists) =>
-        this.store.dispatch(PreachingPlaylistLoaded({ playlists }))
-      );
-
     if (page === undefined) {
       page = this.preachingsCurrentPage() + 1;
     }
@@ -169,16 +163,18 @@ export class VideosService {
     return forkJoin([pagedItems]).pipe(map(() => void 0));
   }
 
+  loadPreachingPlaylists() {
+    this.httpClient
+      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/SermonPlaylists`)
+      .subscribe((playlists) =>
+        this.store.dispatch(PreachingPlaylistLoaded({ playlists }))
+      );
+  }
+
   private loadBibleStudiesBatch(
     pageSize = 100,
     page: number | undefined = undefined
   ): void {
-    this.httpClient
-      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/LessonPlaylists`)
-      .subscribe((playlists) =>
-        this.store.dispatch(BibleStudyPlaylistLoaded({ playlists }))
-      );
-
     if (page === undefined) {
       page = this.bibleStudiesCurrentPage() + 1;
     }
@@ -213,16 +209,18 @@ export class VideosService {
       });
   }
 
+  loadBibleStudyPlaylists() {
+    this.httpClient
+      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/LessonPlaylists`)
+      .subscribe((playlists) =>
+        this.store.dispatch(BibleStudyPlaylistLoaded({ playlists }))
+      );
+  }
+
   private loadGalleryVideosBatch(
     pageSize = 100,
     page: number | undefined = undefined
   ): void {
-    this.httpClient
-      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/GalleryPlaylists`)
-      .subscribe((playlists) =>
-        this.store.dispatch(GalleryPlaylistLoaded({ playlists }))
-      );
-
     if (page === undefined) {
       page = this.galleryVideosCurrentPage() + 1;
     }
@@ -255,5 +253,13 @@ export class VideosService {
         this.store.dispatch(GalleryVideoBatchLoaded(state));
         this.videoBatchLoaded$.next(null);
       });
+  }
+
+  loadGalleryVideosPlaylists() {
+    this.httpClient
+      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/GalleryPlaylists`)
+      .subscribe((playlists) =>
+        this.store.dispatch(GalleryPlaylistLoaded({ playlists }))
+      );
   }
 }

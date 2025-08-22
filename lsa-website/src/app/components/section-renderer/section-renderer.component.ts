@@ -6,12 +6,13 @@ import {
 } from '@angular/core';
 import { SectionConfig } from '../../models/app.config.models';
 import { DescriptionBlockComponent } from '../description-block/description-block.component';
-import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
-import { MapWidgetComponent } from '../map-widget/map-widget.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ImageCardComponent } from '../image-card/image-card.component';
+import { MapWidgetComponent } from '../map-widget/map-widget.component';
+import { PreachingsComponent } from '../preachings/preachings.component';
 import { QuickLinksComponent } from '../quick-links/quick-links.component';
 import { SearchboxComponent } from '../searchbox/searchbox.component';
+import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
 import { VideoListComponent } from '../video-list/video-list.component';
 import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
 
@@ -27,6 +28,7 @@ import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-v
     SearchboxComponent,
     VideoListComponent,
     CalendarListViewComponent,
+    PreachingsComponent
   ],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',

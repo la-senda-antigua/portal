@@ -192,22 +192,26 @@
       "sections": [
         {
           "name": "section-1",
-          "title": "Servicios recientes",
-          "text-align": "center",
-          "video-list": {
+          "title": "Series de mensajes del pastor Bernardo",
+          "text-align": "left",
+          "video-playlists": {
             "size": 10,
             "type": "preachings",
-            "not-found-in-recents": "No se encontraron videos recientes con el término entrado. Presione \"Cargar más\" para buscar en años anteriores",
             "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
-            "button": {
-              "text": "Cargar más"
-            },
             "description-block": {
               "lines": [
-                "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
                 "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
               ]
-            },
+            }
+          }
+        },
+        {
+          "name": "section-2",
+          "title": "Servicios recientes",
+          "text-align": "left",
+          "recent-services": {
+            "initial-load": 10,
+            "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
             "search-box": {
               "place-holder": "Buscar por título o predicador",
               "position": "center",
