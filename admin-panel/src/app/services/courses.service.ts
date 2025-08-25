@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { VideosServiceBase } from './videos.service.base';
+import { GeneralServiceBase } from './general.service.base';
 import { Observable } from 'rxjs';
 import { TableResult } from '../models/TableResult';
 import { Sermon, SermonDto } from '../models/Sermon';
@@ -7,7 +7,7 @@ import { Sermon, SermonDto } from '../models/Sermon';
 @Injectable({
   providedIn: 'root',
 })
-export class CoursesService extends VideosServiceBase {
+export class CoursesService extends GeneralServiceBase {
   override apiUrl = '/lessons';
   
   override getPage(

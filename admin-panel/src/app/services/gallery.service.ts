@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { VideosServiceBase } from './videos.service.base';
+import { GeneralServiceBase } from './general.service.base';
 import { Observable } from 'rxjs';
 import { TableResult } from '../models/TableResult';
 import { GalleryVideo } from '../models/GalleryVideo';
@@ -7,7 +7,7 @@ import { GalleryVideo } from '../models/GalleryVideo';
 @Injectable({
   providedIn: 'root',
 })
-export class GalleryService extends VideosServiceBase {
+export class GalleryService extends GeneralServiceBase {
   override apiUrl = '/gallery';
   
   override getPage(

@@ -4,7 +4,7 @@ import { RequestManagerService } from './request-manager.service';
 @Injectable({
   providedIn: 'root',
 })
-export class VideosServiceBase {
+export class GeneralServiceBase {
   apiUrl = '';
   constructor(public requestManager: RequestManagerService) {}
   getPage(a: number, b: number): Observable<any> {

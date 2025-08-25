@@ -8,6 +8,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { ChurchServicesComponent } from './pages/church-services/church-services.component';
 import { BibleCoursesComponent } from './pages/bible-courses/bible-courses.component';
 import { GalleryVideosComponent } from './pages/gallery-videos/gallery-videos.component';
+import { CalendarComponent } from './pages/calendar/calendar.component';
 
 export const routes: Routes = [
   {
@@ -47,6 +48,11 @@ export const routes: Routes = [
   {
     path: 'playlists',
     component: PlaylistsViewComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'calendar',
+    component: CalendarComponent,
     canActivate: [AuthGuard],
   },
 ];
