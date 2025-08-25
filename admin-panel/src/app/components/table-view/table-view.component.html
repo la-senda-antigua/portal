@@ -23,6 +23,11 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
       <td mat-cell *matCellDef="let entry">
+        @if(showDisableButton()){
+          <button mat-icon-button (click)="openDisableConfirmation(entry)" title="Cancel">
+            <mat-icon>block</mat-icon>
+          </button>
+        }
         <button mat-icon-button (click)="openEditForm(entry)">
           <mat-icon>edit</mat-icon>
         </button>

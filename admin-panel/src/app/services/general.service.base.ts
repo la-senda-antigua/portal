@@ -19,6 +19,9 @@ export class GeneralServiceBase {
   delete(arg: any): Observable<any> {
     return of(null);
   }
+  disable(arg: any, arg2: any): Observable<any> {
+    return of(null);
+  }
   add(arg: any): Observable<any> {
     return of(null);
   }

@@ -31,4 +31,12 @@ export class CalendarService extends GeneralServiceBase {
     const url = `${this.apiUrl}/${id}`;
     return this.requestManager.delete<void>(url);
   }
+
+  override disable(id: number, isActive: boolean = true): Observable<void> {
+    const url = isActive 
+      ?`${this.apiUrl}/cancelEvent/${id}`
+      :`${this.apiUrl}/reactivateEvent/${id}`;
+            
+    return this.requestManager.post<void>(url, {});
+  }
 }

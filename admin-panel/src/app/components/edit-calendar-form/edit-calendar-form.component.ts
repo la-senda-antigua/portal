@@ -71,14 +71,14 @@ export class EditCalendarFormComponent {
     startTime: new FormControl(
       this.datePipe.transform(
         this.formData.data.startTime ?? new Date(),
-        'yyyy-MM-dd HH:mm'
+        'yyyy-MM-dd hh:mm a'
       ),
       Validators.required
     ),
     endTime: new FormControl(
       this.datePipe.transform(
         this.formData.data.endTime ?? this.addHours(new Date(), 3),
-        'yyyy-MM-dd HH:mm'
+        'yyyy-MM-dd hh:mm a'
       ),
     ),
     description: new FormControl(this.formData.data.description ?? null),
@@ -90,14 +90,14 @@ export class EditCalendarFormComponent {
       startTime: new FormControl(
         this.datePipe.transform(
           this.formData.data.startTime ?? new Date(),
-          'yyyy-MM-dd HH:mm'
+          'yyyy-MM-dd hh:mm a'
         ),
         Validators.required
       ),
       endTime: new FormControl(
         this.datePipe.transform(
           this.formData.data.endTime ?? this.addHours(new Date(), 3),
-          'yyyy-MM-dd HH:mm'
+          'yyyy-MM-dd hh:mm a'
         ),
       ),
       description: new FormControl(this.formData.data.description ?? null),
@@ -109,7 +109,7 @@ export class EditCalendarFormComponent {
         if (!isNaN(startDate.getTime())) {
           const newEndDate = this.addHours(startDate, 3);
           this.calendarForm.controls.endTime.setValue(
-            this.datePipe.transform(newEndDate, 'yyyy-MM-dd HH:mm'),
+            this.datePipe.transform(newEndDate, 'yyyy-MM-dd hh:mm a'),
             { emitEvent: false }
           );
         }

@@ -6,6 +6,7 @@ import { PageBaseComponent } from '../page-base/page-base.component';
 import { CalendarService } from '../../services/calendar.service';
 import { CalendarEvent } from '../../models/CalendarEvent';
 import { EditCalendarFormComponent, CalendarFormData } from '../../components/edit-calendar-form/edit-calendar-form.component';
+import { DisableConfirmationData } from '../../components/disable-confirmation/disable-confirmation.component';
 
 @Component({
   selector: 'app-calendar',
@@ -21,6 +22,7 @@ export class CalendarComponent extends PageBaseComponent {
   override tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
     { displayName: 'Title', datasourceName: 'title' },
+    { displayName: 'Description', datasourceName: 'description' },
     { displayName: 'StartTime', datasourceName: 'startTime' },
     { displayName: 'EndTime', datasourceName: 'endTime' },
     { displayName: 'Status', datasourceName: 'status' },
@@ -31,6 +33,13 @@ export class CalendarComponent extends PageBaseComponent {
     matchingString: 'id',
     name: 'title',
   };
+  
+  override disableFields: DisableConfirmationData = {
+    id: 'id',    
+    name: 'title',
+    actionName: 'disable'
+  };
+  
   override tableTitle = 'Calendar Events';
 
   constructor(service: CalendarService) {
@@ -44,8 +53,8 @@ export class CalendarComponent extends PageBaseComponent {
         const item = response.items.map((s: CalendarEvent) => ({
           id: s.id,
           title: s.title,
-          startTime: this.datePipe.transform(s.startTime, 'yyyy-MM-dd HH:mm'),
-          endTime: this.datePipe.transform(s.endTime, 'yyyy-MM-dd'),
+          startTime: this.datePipe.transform(s.startTime, 'yyyy-MM-dd hh:mm a'),
+          endTime: this.datePipe.transform(s.endTime, 'yyyy-MM-dd hh:mm a'),
           description: s.description,
           status: s.status     
         }));
@@ -78,4 +87,7 @@ export class CalendarComponent extends PageBaseComponent {
     return item;
   }
 
+  // override onToggleDisable(data: any){
+  //   console.log("cancelado!!!", data )
+  // }
 }

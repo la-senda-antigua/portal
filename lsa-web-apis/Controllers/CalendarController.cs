@@ -38,7 +38,7 @@ namespace lsa_web_apis.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetPage(DateTime? dateTime, bool includeCancelled = true, int page = 1, int pageSize = 10)
         {
-            var query = includeCancelled
+            var query = !includeCancelled
                 ? _context.CalendarEvents.Where(s => !s.IsCancelled)
                 : _context.CalendarEvents;
 
