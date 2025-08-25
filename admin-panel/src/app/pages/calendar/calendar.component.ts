@@ -21,7 +21,7 @@ export class CalendarComponent extends PageBaseComponent {
   override tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
     { displayName: 'Title', datasourceName: 'title' },
-    { displayName: 'StartTime', datasourceName: 'statTime' },
+    { displayName: 'StartTime', datasourceName: 'startTime' },
     { displayName: 'EndTime', datasourceName: 'endTime' },
     { displayName: 'Status', datasourceName: 'status' },
   ];
@@ -44,9 +44,10 @@ export class CalendarComponent extends PageBaseComponent {
         const item = response.items.map((s: CalendarEvent) => ({
           id: s.id,
           title: s.title,
-          startTime: this.datePipe.transform(s.startTime, 'yyyy-MM-dd'),
+          startTime: this.datePipe.transform(s.startTime, 'yyyy-MM-dd HH:mm'),
           endTime: this.datePipe.transform(s.endTime, 'yyyy-MM-dd'),
-          description: s.description,          
+          description: s.description,
+          status: s.status     
         }));
         this.dataSource.set({
           page: response.page,

@@ -31,7 +31,7 @@ export interface CalendarFormData extends TableViewFormData {
     title: string;
     startTime: Date;
     endTime?: Date | null;
-    description?: string | null;    
+    description?: string | null;
   };
 }
 
@@ -57,7 +57,7 @@ export class EditCalendarFormComponent {
   readonly formBuilder = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<EditCalendarFormComponent>);
   readonly formData = inject<CalendarFormData>(MAT_DIALOG_DATA);
-  readonly preachersService = inject(PreachersService);  
+  readonly preachersService = inject(PreachersService);
   readonly datePipe = inject(DatePipe);
   readonly dialog = inject(MatDialog);
 
@@ -65,24 +65,62 @@ export class EditCalendarFormComponent {
     title: FormControl<string | null>;
     startTime: FormControl<string | null>;
     endTime: FormControl<string | null>;
-    description: FormControl<string | null>;    
+    description: FormControl<string | null>;
   }> = new FormGroup({
     title: new FormControl(this.formData.data.title, Validators.required),
     startTime: new FormControl(
       this.datePipe.transform(
         this.formData.data.startTime ?? new Date(),
-        'yyyy-MM-dd hh:mm'
+        'yyyy-MM-dd HH:mm'
       ),
       Validators.required
     ),
     endTime: new FormControl(
       this.datePipe.transform(
-        this.formData.data.startTime ?? new Date(),
-        'yyyy-MM-dd hh:mm'
+        this.formData.data.endTime ?? this.addHours(new Date(), 3),
+        'yyyy-MM-dd HH:mm'
       ),
     ),
     description: new FormControl(this.formData.data.description ?? null),
   });
+
+  constructor() {
+    this.calendarForm = new FormGroup({
+      title: new FormControl(this.formData.data.title, Validators.required),
+      startTime: new FormControl(
+        this.datePipe.transform(
+          this.formData.data.startTime ?? new Date(),
+          'yyyy-MM-dd HH:mm'
+        ),
+        Validators.required
+      ),
+      endTime: new FormControl(
+        this.datePipe.transform(
+          this.formData.data.endTime ?? this.addHours(new Date(), 3),
+          'yyyy-MM-dd HH:mm'
+        ),
+      ),
+      description: new FormControl(this.formData.data.description ?? null),
+    });
+
+    this.calendarForm.controls.startTime.valueChanges.subscribe((start) => {
+      if (start) {
+        const startDate = new Date(start);
+        if (!isNaN(startDate.getTime())) {
+          const newEndDate = this.addHours(startDate, 3);
+          this.calendarForm.controls.endTime.setValue(
+            this.datePipe.transform(newEndDate, 'yyyy-MM-dd HH:mm'),
+            { emitEvent: false }
+          );
+        }
+      }
+    });
+  }
+
+
+  addHours(date: Date, hoursToAdd: number) {
+    return new Date(date.getTime() + (hoursToAdd * 60 * 60 * 1000));
+  }
 
   save() {
     this.dialogRef.close(this.toCalendarFormData());

@@ -5,5 +5,5 @@ export interface CalendarEvent {
     endTime?: Date;
     description?: string;
     isCancelled: boolean;
-    calendarEventStatus: string;
+    status: string;
 } 
