@@ -11,8 +11,8 @@ import { DisableConfirmationData } from '../../components/disable-confirmation/d
 @Component({
   selector: 'app-calendar',
   imports: [TableViewComponent],
-  templateUrl: './calendar.component.html',
-  styleUrl: './calendar.component.scss',
+  templateUrl: './calendar-list-view.component.html',
+  styleUrl: './calendar-list-view.component.scss',
   providers: [DatePipe],
 })
 export class CalendarComponent extends PageBaseComponent {
@@ -86,8 +86,4 @@ export class CalendarComponent extends PageBaseComponent {
 
     return item;
   }
-
-  // override onToggleDisable(data: any){
-  //   console.log("cancelado!!!", data )
-  // }
 }
