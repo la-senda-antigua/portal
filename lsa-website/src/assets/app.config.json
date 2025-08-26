@@ -208,9 +208,9 @@
         {
           "name": "section-2",
           "title": "Servicios recientes",
-          "text-align": "left",
+          "text-align": "center",
           "recent-services": {
-            "initial-load": 10,
+            "initial-load": 100,
             "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
             "search-box": {
               "place-holder": "Buscar por título o predicador",

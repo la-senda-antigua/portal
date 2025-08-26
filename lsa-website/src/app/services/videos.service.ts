@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { forkJoin, map, Observable, Subject, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, skip, Subject, switchMap, take } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { VideoListType } from '../models/app.config.models';
 import {
@@ -136,15 +136,20 @@ export class VideosService {
                   videoUrl: i.videoPath,
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
+                  id: i.id,
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,
             totalPages: response.totalPages,
           };
+        }),
+        switchMap((state: VideoStoreState) => {
+          const preachingsObservable = this.store.select(selectPreachingsInStore).pipe(skip(1), take(1));
+          this.store.dispatch(PreachingBatchLoaded(state));
+          return preachingsObservable;
         })
       )
-      .subscribe((state: VideoStoreState) => {
-        this.store.dispatch(PreachingBatchLoaded(state));
+      .subscribe(() => {
         this.videoBatchLoaded$.next(null);
       });
   }

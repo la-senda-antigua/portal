@@ -1,4 +1,12 @@
-import { Component, computed, inject, input, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   RecentServicesConfig,
@@ -11,17 +19,17 @@ import { VideoCarrouselComponent } from '../video-list/video-carrrousel.componen
 import { Subject } from 'rxjs';
 
 @Component({
-  selector: 'lsa-preachings',
+  selector: 'lsa-recent-services',
   imports: [
     DescriptionBlockComponent,
     SearchboxComponent,
     VideoCarrouselComponent,
     MatProgressSpinnerModule,
   ],
-  templateUrl: './preachings.component.html',
-  styleUrl: './preachings.component.scss',
+  templateUrl: './recent-services.component.html',
+  styleUrl: './recent-services.component.scss',
 })
-export class PreachingsComponent implements OnInit {
+export class RecentServices implements OnInit {
   readonly config = input.required<RecentServicesConfig>();
 
   readonly searchQuery = signal('');
@@ -38,23 +46,41 @@ export class PreachingsComponent implements OnInit {
     if (query === '') {
       return this.unfilteredVideos();
     }
-    return this.unfilteredVideos().filter((video) => {
-      this.getNoAccentString(video.title).includes(query) ||
-        this.getNoAccentString(video.preacher).includes(query);
-    });
+    return this.unfilteredVideos().filter(
+      (video) =>
+        this.getNoAccentString(video.title).includes(query) ||
+        this.getNoAccentString(video.preacher).includes(query)
+    );
   });
   readonly haveAllVideosBeenLoaded = computed(() => {
-    return this.unfilteredVideos().length > this.videoService.getTotalVideos(VideoListType.Preachings);
+    return (
+      this.unfilteredVideos().length != 0 &&
+      this.unfilteredVideos().length >=
+        this.videoService.getTotalVideos(VideoListType.Preachings)
+    );
   });
+  readonly haveAllVideosBeenRequested = signal(false);
 
   readonly videoService = inject(VideosService);
+
+  constructor() {
+    effect(() => {
+      if (this.haveAllVideosBeenLoaded() || this.haveAllVideosBeenRequested()) {
+        return;
+      }
+      if (this.searchQuery().trim() !== '') {
+        this.haveAllVideosBeenRequested.set(true);
+        this.videoService.loadAllSermons();
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadVideos();
   }
 
   loadVideos() {
-    if(this.haveAllVideosBeenLoaded()){
+    if (this.haveAllVideosBeenLoaded()) {
       return;
     }
     this.videoService

@@ -13,9 +13,17 @@
     #videoListContainer
     [style.left.px]="videoListContainerLeftPosition()"
   >
-    @for(video of videos(); track $index){
-      <lsa-video-card [video]="video"></lsa-video-card>
+    @if (videoCards().length > 0) {
+      @for(video of videoCards(); track $index){
+        <lsa-video-card [video]="video"></lsa-video-card>
+      }
+    }@else if(playlistCards().length > 0) {
+      @for(playlist of playlistCards(); track $index){
+        <lsa-video-collage [videos]="playlist.videos" [title]="playlist.name"></lsa-video-collage>
+      }
     }
+
+    
   </div>
 
   <button

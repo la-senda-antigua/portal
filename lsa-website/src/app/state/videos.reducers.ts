@@ -15,7 +15,7 @@ export const preachingsReducer = createReducer(
   on(PreachingBatchLoaded, (oldState, newState) => ({
     currentPage: newState.currentPage,
     pageSize: newState.pageSize,
-    videosInStore: [...oldState.videosInStore, ...newState.videosInStore],
+    videosInStore: [...oldState.videosInStore, ...newState.videosInStore.filter(v => !oldState.videosInStore.some(ov => ov.id === v.id))],
     totalVideos: newState.totalVideos,
     totalPages: newState.totalPages,
   }))
@@ -34,7 +34,7 @@ export const bibleStudiesReducer = createReducer(
   on(BibleStudyBatchLoaded, (oldState, newState) => ({
     currentPage: newState.currentPage,
     pageSize: newState.pageSize,
-    videosInStore: [...oldState.videosInStore, ...newState.videosInStore],
+    videosInStore: [...oldState.videosInStore, ...newState.videosInStore.filter(v => !oldState.videosInStore.some(ov => ov.id === v.id))],
     totalVideos: newState.totalVideos,
     totalPages: newState.totalPages,
   }))
@@ -53,7 +53,7 @@ export const galleryVideosReducer = createReducer(
   on(BibleStudyBatchLoaded, (oldState, newState) => ({
     currentPage: newState.currentPage,
     pageSize: newState.pageSize,
-    videosInStore: [...oldState.videosInStore, ...newState.videosInStore],
+    videosInStore: [...oldState.videosInStore, ...newState.videosInStore.filter(v => !oldState.videosInStore.some(ov => ov.id === v.id))],
     totalVideos: newState.totalVideos,
     totalPages: newState.totalPages,
   }))

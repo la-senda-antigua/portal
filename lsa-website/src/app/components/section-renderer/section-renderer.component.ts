@@ -9,7 +9,7 @@ import { DescriptionBlockComponent } from '../description-block/description-bloc
 import { FooterComponent } from '../footer/footer.component';
 import { ImageCardComponent } from '../image-card/image-card.component';
 import { MapWidgetComponent } from '../map-widget/map-widget.component';
-import { PreachingsComponent } from '../preachings/preachings.component';
+import { RecentServices } from '../recent-services/recent-services.component';
 import { QuickLinksComponent } from '../quick-links/quick-links.component';
 import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
@@ -26,9 +26,8 @@ import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-v
     ImageCardComponent,
     QuickLinksComponent,
     SearchboxComponent,
-    VideoListComponent,
     CalendarListViewComponent,
-    PreachingsComponent
+    RecentServices
   ],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',
