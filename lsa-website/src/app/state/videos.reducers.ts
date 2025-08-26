@@ -66,7 +66,7 @@ const preachingPlaylistInitialState: VideoPlaylistState = {
 export const preachingPlaylistReducer = createReducer(
   preachingPlaylistInitialState,
   on(PreachingPlaylistLoaded, (state, {playlists}) => ({
-    playlists: [...state.playlists, ...playlists]
+    playlists: [...playlists]
   }))
 );
 

@@ -25,6 +25,7 @@ import {
   selectGalleryVideosCurrentPage,
   selectGalleryVideosInStore,
   selectGalleryVideosState,
+  selectHydratedPreachingPlaylists,
   selectPreachingsCurrentPage,
   selectPreachingsInStore,
   selectPreachingsState,
@@ -43,6 +44,7 @@ export class VideosService {
     selectPreachingsCurrentPage
   );
   public preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
+  public preachingPlaylists = this.store.selectSignal(selectHydratedPreachingPlaylists);
 
   private bibleStudiesStoreState = this.store.selectSignal(
     selectBibleStudiesState
@@ -137,6 +139,7 @@ export class VideosService {
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
                   id: i.id,
+                  playlist: i.playlist
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,

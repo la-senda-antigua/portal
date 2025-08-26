@@ -63,6 +63,13 @@
                   "with": "src/environments/environment.testing.ts"
                 }
               ]
+            },
+            "development":{
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "outputHashing": "none"
             }
           },
           "defaultConfiguration": "production"
@@ -75,9 +82,12 @@
             },
             "testing": {
               "buildTarget": "lsa-website:build:testing"
+            },
+            "development":{
+              "buildTarget": "lsa-website:build:development"
             }
           },
-          "defaultConfiguration": "testing"
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",

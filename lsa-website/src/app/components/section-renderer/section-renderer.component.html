@@ -33,6 +33,9 @@
   @if(sectionConfig().searchBox?.placeHolder){
     <lsa-searchbox [config]="sectionConfig().searchBox!"></lsa-searchbox>
   }
+  @if(sectionConfig().preachingPlaylists?.isNullOrEmpty() === false){
+    <lsa-preaching-playlists [config]="sectionConfig().preachingPlaylists!" ></lsa-preaching-playlists>
+  }
   @if(sectionConfig().recentServices?.isNullOrEmpty() === false) {
     <lsa-recent-services [config]="sectionConfig().recentServices!"></lsa-recent-services>
   }

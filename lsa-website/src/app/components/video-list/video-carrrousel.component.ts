@@ -2,10 +2,12 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   computed,
+  effect,
   ElementRef,
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -73,6 +75,13 @@ export class VideoCarrouselComponent {
     () =>
       this.numberOfVideosViewed() >= this.videos().length - this.scrollSize()
   );
+
+  constructor(){
+    effect(()=>{
+      this.videos();
+      untracked(()=> this.videoListContainerLeftPosition.set(0));
+    });
+  }
 
   scrollLeft() {
     const currentPosition = this.videoListContainerLeftPosition();

@@ -41,6 +41,7 @@ export interface VideoRecordingDto {
   cover: string;
   preacherId: number;
   preacher: { id: number; name: string };
+  playlist?: string;
 }
 
 export interface GetVideosResponse {

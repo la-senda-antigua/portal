@@ -13,8 +13,8 @@ import { RecentServices } from '../recent-services/recent-services.component';
 import { QuickLinksComponent } from '../quick-links/quick-links.component';
 import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
-import { VideoListComponent } from '../video-list/video-list.component';
 import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
+import { PreachingPlaylistsComponent } from '../preaching-playlists/preaching-playlists.component';
 
 @Component({
   selector: 'lsa-section-renderer',
@@ -27,7 +27,8 @@ import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-v
     QuickLinksComponent,
     SearchboxComponent,
     CalendarListViewComponent,
-    RecentServices
+    RecentServices,
+    PreachingPlaylistsComponent
   ],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',

@@ -10,13 +10,14 @@ import {
   MapWidgetConfig,
   NavigationConfig,
   PageConfig,
+  PreachingPlaylistsConfig,
   QuickLinksConfig,
   RecentServicesConfig,
   SearchBoxConfig,
   VideoListConfig,
   CalendarListViewConfig,
   SectionConfig,
-  VerseConfig
+  VerseConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -99,7 +100,10 @@ export class AppConfigService {
         section['description-block']
       ),
       searchBox: this.parseSearchBox(section['search-box']),
-      recentServices: this.parseRecentServicesConfig(section['recent-services']),
+      recentServices: this.parseRecentServicesConfig(
+        section['recent-services']
+      ),
+      preachingPlaylists: this.parsePreachingPlaylistsConfig(section['preaching-playlists']),
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
@@ -110,15 +114,30 @@ export class AppConfigService {
   }
 
   private parseRecentServicesConfig(videoList: any): RecentServicesConfig {
-    if(videoList == undefined){
-      return {} as RecentServicesConfig ;
+    if (videoList == undefined) {
+      return {} as RecentServicesConfig;
     }
     return {
-      initialLoad: videoList["initial-load"] ?? 100,
-      searchBox: this.parseSearchBox(videoList["search-box"]),
-      descriptionBlock: this.parseDescriptionBlock(videoList["description-block"]),
-      notFound: videoList["not-found"],
+      initialLoad: videoList['initial-load'] ?? 100,
+      searchBox: this.parseSearchBox(videoList['search-box']),
+      descriptionBlock: this.parseDescriptionBlock(
+        videoList['description-block']
+      ),
+      notFound: videoList['not-found'],
+    };
+  }
+
+  private parsePreachingPlaylistsConfig(
+    sectionConfig: any
+  ): PreachingPlaylistsConfig {
+    if(sectionConfig == undefined){
+      return {};
     }
+    return {
+      descriptionBlock: this.parseDescriptionBlock(
+        sectionConfig['description-block']
+      ),
+    };
   }
 
   private parseSearchBox(searchBox: any): SearchBoxConfig {

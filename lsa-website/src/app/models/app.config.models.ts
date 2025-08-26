@@ -98,6 +98,10 @@ export interface VideoListSectionConfig{
 export interface RecentServicesConfig extends VideoListSectionConfig {
 }
 
+export interface PreachingPlaylistsConfig{
+  descriptionBlock?: DescriptionBlockConfig;
+}
+
 export enum VideoListType {
   Preachings = 'preachings',
   BibleStudies = 'biblestudies',
@@ -118,6 +122,7 @@ export interface SectionConfig {
   verseOfTheDay?: VerseConfig;
   quickLinks?: QuickLinksConfig;
   recentServices?: RecentServicesConfig;
+  preachingPlaylists?: PreachingPlaylistsConfig;
   calendarListView?: CalendarListViewConfig;
   footer?: FooterConfig;
 }
