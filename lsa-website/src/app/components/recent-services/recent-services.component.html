@@ -7,8 +7,14 @@
         (searchQueryChange)="this.searchQuery.set($event)">
     </lsa-searchbox>
 }
-@if (filteredVideos().length === 0) {
-    {{ config().notFound }}
-} @else {
-    <lsa-video-carrousel [videos]="filteredVideos()" [moreVideosLoadedObservable]="loadingVideos$" (moreVideosRequested)="loadVideos()"></lsa-video-carrousel>
-}
+
+<div class="carrousel-container">
+    @if(showSpinner()){
+        <mat-spinner></mat-spinner>
+    }
+    @else if (filteredVideos().length === 0) {
+        {{ config().notFound }}
+    } @else {
+        <lsa-video-carrousel [videos]="filteredVideos()" (moreVideosRequested)="loadVideos()"></lsa-video-carrousel>
+    }
+</div>

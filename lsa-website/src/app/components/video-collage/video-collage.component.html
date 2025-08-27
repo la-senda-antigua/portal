@@ -2,17 +2,16 @@
   <lsa-video-card
     [video]="collageCover()"
     style="position: relative; z-index: 20"
-    [outlined]="true"
+    [outlined]="false"
   ></lsa-video-card>
-  @for (video of collapsedVideos(); track $index) {
+  @for (i of [].constructor(numberOfBackgroundCards()); track $index) {
   <lsa-video-card
-    [video]="video"
-    [outlined]="true"
-    style="position: absolute"
-    [style.left]="`${($index + 1) * 5}px`"
-    [style.top]="`${-20 + ($index + 1)*2}px`"
-    [style.transform]="`rotate(${(($index + 1) % 2 === 0 ? -1 : 1) * ($index + 1)}deg)`"
-    [style.zIndex]="videos().length - ($index + 1)"
+    [video]="collageCover()"
+    [outlined]="false"
+    style="position: absolute; left: 0"
+    [style.top]="`${-20 - ($index + 1)*7}px`"
+    [style.transform]="`scale(${1 - (($index + 1)/100)*3})`"
+    [style.zIndex]="20 - ($index + 1)"
   ></lsa-video-card>
   }
 </div>

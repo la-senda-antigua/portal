@@ -11,15 +11,11 @@ import { VideoCardComponent } from '../video-card/video-card.component';
 export class VideoCollageComponent {
   readonly videos = input.required<ReadonlyArray<VideoModel>>();
   readonly title = input.required<string>();
+  readonly numberOfBackgroundCards = input<number>(3);
   readonly collageCover = computed(() => {
     return {
-      title: this.title(),
+      title: `Serie: ${this.title()}`,
       thumbnailUrl: this.videos()[0].thumbnailUrl,
     } as any;
   });
-  readonly collapsedVideos = computed(() =>
-    this.videos().map(
-      (v) => ({ thumbnailUrl: v.thumbnailUrl, title: this.title() } as any)
-    )
-  );
 }

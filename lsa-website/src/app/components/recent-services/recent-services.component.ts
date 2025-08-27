@@ -17,6 +17,7 @@ import { DescriptionBlockComponent } from '../description-block/description-bloc
 import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VideoCarrouselComponent } from '../video-list/video-carrrousel.component';
 import { Subject } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'lsa-recent-services',
@@ -25,6 +26,7 @@ import { Subject } from 'rxjs';
     SearchboxComponent,
     VideoCarrouselComponent,
     MatProgressSpinnerModule,
+    CommonModule
   ],
   templateUrl: './recent-services.component.html',
   styleUrl: './recent-services.component.scss',
@@ -33,8 +35,7 @@ export class RecentServices implements OnInit {
   readonly config = input.required<RecentServicesConfig>();
 
   readonly searchQuery = signal('');
-  private _loadingVideos = new Subject<boolean>();
-  readonly loadingVideos$ = this._loadingVideos.asObservable();
+  readonly showSpinner = signal(true);
 
   readonly unfilteredVideos = computed(() =>
     [...this.videoService.preachingsInStore()].sort((a, b) =>
@@ -85,7 +86,7 @@ export class RecentServices implements OnInit {
     }
     this.videoService
       .loadVideoBatch(VideoListType.Preachings, this.config().initialLoad)
-      .subscribe(() => this._loadingVideos.next(true));
+      .subscribe(() => this.showSpinner.set(false));
   }
 
   private getNoAccentString(query?: string) {

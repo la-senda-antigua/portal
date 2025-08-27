@@ -1,4 +1,9 @@
 @if(config().descriptionBlock?.isNullOrEmpty() === false) {
     <lsa-description-block [descriptionBlockConfig]="config().descriptionBlock!"></lsa-description-block>
 }
-<lsa-video-carrousel [videos]="playlists()"></lsa-video-carrousel>
+@if(showSpinner()){
+    <mat-spinner></mat-spinner>
+}
+@else {
+    <lsa-video-carrousel [videos]="playlists()"></lsa-video-carrousel>
+}

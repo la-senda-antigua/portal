@@ -145,14 +145,10 @@ export class VideosService {
             totalVideos: response.totalItems,
             totalPages: response.totalPages,
           };
-        }),
-        switchMap((state: VideoStoreState) => {
-          const preachingsObservable = this.store.select(selectPreachingsInStore).pipe(skip(1), take(1));
-          this.store.dispatch(PreachingBatchLoaded(state));
-          return preachingsObservable;
         })
       )
-      .subscribe(() => {
+      .subscribe((state: VideoStoreState) => {
+        this.store.dispatch(PreachingBatchLoaded(state));
         this.videoBatchLoaded$.next(null);
       });
   }
