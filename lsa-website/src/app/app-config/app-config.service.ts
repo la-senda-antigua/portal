@@ -103,7 +103,8 @@ export class AppConfigService {
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
       quickLinks: this.parseQuickLinks(section['quick-links']),
-      footer: this.parseFooter(section['footer']),
+      calendarListView: section['calendar-list-view'],
+      footer: this.parseFooter(section['footer']),      
     };
   }
 

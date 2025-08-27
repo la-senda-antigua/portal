@@ -256,6 +256,82 @@
           }
         }
       ]
+    },
+    {
+      "name": "calendar",
+      "title": "Calendario",
+      "sections": [
+        {
+          "name": "header",
+          "title": "Nuestros próximos eventos",
+          "floating-description": {
+            "position": "left",
+            "description-block": {
+              "text-color": "#ffffff",
+              "lines": [
+                "QUOTE ¡Mirad cuán bueno y cuán delicioso es Habitar los hermanos juntos en armonía!",
+                "REF Salmos 133:1"
+              ]
+            }
+          },
+          "background-image": "assets/images/church.jpg",
+          "background-color": "#3f4a49"
+        },
+        {
+          "name": "section-1",          
+          "calendar-list-view": {
+            "title": "Nuestros próximos eventos"
+          },
+          "background-color": "#f5f5f5",
+          "text-align": "center"
+        },
+        {
+          "name": "footer",
+          "footer": {
+            "items": [
+              {
+                "title": "Comuníquese",
+                "links": [
+                  {
+                    "text": "lasendaantigua.la@gmail.com",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "mail"
+                  },
+                  {
+                    "text": "+1 (626)808-1237",
+                    "href": "tel:+16268081237",
+                    "icon": "phone"
+                  }
+                ]
+              },
+              {
+                "title": "Comentarios:",
+                "links": [
+                  {
+                    "text": "Contáctenos",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "live_help"
+                  }
+                ]
+              },
+              {
+                "title": "Visite también",
+                "links": [
+                  {
+                    "text": "Ministerios Hebrón",
+                    "href": "https://ministerioshebron.com/"
+                  },
+                  {
+                    "text": "Colegio Hebrón",
+                    "href": "https://www.colegiohebron.com/"
+                  }
+                ]
+              }
+            ],
+            "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
+        }
+      ]
     }
   ],
   "navigation": {
@@ -309,6 +385,11 @@
         "index": 4,
         "text": "Contáctenos",
         "link": "/contact"
+      },
+      {
+        "index": 5,
+        "text": "Calendario",
+        "link": "/calendar"
       }
     ],
     "button": {

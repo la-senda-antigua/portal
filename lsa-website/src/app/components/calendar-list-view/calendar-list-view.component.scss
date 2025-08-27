@@ -1,0 +1,10 @@
+.calendar-events-container{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.calendar-card {
+  max-width: 400px;
+}
