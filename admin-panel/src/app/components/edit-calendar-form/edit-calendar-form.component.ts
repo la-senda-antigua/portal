@@ -66,23 +66,7 @@ export class EditCalendarFormComponent {
     startTime: FormControl<string | null>;
     endTime: FormControl<string | null>;
     description: FormControl<string | null>;
-  }> = new FormGroup({
-    title: new FormControl(this.formData.data.title, Validators.required),
-    startTime: new FormControl(
-      this.datePipe.transform(
-        this.formData.data.startTime ?? new Date(),
-        'yyyy-MM-dd hh:mm a'
-      ),
-      Validators.required
-    ),
-    endTime: new FormControl(
-      this.datePipe.transform(
-        this.formData.data.endTime ?? this.addHours(new Date(), 3),
-        'yyyy-MM-dd hh:mm a'
-      ),
-    ),
-    description: new FormControl(this.formData.data.description ?? null),
-  });
+  }>;
 
   constructor() {
     this.calendarForm = new FormGroup({
