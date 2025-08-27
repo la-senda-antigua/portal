@@ -24,6 +24,7 @@ import {
   DeleteConfirmationComponent,
   DeleteConfirmationData,
 } from '../delete-confirmation/delete-confirmation.component';
+import { DisableConfirmationComponent, DisableConfirmationData } from '../disable-confirmation/disable-confirmation.component';
 
 export enum TableViewType {
   'sermon' = 'sermon',
@@ -31,6 +32,7 @@ export enum TableViewType {
   'gallery' = 'gallery',
   'preacher' = 'preacher',
   'playlist' = 'playlist',
+  'calendar' = 'calendar'
 }
 
 export enum TableViewAccessMode {
@@ -87,11 +89,15 @@ export class TableViewComponent {
   readonly tableTitle = input.required<string>();
   /** The names (keys) of the properties to use as values for delte confirmation */
   readonly deleteConfirmationFields = input.required<DeleteConfirmationData>();
+  /** The names (keys) of the properties to use as values for delte confirmation */
+  readonly disableConfirmationFields = input<DisableConfirmationData>();
   /** If set to true, will show an infinite progress bar animation */
   readonly isLoading = input<boolean>(false);
   /** Whether or not to show the action column  */
   readonly showActions = input<boolean>(true);
-
+  /** Whether or not to show the disable button  */
+  readonly showDisableButton = input<boolean>(false);
+  
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
     const cols: string[] = [];
@@ -110,6 +116,8 @@ export class TableViewComponent {
   readonly editRequest = output<any>();
   /** Emits the Id passed in the deleteConfirmationFeilds object, when delete is confirmed.  */
   readonly deleteRequest = output<string>();
+  /** Emits the Id passed in the disableConfirmationFeilds object, when disable is confirmed.  */
+  readonly disableRequest = output<string>();
 
   readonly dialog = inject(MatDialog);
 
@@ -175,6 +183,22 @@ export class TableViewComponent {
     dialogRef.afterClosed().subscribe((confirmationId) => {
       if (confirmationId != undefined) {
         this.deleteRequest.emit(confirmationId);
+      }
+    });
+  }
+
+  openDisableConfirmation(entry: any){    
+    const confirmationData = {
+      id: entry[this.disableConfirmationFields()!.id],
+      name: entry[this.disableConfirmationFields()!.name],
+      actionName: entry.status === 'Cancelled' ? 'enable' : 'disable'
+    } as DisableConfirmationData;
+    const dialogRef = this.dialog.open(DisableConfirmationComponent, {
+      data: confirmationData,
+    });
+    dialogRef.afterClosed().subscribe((confirmationId) => {
+      if (confirmationId != undefined) {
+        this.disableRequest.emit(confirmationId);
       }
     });
   }

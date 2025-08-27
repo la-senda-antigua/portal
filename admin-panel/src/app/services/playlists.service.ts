@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { VideosServiceBase } from './videos.service.base';
+import { GeneralServiceBase } from './general.service.base';
 import { Observable } from 'rxjs';
 import { TableResult } from '../models/TableResult';
 import { VideoPlaylist } from '../models/VideoPlaylist';
@@ -7,7 +7,7 @@ import { VideoPlaylist } from '../models/VideoPlaylist';
 @Injectable({
   providedIn: 'root',
 })
-export class PlaylistsService extends VideosServiceBase {
+export class PlaylistsService extends GeneralServiceBase {
   override apiUrl = '/videoplaylist';
     
   override getPage(

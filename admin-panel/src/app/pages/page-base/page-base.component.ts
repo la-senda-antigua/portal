@@ -6,12 +6,14 @@ import {
   TableViewType,
 } from '../../components/table-view/table-view.component';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
-import { VideosServiceBase } from '../../services/videos.service.base';
+import { GeneralServiceBase } from '../../services/general.service.base';
 import { DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
 import { VideoFormData } from '../../components/edit-video-form/edit-video-form.component';
 import { EditIdNameFormData } from '../../components/edit-id-name-form/edit-id-name-form.component';
+import { CalendarFormData } from '../../components/edit-calendar-form/edit-calendar-form.component';
+import { DisableConfirmationData } from '../../components/disable-confirmation/disable-confirmation.component';
 
 @Component({
   selector: 'app-page-base',
@@ -24,6 +26,7 @@ export class PageBaseComponent implements OnInit {
   editForm: any;
   createForm: any;
   deleteFields!: DeleteConfirmationData;
+  disableFields!: DisableConfirmationData;
   tableCols!: TableViewColumn[];
   tableTitle!: string;
   readonly tableViewTypes = TableViewType;
@@ -39,7 +42,7 @@ export class PageBaseComponent implements OnInit {
   readonly datePipe = inject(DatePipe);
   readonly snackBar = inject(MatSnackBar);
   constructor(
-    protected service: VideosServiceBase,    
+    protected service: GeneralServiceBase,    
   ) {}
 
   ngOnInit(): void {
@@ -62,6 +65,23 @@ export class PageBaseComponent implements OnInit {
         this.handleException(
           err,
           'There was a problem when attempting to delete.'
+        );
+      },
+    });
+  }
+  
+  onToggleDisable(data: any) {
+    const {id, actionName} = data
+    const isActive = actionName === 'disable'
+    this.isLoading.set(true);
+    this.service.disable(id, isActive).subscribe({
+      next: () => {
+        this.reload();
+      },
+      error: (err) => {
+        this.handleException(
+          err,
+          'There was a problem when attempting to disable.'
         );
       },
     });
@@ -93,7 +113,7 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  parseForm(videoForm: VideoFormData | EditIdNameFormData) {}
+  parseForm(videoForm: VideoFormData | EditIdNameFormData | CalendarFormData) {}
 
   handleException(e: Error, message: string) {
     this.isLoading.set(false);

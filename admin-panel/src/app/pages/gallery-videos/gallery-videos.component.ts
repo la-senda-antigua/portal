@@ -6,7 +6,6 @@ import { TableViewColumn, TableViewComponent } from '../../components/table-view
 import { GalleryService } from '../../services/gallery.service';
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { GalleryVideo } from '../../models/GalleryVideo';
-import { SermonDto } from '../../models/Sermon';
 
 @Component({
   selector: 'app-gallery-videos',
