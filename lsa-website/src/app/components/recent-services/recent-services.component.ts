@@ -83,7 +83,11 @@ export class RecentServices implements OnInit {
   }
 
   ngOnInit() {
-    this.loadVideos();
+    if (this.unfilteredVideos().length === 0) {
+      this.loadVideos();
+    } else {
+      this.showSpinner.set(false);
+    }
   }
 
   loadVideos() {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import { DescriptionBlockComponent } from '../description-block/description-block.component';
 import { VideoCarrouselComponent } from '../video-list/video-carrrousel.component';
 import { PreachingPlaylistsConfig } from 'src/app/models/app.config.models';
@@ -17,7 +17,7 @@ import { HydratedVideoPlaylist, VideoModel } from 'src/app/models/video.model';
   templateUrl: './preaching-playlists.component.html',
   styleUrl: './preaching-playlists.component.scss',
 })
-export class PreachingPlaylistsComponent {
+export class PreachingPlaylistsComponent implements OnInit {
   readonly config = input.required<PreachingPlaylistsConfig>();
 
   readonly videoService = inject(VideosService);
@@ -29,11 +29,15 @@ export class PreachingPlaylistsComponent {
 
   readonly showSpinner = computed(() => this.playlists().length === 0);
 
-  constructor() {
-    this.videoService.loadPreachingPlaylists();
+  ngOnInit() {
+    if (this.playlists().length === 0) {
+      this.videoService.loadPreachingPlaylists();
+    }
   }
 
   onPlaylistClick(playlist: HydratedVideoPlaylist | VideoModel) {
-    this.playlistViewerService.openPlaylistViewer(playlist as HydratedVideoPlaylist);
+    this.playlistViewerService.openPlaylistViewer(
+      playlist as HydratedVideoPlaylist
+    );
   }
 }

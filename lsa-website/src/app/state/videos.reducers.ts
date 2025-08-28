@@ -77,7 +77,7 @@ const bibleStudyPlaylistInitialState: VideoPlaylistState = {
 export const bibleStudyPlaylistReducer = createReducer(
   bibleStudyPlaylistInitialState,
   on(BibleStudyPlaylistLoaded, (state, {playlists}) => ({
-    playlists: [...state.playlists, ...playlists]
+    playlists: [...playlists]
   }))
 );
 
@@ -88,6 +88,6 @@ const galleryPlaylistInitialState: VideoPlaylistState = {
 export const galleryPlaylistReducer = createReducer(
   galleryPlaylistInitialState,
   on(GalleryPlaylistLoaded, (state, {playlists}) => ({
-    playlists: [...state.playlists, ...playlists]
+    playlists: [...playlists]
   }))
 );

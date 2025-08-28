@@ -11,7 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { switchMap } from 'rxjs';
 import {
   BibleCoursesConfig,
-  VideoListType
+  VideoListType,
 } from 'src/app/models/app.config.models';
 import { HydratedVideoPlaylist, VideoModel } from 'src/app/models/video.model';
 import { PlaylistViewerService } from 'src/app/services/playlist-viewer.service';
@@ -65,11 +65,13 @@ export class BibleCoursesComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.videoService
-      .loadVideoBatch(VideoListType.BibleStudies, this.config().initialLoad)
-      .pipe(switchMap(() => this.videoService.loadAllBibleStudies()))
-      .subscribe();
-    this.videoService.loadBibleStudyPlaylists();
+    if (this.playlists().length === 0) {
+      this.videoService
+        .loadVideoBatch(VideoListType.BibleStudies, this.config().initialLoad)
+        .pipe(switchMap(() => this.videoService.loadAllBibleStudies()))
+        .subscribe();
+      this.videoService.loadBibleStudyPlaylists();
+    }
   }
 
   onPlaylistClick(playlist: HydratedVideoPlaylist | VideoModel) {
