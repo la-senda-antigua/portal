@@ -15,11 +15,11 @@
   >
     @if (videoCards().length > 0) {
       @for(video of videoCards(); track $index){
-        <lsa-video-card [video]="video"></lsa-video-card>
+        <lsa-video-card (videoClick)="videoClick.emit($event)" [emitClick]="emitVideoClick()" [outlined]="video.id === selectedVideo()?.id" [video]="video"></lsa-video-card>
       }
     }@else if(playlistCards().length > 0) {
       @for(playlist of playlistCards(); track $index){
-        <lsa-video-collage [videos]="playlist.videos" [title]="playlist.name"></lsa-video-collage>
+        <lsa-video-collage (click)="videoClick.emit(playlist)" [videos]="playlist.videos" [title]="playlist.name"></lsa-video-collage>
       }
     }
 

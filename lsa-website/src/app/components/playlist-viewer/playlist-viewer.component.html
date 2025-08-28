@@ -1,0 +1,19 @@
+<div class="title" mat-dialog-title>
+  <h2 class="spacer">{{ title }}</h2>
+  <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+</div>
+<mat-dialog-content class="content-wrapper">
+  <div class="video-container">
+    <iframe
+      class="rumble"
+      width="100%"
+      height="100%"
+      [src]="sanitizedUrl()"
+      frameborder="0"
+      allowfullscreen
+    ></iframe>
+  </div>
+  <div class="carrousel-container">
+    <lsa-video-carrousel [selectedVideo]="selectedVideo()" [emitVideoClick]="true" (videoClick)="selectVideo($event)" [videos]="videos"></lsa-video-carrousel>
+  </div>
+</mat-dialog-content>

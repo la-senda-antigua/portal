@@ -2,8 +2,7 @@
   (mouseenter)="cardHovered = true"
   (mouseleave)="cardHovered = false"
   [class.hovered]="cardHovered || outlined()"
-  [href]="video().videoUrl"
-  target="_blank"
+  (click)="openVideo()"
 >
   <mat-card appearance="outlined">
     @if (!loadedSuccessfully()) {

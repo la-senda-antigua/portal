@@ -82,11 +82,13 @@ function hydratePlaylists(
   playlists: ReadonlyArray<VideoPlaylist>,
   videos: ReadonlyArray<VideoModel>
 ): ReadonlyArray<HydratedVideoPlaylist> {
-  return playlists.map((playlist) => ({
-    id: playlist.id,
-    name: playlist.name,
-    videos: videos.filter((video) => video.playlist === playlist.id),
-  }));
+  return playlists
+    .map((playlist) => ({
+      id: playlist.id,
+      name: playlist.name,
+      videos: videos.filter((video) => video.playlist === playlist.id),
+    }))
+    .filter((pl) => pl.videos.length > 0);
 }
 
 export const selectHydratedPreachingPlaylists = createSelector(

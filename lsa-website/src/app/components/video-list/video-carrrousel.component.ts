@@ -19,20 +19,30 @@ import { VideoCollageComponent } from '../video-collage/video-collage.component'
 
 @Component({
   selector: 'lsa-video-carrousel',
-  imports: [VideoCardComponent, VideoCollageComponent, MatButtonModule, MatIconModule, CommonModule],
+  imports: [
+    VideoCardComponent,
+    VideoCollageComponent,
+    MatButtonModule,
+    MatIconModule,
+    CommonModule,
+  ],
   templateUrl: './video-carrousel.component.html',
   styleUrl: './video-carrousel.component.scss',
 })
 export class VideoCarrouselComponent {
+  readonly videoClick = output<HydratedVideoPlaylist | VideoModel>();
+  readonly moreVideosRequested = output<void>();
+
   readonly carrouselContainer = viewChild<ElementRef>('carrouselContainer');
   readonly videoListContainer = viewChild<ElementRef>('videoListContainer');
 
   readonly videos = input.required<VideoModel[] | HydratedVideoPlaylist[]>();
+  readonly allVideosLoaded = input<boolean>(true);
   readonly moreVideosLoadedObservable = input<Observable<boolean>>();
+  readonly resetLeftScroll = input<boolean>(false);
+  readonly selectedVideo = input<VideoModel | undefined>(undefined);
+  readonly emitVideoClick = input(false);
 
-  readonly moreVideosRequested = output<void>();
-
-  readonly searchQuery = signal('');
   readonly videoListContainerLeftPosition = signal(0);
 
   readonly videoCards = computed(() => {
@@ -68,18 +78,25 @@ export class VideoCarrouselComponent {
   readonly numberOfVideosViewed = computed(() => {
     const position = Math.abs(this.videoListContainerLeftPosition());
     const viewedVideos = position / (this.videoSize() ?? 1);
-    return viewedVideos + this.numberOfVideosPerViewPort();
+    const currentVideosInView =
+      this.videos().length > this.numberOfVideosPerViewPort()
+        ? this.numberOfVideosPerViewPort()
+        : this.videos().length;
+    return viewedVideos + currentVideosInView;
   });
 
   readonly shouldLoadMore = computed(
     () =>
+      !this.allVideosLoaded() &&
       this.numberOfVideosViewed() >= this.videos().length - this.scrollSize()
   );
 
-  constructor(){
-    effect(()=>{
-      this.videos();
-      untracked(()=> this.videoListContainerLeftPosition.set(0));
+  constructor() {
+    effect(() => {
+      if (this.resetLeftScroll() === false) {
+        return;
+      }
+      untracked(() => this.videoListContainerLeftPosition.set(0));
     });
   }
 
@@ -124,11 +141,12 @@ export class VideoCarrouselComponent {
   }
 
   loadMore(): Observable<boolean> {
+    this.moreVideosRequested.emit();
+
     if (this.moreVideosLoadedObservable() == undefined) {
       return of(false);
     }
 
-    this.moreVideosRequested.emit();
     return this.moreVideosLoadedObservable()!.pipe(take(1));
   }
 

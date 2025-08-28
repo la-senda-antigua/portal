@@ -26,12 +26,14 @@ import { CommonModule } from '@angular/common';
     SearchboxComponent,
     VideoCarrouselComponent,
     MatProgressSpinnerModule,
-    CommonModule
+    CommonModule,
   ],
   templateUrl: './recent-services.component.html',
   styleUrl: './recent-services.component.scss',
 })
 export class RecentServices implements OnInit {
+  private _videosLoadedSubject = new Subject<boolean>();
+
   readonly config = input.required<RecentServicesConfig>();
 
   readonly searchQuery = signal('');
@@ -64,6 +66,8 @@ export class RecentServices implements OnInit {
 
   readonly videoService = inject(VideosService);
 
+  readonly videoBatchLoaded$ = this._videosLoadedSubject.asObservable();
+
   constructor() {
     effect(() => {
       if (this.haveAllVideosBeenLoaded() || this.haveAllVideosBeenRequested()) {
@@ -86,7 +90,10 @@ export class RecentServices implements OnInit {
     }
     this.videoService
       .loadVideoBatch(VideoListType.Preachings, this.config().initialLoad)
-      .subscribe(() => this.showSpinner.set(false));
+      .subscribe(() => {
+        this.showSpinner.set(false);
+        this._videosLoadedSubject.next(true);
+      });
   }
 
   private getNoAccentString(query?: string) {
