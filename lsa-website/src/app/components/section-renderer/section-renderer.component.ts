@@ -15,6 +15,7 @@ import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
 import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
 import { PreachingPlaylistsComponent } from '../preaching-playlists/preaching-playlists.component';
+import { BibleCoursesComponent } from '../bible-courses/bible-courses.component';
 
 @Component({
   selector: 'lsa-section-renderer',
@@ -28,7 +29,8 @@ import { PreachingPlaylistsComponent } from '../preaching-playlists/preaching-pl
     SearchboxComponent,
     CalendarListViewComponent,
     RecentServices,
-    PreachingPlaylistsComponent
+    PreachingPlaylistsComponent,
+    BibleCoursesComponent
   ],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',

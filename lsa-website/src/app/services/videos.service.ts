@@ -25,6 +25,7 @@ import {
   selectGalleryVideosCurrentPage,
   selectGalleryVideosInStore,
   selectGalleryVideosState,
+  selectHydratedBibleStudyPlaylists,
   selectHydratedPreachingPlaylists,
   selectPreachingsCurrentPage,
   selectPreachingsInStore,
@@ -52,9 +53,8 @@ export class VideosService {
   private bibleStudiesCurrentPage = this.store.selectSignal(
     selectBibleStudiesCurrentPage
   );
-  public bibleStudiesInStore = this.store.selectSignal(
-    selectBibleStudiesInStore
-  );
+  public bibleStudiesInStore = this.store.selectSignal(selectBibleStudiesInStore);
+  public bibleStudyPlaylists = this.store.selectSignal(selectHydratedBibleStudyPlaylists);
 
   private galleryVideosStoreState = this.store.selectSignal(
     selectGalleryVideosState
@@ -200,6 +200,7 @@ export class VideosService {
                   videoUrl: i.videoPath,
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
+                  playlist: i.playlist
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,

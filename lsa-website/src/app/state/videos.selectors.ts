@@ -78,17 +78,34 @@ export const selectBibleStudyPlaylists = (state: AppState) =>
 export const selectGalleryPlaylists = (state: AppState) =>
   state.galleryPlaylists;
 
+function getLastVideoDate(videos: ReadonlyArray<VideoModel>) {
+  if (videos?.length > 0) {
+    const sortedVideos = [...videos].sort((a, b) => (a.date < b.date ? 1 : -1));
+    return sortedVideos[0].date;
+  }
+  return new Date(0, 0, 0);
+}
+
 function hydratePlaylists(
   playlists: ReadonlyArray<VideoPlaylist>,
   videos: ReadonlyArray<VideoModel>
 ): ReadonlyArray<HydratedVideoPlaylist> {
   return playlists
-    .map((playlist) => ({
-      id: playlist.id,
-      name: playlist.name,
-      videos: videos.filter((video) => video.playlist === playlist.id),
-    }))
-    .filter((pl) => pl.videos.length > 0);
+    .map((playlist) => {
+      const plVideos = videos.filter((video) => video.playlist === playlist.id);
+      const date = getLastVideoDate(plVideos);
+      const preachers = plVideos.filter(v => v.preacher).map(v => v.preacher) as string[];
+      const maestros = [... new Set(preachers)]
+      return {
+        id: playlist.id,
+        name: playlist.name,
+        videos: plVideos,
+        maestros,
+        date,
+      };
+    })
+    .filter((pl) => pl.videos.length > 0)
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
 export const selectHydratedPreachingPlaylists = createSelector(

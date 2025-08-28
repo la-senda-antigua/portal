@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, Injectable, signal } from '@angular/core';
 import {
   AppConfig,
+  BibleCoursesConfig,
   DescriptionBlockConfig,
   FloatingDescriptionConfig,
   FooterConfig,
@@ -104,6 +105,7 @@ export class AppConfigService {
         section['recent-services']
       ),
       preachingPlaylists: this.parsePreachingPlaylistsConfig(section['preaching-playlists']),
+      bibleCourses: this.parseBibleCoursesConfig(section['bible-courses']),
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
@@ -124,6 +126,20 @@ export class AppConfigService {
         videoList['description-block']
       ),
       notFound: videoList['not-found'],
+    };
+  }
+
+  private parseBibleCoursesConfig(config: any): BibleCoursesConfig {
+    if (config == undefined) {
+      return {} as BibleCoursesConfig;
+    }
+    return {
+      initialLoad: config['initial-load'],
+      searchBox: this.parseSearchBox(config['search-box']),
+      descriptionBlock: this.parseDescriptionBlock(
+        config['description-block']
+      ),
+      notFound: config['not-found'],
     };
   }
 

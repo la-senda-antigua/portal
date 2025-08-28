@@ -15,7 +15,7 @@
     @else if (filteredVideos().length === 0) {
         {{ config().notFound }}
     } @else {
-        <lsa-video-carrousel [videos]="filteredVideos()" [allVideosLoaded]="haveAllVideosBeenLoaded()" 
+        <lsa-video-carrousel [videos]="filteredVideos()" [allVideosLoaded]="haveAllVideosBeenLoaded()" [resetLeftScroll$]="searchQueryChanged$"
         [moreVideosLoadedObservable]="videoBatchLoaded$" (moreVideosRequested)="loadVideos()"></lsa-video-carrousel>
     }
 </div>

@@ -15,7 +15,7 @@ export class VideoCollageComponent {
   readonly numberOfBackgroundCards = input<number>(3);
   readonly collageCover = computed(() => {
     return {
-      title: `Serie: ${this.title()}`,
+      title: this.title(),
       thumbnailUrl: this.videos()[0].thumbnailUrl,
     } as any;
   });

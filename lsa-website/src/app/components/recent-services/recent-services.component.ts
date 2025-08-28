@@ -18,6 +18,7 @@ import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VideoCarrouselComponent } from '../video-list/video-carrrousel.component';
 import { Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'lsa-recent-services',
@@ -38,6 +39,7 @@ export class RecentServices implements OnInit {
 
   readonly searchQuery = signal('');
   readonly showSpinner = signal(true);
+  readonly haveAllVideosBeenRequested = signal(false);
 
   readonly unfilteredVideos = computed(() =>
     [...this.videoService.preachingsInStore()].sort((a, b) =>
@@ -45,14 +47,14 @@ export class RecentServices implements OnInit {
     )
   );
   readonly filteredVideos = computed(() => {
-    const query = this.getNoAccentString(this.searchQuery());
+    const query = this.searchQuery().trim().toLowerCase().NoAccentString();
     if (query === '') {
       return this.unfilteredVideos();
     }
     return this.unfilteredVideos().filter(
       (video) =>
-        this.getNoAccentString(video.title).includes(query) ||
-        this.getNoAccentString(video.preacher).includes(query)
+        video.title.toLowerCase().NoAccentString().includes(query) ||
+        video.preacher?.toLowerCase().NoAccentString().includes(query)
     );
   });
   readonly haveAllVideosBeenLoaded = computed(() => {
@@ -62,7 +64,7 @@ export class RecentServices implements OnInit {
         this.videoService.getTotalVideos(VideoListType.Preachings)
     );
   });
-  readonly haveAllVideosBeenRequested = signal(false);
+  readonly searchQueryChanged$ = toObservable(this.searchQuery);
 
   readonly videoService = inject(VideosService);
 
@@ -94,16 +96,5 @@ export class RecentServices implements OnInit {
         this.showSpinner.set(false);
         this._videosLoadedSubject.next(true);
       });
-  }
-
-  private getNoAccentString(query?: string) {
-    return (query ?? '')
-      .toLowerCase()
-      .replaceAll('á', 'a')
-      .replaceAll('é', 'e')
-      .replaceAll('í', 'i')
-      .replaceAll('ó', 'o')
-      .replaceAll('ú', 'u')
-      .replaceAll('ñ', 'n');
   }
 }

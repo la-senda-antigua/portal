@@ -5,6 +5,7 @@ import {
   effect,
   ElementRef,
   input,
+  OnInit,
   output,
   signal,
   untracked,
@@ -29,7 +30,7 @@ import { VideoCollageComponent } from '../video-collage/video-collage.component'
   templateUrl: './video-carrousel.component.html',
   styleUrl: './video-carrousel.component.scss',
 })
-export class VideoCarrouselComponent {
+export class VideoCarrouselComponent implements OnInit {
   readonly videoClick = output<HydratedVideoPlaylist | VideoModel>();
   readonly moreVideosRequested = output<void>();
 
@@ -39,9 +40,10 @@ export class VideoCarrouselComponent {
   readonly videos = input.required<VideoModel[] | HydratedVideoPlaylist[]>();
   readonly allVideosLoaded = input<boolean>(true);
   readonly moreVideosLoadedObservable = input<Observable<boolean>>();
-  readonly resetLeftScroll = input<boolean>(false);
+  readonly resetLeftScroll$ = input<Observable<any>>();
   readonly selectedVideo = input<VideoModel | undefined>(undefined);
   readonly emitVideoClick = input(false);
+  readonly videoTitlePrefix = input<string>('');
 
   readonly videoListContainerLeftPosition = signal(0);
 
@@ -91,13 +93,12 @@ export class VideoCarrouselComponent {
       this.numberOfVideosViewed() >= this.videos().length - this.scrollSize()
   );
 
-  constructor() {
-    effect(() => {
-      if (this.resetLeftScroll() === false) {
-        return;
-      }
-      untracked(() => this.videoListContainerLeftPosition.set(0));
-    });
+  ngOnInit() {
+    if (this.resetLeftScroll$() != undefined) {
+      this.resetLeftScroll$()!.subscribe(() =>
+        this.videoListContainerLeftPosition.set(0)
+      );
+    }
   }
 
   scrollLeft() {

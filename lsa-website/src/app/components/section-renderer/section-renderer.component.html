@@ -39,6 +39,9 @@
   @if(sectionConfig().recentServices?.isNullOrEmpty() === false) {
     <lsa-recent-services [config]="sectionConfig().recentServices!"></lsa-recent-services>
   }
+  @if (sectionConfig().bibleCourses?.isNullOrEmpty() === false) {
+    <lsa-bible-courses [config]="sectionConfig().bibleCourses!"></lsa-bible-courses>
+  }
   @if(sectionConfig().calendarListView?.title){
     <lsa-calendar-list-view [config]="sectionConfig().calendarListView!"></lsa-calendar-list-view>
   }

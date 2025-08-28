@@ -30,6 +30,8 @@ export interface HydratedVideoPlaylist {
   id: string;
   name: string;
   videos: ReadonlyArray<VideoModel>;
+  maestros?: string[]
+  date: Date;
 }
 
 export interface VideoRecordingDto {

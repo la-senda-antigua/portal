@@ -5,5 +5,5 @@
     <mat-spinner></mat-spinner>
 }
 @else {
-    <lsa-video-carrousel (videoClick)="onPlaylistClick($event)" [videos]="playlists()"></lsa-video-carrousel>
+    <lsa-video-carrousel (videoClick)="onPlaylistClick($event)" [videoTitlePrefix]="'Serie: '" [videos]="playlists()"></lsa-video-carrousel>
 }

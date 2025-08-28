@@ -19,7 +19,7 @@
       }
     }@else if(playlistCards().length > 0) {
       @for(playlist of playlistCards(); track $index){
-        <lsa-video-collage (click)="videoClick.emit(playlist)" [videos]="playlist.videos" [title]="playlist.name"></lsa-video-collage>
+        <lsa-video-collage (click)="videoClick.emit(playlist)" [videos]="playlist.videos" [title]="videoTitlePrefix() + playlist.name"></lsa-video-collage>
       }
     }
 

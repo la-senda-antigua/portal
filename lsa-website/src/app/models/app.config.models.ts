@@ -88,19 +88,20 @@ export interface SearchBoxConfig {
   iconPosition?: 'left' | 'right';
 }
 
-export interface VideoListSectionConfig{
-  initialLoad?: number;
+export interface VideoListSectionConfig {
   searchBox?: SearchBoxConfig;
   descriptionBlock?: DescriptionBlockConfig;
   notFound?: string;
+  initialLoad?: number;
 }
 
-export interface RecentServicesConfig extends VideoListSectionConfig {
-}
+export interface RecentServicesConfig extends VideoListSectionConfig {}
 
-export interface PreachingPlaylistsConfig{
+export interface PreachingPlaylistsConfig {
   descriptionBlock?: DescriptionBlockConfig;
 }
+
+export interface BibleCoursesConfig extends VideoListSectionConfig {}
 
 export enum VideoListType {
   Preachings = 'preachings',
@@ -123,6 +124,7 @@ export interface SectionConfig {
   quickLinks?: QuickLinksConfig;
   recentServices?: RecentServicesConfig;
   preachingPlaylists?: PreachingPlaylistsConfig;
+  bibleCourses?: BibleCoursesConfig;
   calendarListView?: CalendarListViewConfig;
   footer?: FooterConfig;
 }
