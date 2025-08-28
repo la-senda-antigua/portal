@@ -280,7 +280,13 @@
         {
           "name": "section-1",          
           "calendar-list-view": {
-            "title": "Nuestros próximos eventos"
+            "title": "Nuestros próximos eventos",
+            "description-block": {
+              "lines": [
+                "Sea parte de nuestros eventos especiales.",
+                "Cada evento es transmitido en vivo a través de nuestro sitio web."
+              ]
+            }
           },
           "background-color": "#f5f5f5",
           "text-align": "center"

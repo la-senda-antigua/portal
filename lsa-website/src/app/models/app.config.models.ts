@@ -156,6 +156,7 @@ export interface LiveBroadcastConfig {
 
 export interface CalendarListViewConfig{
   title: string;
+  description: DescriptionBlockConfig;
 }
 
 export interface AppConfig {
