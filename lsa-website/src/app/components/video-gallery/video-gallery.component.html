@@ -1,5 +1,5 @@
 @for (gallery of galleries(); track $index) {
-    @if(gallery.videos?.length != undefined){
+    @if(gallery.videos && gallery.videos.length){
         <lsa-video-collage [videos]="gallery.videos!" [title]="gallery.name!" (click)="openPlaylist(gallery)">
         </lsa-video-collage>
     }

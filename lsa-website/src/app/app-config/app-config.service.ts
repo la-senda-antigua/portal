@@ -15,7 +15,6 @@ import {
   QuickLinksConfig,
   RecentServicesConfig,
   SearchBoxConfig,
-  VideoListConfig,
   CalendarListViewConfig,
   SectionConfig,
   VerseConfig,
