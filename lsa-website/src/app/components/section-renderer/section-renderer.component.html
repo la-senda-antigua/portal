@@ -42,6 +42,9 @@
   @if (sectionConfig().bibleCourses?.isNullOrEmpty() === false) {
     <lsa-bible-courses [config]="sectionConfig().bibleCourses!"></lsa-bible-courses>
   }
+  @if(sectionConfig().videoGallery?.show){
+    <lsa-video-gallery></lsa-video-gallery>
+  }
   @if(sectionConfig().calendarListView?.title){
     <lsa-calendar-list-view [config]="sectionConfig().calendarListView!"></lsa-calendar-list-view>
   }

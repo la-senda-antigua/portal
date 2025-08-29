@@ -9,11 +9,11 @@ export interface VideoModel {
 }
 
 export interface VideoStoreState {
-  currentPage: number;
-  pageSize: number;
+  currentPage?: number;
+  pageSize?: number;
   videosInStore: ReadonlyArray<VideoModel>;
-  totalVideos: number;
-  totalPages: number;
+  totalVideos?: number;
+  totalPages?: number;
 }
 
 export interface VideoPlaylistState{

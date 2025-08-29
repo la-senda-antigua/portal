@@ -1,30 +1,30 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { forkJoin, map, Observable, skip, Subject, switchMap, take } from 'rxjs';
+import { forkJoin, map, Observable, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { VideoListType } from '../models/app.config.models';
 import {
   GetVideosResponse,
   VideoModel,
   VideoPlaylist,
+  VideoRecordingDto,
   VideoStoreState,
 } from '../models/video.model';
 import {
+  AllGalleryVideosLoaded,
   BibleStudyBatchLoaded,
   BibleStudyPlaylistLoaded,
   GalleryPlaylistLoaded,
-  GalleryVideoBatchLoaded,
   PreachingBatchLoaded,
   PreachingPlaylistLoaded,
 } from '../state/videos.actions';
 import {
+  selectAllGalleryVideosAndPlaylists,
   selectBibleStudiesCurrentPage,
   selectBibleStudiesInStore,
   selectBibleStudiesState,
-  selectGalleryVideosCurrentPage,
   selectGalleryVideosInStore,
-  selectGalleryVideosState,
   selectHydratedBibleStudyPlaylists,
   selectHydratedPreachingPlaylists,
   selectPreachingsCurrentPage,
@@ -45,7 +45,9 @@ export class VideosService {
     selectPreachingsCurrentPage
   );
   public preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
-  public preachingPlaylists = this.store.selectSignal(selectHydratedPreachingPlaylists);
+  public preachingPlaylists = this.store.selectSignal(
+    selectHydratedPreachingPlaylists
+  );
 
   private bibleStudiesStoreState = this.store.selectSignal(
     selectBibleStudiesState
@@ -53,17 +55,15 @@ export class VideosService {
   private bibleStudiesCurrentPage = this.store.selectSignal(
     selectBibleStudiesCurrentPage
   );
-  public bibleStudiesInStore = this.store.selectSignal(selectBibleStudiesInStore);
-  public bibleStudyPlaylists = this.store.selectSignal(selectHydratedBibleStudyPlaylists);
+  public bibleStudiesInStore = this.store.selectSignal(
+    selectBibleStudiesInStore
+  );
+  public bibleStudyPlaylists = this.store.selectSignal(
+    selectHydratedBibleStudyPlaylists
+  );
 
-  private galleryVideosStoreState = this.store.selectSignal(
-    selectGalleryVideosState
-  );
-  private galleryVideosCurrentPage = this.store.selectSignal(
-    selectGalleryVideosCurrentPage
-  );
-  public galleryVideosInStore = this.store.selectSignal(
-    selectGalleryVideosInStore
+  public galleryVideos = this.store.selectSignal(
+    selectAllGalleryVideosAndPlaylists
   );
 
   private videoBatchLoaded$ = new Subject();
@@ -73,11 +73,10 @@ export class VideosService {
       case VideoListType.BibleStudies:
         this.loadBibleStudiesBatch(batchSize);
         return this.videoBatchLoaded$.asObservable();
+
       case VideoListType.Preachings:
+      default:
         this.loadPreachingBatch(batchSize);
-        return this.videoBatchLoaded$.asObservable();
-      case VideoListType.GalleryVideos:
-        this.loadGalleryVideosBatch(batchSize);
         return this.videoBatchLoaded$.asObservable();
     }
   }
@@ -101,9 +100,9 @@ export class VideosService {
   }
 
   loadAllSermons(): Observable<void> {
-    const currentPage = this.preachingsCurrentPage();
-    const totalPages = this.preachingsStoreState().totalPages;
-    const pageSize = this.preachingsStoreState().pageSize;
+    const currentPage = this.preachingsCurrentPage()!;
+    const totalPages = this.preachingsStoreState().totalPages!;
+    const pageSize = this.preachingsStoreState().pageSize!;
     const pagedItems = [];
     for (let i = currentPage; i < totalPages; i++) {
       pagedItems.push({ pageSize, page: i + 1 });
@@ -119,7 +118,7 @@ export class VideosService {
     page: number | undefined = undefined
   ): void {
     if (page === undefined) {
-      page = this.preachingsCurrentPage() + 1;
+      page = this.preachingsCurrentPage()! + 1;
     }
     this.httpClient
       .get<GetVideosResponse>(
@@ -139,7 +138,7 @@ export class VideosService {
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
                   id: i.id,
-                  playlist: i.playlist
+                  playlist: i.playlist,
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,
@@ -154,9 +153,9 @@ export class VideosService {
   }
 
   loadAllBibleStudies(): Observable<void> {
-    const currentPage = this.bibleStudiesCurrentPage();
-    const totalPages = this.bibleStudiesStoreState().totalPages;
-    const pageSize = this.bibleStudiesStoreState().pageSize;
+    const currentPage = this.bibleStudiesCurrentPage()!;
+    const totalPages = this.bibleStudiesStoreState().totalPages!;
+    const pageSize = this.bibleStudiesStoreState().pageSize!;
     const pagedItems = [];
     for (let i = currentPage; i < totalPages; i++) {
       pagedItems.push({ pageSize, page: i + 1 });
@@ -165,6 +164,25 @@ export class VideosService {
       this.loadBibleStudiesBatch(item.pageSize, item.page)
     );
     return forkJoin([pagedItems]).pipe(map(() => void 0));
+  }
+
+  loadAllGalleryVideos(): Observable<unknown> {
+    this.httpClient
+      .get<VideoRecordingDto[]>(`${this.baseUrl}/gallery/getall`)
+      .subscribe((videos) => {
+        const videosInStore: ReadonlyArray<VideoModel> = videos.map((v) => ({
+          id: v.id,
+          date: new Date(v.date),
+          title: v.title,
+          videoUrl: v.videoPath,
+          playlist: v.playlist,
+          thumbnailUrl: v.cover,
+        }));
+        const state = { videosInStore };
+        this.store.dispatch(AllGalleryVideosLoaded(state));
+        this.videoBatchLoaded$.next(null);
+      });
+    return this.videoBatchLoaded$.asObservable();
   }
 
   loadPreachingPlaylists() {
@@ -180,7 +198,7 @@ export class VideosService {
     page: number | undefined = undefined
   ): void {
     if (page === undefined) {
-      page = this.bibleStudiesCurrentPage() + 1;
+      page = this.bibleStudiesCurrentPage()! + 1;
     }
     this.httpClient
       .get<GetVideosResponse>(
@@ -200,7 +218,7 @@ export class VideosService {
                   videoUrl: i.videoPath,
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
-                  playlist: i.playlist
+                  playlist: i.playlist,
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,
@@ -220,44 +238,6 @@ export class VideosService {
       .subscribe((playlists) =>
         this.store.dispatch(BibleStudyPlaylistLoaded({ playlists }))
       );
-  }
-
-  private loadGalleryVideosBatch(
-    pageSize = 100,
-    page: number | undefined = undefined
-  ): void {
-    if (page === undefined) {
-      page = this.galleryVideosCurrentPage() + 1;
-    }
-    this.httpClient
-      .get<GetVideosResponse>(
-        `${this.baseUrl}/gallery?page=${page}&pageSize=${pageSize}`
-      )
-      .pipe(
-        map((response) => {
-          return {
-            currentPage: response.page,
-            pageSize: response.pageSize,
-            videosInStore: response.items.map(
-              (i) =>
-                ({
-                  id: i.id,
-                  date: new Date(i.date),
-                  title: i.title,
-                  videoUrl: i.videoPath,
-                  thumbnailUrl: i.cover,
-                  preacher: i.preacher.name,
-                } as VideoModel)
-            ),
-            totalVideos: response.totalItems,
-            totalPages: response.totalPages,
-          };
-        })
-      )
-      .subscribe((state: VideoStoreState) => {
-        this.store.dispatch(GalleryVideoBatchLoaded(state));
-        this.videoBatchLoaded$.next(null);
-      });
   }
 
   loadGalleryVideosPlaylists() {

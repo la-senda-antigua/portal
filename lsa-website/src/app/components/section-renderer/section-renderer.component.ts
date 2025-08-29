@@ -16,6 +16,7 @@ import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.com
 import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
 import { PreachingPlaylistsComponent } from '../preaching-playlists/preaching-playlists.component';
 import { BibleCoursesComponent } from '../bible-courses/bible-courses.component';
+import { VideoGalleryComponent } from '../video-gallery/video-gallery.component';
 
 @Component({
   selector: 'lsa-section-renderer',
@@ -30,7 +31,8 @@ import { BibleCoursesComponent } from '../bible-courses/bible-courses.component'
     CalendarListViewComponent,
     RecentServices,
     PreachingPlaylistsComponent,
-    BibleCoursesComponent
+    BibleCoursesComponent,
+    VideoGalleryComponent
   ],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',

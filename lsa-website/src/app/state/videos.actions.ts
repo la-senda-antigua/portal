@@ -1,5 +1,9 @@
 import { createAction, props } from '@ngrx/store';
-import { VideoPlaylist, VideoStoreState } from '../models/video.model';
+import {
+  VideoModel,
+  VideoPlaylist,
+  VideoStoreState,
+} from '../models/video.model';
 
 export const PreachingBatchLoaded = createAction(
   '[Preachings] Batch Loaded',
@@ -11,11 +15,6 @@ export const BibleStudyBatchLoaded = createAction(
   props<VideoStoreState>()
 );
 
-export const GalleryVideoBatchLoaded = createAction(
-  '[GalleryVideos] Batch Loaded',
-  props<VideoStoreState>()
-);
-
 export const PreachingPlaylistLoaded = createAction(
   '[PreachingPlaylist] Loaded',
   props<{ playlists: ReadonlyArray<VideoPlaylist> }>()
@@ -24,6 +23,11 @@ export const PreachingPlaylistLoaded = createAction(
 export const BibleStudyPlaylistLoaded = createAction(
   '[BibleStudyPlaylist] Loaded',
   props<{ playlists: ReadonlyArray<VideoPlaylist> }>()
+);
+
+export const AllGalleryVideosLoaded = createAction(
+  '[GalleryVideos] All loaded',
+  props<VideoStoreState>()
 );
 
 export const GalleryPlaylistLoaded = createAction(

@@ -37,6 +37,9 @@ export class HeaderComponent {
     if (position === 'right') {
       return 'right: 0; text-align: right';
     }
+    if (position === 'center'){
+      return 'right: 0; left: 0; top: 90px; max-height: 300px; margin: auto'
+    }
     return 'position: left';
   });
 

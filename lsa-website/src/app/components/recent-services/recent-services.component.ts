@@ -61,7 +61,7 @@ export class RecentServices implements OnInit {
     return (
       this.unfilteredVideos().length != 0 &&
       this.unfilteredVideos().length >=
-        this.videoService.getTotalVideos(VideoListType.Preachings)
+        this.videoService.getTotalVideos(VideoListType.Preachings)!
     );
   });
   readonly searchQueryChanged$ = toObservable(this.searchQuery);

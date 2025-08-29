@@ -231,7 +231,7 @@
           "bible-courses": {
             "type": "biblestudies",
             "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
-            "initial-load":100,
+            "initial-load": 100,
             "search-box": {
               "place-holder": "Buscar por título o maestro",
               "position": "center",
@@ -244,7 +244,37 @@
                 "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
                 "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
               ]
-            }        
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "gallery",
+      "title": "Galería de eventos",
+      "sections": [
+        {
+          "name": "header",
+          "title": "Galería de eventos",
+          "floating-description": {
+            "position": "center",
+            "description-block": {
+              "text-color": "#ffffff",
+              "lines": [
+                "QUOTE Grandes cosas ha hecho Jehová con nosotros; estaremos alegres.",
+                "REF Salmos 126:3"
+              ]
+            }
+          },
+          "background-image": "assets/images/choir.jpeg",
+          "background-color": "#3f4a49"
+        },
+        {
+          "name": "section-1",
+          "title": "Eventos pasados",
+          "text-align": "center",
+          "video-gallery": {
+            "show": true
           }
         }
       ]
@@ -357,8 +387,8 @@
           },
           {
             "index": 4,
-            "text": "Credo doctrinal",
-            "link": "/doctrine"
+            "text": "Galería",
+            "link": "/gallery"
           }
         ]
       },

@@ -59,7 +59,7 @@ export interface FooterItemLinkConfig {
 
 export interface FloatingDescriptionConfig {
   descriptionBlock: DescriptionBlockConfig;
-  position?: 'left' | 'right';
+  position?: 'left' | 'right' | 'center';
 }
 
 export interface VerseConfig {
@@ -125,6 +125,7 @@ export interface SectionConfig {
   recentServices?: RecentServicesConfig;
   preachingPlaylists?: PreachingPlaylistsConfig;
   bibleCourses?: BibleCoursesConfig;
+  videoGallery?: VideoGalleryConfig;
   calendarListView?: CalendarListViewConfig;
   footer?: FooterConfig;
 }
@@ -138,6 +139,11 @@ export interface PageConfig {
     useShadow: boolean;
   };
   sections: SectionConfig[];
+}
+
+export interface VideoGalleryConfig {
+  descriptionBlock?: DescriptionBlockConfig;
+  show: boolean;
 }
 
 export interface NavigationOption {

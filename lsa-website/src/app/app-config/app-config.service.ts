@@ -19,6 +19,7 @@ import {
   CalendarListViewConfig,
   SectionConfig,
   VerseConfig,
+  VideoGalleryConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -104,8 +105,11 @@ export class AppConfigService {
       recentServices: this.parseRecentServicesConfig(
         section['recent-services']
       ),
-      preachingPlaylists: this.parsePreachingPlaylistsConfig(section['preaching-playlists']),
+      preachingPlaylists: this.parsePreachingPlaylistsConfig(
+        section['preaching-playlists']
+      ),
       bibleCourses: this.parseBibleCoursesConfig(section['bible-courses']),
+      videoGallery: this.parseVideoGalleryConfig(section['video-gallery']),
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
@@ -136,17 +140,25 @@ export class AppConfigService {
     return {
       initialLoad: config['initial-load'],
       searchBox: this.parseSearchBox(config['search-box']),
-      descriptionBlock: this.parseDescriptionBlock(
-        config['description-block']
-      ),
+      descriptionBlock: this.parseDescriptionBlock(config['description-block']),
       notFound: config['not-found'],
+    };
+  }
+
+  private parseVideoGalleryConfig(config: any): VideoGalleryConfig {
+    if (!config) {
+      return {} as VideoGalleryConfig;
+    }
+    return {
+      show: config.show,
+      descriptionBlock: this.parseDescriptionBlock(config['description-block']),
     };
   }
 
   private parsePreachingPlaylistsConfig(
     sectionConfig: any
   ): PreachingPlaylistsConfig {
-    if(sectionConfig == undefined){
+    if (sectionConfig == undefined) {
       return {};
     }
     return {

@@ -1,0 +1,8 @@
+@for (gallery of galleries(); track $index) {
+    @if(gallery.videos?.length != undefined){
+        <lsa-video-collage [videos]="gallery.videos!" [title]="gallery.name!"></lsa-video-collage>
+    }
+    @else if(gallery.videoUrl != undefined){
+        <lsa-video-card [video]="gallery" ></lsa-video-card>
+    }
+}
