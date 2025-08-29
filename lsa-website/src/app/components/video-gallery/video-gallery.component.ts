@@ -3,6 +3,7 @@ import { VideosService } from 'src/app/services/videos.service';
 import { VideoCollageComponent } from '../video-collage/video-collage.component';
 import { VideoCardComponent } from '../video-card/video-card.component';
 import { HydratedVideoPlaylist, VideoModel } from 'src/app/models/video.model';
+import { PlaylistViewerService } from 'src/app/services/playlist-viewer.service';
 
 interface GalleryVideoOrPlaylist {
   id: number | number;
@@ -14,7 +15,7 @@ interface GalleryVideoOrPlaylist {
   playlist: string;
   name: string;
   videos: ReadonlyArray<VideoModel>;
-  maestros: string[]
+  maestros: string[];
 }
 
 @Component({
@@ -25,12 +26,19 @@ interface GalleryVideoOrPlaylist {
 })
 export class VideoGalleryComponent implements OnInit {
   readonly videoService = inject(VideosService);
-  readonly galleries = computed(() => [...this.videoService.galleryVideos()] as GalleryVideoOrPlaylist[]);
+  readonly playlistViewer = inject(PlaylistViewerService);
+  readonly galleries = computed(
+    () => [...this.videoService.galleryVideos()] as GalleryVideoOrPlaylist[]
+  );
 
   ngOnInit(): void {
     if (this.galleries()?.length === 0) {
       this.videoService.loadAllGalleryVideos();
       this.videoService.loadGalleryVideosPlaylists();
     }
+  }
+
+  openPlaylist(playlist: GalleryVideoOrPlaylist) {
+    this.playlistViewer.openPlaylistViewer(playlist as any);
   }
 }

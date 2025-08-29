@@ -1,7 +1,6 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { VideoModel } from 'src/app/models/video.model';
 import { VideoCardComponent } from '../video-card/video-card.component';
-import { PlaylistViewerService } from 'src/app/services/playlist-viewer.service';
 
 @Component({
   selector: 'lsa-video-collage',
