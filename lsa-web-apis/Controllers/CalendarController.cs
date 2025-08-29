@@ -31,7 +31,7 @@ namespace lsa_web_apis.Controllers
             if (dateTime is not null)
                 query = query.Where(e => e.StartTime > dateTime);
 
-            var result = await query.Select(e => new CalendarEventDto(e)).ToListAsync();
+            var result = await query.OrderBy(e=> e.StartTime).Select(e => new CalendarEventDto(e)).ToListAsync();
             return Ok(result);
         }
 
@@ -45,7 +45,7 @@ namespace lsa_web_apis.Controllers
             if (dateTime is not null)
                 query = query.Where(e => e.StartTime > dateTime);
 
-            PagedResult<CalendarEventDto> result = await query.Select(e => new CalendarEventDto(e)).ToPagedResultAsync(page, pageSize);
+            PagedResult<CalendarEventDto> result = await query.OrderBy(e=> e.StartTime).Select(e => new CalendarEventDto(e)).ToPagedResultAsync(page, pageSize);
 
             return Ok(result);
         }

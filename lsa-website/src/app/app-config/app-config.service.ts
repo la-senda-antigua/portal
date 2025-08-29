@@ -16,6 +16,7 @@ import {
   LiveBroadcastConfig,
   SearchBoxConfig,
   VideoListConfig,
+  CalendarListViewConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -103,7 +104,8 @@ export class AppConfigService {
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
       quickLinks: this.parseQuickLinks(section['quick-links']),
-      footer: this.parseFooter(section['footer']),
+      calendarListView: this.parseCalendarListView(section['calendar-list-view']),
+      footer: this.parseFooter(section['footer']),      
     };
   }
 
@@ -224,5 +226,14 @@ export class AppConfigService {
       backgrounColor: quickLinks['background-color'],
       links: quickLinks['links'],
     };
+  }
+
+  private parseCalendarListView(data: any): CalendarListViewConfig {
+    if (!data) return {} as CalendarListViewConfig;
+
+    return {
+      title: data['title'],
+      description: this.parseDescriptionBlock(data['description-block'])
+    }
   }
 }

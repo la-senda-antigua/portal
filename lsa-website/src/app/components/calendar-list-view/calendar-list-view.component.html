@@ -1,0 +1,43 @@
+<div class="info">
+  <h1>{{ config().title }}</h1>
+  @if (config().description.lines.length > 0) {
+    <lsa-description-block [descriptionBlockConfig]="config().description!"></lsa-description-block>
+  }
+</div>
+
+<div class="calendar-events-container">
+  @for (calendarEvent of calendarEventService.calendarEventList(); track
+  calendarEvent) {
+  <mat-card class="calendar-card" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>
+        {{ calendarEvent.title }}
+        @if(calendarEvent.status === 'Active'){
+        <div class="active">En curso</div>
+        }
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>{{ calendarEvent.description }}</p>
+
+      <table class="table-info">
+        <tr>
+          <td>Inicio:</td>
+          <td>
+            <b>{{ calendarEvent.startTime | date : "MMM d, y hh:mm a" }}</b>
+          </td>
+        </tr>
+
+        @if(calendarEvent.endTime){
+        <tr>
+          <td>Fin:</td>
+          <td>
+            <b>{{ calendarEvent.endTime | date : "MMM d, y hh:mm a" }}</b>
+          </td>
+        </tr>
+        }
+      </table>
+    </mat-card-content>
+  </mat-card>
+  }
+</div>

@@ -1,0 +1,40 @@
+@use "../../../styles_variables" as style_vars;
+
+.calendar-events-container{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.calendar-card {
+  max-width: 400px;
+  width: 100%;
+  font-size: style_vars.$fs-m;
+}
+
+.mat-mdc-card-title, .mat-mdc-card-subtitle{
+  font-weight: 400;  
+}
+
+.mat-mdc-card-header{
+  justify-content: center;
+  font-weight: bold;
+}
+
+.active{  
+  background-color: var(--mat-sys-primary);
+  color: var(--mat-sys-on-secondary);  
+  padding: 0px 8px;
+  border-radius: 16px;
+  font-size: style_vars.$fs-sm;
+  position: absolute;
+  right: 2px;
+  top:2px;  
+}
+
+.table-info{
+  width: 100%;
+  font-size: style_vars.$fs-sm;
+  
+}

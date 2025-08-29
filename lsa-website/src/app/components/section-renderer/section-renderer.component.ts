@@ -13,6 +13,7 @@ import { ImageCardComponent } from '../image-card/image-card.component';
 import { QuickLinksComponent } from '../quick-links/quick-links.component';
 import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VideoListComponent } from '../video-list/video-list.component';
+import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
 
 @Component({
   selector: 'lsa-section-renderer',
@@ -24,7 +25,8 @@ import { VideoListComponent } from '../video-list/video-list.component';
     ImageCardComponent,
     QuickLinksComponent,
     SearchboxComponent,
-    VideoListComponent
+    VideoListComponent,
+    CalendarListViewComponent,
   ],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',

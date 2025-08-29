@@ -115,6 +115,7 @@ export interface SectionConfig {
   verseOfTheDay?: VerseConfig;
   quickLinks?: QuickLinksConfig;
   videoList?: VideoListConfig;
+  calendarListView?: CalendarListViewConfig;
   footer?: FooterConfig;
 }
 
@@ -151,6 +152,11 @@ export interface LiveBroadcastConfig {
   notification?: string;
   backgroundColor?: string;
   textColor?: string;
+}
+
+export interface CalendarListViewConfig{
+  title: string;
+  description: DescriptionBlockConfig;
 }
 
 export interface AppConfig {
