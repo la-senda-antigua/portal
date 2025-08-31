@@ -1,16 +1,16 @@
+import { provideHttpClient } from '@angular/common/http';
 import { inject, NgModule, provideAppInitializer } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { BrowserModule } from '@angular/platform-browser';
+import { StoreModule } from '@ngrx/store';
 import { tap } from 'rxjs';
+import { AppConfigService } from './app-config/app-config.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { provideHttpClient } from '@angular/common/http';
-import { AppConfigService } from './app-config/app-config.service';
-import { NavBarComponent } from './components/nav-bar/nav-bar.component';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MobileMenuComponent } from './components/mobile-menu/mobile-menu.component';
-import { StoreModule } from '@ngrx/store';
-import { bibleStudiesReducer, preachingsReducer } from './state/videos.reducers';
+import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { AppStateReducerMap } from './state/videos.selectors';
 
 export function initializeApp(configService: AppConfigService) {
   return configService
@@ -27,7 +27,7 @@ export function initializeApp(configService: AppConfigService) {
     NavBarComponent,
     MatSidenavModule,
     MobileMenuComponent,
-    StoreModule.forRoot({preachings: preachingsReducer, bibleStudies: bibleStudiesReducer})
+    StoreModule.forRoot(AppStateReducerMap)
   ],
   providers: [
     provideHttpClient(),

@@ -6,14 +6,17 @@ import {
 } from '@angular/core';
 import { SectionConfig } from '../../models/app.config.models';
 import { DescriptionBlockComponent } from '../description-block/description-block.component';
-import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
-import { MapWidgetComponent } from '../map-widget/map-widget.component';
 import { FooterComponent } from '../footer/footer.component';
 import { ImageCardComponent } from '../image-card/image-card.component';
+import { MapWidgetComponent } from '../map-widget/map-widget.component';
+import { RecentServices } from '../recent-services/recent-services.component';
 import { QuickLinksComponent } from '../quick-links/quick-links.component';
 import { SearchboxComponent } from '../searchbox/searchbox.component';
-import { VideoListComponent } from '../video-list/video-list.component';
+import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
 import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
+import { PreachingPlaylistsComponent } from '../preaching-playlists/preaching-playlists.component';
+import { BibleCoursesComponent } from '../bible-courses/bible-courses.component';
+import { VideoGalleryComponent } from '../video-gallery/video-gallery.component';
 
 @Component({
   selector: 'lsa-section-renderer',
@@ -25,8 +28,11 @@ import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-v
     ImageCardComponent,
     QuickLinksComponent,
     SearchboxComponent,
-    VideoListComponent,
     CalendarListViewComponent,
+    RecentServices,
+    PreachingPlaylistsComponent,
+    BibleCoursesComponent,
+    VideoGalleryComponent
   ],
   templateUrl: './section-renderer.component.html',
   styleUrl: './section-renderer.component.scss',

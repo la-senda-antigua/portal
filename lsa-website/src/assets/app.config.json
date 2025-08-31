@@ -192,22 +192,17 @@
       "sections": [
         {
           "name": "section-1",
+          "title": "Series del pastor Bernardo",
+          "text-align": "center",
+          "preaching-playlists": {}
+        },
+        {
+          "name": "section-2",
           "title": "Servicios recientes",
           "text-align": "center",
-          "video-list": {
-            "size": 10,
-            "type": "preachings",
-            "not-found-in-recents": "No se encontraron videos recientes con el término entrado. Presione \"Cargar más\" para buscar en años anteriores",
+          "recent-services": {
+            "initial-load": 100,
             "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
-            "button": {
-              "text": "Cargar más"
-            },
-            "description-block": {
-              "lines": [
-                "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
-                "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
-              ]
-            },
             "search-box": {
               "place-holder": "Buscar por título o predicador",
               "position": "center",
@@ -215,7 +210,8 @@
               "search-delay": 500,
               "icon-position": "left"
             }
-          }
+          },
+          "background-color": "rgb(220, 217, 208)"
         }
       ]
     },
@@ -230,29 +226,55 @@
       "sections": [
         {
           "name": "section-1",
-          "title": "Estudios recientes",
+          "title": "Estudios Bíblicos Fundamentales",
           "text-align": "center",
-          "video-list": {
-            "size": 10,
+          "bible-courses": {
             "type": "biblestudies",
-            "not-found-in-recents": "No se encontraron videos recientes con el término entrado. Presione \"Cargar más\" para buscar en años anteriores",
             "not-found": "No se ecnontró ningún video con el término de búsqueda entrado.",
-            "button": {
-              "text": "Cargar más"
+            "initial-load": 100,
+            "search-box": {
+              "place-holder": "Buscar por título o maestro",
+              "position": "center",
+              "width": 400,
+              "search-delay": 500,
+              "icon-position": "left"
             },
             "description-block": {
               "lines": [
                 "Es nuestro deseo que este material sea de bendición y edificación para su vida espiritual.",
                 "Si siente que así ha sido, por favor considere escribirnos un comentario para que también nosotros seamos edificados."
               ]
-            },
-            "search-box": {
-              "place-holder": "Buscar por título o predicador",
-              "position": "center",
-              "width": 400,
-              "search-delay": 500,
-              "icon-position": "left"
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "gallery",
+      "title": "Galería de eventos",
+      "sections": [
+        {
+          "name": "header",
+          "title": "Galería de eventos",
+          "floating-description": {
+            "position": "center",
+            "description-block": {
+              "text-color": "#ffffff",
+              "lines": [
+                "QUOTE Grandes cosas ha hecho Jehová con nosotros; estaremos alegres.",
+                "REF Salmos 126:3"
+              ]
+            }
+          },
+          "background-image": "assets/images/choir.jpeg",
+          "background-color": "#3f4a49"
+        },
+        {
+          "name": "section-1",
+          "title": "Eventos pasados",
+          "text-align": "center",
+          "video-gallery": {
+            "show": true
           }
         }
       ]
@@ -365,8 +387,8 @@
           },
           {
             "index": 4,
-            "text": "Credo doctrinal",
-            "link": "/doctrine"
+            "text": "Galería",
+            "link": "/gallery"
           }
         ]
       },

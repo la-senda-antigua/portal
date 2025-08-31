@@ -1,19 +1,32 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, Signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { map } from 'rxjs';
+import { forkJoin, map, Observable, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { VideoListType } from '../models/app.config.models';
 import {
   GetVideosResponse,
   VideoModel,
+  VideoPlaylist,
   VideoRecordingDto,
   VideoStoreState,
 } from '../models/video.model';
-import { BibleStudyBatchLoaded, PreachingBatchLoaded } from '../state/videos.actions';
 import {
+  AllGalleryVideosLoaded,
+  BibleStudyBatchLoaded,
+  BibleStudyPlaylistLoaded,
+  GalleryPlaylistLoaded,
+  PreachingBatchLoaded,
+  PreachingPlaylistLoaded,
+} from '../state/videos.actions';
+import {
+  selectAllGalleryVideosAndPlaylists,
   selectBibleStudiesCurrentPage,
   selectBibleStudiesInStore,
   selectBibleStudiesState,
+  selectGalleryVideosInStore,
+  selectHydratedBibleStudyPlaylists,
+  selectHydratedPreachingPlaylists,
   selectPreachingsCurrentPage,
   selectPreachingsInStore,
   selectPreachingsState,
@@ -28,39 +41,76 @@ export class VideosService {
   private store = inject(Store);
 
   private preachingsStoreState = this.store.selectSignal(selectPreachingsState);
-  private preachingsCurrentPage = this.store.selectSignal(selectPreachingsCurrentPage);
+  private preachingsCurrentPage = this.store.selectSignal(
+    selectPreachingsCurrentPage
+  );
   public preachingsInStore = this.store.selectSignal(selectPreachingsInStore);
+  public preachingPlaylists = this.store.selectSignal(
+    selectHydratedPreachingPlaylists
+  );
 
-  private bibleStudiesStoreState = this.store.selectSignal(selectBibleStudiesState);
-  private bibleStudiesCurrentPage = this.store.selectSignal(selectBibleStudiesCurrentPage);
-  public bibleStudiesInStore = this.store.selectSignal(selectBibleStudiesInStore);
+  private bibleStudiesStoreState = this.store.selectSignal(
+    selectBibleStudiesState
+  );
+  private bibleStudiesCurrentPage = this.store.selectSignal(
+    selectBibleStudiesCurrentPage
+  );
+  public bibleStudiesInStore = this.store.selectSignal(
+    selectBibleStudiesInStore
+  );
+  public bibleStudyPlaylists = this.store.selectSignal(
+    selectHydratedBibleStudyPlaylists
+  );
 
-  loadVideoBatch(type: 'preachings' | 'biblestudies') {
+  public galleryVideos = this.store.selectSignal(
+    selectAllGalleryVideosAndPlaylists
+  );
+
+  private videoBatchLoaded$ = new Subject();
+
+  loadVideoBatch(type: VideoListType, batchSize = 100) {
     switch (type) {
-      case 'biblestudies':
-        this.loadBibleStudiesBatch();
-        break;
+      case VideoListType.BibleStudies:
+        this.loadBibleStudiesBatch(batchSize);
+        return this.videoBatchLoaded$.asObservable();
+
+      case VideoListType.Preachings:
       default:
-        this.loadPreachingBatch();
+        this.loadPreachingBatch(batchSize);
+        return this.videoBatchLoaded$.asObservable();
     }
   }
 
-  getTotalVideos(type: 'preachings' | 'biblestudies') {
+  getTotalVideos(type: VideoListType) {
     switch (type) {
-      case 'biblestudies':
+      case VideoListType.BibleStudies:
         return this.bibleStudiesStoreState().totalVideos;
       default:
         return this.preachingsStoreState().totalVideos;
     }
   }
 
-  loadAllSermons(): void {
-    const currentPage = this.preachingsCurrentPage();
-    const totalPages = this.preachingsStoreState().totalPages;
-    const pageSize = this.preachingsStoreState().pageSize;
-    for (let i = currentPage; i < totalPages; i++) {
-      this.loadPreachingBatch(pageSize, i + 1);
+  loadAllVideos(type: VideoListType): Observable<void> {
+    switch (type) {
+      case VideoListType.BibleStudies:
+        return this.loadAllBibleStudies();
+      default:
+        return this.loadAllSermons();
     }
+  }
+
+  loadAllSermons(): Observable<void> {
+    const currentPage = this.preachingsCurrentPage()!;
+    const totalPages = this.preachingsStoreState().totalPages!;
+    const pageSize = this.preachingsStoreState().pageSize!;
+    const pagedItems = [];
+    for (let i = currentPage; i < totalPages; i++) {
+      pagedItems.push({ pageSize, page: i + 1 });
+    }
+    const observables = pagedItems.map((item) =>
+      this.loadPreachingBatch(item.pageSize, item.page)
+    );
+    return forkJoin([observables]).pipe(map(() => void 0));
   }
 
   private loadPreachingBatch(
@@ -68,7 +118,7 @@ export class VideosService {
     page: number | undefined = undefined
   ): void {
     if (page === undefined) {
-      page = this.preachingsCurrentPage() + 1;
+      page = this.preachingsCurrentPage()! + 1;
     }
     this.httpClient
       .get<GetVideosResponse>(
@@ -87,6 +137,8 @@ export class VideosService {
                   videoUrl: i.videoPath,
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
+                  id: i.id,
+                  playlist: i.playlist,
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,
@@ -94,18 +146,51 @@ export class VideosService {
           };
         })
       )
-      .subscribe((state: VideoStoreState) =>
-        this.store.dispatch(PreachingBatchLoaded(state))
-      );
+      .subscribe((state: VideoStoreState) => {
+        this.store.dispatch(PreachingBatchLoaded(state));
+        this.videoBatchLoaded$.next(null);
+      });
   }
 
-  loadAllBibleStudies(): void {
-    const currentPage = this.bibleStudiesCurrentPage();
-    const totalPages = this.bibleStudiesStoreState().totalPages;
-    const pageSize = this.bibleStudiesStoreState().pageSize;
+  loadAllBibleStudies(): Observable<void> {
+    const currentPage = this.bibleStudiesCurrentPage()!;
+    const totalPages = this.bibleStudiesStoreState().totalPages!;
+    const pageSize = this.bibleStudiesStoreState().pageSize!;
+    const pagedItems = [];
     for (let i = currentPage; i < totalPages; i++) {
-      this.loadBibleStudiesBatch(pageSize, i + 1);
+      pagedItems.push({ pageSize, page: i + 1 });
     }
+    pagedItems.map((item) =>
+      this.loadBibleStudiesBatch(item.pageSize, item.page)
+    );
+    return forkJoin([pagedItems]).pipe(map(() => void 0));
+  }
+
+  loadAllGalleryVideos(): Observable<unknown> {
+    this.httpClient
+      .get<VideoRecordingDto[]>(`${this.baseUrl}/gallery/getall`)
+      .subscribe((videos) => {
+        const videosInStore: ReadonlyArray<VideoModel> = videos.map((v) => ({
+          id: v.id,
+          date: new Date(v.date),
+          title: v.title,
+          videoUrl: v.videoPath,
+          playlist: v.playlist,
+          thumbnailUrl: v.cover,
+        }));
+        const state = { videosInStore };
+        this.store.dispatch(AllGalleryVideosLoaded(state));
+        this.videoBatchLoaded$.next(null);
+      });
+    return this.videoBatchLoaded$.asObservable();
+  }
+
+  loadPreachingPlaylists() {
+    this.httpClient
+      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/SermonPlaylists`)
+      .subscribe((playlists) =>
+        this.store.dispatch(PreachingPlaylistLoaded({ playlists }))
+      );
   }
 
   private loadBibleStudiesBatch(
@@ -113,7 +198,7 @@ export class VideosService {
     page: number | undefined = undefined
   ): void {
     if (page === undefined) {
-      page = this.bibleStudiesCurrentPage() + 1;
+      page = this.bibleStudiesCurrentPage()! + 1;
     }
     this.httpClient
       .get<GetVideosResponse>(
@@ -133,6 +218,7 @@ export class VideosService {
                   videoUrl: i.videoPath,
                   thumbnailUrl: i.cover,
                   preacher: i.preacher.name,
+                  playlist: i.playlist,
                 } as VideoModel)
             ),
             totalVideos: response.totalItems,
@@ -140,8 +226,25 @@ export class VideosService {
           };
         })
       )
-      .subscribe((state: VideoStoreState) =>
-        this.store.dispatch(BibleStudyBatchLoaded(state))
+      .subscribe((state: VideoStoreState) => {
+        this.store.dispatch(BibleStudyBatchLoaded(state));
+        this.videoBatchLoaded$.next(null);
+      });
+  }
+
+  loadBibleStudyPlaylists() {
+    this.httpClient
+      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/LessonPlaylists`)
+      .subscribe((playlists) =>
+        this.store.dispatch(BibleStudyPlaylistLoaded({ playlists }))
+      );
+  }
+
+  loadGalleryVideosPlaylists() {
+    this.httpClient
+      .get<VideoPlaylist[]>(`${this.baseUrl}/VideoPlaylist/GalleryPlaylists`)
+      .subscribe((playlists) =>
+        this.store.dispatch(GalleryPlaylistLoaded({ playlists }))
       );
   }
 }

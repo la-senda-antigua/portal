@@ -5,6 +5,7 @@ using lsa_web_apis.Models;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers
 {
@@ -25,6 +26,13 @@ namespace lsa_web_apis.Controllers
         {
             var pagedResult = await _context.GalleryVideos.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
             return Ok(pagedResult);
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<ActionResult> GetAllGalleryVideos()
+        {
+            var videos = await _context.GalleryVideos.OrderByDescending(v => v.Date).ToListAsync();
+            return Ok(videos);
         }
 
         [HttpGet("search")]

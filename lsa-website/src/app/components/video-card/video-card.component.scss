@@ -4,6 +4,7 @@
 mat-card {
   width: 300px;
   margin: 20px;
+  cursor: pointer;
 
   .video {
     &-title {
@@ -26,7 +27,7 @@ mat-card {
 .hovered {
   @include mat.card-overrides(
     (
-      outlined-outline-color: "var(--mat-sys-primary)",
+      outlined-outline-color: "var(--mat-sys-tertiary)",
     )
   );
 }

@@ -1,0 +1,18 @@
+.spacer {
+  flex: 1;
+}
+
+.title {
+  display: flex;
+  margin-top: 8px;
+}
+
+.content-wrapper {
+  max-height: unset;
+  display: flex;
+  flex-direction: column;
+
+  .video-container {
+    height: calc(90vh - 420px);
+  }
+}

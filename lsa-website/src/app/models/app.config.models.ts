@@ -1,5 +1,3 @@
-import { VideoModel } from "./video.model";
-
 export interface ButtonConfig {
   alignment: 'left' | 'center' | 'right';
   text: string;
@@ -61,7 +59,7 @@ export interface FooterItemLinkConfig {
 
 export interface FloatingDescriptionConfig {
   descriptionBlock: DescriptionBlockConfig;
-  position?: 'left' | 'right';
+  position?: 'left' | 'right' | 'center';
 }
 
 export interface VerseConfig {
@@ -90,16 +88,26 @@ export interface SearchBoxConfig {
   iconPosition?: 'left' | 'right';
 }
 
-export interface VideoListConfig {
-  size: number;
-  button?: ButtonConfig;
+export interface VideoListSectionConfig {
   searchBox?: SearchBoxConfig;
   descriptionBlock?: DescriptionBlockConfig;
-  type: 'preachings'|'biblestudies';
-  notFoundInRecents?: string;
   notFound?: string;
+  initialLoad?: number;
 }
 
+export interface RecentServicesConfig extends VideoListSectionConfig {}
+
+export interface PreachingPlaylistsConfig {
+  descriptionBlock?: DescriptionBlockConfig;
+}
+
+export interface BibleCoursesConfig extends VideoListSectionConfig {}
+
+export enum VideoListType {
+  Preachings = 'preachings',
+  BibleStudies = 'biblestudies',
+  GalleryVideos = 'galleryvideos',
+}
 export interface SectionConfig {
   title: string;
   name: string;
@@ -114,7 +122,10 @@ export interface SectionConfig {
   imageCard?: ImageCardConfig;
   verseOfTheDay?: VerseConfig;
   quickLinks?: QuickLinksConfig;
-  videoList?: VideoListConfig;
+  recentServices?: RecentServicesConfig;
+  preachingPlaylists?: PreachingPlaylistsConfig;
+  bibleCourses?: BibleCoursesConfig;
+  videoGallery?: VideoGalleryConfig;
   calendarListView?: CalendarListViewConfig;
   footer?: FooterConfig;
 }
@@ -128,6 +139,11 @@ export interface PageConfig {
     useShadow: boolean;
   };
   sections: SectionConfig[];
+}
+
+export interface VideoGalleryConfig {
+  descriptionBlock?: DescriptionBlockConfig;
+  show: boolean;
 }
 
 export interface NavigationOption {

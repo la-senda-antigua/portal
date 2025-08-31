@@ -1,0 +1,10 @@
+.carrousel-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+
+    lsa-video-carrousel{
+        flex: 1;
+    }
+}

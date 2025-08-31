@@ -1,22 +1,24 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, Injectable } from '@angular/core';
-import { signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import {
   AppConfig,
-  PageConfig,
-  SectionConfig,
-  FloatingDescriptionConfig,
+  BibleCoursesConfig,
   DescriptionBlockConfig,
-  MapWidgetConfig,
-  ImageCardConfig,
-  NavigationConfig,
-  VerseConfig,
+  FloatingDescriptionConfig,
   FooterConfig,
-  QuickLinksConfig,
+  ImageCardConfig,
   LiveBroadcastConfig,
+  MapWidgetConfig,
+  NavigationConfig,
+  PageConfig,
+  PreachingPlaylistsConfig,
+  QuickLinksConfig,
+  RecentServicesConfig,
   SearchBoxConfig,
-  VideoListConfig,
   CalendarListViewConfig,
+  SectionConfig,
+  VerseConfig,
+  VideoGalleryConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -99,7 +101,14 @@ export class AppConfigService {
         section['description-block']
       ),
       searchBox: this.parseSearchBox(section['search-box']),
-      videoList: this.parseVideoListConfig(section['video-list']),
+      recentServices: this.parseRecentServicesConfig(
+        section['recent-services']
+      ),
+      preachingPlaylists: this.parsePreachingPlaylistsConfig(
+        section['preaching-playlists']
+      ),
+      bibleCourses: this.parseBibleCoursesConfig(section['bible-courses']),
+      videoGallery: this.parseVideoGalleryConfig(section['video-gallery']),
       mapWidget: this.parseMapWidget(section['map-widget']),
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
@@ -109,19 +118,53 @@ export class AppConfigService {
     };
   }
 
-  private parseVideoListConfig(videoList: any): VideoListConfig{
-    if(videoList == undefined){
-      return {} as VideoListConfig;
+  private parseRecentServicesConfig(videoList: any): RecentServicesConfig {
+    if (videoList == undefined) {
+      return {} as RecentServicesConfig;
     }
     return {
-      size: videoList["size"] ?? 6,
-      type: videoList["type"] ?? 'preachings',
-      button: videoList.button,
-      searchBox: this.parseSearchBox(videoList["search-box"]),
-      descriptionBlock: this.parseDescriptionBlock(videoList["description-block"]),
-      notFoundInRecents: videoList["not-found-in-recents"],
-      notFound: videoList["not-found"],
+      initialLoad: videoList['initial-load'] ?? 100,
+      searchBox: this.parseSearchBox(videoList['search-box']),
+      descriptionBlock: this.parseDescriptionBlock(
+        videoList['description-block']
+      ),
+      notFound: videoList['not-found'],
+    };
+  }
+
+  private parseBibleCoursesConfig(config: any): BibleCoursesConfig {
+    if (config == undefined) {
+      return {} as BibleCoursesConfig;
     }
+    return {
+      initialLoad: config['initial-load'],
+      searchBox: this.parseSearchBox(config['search-box']),
+      descriptionBlock: this.parseDescriptionBlock(config['description-block']),
+      notFound: config['not-found'],
+    };
+  }
+
+  private parseVideoGalleryConfig(config: any): VideoGalleryConfig {
+    if (!config) {
+      return {} as VideoGalleryConfig;
+    }
+    return {
+      show: config.show,
+      descriptionBlock: this.parseDescriptionBlock(config['description-block']),
+    };
+  }
+
+  private parsePreachingPlaylistsConfig(
+    sectionConfig: any
+  ): PreachingPlaylistsConfig {
+    if (sectionConfig == undefined) {
+      return {};
+    }
+    return {
+      descriptionBlock: this.parseDescriptionBlock(
+        sectionConfig['description-block']
+      ),
+    };
   }
 
   private parseSearchBox(searchBox: any): SearchBoxConfig {

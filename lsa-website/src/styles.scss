@@ -44,6 +44,12 @@ html {
       container-shape: rectangle,
     )
   );
+
+  @include mat.dialog-overrides(
+    (
+      container-max-width: none
+    )
+  );
 } /* You can add global styles to this file, and also import other style files */
 
 html,
@@ -59,6 +65,7 @@ h1,
 h2,
 h3 {
   font-weight: 300;
+  margin: 0;
 }
 
 h1 {
