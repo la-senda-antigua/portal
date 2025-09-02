@@ -361,7 +361,7 @@
         }
       ]
     },
-        {
+    {
       "name": "contribute",
       "title": "Donaciones",
       "navigation": {
@@ -402,6 +402,7 @@
           "name": "section-2",
           "image-card": {
             "title": "Escuela Bíblica de Verano:",
+            "image-position": "left",
             "description": {
               "lines": [
                 "Con este proyecto es nuestro anhelo alcanzar a los cientos de niños que viven en nuestro vecindario.",
@@ -422,6 +423,7 @@
           "name": "section-3",
           "image-card": {
             "title": "La obra en Morelia, México:",
+            "image-position": "right",
             "description": {
               "lines": [
                 "Nuestra congregación local está apoyando a nuestros hermanos en un pequeño pueblo del estado de Morelia, México. Con la Gracia del Señor, ellos han estado levantando un nuevo templo en donde congregarse, y  buscar juntos el rostro de Dios.",
@@ -461,6 +463,7 @@
           "name": "section-5",
           "image-card": {
             "title": "La obra en el sudeste de Asia:",
+            "image-position": "right",
             "description": {
               "lines": [
                 "Tono y Kelly Porras son obreros en el sureste de Asia, establecidos en la ciudad de Mae Sai, Tailandia, y con proyectos en Cambodia y Myanmar.",

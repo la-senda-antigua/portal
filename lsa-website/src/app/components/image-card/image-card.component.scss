@@ -13,6 +13,14 @@
 
   &.row {
     flex-direction: row;
+
+    &.left {
+      flex-direction: row-reverse;
+    }
+
+    &.right {
+      flex-direction: row;
+    }
   }
 
   > * {
