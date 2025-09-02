@@ -444,10 +444,9 @@
             "title": "La obra en el Oriente de Guatemala:",
             "description": {
               "lines": [
-                "Nuestra congregación local está apoyando a nuestros hermanos en un pequeño pueblo del estado de Morelia, México. Con la Gracia del Señor, ellos han estado levantando un nuevo templo en donde congregarse, y  buscar juntos el rostro de Dios.",
-                "La Iglesia en Morelia ha sido muy ejemplar en no permitir que sus niños sean adoctrinados por las ideas corruptas que permean las escuelas públicas del estado. Ellos han preferido que sus hijos sean tenidos por ignorantes delante de los ojos del hombre, y no perderlos en el cieno del mundo.",
-                "En los últimos meses, nuestra congregación a patrocinado a varios de los niños para que puedan tener una educación en casa, utilizando los materiales de estudio del Colegio Hebrón.",
-                "Usted también puede hacerse parte de esta obra con una donación dirigida a la obra en Morelia, México."
+                "Nuestra congregación local apoya el ministerio del pastor Weslye Salguero y su esposa Keren.", 
+                "Ellos tienen varias obras bajo su cargo en diferentes municipios del nor-oriente de Guatemala (Zacapa, Chiquimula y El Progreso).", 
+                "Ellos también trabajan con alrededor de 300 niños de escasos recursos, proveyéndoles de alimentos, ropa, educación, y principalmente, enseñándoles acerca del amor de Cristo."               
               ],
               "button": {
                 "text": "Donar",
@@ -464,10 +463,9 @@
             "title": "La obra en el sudeste de Asia:",
             "description": {
               "lines": [
-                "Nuestra congregación local está apoyando a nuestros hermanos en un pequeño pueblo del estado de Morelia, México. Con la Gracia del Señor, ellos han estado levantando un nuevo templo en donde congregarse, y  buscar juntos el rostro de Dios.",
-                "La Iglesia en Morelia ha sido muy ejemplar en no permitir que sus niños sean adoctrinados por las ideas corruptas que permean las escuelas públicas del estado. Ellos han preferido que sus hijos sean tenidos por ignorantes delante de los ojos del hombre, y no perderlos en el cieno del mundo.",
-                "En los últimos meses, nuestra congregación a patrocinado a varios de los niños para que puedan tener una educación en casa, utilizando los materiales de estudio del Colegio Hebrón.",
-                "Usted también puede hacerse parte de esta obra con una donación dirigida a la obra en Morelia, México."
+                "Tono y Kelly Porras son obreros en el sureste de Asia, establecidos en la ciudad de Mae Sai, Tailandia, y con proyectos en Cambodia y Myanmar.",
+                "A su cargo está el cuidado de un orfanatorio de niños birmanos, de las tribus Ahka y Lahu. Una gran parte de su trabajo está también involucrada en el desarrollo de comunidades de extrema pobreza, centrando su labor en la niñez, con proyectos gratuitos de educación, salud, alimentación y construcción de pozos de agua potable.", 
+                "En medio de este desarrollo comunitario, el Evangelio y el Amor de Jesucristo es compartido en estas naciones donde el Budhismo impera sobre el 98% de la población."
               ],
               "button": {
                 "text": "Donar",
@@ -475,7 +473,7 @@
               }
             },
             "background-color": "#ffffff",
-            "image": "assets/images/guatemala_7.jpg"
+            "image": "assets/images/asia_mission_2.jpg"
           }
         },
         {
