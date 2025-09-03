@@ -1,0 +1,64 @@
+name: Production - Deploy - APIs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'lsa-web-apis/**'
+
+jobs:
+  build-and-deploy:
+    defaults:
+      run:
+        working-directory: ./lsa-web-apis
+
+    runs-on: ubuntu-latest
+    
+    environment: 
+      name: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release
+    - name: Publish
+      run: dotnet publish --configuration Release -r linux-x64 --self-contained /p:PublishProfile=NoAppSettings
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: web-apis-artifact
+        path: /home/runner/work/portal/portal/lsa-web-apis/bin/Release/net9.0/publish
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: web-apis-artifact
+        path: api-dist-files
+    
+    - name: Copy files to VPS
+      uses: appleboy/scp-action@v1
+      with:
+        host: ${{ vars.CONTABO_SSH_IP }}
+        username: ${{ vars.CONTABO_SSH_USER }}
+        key: ${{ secrets.CONTABO_SSH_PWD }}
+        source: api-dist-files/*
+        target: /www/api.iglesialasendaantigua.com
+        overwrite: true
+        strip_components: 1
+
+    - name: Fix permissions and restart service
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ vars.CONTABO_SSH_IP }}
+        username: ${{ vars.CONTABO_SSH_USER }}
+        key: ${{ secrets.CONTABO_SSH_PWD }}
+        script: |
+          chmod +x /www/api.iglesialasendaantigua.com/lsa-web-apis
+          sudo systemctl restart lsa-web-apis
