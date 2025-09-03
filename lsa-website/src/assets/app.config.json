@@ -399,7 +399,7 @@
           "text-align": "center"
         },                
         {
-          "name": "section-2",
+          "name": "section-2",          
           "image-card": {
             "title": "Escuela Bíblica de Verano:",
             "image-position": "left",
@@ -412,15 +412,16 @@
               ],
               "button": {
                 "text": "Donar",
-                "link": "https://paypal.com"
+                "target": "_blank",
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
             },
-            "background-color": "#ffffff",
-            "image": "assets/images/guatemala_5.jpg"
+            "image": "assets/images/kids.png"
           }
         },
         {
-          "name": "section-3",
+          "name": "section-3",   
+          "background-color": "#ffffff",     
           "image-card": {
             "title": "La obra en Morelia, México:",
             "image-position": "right",
@@ -433,15 +434,15 @@
               ],
               "button": {
                 "text": "Donar",
-                "link": "https://www.paypal.com/donate?token=AsQvodIIeXM1Y6k0Cf0ssr2b4Usaa6W-2JHKabk9lMk8O_iLCNB4Z-SRKnOBxA7wOTZ-QXFn1SuG5GV9"
+                "target": "_blank",
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
             },
-            "background-color": "#ffffff",
             "image": "assets/images/guatemala_7.jpg"
           }
         },
         {
-          "name": "section-4",
+          "name": "section-4",          
           "image-card": {
             "title": "La obra en el Oriente de Guatemala:",
             "description": {
@@ -452,15 +453,16 @@
               ],
               "button": {
                 "text": "Donar",
-                "link": "https://www.paypal.com/donate?token=AsQvodIIeXM1Y6k0Cf0ssr2b4Usaa6W-2JHKabk9lMk8O_iLCNB4Z-SRKnOBxA7wOTZ-QXFn1SuG5GV9"
+                "target": "_blank",
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
-            },
-            "background-color": "#ffffff",
+            },            
             "image": "assets/images/guatemala_7.jpg"
           }
         },
         {
           "name": "section-5",
+          "background-color": "#ffffff",
           "image-card": {
             "title": "La obra en el sudeste de Asia:",
             "image-position": "right",
@@ -473,10 +475,9 @@
               "button": {
                 "text": "Donar",
                 "target": "_blank",
-                "link": "https://www.paypal.com/donate?token=AsQvodIIeXM1Y6k0Cf0ssr2b4Usaa6W-2JHKabk9lMk8O_iLCNB4Z-SRKnOBxA7wOTZ-QXFn1SuG5GV9"
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
-            },
-            "background-color": "#ffffff",
+            },            
             "image": "assets/images/asia_mission_2.jpg"
           }
         },
