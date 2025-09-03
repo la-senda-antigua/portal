@@ -61,4 +61,4 @@ jobs:
         key: ${{ secrets.CONTABO_SSH_PWD }}
         script: |
           chmod +x /www/api.iglesialasendaantigua.com/lsa-web-apis
-          sudo systemctl restart lsa-web-apis
+          sudo systemctl restart lsa-web-apis-prod
