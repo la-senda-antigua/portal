@@ -1,22 +1,20 @@
-<div
-  class="image-card-container"
-  [ngClass]="[
-    isSmallScreen() ? 'column' : 'row',
-    config().imagePosition || 'right'
-  ]"
->
+<div class="image-card-container" [ngClass]="[ isSmallScreen() ? 'column' : 'row', config().imagePosition || 'right']">
   <div class="description">
     <h1>{{ config().title }}</h1>
     @for(line of config().description.lines; track line) {
-    <p>{{ line }}</p>
-    } @if (config().description.button) {
-    <a
-      [routerLink]="config().description.button?.link"
-      mat-flat-button
-      class="button"
-    >
-      {{ config().description.button?.text }}
-    </a>
+        <p>{{ line }}</p>
+    } 
+
+    @if (config().description.button) {
+        @if (config().description.button?.target){            
+            <a [href]="config().description.button?.link" mat-flat-button class="button" [attr.target]="config().description.button?.target">
+                {{ config().description.button?.text }}
+            </a>
+        } @else {
+            <a [routerLink]="config().description.button?.link" mat-flat-button class="button">
+                {{ config().description.button?.text }}
+            </a>
+        }
     }
   </div>
 

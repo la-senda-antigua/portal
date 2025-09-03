@@ -472,6 +472,7 @@
               ],
               "button": {
                 "text": "Donar",
+                "target": "_blank",
                 "link": "https://www.paypal.com/donate?token=AsQvodIIeXM1Y6k0Cf0ssr2b4Usaa6W-2JHKabk9lMk8O_iLCNB4Z-SRKnOBxA7wOTZ-QXFn1SuG5GV9"
               }
             },
