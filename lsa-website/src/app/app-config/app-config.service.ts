@@ -76,7 +76,7 @@ export class AppConfigService {
   private parseConfigPage(page: any): PageConfig {
     return {
       name: page.name,
-      title: page.title,
+      title: page.title,      
       navigation: {
         textColor: page.navigation?.['text-color'] ?? 'light',
         useShadow: page.navigation?.['use-shadow'] ?? true,
@@ -94,6 +94,7 @@ export class AppConfigService {
       textColor: section['text-color'],
       backgroundColor: section['background-color'],
       backgroundImage: section['background-image'],
+      backgroundPosition: section['background-position'],
       floatingDescription: this.parseFloatingDescription(
         section['floating-description']
       ),
