@@ -1,9 +1,9 @@
-name: Testing - Deploy - APIs
+name: Production - Deploy - APIs
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "development" ]
+    branches: [ "main" ]
     paths:
       - 'lsa-web-apis/**'
 
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     
     environment: 
-      name: testing
+      name: production
     
     steps:
     - uses: actions/checkout@v4
@@ -49,7 +49,7 @@ jobs:
         username: ${{ vars.CONTABO_SSH_USER }}
         key: ${{ secrets.CONTABO_SSH_PWD }}
         source: api-dist-files/*
-        target: /www/testing-api
+        target: /www/api.iglesialasendaantigua.com
         overwrite: true
         strip_components: 1
 
@@ -60,5 +60,5 @@ jobs:
         username: ${{ vars.CONTABO_SSH_USER }}
         key: ${{ secrets.CONTABO_SSH_PWD }}
         script: |
-          chmod +x /www/testing-api/lsa-web-apis
-          sudo systemctl restart lsa-web-apis-testing
+          chmod +x /www/api.iglesialasendaantigua.com/lsa-web-apis
+          sudo systemctl restart lsa-web-apis-prod
