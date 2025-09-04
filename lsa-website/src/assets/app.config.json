@@ -542,20 +542,18 @@
           "name": "header",                    
           "background-image": "assets/images/thankyou.jpg",
           "background-color": "#3f4a49",
-          "background-position": "center"
-        },
-        {
-          "name": "section-1",
+          "background-position": "center",
           "title": "Gracias",
-          "description-block": {
-            "lines": [
-             "Gracias por su contribución a este ministerio.",
-              "El Señor de la mies le recompensará grandemente."
-            ]
-          },
-          "background-color": "#f5f5f5",
-          "text-align": "center"
-        },          
+          "floating-description": {
+            "position": "center",
+            "description-block": {
+              "text-color": "#ffffff",              
+              "lines": [
+                "Gracias por su contribución a este ministerio.","El Señor de la mies le recompensará grandemente."
+              ]
+            }
+          }
+        },       
         {
           "name": "footer",
           "footer": {
