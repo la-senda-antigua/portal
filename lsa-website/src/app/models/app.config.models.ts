@@ -3,6 +3,7 @@ export interface ButtonConfig {
   text: string;
   link: string;
   type: 'primary' | 'secondary';
+  target?: '_blank' | '_self' | '_parent' | '_top' | null;
 }
 
 export interface DescriptionBlockConfig {
@@ -39,6 +40,7 @@ export interface ImageCardConfig {
   image: string;
   backgroundColor?: string;
   description: DescriptionBlockConfig;
+  imagePosition?: 'left' | 'right';
 }
 
 export interface FooterConfig {
@@ -170,7 +172,7 @@ export interface LiveBroadcastConfig {
   textColor?: string;
 }
 
-export interface CalendarListViewConfig{
+export interface CalendarListViewConfig {
   title: string;
   description: DescriptionBlockConfig;
 }

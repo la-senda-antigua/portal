@@ -360,6 +360,173 @@
           }
         }
       ]
+    },
+    {
+      "name": "contribute",
+      "title": "Donaciones",
+      "navigation": {
+        "text-color": "light",
+        "background-color": "none",
+        "use-shadow": true
+      },
+      "sections": [
+        {
+          "name": "header",
+          "title": "La Obra Misionera",
+          "floating-description": {
+            "position": "left",
+            "description-block": {
+              "text-color": "#ffffff",
+              "lines": [
+                "QUOTE Y respondiendo el Rey, les dirá: De cierto os digo que en cuanto lo hicisteis a uno de estos mis hermanos más pequeños, a mí lo hicisteis.",
+                "REF Mateo 25:40"
+              ]
+            }
+          },
+          "background-image": "assets/images/missions.jpg",
+          "background-color": "#3f4a49"
+        },
+        {
+          "name": "section-1",          
+          "description-block": {
+            "lines": [
+              "En Iglesia La Senda Antigua estamos comprometidos con Dios a invertir nuestro tesoro en las asuntos celestiales.",
+              "Es por eso que, además de los gastos regulares que tenemos en el mantenimiento de la Iglesia local, también invertimos en otros proyectos, igualmente importantes:"
+            ]
+          },
+          "background-color": "#f5f5f5",
+          "text-align": "center"
+        },                
+        {
+          "name": "section-2",          
+          "image-card": {
+            "title": "Escuela Bíblica de Verano:",
+            "image-position": "left",
+            "description": {
+              "lines": [
+                "Con este proyecto es nuestro anhelo alcanzar a los cientos de niños que viven en nuestro vecindario.",
+                "La Escuela Bíblica de Verano dura una semana, en donde se realizan diferentes dinámicas para los niños, se les provee de alimentos a ellos y a sus familias, pero, principalmente, se les comparte el evangelio de la Salvación.",
+                "El Señor ha tocado las vidas de muchas familias hispanas en nuestro alrededor a través de este evento anual, pero el gasto económico y físico es bastante alto.",
+                "Si Dios lo moviera a hacerlo, por favor considere contribuir económicamente a este esfuerzo evangelístico."
+              ],
+              "button": {
+                "text": "Donar",
+                "target": "_blank",
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
+              }
+            },
+            "image": "assets/images/kids.png"
+          }
+        },
+        {
+          "name": "section-3",   
+          "background-color": "#ffffff",     
+          "image-card": {
+            "title": "La obra en Morelia, México:",
+            "image-position": "right",
+            "description": {
+              "lines": [
+                "Nuestra congregación local está apoyando a nuestros hermanos en un pequeño pueblo del estado de Morelia, México. Con la Gracia del Señor, ellos han estado levantando un nuevo templo en donde congregarse, y  buscar juntos el rostro de Dios.",
+                "La Iglesia en Morelia ha sido muy ejemplar en no permitir que sus niños sean adoctrinados por las ideas corruptas que permean las escuelas públicas del estado. Ellos han preferido que sus hijos sean tenidos por ignorantes delante de los ojos del hombre, y no perderlos en el cieno del mundo.",
+                "En los últimos meses, nuestra congregación a patrocinado a varios de los niños para que puedan tener una educación en casa, utilizando los materiales de estudio del Colegio Hebrón.",
+                "Usted también puede hacerse parte de esta obra con una donación dirigida a la obra en Morelia, México."
+              ],
+              "button": {
+                "text": "Donar",
+                "target": "_blank",
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
+              }
+            },
+            "image": "assets/images/guatemala_7.jpg"
+          }
+        },
+        {
+          "name": "section-4",          
+          "image-card": {
+            "title": "La obra en el Oriente de Guatemala:",
+            "description": {
+              "lines": [
+                "Nuestra congregación local apoya el ministerio del pastor Weslye Salguero y su esposa Keren.", 
+                "Ellos tienen varias obras bajo su cargo en diferentes municipios del nor-oriente de Guatemala (Zacapa, Chiquimula y El Progreso).", 
+                "Ellos también trabajan con alrededor de 300 niños de escasos recursos, proveyéndoles de alimentos, ropa, educación, y principalmente, enseñándoles acerca del amor de Cristo."               
+              ],
+              "button": {
+                "text": "Donar",
+                "target": "_blank",
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
+              }
+            },            
+            "image": "assets/images/guatemala_7.jpg"
+          }
+        },
+        {
+          "name": "section-5",
+          "background-color": "#ffffff",
+          "image-card": {
+            "title": "La obra en el sudeste de Asia:",
+            "image-position": "right",
+            "description": {
+              "lines": [
+                "Tono y Kelly Porras son obreros en el sureste de Asia, establecidos en la ciudad de Mae Sai, Tailandia, y con proyectos en Cambodia y Myanmar.",
+                "A su cargo está el cuidado de un orfanatorio de niños birmanos, de las tribus Ahka y Lahu. Una gran parte de su trabajo está también involucrada en el desarrollo de comunidades de extrema pobreza, centrando su labor en la niñez, con proyectos gratuitos de educación, salud, alimentación y construcción de pozos de agua potable.", 
+                "En medio de este desarrollo comunitario, el Evangelio y el Amor de Jesucristo es compartido en estas naciones donde el Budhismo impera sobre el 98% de la población."
+              ],
+              "button": {
+                "text": "Donar",
+                "target": "_blank",
+                "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
+              }
+            },            
+            "image": "assets/images/asia_mission_2.jpg"
+          }
+        },
+        {
+          "name": "footer",
+          "footer": {
+            "items": [
+              {
+                "title": "Comuníquese",
+                "links": [
+                  {
+                    "text": "lasendaantigua.la@gmail.com",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "mail"
+                  },
+                  {
+                    "text": "+1 (626)808-1237",
+                    "href": "tel:+16268081237",
+                    "icon": "phone"
+                  }
+                ]
+              },
+              {
+                "title": "Comentarios:",
+                "links": [
+                  {
+                    "text": "Contáctenos",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "live_help"
+                  }
+                ]
+              },
+              {
+                "title": "Visite también",
+                "links": [
+                  {
+                    "text": "Ministerios Hebrón",
+                    "href": "https://ministerioshebron.com/"
+                  },
+                  {
+                    "text": "Colegio Hebrón",
+                    "href": "https://www.colegiohebron.com/"
+                  }
+                ]
+              }
+            ],
+            "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
+        }
+      ]
     }
   ],
   "navigation": {
@@ -422,7 +589,7 @@
     ],
     "button": {
       "text": "CONTRIBUIR",
-      "link": "/donate"
+      "link": "/contribute"
     }
   },
   "live": {
