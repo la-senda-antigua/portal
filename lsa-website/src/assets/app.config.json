@@ -600,6 +600,32 @@
           }
         }
       ]
+    },
+    {
+      "name": "inprogress",
+      "title": "muy pronto",
+      "navigation": {
+        "text-color": "light",
+        "background-color": "none",
+        "use-shadow": true
+      },
+      "sections": [
+        {
+          "name": "header",
+          "title": "Estamos Trabajando",
+          "floating-description": {
+            "position": "center",
+            "description-block": {
+              "text-color": "#ffffff",
+              "lines": [
+                "Perdone nuestro desorden, estamos trabajando y muy pronto encontrará el contenido que está buscando. "
+              ]
+            }
+          },
+          "background-image": "assets/images/guatemala_7.jpg",
+          "background-color": "#3f4a49"
+        }
+      ]
     }
   ],
   "navigation": {
