@@ -39,7 +39,7 @@ export class PageRendererComponent {
     this.pageConfig()?.sections.find((section) => section.name === 'header')
   );
 
-  readonly pageName = input<string>();  
+  readonly pageName = input<string>();
   readonly matDialog = inject(MatDialog);
   readonly router = inject(Router);
   private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
@@ -85,6 +85,15 @@ export class PageRendererComponent {
           return;
         }
         this.configService.setCurrentPageName(this.pageName()!);
+      }
+    });
+
+    effect(() => {
+      if (
+        this.pageConfig() == undefined ||
+        this.pageConfig()!.isNullOrEmpty()
+      ) {
+        this.configService.setCurrentPageName('inprogress');
       }
     });
   }
