@@ -387,8 +387,7 @@
           "background-color": "#3f4a49"
         },
         {
-          "name": "section-1",
-          "title": "Acerca de nosotros:",
+          "name": "section-1",          
           "description-block": {
             "lines": [
               "En Iglesia La Senda Antigua estamos comprometidos con Dios a invertir nuestro tesoro en las asuntos celestiales.",

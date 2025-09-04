@@ -6,7 +6,7 @@
     } 
 
     @if (config().description.button) {
-        @if (config().description.button?.target){            
+        @if (config().description.button?.link?.includes('http')){            
             <a [href]="config().description.button?.link" mat-flat-button class="button" [attr.target]="config().description.button?.target">
                 {{ config().description.button?.text }}
             </a>
