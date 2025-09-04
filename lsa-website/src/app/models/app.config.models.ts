@@ -117,6 +117,7 @@ export interface SectionConfig {
   backgroundColor?: string;
   textColor?: string;
   backgroundImage?: string;
+  backgroundPosition?: string;
   floatingDescription?: FloatingDescriptionConfig;
   descriptionBlock?: DescriptionBlockConfig;
   searchBox?: SearchBoxConfig;

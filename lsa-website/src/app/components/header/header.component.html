@@ -1,9 +1,8 @@
 <div
   class="header-container"
-  [style.backgroundImage]="
-    backgroundImage() ? 'url(' + backgroundImage() + ')' : ''
-  "
+  [style.backgroundImage]="backgroundImage() ? 'url(' + backgroundImage() + ')' : ''"
   [style.backgroundColor]="!backgroundImage() ? backgroundColor() ?? '' : ''"
+  [style.backgroundPosition]="backgroundPosition() ??''"
 >
   @if(overlayColor()){
   <div class="header-overlay" [style]="overlayColor()"></div>

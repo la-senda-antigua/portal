@@ -21,6 +21,10 @@ export class HeaderComponent {
     () => this.headerConfig().backgroundImage ?? undefined
   );
 
+  readonly backgroundPosition = computed(
+    () => this.headerConfig().backgroundPosition
+  );
+
   readonly description = computed(() => {    
     const block = this.headerConfig().floatingDescription?.descriptionBlock;    
     return block?.lines || [];
