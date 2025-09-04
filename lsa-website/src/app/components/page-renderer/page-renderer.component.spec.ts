@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { HeaderComponent } from '../header/header.component';
 import { of } from 'rxjs';
+import '../../../utils/object.extensions';
 
 describe('PageRendererComponent', () => {
   let component: PageRendererComponent;
