@@ -28,8 +28,10 @@ namespace lsa_web_apis.Controllers
                 ? _context.CalendarEvents
                 : _context.CalendarEvents.Where(s => !s.IsCancelled);
 
-            if (dateTime is not null)
-                query = query.Where(e => e.StartTime > dateTime);
+            if (dateTime is null)
+                dateTime = DateTime.Now;
+
+            query = query.Where(e => e.StartTime > dateTime);
 
             var result = await query.OrderBy(e=> e.StartTime).Select(e => new CalendarEventDto(e)).ToListAsync();
             return Ok(result);
