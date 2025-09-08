@@ -192,12 +192,6 @@
       "sections": [
         {
           "name": "section-1",
-          "title": "Series del pastor Bernardo",
-          "text-align": "center",
-          "preaching-playlists": {}
-        },
-        {
-          "name": "section-2",
           "title": "Servicios recientes",
           "text-align": "center",
           "recent-services": {
@@ -212,6 +206,12 @@
             }
           },
           "background-color": "rgb(220, 217, 208)"
+        },
+        {
+          "name": "section-2",
+          "title": "Series",
+          "text-align": "center",
+          "preaching-playlists": {}
         }
       ]
     },
