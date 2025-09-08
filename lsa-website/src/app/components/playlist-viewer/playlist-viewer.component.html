@@ -13,7 +13,8 @@
       allowfullscreen
     ></iframe>
   </div>
-  <div class="carrousel-container">
-    <lsa-video-carrousel [selectedVideo]="selectedVideo()" [emitVideoClick]="true" (videoClick)="selectVideo($event)" [videos]="videos"></lsa-video-carrousel>
+  <div class="carrousel-container">    
+    <lsa-video-vertical-list [selectedVideo]="selectedVideo()" [emitVideoClick]="true" [videos]="videos"></lsa-video-vertical-list>
+    <!-- <lsa-video-carrousel [selectedVideo]="selectedVideo()" [emitVideoClick]="true" (videoClick)="selectVideo($event)" [videos]="videos"></lsa-video-carrousel> -->
   </div>
 </mat-dialog-content>

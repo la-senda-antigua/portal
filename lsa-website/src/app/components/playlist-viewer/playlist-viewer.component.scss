@@ -8,11 +8,21 @@
 }
 
 .content-wrapper {
-  max-height: unset;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-evenly;
+  gap: 16px;
+  height: 90vh;  
+  max-height: 100vh;  
+  height: calc(90vh - 40px);
 
   .video-container {
-    height: calc(90vh - 420px);
+    width: 100%;
   }
+
+  .carrousel-container {
+    width:400px;
+    min-width: 300px;    
+  }
+
 }

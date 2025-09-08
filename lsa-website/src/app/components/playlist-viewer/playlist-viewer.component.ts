@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { HydratedVideoPlaylist, VideoModel } from 'src/app/models/video.model';
 import { VideoCarrouselComponent } from '../video-list/video-carrrousel.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { VideVerticalListComponent } from '../video-vertical-list/video-vertical-list.component';
 
 @Component({
   selector: 'lsa-playlist-viewer',
@@ -15,6 +16,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
     MatButtonModule,
     MatIconModule,
     VideoCarrouselComponent,
+    VideVerticalListComponent
   ],
   templateUrl: './playlist-viewer.component.html',
   styleUrl: './playlist-viewer.component.scss',

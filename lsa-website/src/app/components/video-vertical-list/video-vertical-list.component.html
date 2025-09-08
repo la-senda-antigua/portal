@@ -1,0 +1,8 @@
+<div class="vertical-list-container">    
+@for (item of videos(); track item.id) {  
+    <div class="video-item">
+        <img [src]="item.thumbnailUrl" >
+        <p class="info">{{item.title}}</p>
+    </div>
+}
+</div>
