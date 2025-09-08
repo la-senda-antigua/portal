@@ -204,14 +204,14 @@
               "search-delay": 500,
               "icon-position": "left"
             }
-          },
-          "background-color": "rgb(220, 217, 208)"
+          }
         },
         {
           "name": "section-2",
           "title": "Series",
           "text-align": "center",
-          "preaching-playlists": {}
+          "preaching-playlists": {},
+          "background-color": "rgb(220, 217, 208)"
         }
       ]
     },
