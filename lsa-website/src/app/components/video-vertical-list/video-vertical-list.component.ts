@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, input, OnInit, output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HydratedVideoPlaylist, VideoModel } from 'src/app/models/video.model';
 
@@ -8,17 +8,15 @@ import { HydratedVideoPlaylist, VideoModel } from 'src/app/models/video.model';
   templateUrl: './video-vertical-list.component.html',
   styleUrl: './video-vertical-list.component.scss'
 })
-export class VideVerticalListComponent implements OnInit {
+export class VideVerticalListComponent{
   readonly videos = input.required<VideoModel[]>();
   readonly allVideosLoaded = input<boolean>(true);
   readonly moreVideosLoadedObservable = input<Observable<boolean>>();
   readonly resetLeftScroll$ = input<Observable<any>>();
   readonly selectedVideo = input<VideoModel | undefined>(undefined);
-  readonly emitVideoClick = input(false);
   readonly videoTitlePrefix = input<string>('');
   
-  ngOnInit(): void {
-    console.log(' videos... ' , this.videos())
-  }
+  readonly videoClick = output<HydratedVideoPlaylist | VideoModel>();
+  
   
 }
