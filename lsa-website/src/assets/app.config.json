@@ -287,13 +287,15 @@
         "background-color": "system",
         "use-shadow": false
       },
-      "sections": [        
+      "sections": [       
         {
           "name": "section-1",          
           "calendar-list-view": {
-            "title": "Nuestros próximos eventos"            
-          },
-          "background-color": "#fdf9f0",
+            "title": "Nuestros próximos eventos",
+            "description-block": {
+              "lines": []
+            }
+          },          
           "text-align": "center"
         }
       ]
