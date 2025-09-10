@@ -1,4 +1,4 @@
-<div class="carrousel-container" #carrouselContainer>
+<section class="section-container">
   <button
     class="left-button"
     mat-fab
@@ -7,25 +7,28 @@
   >
     <mat-icon>chevron_left</mat-icon>
   </button>
-
-  <div
-    class="video-list-container"
-    #videoListContainer
-    [style.left.px]="videoListContainerLeftPosition()"
-  >
-    @if (videoCards().length > 0) {
-      @for(video of videoCards(); track $index){
-        <lsa-video-card (videoClick)="videoClick.emit($event)" [emitClick]="emitVideoClick()" [outlined]="video.id === selectedVideo()?.id" [video]="video"></lsa-video-card>
+  <div class="carrousel-container" #carrouselContainer>
+  
+    <div
+      class="video-list-container"
+      #videoListContainer
+      [style.left.px]="videoListContainerLeftPosition()"
+    >
+      @if (videoCards().length > 0) {
+        @for(video of videoCards(); track $index){
+          <lsa-video-card (videoClick)="videoClick.emit($event)" [emitClick]="emitVideoClick()" [outlined]="video.id === selectedVideo()?.id" [video]="video"></lsa-video-card>
+        }
+      }@else if(playlistCards().length > 0) {
+        @for(playlist of playlistCards(); track $index){
+          <lsa-video-collage (click)="videoClick.emit(playlist)" [videos]="playlist.videos" [title]="videoTitlePrefix() + playlist.name"></lsa-video-collage>
+        }
       }
-    }@else if(playlistCards().length > 0) {
-      @for(playlist of playlistCards(); track $index){
-        <lsa-video-collage (click)="videoClick.emit(playlist)" [videos]="playlist.videos" [title]="videoTitlePrefix() + playlist.name"></lsa-video-collage>
-      }
-    }
-
-    
+  
+      
+    </div>
+  
   </div>
-
+  
   <button
     class="right-button"
     mat-fab
@@ -34,4 +37,4 @@
   >
     <mat-icon>chevron_right</mat-icon>
   </button>
-</div>
+</section>
