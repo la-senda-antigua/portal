@@ -6,6 +6,7 @@
   display: flex;
   max-width: 1200px;
   margin: 0 auto;
+  background-repeat: no-repeat;
 
   &.column {    
     flex-direction: column-reverse;
@@ -27,8 +28,9 @@
     flex: 1;
     margin: 10px;
   }
-
+  
   .picture {
+    background-repeat: no-repeat;;
     height: 100%;
     min-height: 500px;
     background-size: cover;

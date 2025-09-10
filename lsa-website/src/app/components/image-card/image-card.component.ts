@@ -19,7 +19,11 @@ export class ImageCardComponent {
     this.breakpointObserver.observe('(max-width: 850px)')
     .subscribe(state => {
       this.isSmallScreen.set(state.matches)
-    })
+    })    
+  }
 
+  ngOnInit(){
+    if (this.config().title.includes('Morelia'))
+      console.log("el config de image", this.config())
   }
 }
