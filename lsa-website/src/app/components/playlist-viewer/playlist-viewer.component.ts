@@ -41,8 +41,7 @@ export class PlaylistViewerComponent implements OnInit {
     this.selectedVideo.set(this.videos[0]);
   }
 
-  selectVideo(video: VideoModel | HydratedVideoPlaylist) {
-    console.log(' select video ', video);
+  selectVideo(video: VideoModel | HydratedVideoPlaylist) {    
     this.selectedVideo.set(video as VideoModel);
   }
 }
