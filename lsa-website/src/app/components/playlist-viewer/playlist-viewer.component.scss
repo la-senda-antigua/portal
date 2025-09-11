@@ -10,10 +10,7 @@
 .content-wrapper {
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
   gap: 16px;
-  height: 90vh;
-  max-height: 100vh;
   height: calc(90vh - 40px);
 
   .video-container {
@@ -21,8 +18,10 @@
   }
 
   .carrousel-container {
+    flex: 1;
     width: 400px;
     min-width: 300px;
+    overflow-x: hidden;
   }
 
   @media (max-width: 768px) {
@@ -34,9 +33,4 @@
       min-width: auto;
     }
   }
-}
-
-.iframe{
-  height: 100%;
-  min-height: 50vh;
 }
