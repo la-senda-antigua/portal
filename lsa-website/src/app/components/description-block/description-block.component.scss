@@ -1,8 +1,0 @@
-@use "../../../styles_variables" as style_vars;
-
-
-div{
-    line-height: style_vars.$fs-xxl;
-    margin: 20px auto;
-    max-width: 800px;
-}

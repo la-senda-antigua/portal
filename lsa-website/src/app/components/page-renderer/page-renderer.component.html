@@ -1,8 +1,0 @@
-@if(headerConfig()){
-    <lsa-header [headerConfig]="headerConfig()!"></lsa-header>
-}@else {
-    <div class="head-spacer"></div>
-}
-@for (section of sections(); track $index) {
-    <lsa-section-renderer [sectionConfig]="section"></lsa-section-renderer>
-}
