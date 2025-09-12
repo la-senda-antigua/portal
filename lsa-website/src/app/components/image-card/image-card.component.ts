@@ -19,7 +19,6 @@ export class ImageCardComponent {
     this.breakpointObserver.observe('(max-width: 850px)')
     .subscribe(state => {
       this.isSmallScreen.set(state.matches)
-    })
-
+    })    
   }
 }

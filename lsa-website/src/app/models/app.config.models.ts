@@ -41,6 +41,7 @@ export interface ImageCardConfig {
   backgroundColor?: string;
   description: DescriptionBlockConfig;
   imagePosition?: 'left' | 'right';
+  backgroundSize?: string;
 }
 
 export interface FooterConfig {

@@ -227,6 +227,7 @@ export class AppConfigService {
       title: imageCard.title,
       image: imageCard.image,
       backgroundColor: imageCard['background-color'],
+      backgroundSize: imageCard['background-size'],
       imagePosition: imageCard['image-position'] ?? 'left',
       description: this.parseDescriptionBlock(imageCard.description),
     };
