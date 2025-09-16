@@ -287,13 +287,15 @@
         "background-color": "system",
         "use-shadow": false
       },
-      "sections": [        
+      "sections": [       
         {
           "name": "section-1",          
           "calendar-list-view": {
-            "title": "Nuestros próximos eventos"            
-          },
-          "background-color": "#fdf9f0",
+            "title": "Nuestros próximos eventos",
+            "description-block": {
+              "lines": []
+            }
+          },          
           "text-align": "center"
         }
       ]
@@ -360,7 +362,9 @@
           "background-color": "#ffffff",     
           "image-card": {
             "title": "La obra en Morelia, México:",
-            "image-position": "right",
+            "image-position": "right",            
+            "image": "assets/images/morelia.jpg",
+            "background-size": "contain",
             "description": {
               "lines": [
                 "Nuestra congregación local está apoyando a nuestros hermanos en un pequeño pueblo del estado de Morelia, México. Con la Gracia del Señor, ellos han estado levantando un nuevo templo en donde congregarse, y  buscar juntos el rostro de Dios.",
@@ -373,8 +377,7 @@
                 "target": "_blank",
                 "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
-            },
-            "image": "assets/images/guatemala_7.jpg"
+            }
           }
         },
         {

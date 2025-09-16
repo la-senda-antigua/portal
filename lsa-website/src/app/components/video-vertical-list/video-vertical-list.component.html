@@ -1,0 +1,8 @@
+<div class="vertical-list-container">    
+@for (item of videos(); track item.id) {  
+    <div class="video-item" (click)="videoClick.emit(item)" [class.selected]="selectedVideo() && selectedVideo()?.id === item.id">
+        <img [src]="item.thumbnailUrl" >
+        <p class="info">{{item.title}}</p>
+    </div>
+}
+</div>

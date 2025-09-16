@@ -6,8 +6,7 @@
 </div>
 
 <div class="calendar-events-container">
-  @for (calendarEvent of calendarEventService.calendarEventList(); track
-  calendarEvent) {
+  @for (calendarEvent of calendarEventService.calendarEventList(); track calendarEvent) {
   <mat-card class="calendar-card" appearance="outlined">
     <mat-card-header>
       <mat-card-title>
@@ -39,5 +38,8 @@
       </table>
     </mat-card-content>
   </mat-card>
+  }
+  @empty{
+    <p>En este momento no hay ningún evento agendado</p>
   }
 </div>
