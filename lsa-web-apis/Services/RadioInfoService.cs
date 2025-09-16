@@ -1,10 +1,15 @@
 using lsa_web_apis.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace lsa_web_apis.Services;
 
 public class RadioInfoService : IRadioInfoService
 {
-    public async Task<RadioTrackInfo> GetCurrentTrackInfo()
+    private readonly RadioTrackInfo _currentTrackInfo = new() { Artist = "", Title = "", Album = "" };
+
+    RadioTrackInfo IRadioInfoService.CurrentTrackInfo => _currentTrackInfo;
+
+    public async Task UpdateCurrentTrackInfo()
     {
         using var httpClient = new HttpClient();
         try
@@ -14,17 +19,18 @@ public class RadioInfoService : IRadioInfoService
             var content = await response.Content.ReadAsStringAsync();
             var contentJson = System.Text.Json.JsonDocument.Parse(content);
             var track = contentJson.RootElement.GetProperty("data")[0].GetProperty("track");
-            var trackInfo = new RadioTrackInfo()
-            {
-                Artist = track.GetProperty("artist").GetString() ?? "",
-                Title = track.GetProperty("title").GetString() ?? "",
-                Album = track.GetProperty("album").GetString() ?? ""
-            };
-            return trackInfo;
+            _currentTrackInfo.Artist = track.GetProperty("artist").GetString() ?? "";
+            _currentTrackInfo.Title = track.GetProperty("title").GetString() ?? "";
+            _currentTrackInfo.Album = track.GetProperty("album").GetString() ?? "";
         }
         catch
         {
-            return new RadioTrackInfo { Artist = "", Title = "", Album = "" };
+            _currentTrackInfo.Artist = "";
+            _currentTrackInfo.Title = "";
+            _currentTrackInfo.Album = "";
         }
     }
+
+
+
 }

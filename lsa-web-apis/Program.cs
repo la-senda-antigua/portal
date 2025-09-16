@@ -79,5 +79,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<LiveServiceHub>("/lsa-service-hub");
+app.MapHub<RadioInfoHub>("/radio-info-hub");
 
 app.Run();

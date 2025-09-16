@@ -4,5 +4,6 @@ namespace lsa_web_apis.Services;
 
 public interface IRadioInfoService
 {
-    public Task<RadioTrackInfo> GetCurrentTrackInfo();
+    public RadioTrackInfo CurrentTrackInfo { get; }
+    public Task UpdateCurrentTrackInfo();
 }
