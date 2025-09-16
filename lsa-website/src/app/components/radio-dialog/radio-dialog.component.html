@@ -11,7 +11,7 @@
   </button>
 </span>
 <mat-dialog-content>
-  <audio #audioElement>
+  <audio #audioElement (error)="playState.set('paused')">
     <source
       [src]="'https://play10.tikast.com/proxy/lasenda?mp=/stream'"
       type="audio/mpeg"
@@ -21,13 +21,17 @@
   <h3 class="title">Radio La Senda Antigua</h3>
 
   <div class="radio-controls">
-    <button mat-icon-button (click)="togglePlay()">
+    @if(playState()==='loading'){
+      <mat-spinner diameter="30"></mat-spinner>
+    }@else {
+      <button mat-icon-button (click)="togglePlay()">
       @if(playState()==='paused'){
       <mat-icon>play_arrow</mat-icon>
       }@else {
       <mat-icon>pause</mat-icon>
       }
-    </button>
+      </button>
+    }
     <div class="volume-controls" *ngIf="!isMobile()">
       <button mat-icon-button (click)="toggleMute()">
         @if (isVolumeUp()) {

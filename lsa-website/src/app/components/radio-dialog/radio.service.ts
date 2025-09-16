@@ -9,7 +9,7 @@ import { DOCUMENT } from '@angular/common';
   providedIn: 'root',
 })
 export class RadioService {
-  readonly playState = signal<'playing' | 'paused'>('paused');
+  readonly playState = signal<'playing' | 'paused' | 'loading'>('paused');
   readonly volumeValue = signal(50);
   private readonly matDialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -60,7 +60,6 @@ export class RadioService {
     script.type = 'text/javascript';
     script.id = 'cc_streaminfo';
     script.src = 'http://radio45.virtualtronics.com:2199/system/streaminfo.js';
-    script.async = true;
     this.document.body.appendChild(script);
   }
 }
