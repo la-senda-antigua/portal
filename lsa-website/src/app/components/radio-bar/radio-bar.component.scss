@@ -18,16 +18,10 @@ button {
 
 @keyframes carrousel {
   0% {
-    left: 100%;
-    opacity: 1;
-  }
-  90% {
-    left: -200px;
-    opacity: 1;
+    left: 90%;
   }
   100% {
-    left: -100%;
-    opacity: 0;
+    transform: translateX(-90%);
   }
 }
 
@@ -41,6 +35,7 @@ button {
     white-space: nowrap;
     display: block;
     left: 0;
-    animation: carrousel 15s linear infinite;
+    animation: carrousel 15s ease-in-out infinite;
+    animation-direction: alternate;
   }
 }

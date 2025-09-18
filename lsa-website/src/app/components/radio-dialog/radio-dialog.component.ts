@@ -21,6 +21,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { map } from 'rxjs';
 import { RadioService } from './radio.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'lsa-radio-dialog',
@@ -30,6 +31,7 @@ import { RadioService } from './radio.service';
     MatButtonModule,
     MatSliderModule,
     MatIconModule,
+    MatProgressSpinnerModule,
     CommonModule,
   ],
   templateUrl: './radio-dialog.component.html',
@@ -50,6 +52,7 @@ export class RadioDialogComponent implements OnInit {
       .observe(Breakpoints.Handset)
       .pipe(map((result) => result.matches))
   );
+  readonly currentTrack = this.radioService.currentTrack;
 
   constructor() {
     effect(() => {
@@ -75,15 +78,18 @@ export class RadioDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.radioService.insertRadioScript();
+    this.radioService.startHubConnection();
+    this.audioElement()?.nativeElement.addEventListener('error', () => {this.playState.set('paused')});
+    this.audioElement()?.nativeElement.addEventListener('playing', () => {this.playState.set('playing')});
+    this.audioElement()?.nativeElement.addEventListener('pause', () => {this.playState.set('paused')});
+    this.audioElement()?.nativeElement.addEventListener('ended', () => {this.playState.set('paused')});
   }
 
   togglePlay() {
     if (this.playState() === 'playing') {
-      this.playState.set('paused');
       this.audioElement()?.nativeElement.pause();
     } else {
-      this.playState.set('playing');
+      this.playState.set('loading');
       this.audioElement()?.nativeElement.play();
     }
   }
@@ -103,6 +109,7 @@ export class RadioDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
+    this.radioService.stopHubConnection();
   }
 
   minimize() {

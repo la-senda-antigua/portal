@@ -2,17 +2,14 @@ import {
   Component,
   effect,
   ElementRef,
-  Inject,
   inject,
   OnInit,
-  viewChild,
+  viewChild
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarRef } from '@angular/material/snack-bar';
-import { RadioDialogComponent } from '../radio-dialog/radio-dialog.component';
-import { DOCUMENT } from '@angular/common';
 import { RadioService } from '../radio-dialog/radio.service';
 
 @Component({
@@ -28,8 +25,9 @@ export class RadioBarComponent implements OnInit {
   readonly playState = this.radioService.playState;
   readonly volumeValue = this.radioService.volumeValue;
   readonly audioElement = viewChild<ElementRef>('audioElement');
+  readonly currentTrack = this.radioService.currentTrack;
 
-  constructor(@Inject(DOCUMENT) private document: Document) {
+  constructor() {
     effect(() => {
       if (this.audioElement()?.nativeElement) {
         const volume = this.volumeValue() / 100;
@@ -42,7 +40,7 @@ export class RadioBarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.radioService.insertRadioScript();
+    this.radioService.startHubConnection();
   }
 
   expand() {
