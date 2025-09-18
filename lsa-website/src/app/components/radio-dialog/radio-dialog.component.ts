@@ -52,6 +52,7 @@ export class RadioDialogComponent implements OnInit {
       .observe(Breakpoints.Handset)
       .pipe(map((result) => result.matches))
   );
+  readonly currentTrack = this.radioService.currentTrack;
 
   constructor() {
     effect(() => {
@@ -77,7 +78,7 @@ export class RadioDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.radioService.insertRadioScript();
+    this.radioService.startHubConnection();
     this.audioElement()?.nativeElement.addEventListener('error', () => {this.playState.set('paused')});
     this.audioElement()?.nativeElement.addEventListener('playing', () => {this.playState.set('playing')});
     this.audioElement()?.nativeElement.addEventListener('pause', () => {this.playState.set('paused')});
@@ -108,6 +109,7 @@ export class RadioDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
+    this.radioService.stopHubConnection();
   }
 
   minimize() {

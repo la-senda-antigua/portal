@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace lsa_web_apis.Services;
 
-public class RadioInfoService : IRadioInfoService
+public class RadioInfoService(IHubContext<RadioInfoHub> hubContext) : IRadioInfoService
 {
-    private readonly RadioTrackInfo _currentTrackInfo = new() { Artist = "", Title = "", Album = "" };
-
-    RadioTrackInfo IRadioInfoService.CurrentTrackInfo => _currentTrackInfo;
+    private readonly RadioTrackInfo _currentTrackInfo = new();
+    private CancellationTokenSource? _cts;
+    private bool _isScheduleOn = false;
+    public bool IsScheduleOn => _isScheduleOn;
+    public RadioTrackInfo CurrentTrackInfo => _currentTrackInfo;
+    private readonly IHubContext<RadioInfoHub> _hubContext = hubContext;
 
     public async Task UpdateCurrentTrackInfo()
     {
@@ -29,8 +32,36 @@ public class RadioInfoService : IRadioInfoService
             _currentTrackInfo.Title = "";
             _currentTrackInfo.Album = "";
         }
+        OnTrackInfoChanged(_currentTrackInfo);
     }
 
+    protected virtual async void OnTrackInfoChanged(RadioTrackInfo info)
+    {
+        await _hubContext.Clients.All.SendAsync(Constants.NewTrackInfoNotification, info);
+    }
 
+    public void StartSchedule()
+    {
+        if (_isScheduleOn) return;
+        _isScheduleOn = true;
+        _cts = new CancellationTokenSource();
+        var token = _cts.Token;
 
+        _ = Task.Run(async () =>
+        {
+            while (_isScheduleOn && !token.IsCancellationRequested)
+            {
+                await UpdateCurrentTrackInfo();
+                await Task.Delay(15000, token);
+            }
+        }, token);
+    }
+
+    public void StopSchedule()
+    {
+        _isScheduleOn = false;
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+    }
 }

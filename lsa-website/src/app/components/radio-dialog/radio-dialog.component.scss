@@ -3,16 +3,10 @@
 
 @keyframes carrousel {
   0% {
-    left: 100%;
-    opacity: 1;
-  }
-  90% {
-    left: -300px;
-    opacity: 1;
+    left: 90%;
   }
   100% {
-    left: -100%;
-    opacity: 0;
+    transform: translateX(-90%);
   }
 }
 
@@ -42,8 +36,7 @@
   justify-content: end;
 }
 .title {
-  margin-left: 8px;
-  margin-right: 60px;
+  margin: 15px;
 }
 
 .music-info {
@@ -58,6 +51,7 @@
     white-space: nowrap;
     display: block;
     left: 0;
-    animation: carrousel 15s linear infinite;
+    animation: carrousel 15s ease-in-out infinite;
+    animation-direction: alternate;
   }
 }

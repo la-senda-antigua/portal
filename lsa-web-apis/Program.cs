@@ -21,6 +21,7 @@ builder.Services.AddCors(options =>
                           .AllowCredentials()
                           );
 });
+builder.Services.AddSingleton<IRadioInfoService, RadioInfoService>();
 builder.Services.AddSignalR();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -61,7 +62,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ILiveService, LiveService>();
 builder.Services.AddScoped<IVideoRecordingService, VideoRecordingService>();
-builder.Services.AddScoped<IRadioInfoService, RadioInfoService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

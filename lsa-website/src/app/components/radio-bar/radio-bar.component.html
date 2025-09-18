@@ -6,6 +6,8 @@
   Your browser does not support the audio element.
 </audio>
 <div class="music-info">
-  <span class="cc_streaminfo" data-type="song" data-username="lasenda"> </span>
+  <span class="cc_streaminfo" data-type="song" data-username="lasenda">
+    {{currentTrack().title}} - {{currentTrack().artist}} - {{currentTrack().album}}
+  </span>
 </div>
 <button mat-button (click)="expand()"><mat-icon>open_in_new</mat-icon></button>

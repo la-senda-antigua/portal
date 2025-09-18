@@ -1,53 +1,31 @@
 using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 namespace lsa_web_apis.Services;
 
 public class RadioInfoHub(IRadioInfoService radioInfoService) : Hub
 {
-    public bool IsCheckScheduleOn { get; set; } = false;
-    public HashSet<string> ConnectedClients { get; set; } = [];
-
+    private static readonly ConcurrentDictionary<string, byte> ConnectedClients = new();
     private readonly IRadioInfoService _radioInfoService = radioInfoService;
+    private static readonly object _lock = new();
+
     public override async Task OnConnectedAsync()
     {
         await base.OnConnectedAsync();
-        ConnectedClients.Add(Context.ConnectionId);
+        ConnectedClients.TryAdd(Context.ConnectionId, 0);
 
-        if (!IsCheckScheduleOn)
-            StartCheckSchedule();
-        else
-            await Clients.Caller.SendAsync(Constants.NewTrackInfoNotification, _radioInfoService.CurrentTrackInfo);
+        if (!_radioInfoService.IsScheduleOn)
+            _radioInfoService.StartSchedule();
+
+        await Clients.Caller.SendAsync(Constants.NewTrackInfoNotification, _radioInfoService.CurrentTrackInfo);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await base.OnDisconnectedAsync(exception);
-        ConnectedClients.Remove(Context.ConnectionId);
+        ConnectedClients.TryRemove(Context.ConnectionId, out _);
 
-        if (ConnectedClients.Count == 0)
-            StopCheckSchedule();
-    }
-
-    public async Task UpdateTrackInfo()
-    {
-        await _radioInfoService.UpdateCurrentTrackInfo();
-        await Clients.All.SendAsync(Constants.NewTrackInfoNotification, _radioInfoService.CurrentTrackInfo);
-    }
-
-    public async void StartCheckSchedule()
-    {
-        if (IsCheckScheduleOn) return;
-        IsCheckScheduleOn = true;
-        await UpdateTrackInfo();
-        while (IsCheckScheduleOn)
-        {
-            await Task.Delay(30000);
-            await UpdateTrackInfo();
-        }
-    }
-
-    public void StopCheckSchedule()
-    {
-        IsCheckScheduleOn = false;
+        if (ConnectedClients.IsEmpty)
+            _radioInfoService.StopSchedule();
     }
 }
