@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
+import { environment } from 'src/environments/environment';
 
 const LSAServiceHub_ServiceStartedNotification = 'service-started';
 const LSAServiceHub_ServiceEndedNotification = 'service-ended';
@@ -14,12 +15,7 @@ export interface LSAServiceHubNotification {
 })
 export class LsaServiceHubService {
   private hubConnection: signalR.HubConnection;
-  private baseUrl = window.location.origin.includes('localhost')
-    ? 'http://localhost:5089'
-    : window.location.origin.includes('testing')
-    ? 'https://testing-api.iglesialasendaantigua.com'
-    : 'https://api.iglesialasendaantigua.com';
-
+  private baseUrl = environment.apiUrl;
   readonly liveServiceState = signal<LSAServiceHubNotification>({
     isServiceOn: false,
     videoUrl: '',

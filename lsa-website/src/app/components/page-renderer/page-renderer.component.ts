@@ -10,7 +10,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { LsaServiceHubService } from 'src/app/lsa-service-hub/lsa-service-hub.service';
+import { LsaServiceHubService } from 'src/app/services/lsa-service-hub.service';
 import { AppConfigService } from '../../app-config/app-config.service';
 import { HeaderComponent } from '../header/header.component';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';

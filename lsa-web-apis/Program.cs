@@ -21,6 +21,7 @@ builder.Services.AddCors(options =>
                           .AllowCredentials()
                           );
 });
+builder.Services.AddSingleton<IRadioInfoService, RadioInfoService>();
 builder.Services.AddSignalR();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -78,5 +79,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<LiveServiceHub>("/lsa-service-hub");
+app.MapHub<RadioInfoHub>("/radio-info-hub");
 
 app.Run();

@@ -6,7 +6,7 @@ import {
   MAT_SNACK_BAR_DATA,
   MatSnackBarRef,
 } from '@angular/material/snack-bar';
-import { LsaServiceHubService } from 'src/app/lsa-service-hub/lsa-service-hub.service';
+import { LsaServiceHubService } from 'src/app/services/lsa-service-hub.service';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';
 
 @Component({
