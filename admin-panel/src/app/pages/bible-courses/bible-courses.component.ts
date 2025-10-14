@@ -86,4 +86,34 @@ export class BibleCoursesComponent extends PageBaseComponent {
 
     return course;
   }
+
+  override onSearch(data: any): void {
+    const { searchTerm, page, pageSize } = data;
+    this.isLoading.set(true);
+    this.service.search(searchTerm, page, pageSize).subscribe({
+      next: (response) => {
+        const courses = response.items.map((s: Sermon) => ({
+          id: s.id,
+          date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
+          title: s.title,
+          preacherName: s.preacher.name,
+          preacherId: s.preacher.id,
+          cover: s.cover,
+          videoUrl: s.videoPath,
+          playlistId: s.playlist
+        }));
+        this.dataSource.set({
+          page: response.page,
+          pageSize: response.pageSize,
+          totalItems: response.totalItems,
+          items: courses,
+          columns: this.tableCols,
+        });
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.handleException(err, 'There was an error loading courses.');
+      },
+    })
+  }
 }

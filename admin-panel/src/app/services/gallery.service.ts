@@ -31,4 +31,13 @@ export class GalleryService extends GeneralServiceBase {
     const url = `${this.apiUrl}/${id}`;
     return this.requestManager.delete<void>(url);
   }
+
+  override search(
+    searchTerm: string, 
+    page: number=1, 
+    pageSize:number=10
+  ): Observable<TableResult<GalleryVideo>> {
+    const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}&searchTerm=${encodeURIComponent(searchTerm)}`;
+    return this.requestManager.get<TableResult<GalleryVideo>>(url);
+  }
 }

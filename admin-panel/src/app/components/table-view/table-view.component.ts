@@ -125,7 +125,7 @@ export class TableViewComponent {
   /** Emits the Id passed in the disableConfirmationFeilds object, when disable is confirmed.  */
   readonly disableRequest = output<string>();
   
-  readonly onSearch = output<string>();
+  readonly onSearch = output<any>();
   readonly dialog = inject(MatDialog);
 
   tableDatasource?: MatTableDataSource<any>;
@@ -212,7 +212,8 @@ export class TableViewComponent {
     });
   }
 
-  search(){    
-    this.onSearch.emit(this.searchTerm);
+  search(){
+    const data = {searchTerm: this.searchTerm, page: 1, pageSize: this.datasource().pageSize};
+    this.onSearch.emit(data);
   }
 }

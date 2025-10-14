@@ -113,9 +113,7 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  onSearch(term: string) {
-    
-  }
+  onSearch(data: any): void {}
 
   parseForm(videoForm: VideoFormData | EditIdNameFormData | CalendarFormData) {}
 
