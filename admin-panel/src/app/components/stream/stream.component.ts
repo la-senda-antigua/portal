@@ -17,7 +17,7 @@ import { LiveIndicatorComponent } from '../live-indicator/live-indicator.compone
     MatInputModule,
     MatProgressSpinnerModule,
     HoursMinsSecsPipe,
-    LiveIndicatorComponent
+    LiveIndicatorComponent,    
   ],
   templateUrl: './stream.component.html',
   styleUrl: './stream.component.scss',

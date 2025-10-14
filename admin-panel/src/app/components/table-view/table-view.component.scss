@@ -31,3 +31,7 @@
 .plus-icon{
   font-size: 24px;
 }
+
+::ng-deep .w-full {
+    width: 100%;
+}

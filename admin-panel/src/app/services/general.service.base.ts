@@ -13,6 +13,9 @@ export class GeneralServiceBase {
   getAll(): Observable<any[]> {
     return of([]);
   }
+  search(a: string): Observable<any[]> {
+    return of([]);
+  }
   edit(arg: any): Observable<any> {
     return of(null);
   }
