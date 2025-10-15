@@ -617,16 +617,12 @@
                     { "index": 1, "text": "Martes, 7:30 p.m. - 9:00 p.m." },
                     { "index": 2, "text": "Servicio general" }
                   ]
-                },
-                {
-                  "index": 4,
-                  "columns": [
-                    { "index": 1, "button": "Escríbenos" },
-                    { "index": 2, "text": "" }
-                    
-                  ]
-                }
+                }                
               ]
+            },
+            "button": {
+              "text": "Contáctenos",
+              "link": "mailto:lasendaantigua.la@gmail.com"
             }
           },
           "background-color": "#f5f5f5"

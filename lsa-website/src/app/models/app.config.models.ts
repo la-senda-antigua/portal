@@ -33,6 +33,7 @@ export interface MapWidgetConfig {
   title?: string;
   subtitle?: string;
   table?: TableConfig;
+  button?: ButtonConfig;
 }
 
 export interface ImageCardConfig {
