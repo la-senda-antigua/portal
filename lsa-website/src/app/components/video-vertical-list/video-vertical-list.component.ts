@@ -1,10 +1,11 @@
 import { Component, input, OnInit, output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HydratedVideoPlaylist, VideoModel } from 'src/app/models/video.model';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'lsa-video-vertical-list',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './video-vertical-list.component.html',
   styleUrl: './video-vertical-list.component.scss'
 })
