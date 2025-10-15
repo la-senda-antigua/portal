@@ -217,6 +217,8 @@ export class AppConfigService {
       subtitle: mapWidget.subtitle,
       table: mapWidget.table,
       button: mapWidget.button,
+      descriptionBlock: mapWidget['description-block'],
+      backgroundColor: mapWidget['background-color'],
     };
   }
 

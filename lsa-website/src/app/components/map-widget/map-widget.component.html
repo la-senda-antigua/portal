@@ -26,4 +26,12 @@
         {{ config().button?.text }}
     </a>
     }
+
+    @if(config().descriptionBlock){
+    <div class="description-block">
+      @for(line of config().descriptionBlock?.lines; track line){
+        <p [innerHTML]="line"></p>
+      }
+    </div>
+    }
 </div>

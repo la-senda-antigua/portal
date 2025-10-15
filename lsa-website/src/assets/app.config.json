@@ -569,29 +569,16 @@
     },
     {
       "name": "contact",
-      "title": "Contáctanos",
+      "title": "Contáctenos",
       "navigation": {
-        "text-color": "light",
-        "background-color": "none",
-        "use-shadow": true
+        "text-color": "dark",
+        "background-color": "system",
+        "use-shadow": false
       },
-      "sections": [
+      "sections": [                       
         {
-          "name": "header",
-          "title": "Contáctanos",          
-          "background-image": "assets/images/worship.jpg",
-          "background-color": "#3f4a49",
-          "floating-description": {
-            "position": "center",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": []
-            }
-          }
-        },                
-        {
-          "name": "section-3",
-          "map-widget": {
+          "name": "section-1",          
+          "map-widget": {            
             "src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus",
             "title": "Nuestra ubicación",
             "subtitle": "Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.",
@@ -620,9 +607,10 @@
                 }                
               ]
             },
-            "button": {
-              "text": "Contáctenos",
-              "link": "mailto:lasendaantigua.la@gmail.com"
+            "description-block": {
+              "lines": [
+                "Envienos sus preguntas y comentarios a <a href='mailto:lasendaantigua.la@gmail.com'>lasendaantigua.la@gmail.com</a>"
+              ]
             }
           },
           "background-color": "#f5f5f5"
