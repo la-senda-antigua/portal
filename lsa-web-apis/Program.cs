@@ -22,6 +22,7 @@ builder.Services.AddCors(options =>
                           );
 });
 builder.Services.AddSingleton<IRadioInfoService, RadioInfoService>();
+builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
 builder.Services.AddSignalR();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
