@@ -123,7 +123,7 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  private reload() {
+  protected reload() {
     const { pageSize, pageIndex } = this.tableViewComponent()!.paginator()!;
     this.load(pageIndex + 1, pageSize);
   }

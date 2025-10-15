@@ -6,6 +6,7 @@ using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace lsa_web_apis.Controllers
 {
@@ -55,8 +56,12 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Sermon>> CreateSermon([FromForm] Sermon sermon, [FromForm] IFormFile coverImage)
+        public async Task<ActionResult<Sermon>> CreateSermon([FromForm] string sermonStr, [FromForm] IFormFile coverImage)
         {
+            Console.WriteLine($"Received sermonStr: {sermonStr}");
+
+            Sermon sermon = JsonSerializer.Deserialize<Sermon>(sermonStr)!;
+
             _context.Sermons.Add(sermon);
             await _context.SaveChangesAsync();
 
@@ -72,15 +77,17 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSermon(int id, [FromForm] Sermon sermon, [FromForm] IFormFile? coverImage)
+        public async Task<IActionResult> UpdateSermon(int id,[FromForm] string sermonStr,[FromForm] IFormFile? coverImage)
         {
+            var sermon = JsonSerializer.Deserialize<Sermon>(sermonStr)!;
+
             if (id != sermon.Id) return BadRequest("Id does not match");
 
             var existingSermon = await _context.Sermons.FindAsync(id);
             if (existingSermon is null) return NotFound();
 
             existingSermon.Title = sermon.Title;
-            existingSermon.AudioPath = sermon.AudioPath;            
+            existingSermon.AudioPath = sermon.AudioPath;
             existingSermon.Date = sermon.Date;
             existingSermon.PreacherId = sermon.PreacherId;
             existingSermon.VideoPath = sermon.VideoPath;
