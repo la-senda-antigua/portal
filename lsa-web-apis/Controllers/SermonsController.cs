@@ -15,10 +15,12 @@ namespace lsa_web_apis.Controllers
     {
         private readonly VideoRecordingsDbContext _context;
         private readonly IVideoRecordingService _videoRecordingService;
-        public SermonsController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService)
+        private readonly IImageUploadService _imageUploadService;
+        public SermonsController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService, IImageUploadService imageUploadService)
         {
             _context = context;
             _videoRecordingService = videoRecordingService;
+            _imageUploadService = imageUploadService;
         }
 
         [HttpGet]
@@ -60,17 +62,24 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Sermon>> CreateSermon(Sermon sermon)
+        public async Task<ActionResult<Sermon>> CreateSermon([FromForm] Sermon sermon, [FromForm] IFormFile coverImage)
         {
             _context.Sermons.Add(sermon);
             await _context.SaveChangesAsync();
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, sermon.Id, "sermons");
+                sermon.Cover = imageUrl;
+                await _context.SaveChangesAsync();
+            }
 
             return CreatedAtAction(nameof(GetSermon), new { id = sermon.Id }, sermon);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSermon(int id, Sermon sermon)
+        public async Task<IActionResult> UpdateSermon(int id, [FromForm] Sermon sermon, [FromForm] IFormFile? coverImage)
         {
             if (id != sermon.Id) return BadRequest("Id does not match");
 
@@ -78,12 +87,17 @@ namespace lsa_web_apis.Controllers
             if (existingSermon is null) return NotFound();
 
             existingSermon.Title = sermon.Title;
-            existingSermon.AudioPath = sermon.AudioPath;
-            existingSermon.Cover = sermon.Cover;
+            existingSermon.AudioPath = sermon.AudioPath;            
             existingSermon.Date = sermon.Date;
             existingSermon.PreacherId = sermon.PreacherId;
             existingSermon.VideoPath = sermon.VideoPath;
             existingSermon.Playlist = sermon.Playlist;
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, id, "sermons");
+                existingSermon.Cover = imageUrl;
+            }
 
             _context.Sermons.Update(existingSermon);
             await _context.SaveChangesAsync();

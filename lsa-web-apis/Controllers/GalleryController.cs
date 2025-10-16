@@ -15,10 +15,12 @@ namespace lsa_web_apis.Controllers
     {
         private readonly VideoRecordingsDbContext _context;
         private readonly IVideoRecordingService _videoRecordingService;
-        public GalleryController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService)
+        private readonly IImageUploadService _imageUploadService;
+        public GalleryController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService, IImageUploadService imageUploadService)
         {
             _context = context;
             _videoRecordingService = videoRecordingService;
+            _imageUploadService = imageUploadService;
         }
 
         [HttpGet]
@@ -66,17 +68,24 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<GalleryVideo>> CreateGallery(GalleryVideo gallery)
+        public async Task<ActionResult<GalleryVideo>> CreateGallery([FromForm] GalleryVideo gallery, [FromForm] IFormFile coverImage)
         {
             _context.GalleryVideos.Add(gallery);
             await _context.SaveChangesAsync();
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, gallery.Id, "gallery");
+                gallery.Cover = imageUrl;
+                await _context.SaveChangesAsync();
+            }
 
             return CreatedAtAction(nameof(GetGallery), new { id = gallery.Id }, gallery);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGallery(int id, GalleryVideo gallery)
+        public async Task<IActionResult> UpdateGallery(int id,[FromForm] GalleryVideo gallery,[FromForm] IFormFile? coverImage)
         {
             if (id != gallery.Id) return BadRequest("Id does not match");
 
@@ -84,10 +93,15 @@ namespace lsa_web_apis.Controllers
             if (existingGallery is null) return NotFound();
 
             existingGallery.Title = gallery.Title;            
-            existingGallery.Cover = gallery.Cover;
             existingGallery.Date = gallery.Date;            
             existingGallery.VideoPath = gallery.VideoPath;
             existingGallery.Playlist = gallery.Playlist;
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, id, "gallery");
+                existingGallery.Cover = imageUrl;
+            }
 
             _context.GalleryVideos.Update(existingGallery);
             await _context.SaveChangesAsync();
