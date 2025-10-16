@@ -40,4 +40,8 @@ export class GalleryService extends GeneralServiceBase {
     const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}&searchTerm=${encodeURIComponent(searchTerm)}`;
     return this.requestManager.get<TableResult<GalleryVideo>>(url);
   }
+
+  override addWithImage(formData: FormData): Observable<GalleryVideo> {
+    return this.requestManager.post<GalleryVideo>(this.apiUrl, formData);
+  }
 }

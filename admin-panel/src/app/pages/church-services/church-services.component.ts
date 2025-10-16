@@ -96,8 +96,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
   override onAdd(form: VideoFormData) {
     this.isLoading.set(true);
 
-    if (form.data.cover instanceof File) {
-      console.log('Form data with image:', form);
+    if (form.data.cover instanceof File) {      
       const formData = new FormData();
       const videoData = this.parseForm(form);
       formData.append('sermonStr', JSON.stringify(videoData));
@@ -105,18 +104,17 @@ export class ChurchServicesComponent extends PageBaseComponent {
 
       this.service.addWithImage(formData).subscribe({
         next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the item.')
+        error: (err) => this.handleException(err, 'There was a problem adding the sermon.')
       });
     } else {
       const video = this.parseForm(form);
       this.service.add(video).subscribe({
         next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the item.')
+        error: (err) => this.handleException(err, 'There was a problem adding the sermon.')
       });
     }
   }
 
-  
   override onSearch(data: any): void {
     const { searchTerm, page, pageSize } = data;
     this.isLoading.set(true);

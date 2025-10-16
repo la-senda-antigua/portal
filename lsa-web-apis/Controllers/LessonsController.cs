@@ -6,6 +6,7 @@ using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace lsa_web_apis.Controllers
 {
@@ -61,8 +62,9 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Lesson>> CreateLesson([FromForm] Lesson lesson, [FromForm] IFormFile coverImage)
+        public async Task<ActionResult<Lesson>> CreateLesson([FromForm] string lessonStr, [FromForm] IFormFile coverImage)
         {
+            var lesson = JsonSerializer.Deserialize<Lesson>(lessonStr)!;
             _context.Lessons.Add(lesson);
             await _context.SaveChangesAsync();
 
