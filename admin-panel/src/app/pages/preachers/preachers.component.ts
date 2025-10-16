@@ -52,7 +52,7 @@ export class PreachersComponent extends PageBaseComponent {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.handleException(err, 'There was an error loading sermons.');
+        this.handleException(err, 'There was an error loading preachers.');
       },
     });
   }
@@ -69,4 +69,27 @@ export class PreachersComponent extends PageBaseComponent {
     return item;
   }
 
+  override onSearch(data: any): void {
+    const {searchTerm, page, pageSize} = data;
+    this.isLoading.set(true);
+    this.service.search(searchTerm, page, pageSize).subscribe({
+      next: (response) => {
+        const item = response.items.map((s: Preacher) => ({
+          id: s.id,
+          name: s.name
+        }));
+        this.dataSource.set({
+          page: response.page,
+          pageSize: response.pageSize,
+          totalItems: response.totalItems,
+          items: item,
+          columns: this.tableCols,
+        });
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.handleException(err, 'There was an error loading preachers.');
+      },
+    })
+  }
 }

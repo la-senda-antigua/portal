@@ -1,5 +1,7 @@
 using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
+using lsa_web_apis.Extensions;
+using lsa_web_apis.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Services;
@@ -39,4 +41,35 @@ public class VideoRecordingService : IVideoRecordingService
             _ => throw new ArgumentOutOfRangeException(nameof(videoType), videoType, "Invalid video type specified"),
         };
     }
+
+    public async Task<PagedResult<T>> FilterVideosPaged<T>(string query, int page = 1, int pageSize = 10) where T : VideoRecording
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            throw new ArgumentException("Search query cannot be empty", nameof(query));
+
+        var (dbSet, includePreacher) = GetQueryable<T>();
+
+        var queryable = includePreacher ?
+            ((IQueryable<T>)dbSet).Include("Preacher") :
+            (IQueryable<T>)dbSet;
+
+        var filtered = queryable
+            .Where(v => !string.IsNullOrEmpty(v.Title) && EF.Functions.Like(v.Title, $"%{query}%"));
+
+        return await filtered
+            .OrderByDescending(v => v.Id)
+            .ToPagedResultAsync(page, pageSize);
+    }
+
+    private (IQueryable dbSet, bool includePreacher) GetQueryable<T>() where T : VideoRecording
+    {
+        return typeof(T) switch
+        {
+            Type t when t == typeof(Sermon) => (_context.Sermons, true),
+            Type t when t == typeof(Lesson) => (_context.Lessons, true),
+            Type t when t == typeof(GalleryVideo) => (_context.GalleryVideos, false),
+            _ => throw new ArgumentException($"Tipo no soportado: {typeof(T).Name}")
+        };
+    }
+
 }

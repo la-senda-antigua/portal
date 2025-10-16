@@ -113,6 +113,8 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
+  onSearch(data: any): void {}
+
   parseForm(videoForm: VideoFormData | EditIdNameFormData | CalendarFormData) {}
 
   handleException(e: Error, message: string) {

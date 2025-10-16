@@ -8,7 +8,12 @@
 <div class="table-container">
   @if (isLoading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  } @if(tableDatasource != undefined) {
+  } 
+  @if(tableDatasource != undefined) {  
+  <mat-form-field appearance="outline" class="w-full">
+    <input matInput placeholder="search..." [(ngModel)]="searchTerm" required (keydown.enter)="search()"/>
+  </mat-form-field> 
+
   <table mat-table [dataSource]="tableDatasource!" class="mat-elevation-z8">
     @for (field of datasource().columns; track $index) {
     <ng-container [matColumnDef]="field.datasourceName">
@@ -17,8 +22,8 @@
         {{ entry[field.datasourceName] }}
       </td>
     </ng-container>
-    }
-    @if(showActions()){
+  }
+  @if(showActions()){
     <!-- Actions Column -->
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Actions</th>
@@ -40,7 +45,7 @@
         </button>
       </td>
     </ng-container>
-    }
+  }
 
     <!-- Header & Row Declarations -->
     <tr

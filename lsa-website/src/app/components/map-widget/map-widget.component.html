@@ -20,4 +20,10 @@
         </tr>
       }        
     </table>
+
+    @if(config().button){
+    <a [href]="config().button?.link" mat-flat-button class="button">
+        {{ config().button?.text }}
+    </a>
+    }
 </div>

@@ -25,6 +25,9 @@ import {
   DeleteConfirmationData,
 } from '../delete-confirmation/delete-confirmation.component';
 import { DisableConfirmationComponent, DisableConfirmationData } from '../disable-confirmation/disable-confirmation.component';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 export enum TableViewType {
   'sermon' = 'sermon',
@@ -68,6 +71,9 @@ export interface TableViewFormData {
     MatTableModule,
     MatPaginatorModule,
     MatDividerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule
   ],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',
@@ -118,10 +124,13 @@ export class TableViewComponent {
   readonly deleteRequest = output<string>();
   /** Emits the Id passed in the disableConfirmationFeilds object, when disable is confirmed.  */
   readonly disableRequest = output<string>();
-
+  
+  readonly onSearch = output<any>();
   readonly dialog = inject(MatDialog);
 
   tableDatasource?: MatTableDataSource<any>;
+
+  searchTerm: string = '';
 
   constructor(private changeDetector: ChangeDetectorRef) {
     effect(() => {
@@ -201,5 +210,10 @@ export class TableViewComponent {
         this.disableRequest.emit(confirmationId);
       }
     });
+  }
+
+  search(){
+    const data = {searchTerm: this.searchTerm, page: 1, pageSize: this.datasource().pageSize};
+    this.onSearch.emit(data);
   }
 }

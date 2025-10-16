@@ -32,6 +32,15 @@ export class SermonsService extends GeneralServiceBase {
     return this.requestManager.delete<void>(url);
   }
 
+  override search(
+    searchTerm: string, 
+    page: number=1, 
+    pageSize:number=10
+  ): Observable<TableResult<Sermon>> {
+    const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}&searchTerm=${encodeURIComponent(searchTerm)}`;
+    return this.requestManager.get<TableResult<Sermon>>(url);
+  }
+
   override addWithImage(formData: FormData): Observable<SermonDto> {
     return this.requestManager.post<SermonDto>(this.apiUrl, formData);
   }

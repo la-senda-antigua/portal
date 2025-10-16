@@ -46,8 +46,10 @@
     </div>
   </div>
   <div class="music-info">
-    <span class="cc_streaminfo" data-type="song" data-username="lasenda">
+    @if (!this.resetCurrentTrack() && currentTrack().title) {
+    <span class="cc_streaminfo" #streaminfo>
       {{ currentTrack().title }} - {{ currentTrack().artist }} - {{ currentTrack().album }}
     </span>
+    }
   </div>
 </mat-dialog-content>
