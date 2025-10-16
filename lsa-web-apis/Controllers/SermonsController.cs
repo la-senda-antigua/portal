@@ -58,8 +58,6 @@ namespace lsa_web_apis.Controllers
         [HttpPost]
         public async Task<ActionResult<Sermon>> CreateSermon([FromForm] string sermonStr, [FromForm] IFormFile coverImage)
         {
-            Console.WriteLine($"Received sermonStr: {sermonStr}");
-
             Sermon sermon = JsonSerializer.Deserialize<Sermon>(sermonStr)!;
 
             _context.Sermons.Add(sermon);
