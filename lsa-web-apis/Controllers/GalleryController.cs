@@ -24,10 +24,16 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm="")
         {
-            var pagedResult = await _context.GalleryVideos.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
-            return Ok(pagedResult);
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                var pagedResult = await _context.GalleryVideos.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
+                return Ok(pagedResult);
+            }
+
+            var result = await _videoRecordingService.FilterVideosPaged<GalleryVideo>(searchTerm, page, pageSize);
+            return Ok(result);
         }
 
         [HttpGet("GetAll")]

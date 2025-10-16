@@ -22,6 +22,15 @@ export class PreachersService extends GeneralServiceBase {
     return this.requestManager.get<TableResult<Preacher>>(url);
   }
 
+  override search(
+    searchTerm: string, 
+    page: number=1, 
+    pageSize:number=10
+  ): Observable<TableResult<Preacher>> {
+    const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}&searchTerm=${encodeURIComponent(searchTerm)}`;
+    return this.requestManager.get<TableResult<Preacher>>(url);
+  }
+
   override add(item: Preacher): Observable<Preacher> {
     return this.requestManager.post<Preacher>(this.apiUrl, item);
   }

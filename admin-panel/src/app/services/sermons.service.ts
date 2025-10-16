@@ -31,4 +31,13 @@ export class SermonsService extends GeneralServiceBase {
     const url = `${this.apiUrl}/${id}`;
     return this.requestManager.delete<void>(url);
   }
+
+  override search(
+    searchTerm: string, 
+    page: number=1, 
+    pageSize:number=10
+  ): Observable<TableResult<Sermon>> {
+    const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}&searchTerm=${encodeURIComponent(searchTerm)}`;
+    return this.requestManager.get<TableResult<Sermon>>(url);
+  }
 }
