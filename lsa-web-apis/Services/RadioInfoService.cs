@@ -52,7 +52,7 @@ public class RadioInfoService(IHubContext<RadioInfoHub> hubContext) : IRadioInfo
             while (_isScheduleOn && !token.IsCancellationRequested)
             {
                 await UpdateCurrentTrackInfo();
-                await Task.Delay(15000, token);
+                await Task.Delay(5000, token);
             }
         }, token);
     }
