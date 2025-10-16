@@ -566,6 +566,102 @@
           "background-color": "#3f4a49"
         }
       ]
+    },
+    {
+      "name": "contact",
+      "title": "Contáctenos",
+      "navigation": {
+        "text-color": "dark",
+        "background-color": "system",
+        "use-shadow": false
+      },
+      "sections": [                       
+        {
+          "name": "section-1",          
+          "map-widget": {            
+            "src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus",
+            "title": "Nuestra ubicación",
+            "subtitle": "Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.",
+            "table": {
+              "rows": [
+                {
+                  "index": 1,
+                  "columns": [
+                    { "index": 1, "text": "Domingos, 9:00 a.m. - 9:50 a.m." },
+                    { "index": 2, "text": "Estudio bíblico" }
+                  ]
+                },
+                {
+                  "index": 2,
+                  "columns": [
+                    { "index": 1, "text": "Domingos, 10:30 a.m. - 1:00 p.m." },
+                    { "index": 2, "text": "Servicio general" }
+                  ]
+                },
+                {
+                  "index": 3,
+                  "columns": [
+                    { "index": 1, "text": "Martes, 7:30 p.m. - 9:00 p.m." },
+                    { "index": 2, "text": "Servicio general" }
+                  ]
+                }                
+              ]
+            },
+            "description-block": {
+              "lines": [
+                "Envienos sus preguntas y comentarios a <a href='mailto:lasendaantigua.la@gmail.com'>lasendaantigua.la@gmail.com</a>"
+              ]
+            }
+          },
+          "background-color": "#f5f5f5"
+        },        
+        {
+          "name": "footer",
+          "footer": {
+            "items": [
+              {
+                "title": "Comuníquese",
+                "links": [
+                  {
+                    "text": "lasendaantigua.la@gmail.com",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "mail"
+                  },
+                  {
+                    "text": "+1 (626)808-1237",
+                    "href": "tel:+16268081237",
+                    "icon": "phone"
+                  }
+                ]
+              },
+              {
+                "title": "Comentarios:",
+                "links": [
+                  {
+                    "text": "Contáctenos",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "live_help"
+                  }
+                ]
+              },
+              {
+                "title": "Visite también",
+                "links": [
+                  {
+                    "text": "Ministerios Hebrón",
+                    "href": "https://ministerioshebron.com/"
+                  },
+                  {
+                    "text": "Colegio Hebrón",
+                    "href": "https://www.colegiohebron.com/"
+                  }
+                ]
+              }
+            ],
+            "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
+        }
+      ]
     }
   ],
   "navigation": {

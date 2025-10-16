@@ -33,6 +33,9 @@ export interface MapWidgetConfig {
   title?: string;
   subtitle?: string;
   table?: TableConfig;
+  button?: ButtonConfig;
+  descriptionBlock?: DescriptionBlockConfig;
+  backgroundColor?: string;
 }
 
 export interface ImageCardConfig {
