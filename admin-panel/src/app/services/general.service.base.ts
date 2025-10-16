@@ -28,4 +28,7 @@ export class GeneralServiceBase {
   add(arg: any): Observable<any> {
     return of(null);
   }
+  addWithImage(arg: FormData): Observable<any> {
+    return of(null);
+  }
 }

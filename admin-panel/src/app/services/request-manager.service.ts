@@ -13,8 +13,7 @@ export class RequestManagerService {
   get headers(): {
     [key: string]: string;
   } {
-    return {
-      'Content-Type': 'application/json',
+    return {      
       Authorization: `Bearer ${this.accessToken}`,
     };
   }

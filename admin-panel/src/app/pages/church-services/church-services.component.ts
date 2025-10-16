@@ -74,19 +74,45 @@ export class ChurchServicesComponent extends PageBaseComponent {
   }
 
   override parseForm(videoForm: VideoFormData): SermonDto {
-    const sermon = {
+    const sermon: any = {
       date: videoForm.data.date.toISOString().substring(0, 10),
       title: videoForm.data.title,
       videoPath: videoForm.data.videoUrl,
-      cover: videoForm.data.cover,
       preacherId: videoForm.data.preacherId!,
       playlist: videoForm.data.playlistId
-    } as SermonDto;
-    if (videoForm.data.id != undefined) {
-      sermon['id'] = videoForm.data.id;
+    };
+
+    if (typeof videoForm.data.cover === 'string') {
+      sermon.cover = videoForm.data.cover;
     }
 
-    return sermon;
+    if (videoForm.data.id != undefined) {
+      sermon.id = videoForm.data.id;
+    }
+
+    return sermon as SermonDto;
+  }
+
+  override onAdd(form: VideoFormData) {
+    this.isLoading.set(true);
+
+    if (form.data.cover instanceof File) {      
+      const formData = new FormData();
+      const videoData = this.parseForm(form);
+      formData.append('sermonStr', JSON.stringify(videoData));
+      formData.append('coverImage', form.data.cover);
+
+      this.service.addWithImage(formData).subscribe({
+        next: () => this.reload(),
+        error: (err) => this.handleException(err, 'There was a problem adding the sermon.')
+      });
+    } else {
+      const video = this.parseForm(form);
+      this.service.add(video).subscribe({
+        next: () => this.reload(),
+        error: (err) => this.handleException(err, 'There was a problem adding the sermon.')
+      });
+    }
   }
 
   override onSearch(data: any): void {

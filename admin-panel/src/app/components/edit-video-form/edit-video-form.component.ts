@@ -33,7 +33,7 @@ export interface VideoFormData extends TableViewFormData {
     id?: number;
     title: string;
     date: Date;
-    cover: string;
+    cover: File | string;
     videoUrl: string;
     preacherId?: number;
     preacherName?: string;
@@ -74,7 +74,7 @@ export class EditVideoFormComponent {
   readonly videoForm: FormGroup<{
     title: FormControl<string | null>;
     date: FormControl<string | null>;
-    cover: FormControl<string | null>;
+    cover: FormControl<File | string | null>;  
     videoUrl: FormControl<string | null>;
     playlistId: FormControl<string | null>;
     preacher?: FormGroup<{
@@ -99,6 +99,7 @@ export class EditVideoFormComponent {
   readonly playlists = signal<VideoPlaylist[]>([]);
   readonly didAddingPlaylistFail = signal(false);
   readonly addingPlaylist = signal<boolean>(false);
+  fileName: string = '';
 
   constructor() {
     if (this.formData.type !== 'gallery') {
@@ -199,4 +200,13 @@ export class EditVideoFormComponent {
       this.didAddingPlaylistFail.set(false);
     }, 4000);
   }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.fileName = file.name;
+      this.videoForm.controls.cover.setValue(file);
+    }
+  }
+
 }

@@ -6,6 +6,7 @@ using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace lsa_web_apis.Controllers
 {
@@ -68,8 +69,9 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<GalleryVideo>> CreateGallery([FromForm] GalleryVideo gallery, [FromForm] IFormFile coverImage)
+        public async Task<ActionResult<GalleryVideo>> CreateGallery([FromForm] string galleryStr, [FromForm] IFormFile coverImage)
         {
+            var gallery = JsonSerializer.Deserialize<GalleryVideo>(galleryStr)!;
             _context.GalleryVideos.Add(gallery);
             await _context.SaveChangesAsync();
 
@@ -85,8 +87,9 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGallery(int id,[FromForm] GalleryVideo gallery,[FromForm] IFormFile? coverImage)
+        public async Task<IActionResult> UpdateGallery(int id,[FromForm] string galleryStr, [FromForm] IFormFile? coverImage)
         {
+            var gallery = JsonSerializer.Deserialize<GalleryVideo>(galleryStr)!;
             if (id != gallery.Id) return BadRequest("Id does not match");
 
             var existingGallery = await _context.GalleryVideos.FindAsync(id);

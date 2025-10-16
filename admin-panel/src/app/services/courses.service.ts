@@ -40,4 +40,8 @@ export class CoursesService extends GeneralServiceBase {
     const url: string = `${this.apiUrl}?page=${page}&pageSize=${pageSize}&searchTerm=${encodeURIComponent(searchTerm)}`;
     return this.requestManager.get<TableResult<Sermon>>(url);
   }
+
+  override addWithImage(formData: FormData): Observable<SermonDto> {
+    return this.requestManager.post<SermonDto>(this.apiUrl, formData);
+  }
 }

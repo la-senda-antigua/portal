@@ -66,8 +66,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
     const item = {
       date: videoForm.data.date.toISOString().substring(0, 10),
       title: videoForm.data.title,
-      videoPath: videoForm.data.videoUrl,
-      cover: videoForm.data.cover,
+      videoPath: videoForm.data.videoUrl,      
       playlist: videoForm.data.playlistId
     } as GalleryVideo;
     if (videoForm.data.id != undefined) {
@@ -75,6 +74,28 @@ export class GalleryVideosComponent extends PageBaseComponent {
     }
 
     return item;
+  }
+
+  override onAdd(form: VideoFormData) {
+    this.isLoading.set(true);
+
+    if (form.data.cover instanceof File) {
+      const formData = new FormData();
+      const videoData = this.parseForm(form);
+      formData.append('galleryStr', JSON.stringify(videoData));
+      formData.append('coverImage', form.data.cover);
+
+      this.service.addWithImage(formData).subscribe({
+        next: () => this.reload(),
+        error: (err) => this.handleException(err, 'There was a problem adding the gallery item.')
+      });
+    } else {
+      const video = this.parseForm(form);
+      this.service.add(video).subscribe({
+        next: () => this.reload(),
+        error: (err) => this.handleException(err, 'There was a problem adding the gallery item.')
+      });
+    }
   }
 
   override onSearch(data: any): void {
