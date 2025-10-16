@@ -10,21 +10,23 @@ using Microsoft.EntityFrameworkCore;
 namespace lsa_web_apis.Controllers
 {
     [Route("[controller]")]
-    [ApiController]    
+    [ApiController]
     public class LessonsController : ControllerBase
     {
         private readonly VideoRecordingsDbContext _context;
         private readonly IVideoRecordingService _videoRecordingService;
-        public LessonsController(VideoRecordingsDbContext context)
+        private readonly IImageUploadService _imageUploadService;
+        public LessonsController(VideoRecordingsDbContext context, IImageUploadService imageUploadService)
         {
             _context = context;
             _videoRecordingService = new VideoRecordingService(context);
+            _imageUploadService = imageUploadService;
         }
 
         [HttpGet]
         public async Task<ActionResult<PagedResult<Lesson>>> GetLessons([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var pagedResult = await _context.Lessons.Include(l=> l.Preacher).OrderByDescending(s => s.Id).ToPagedResultAsync(page, pageSize);
+            var pagedResult = await _context.Lessons.Include(l => l.Preacher).OrderByDescending(s => s.Id).ToPagedResultAsync(page, pageSize);
             return Ok(pagedResult);
         }
 
@@ -53,17 +55,24 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<Lesson>> CreateLesson(Lesson lesson)
+        public async Task<ActionResult<Lesson>> CreateLesson([FromForm] Lesson lesson, [FromForm] IFormFile coverImage)
         {
             _context.Lessons.Add(lesson);
             await _context.SaveChangesAsync();
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, lesson.Id, "lessons");
+                lesson.Cover = imageUrl;
+                await _context.SaveChangesAsync();
+            }
 
             return CreatedAtAction(nameof(GetLesson), new { id = lesson.Id }, lesson);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateLesson(int id, Lesson lesson)
+        public async Task<IActionResult> UpdateLesson(int id, [FromForm] Lesson lesson, [FromForm] IFormFile? coverImage)
         {
             if (id != lesson.Id) return BadRequest("Id does not match");
 
@@ -71,11 +80,16 @@ namespace lsa_web_apis.Controllers
             if (existingLesson is null) return NotFound();
 
             existingLesson.Title = lesson.Title;
-            existingLesson.Cover = lesson.Cover;
             existingLesson.Date = lesson.Date;
             existingLesson.PreacherId = lesson.PreacherId;
             existingLesson.VideoPath = lesson.VideoPath;
             existingLesson.Playlist = lesson.Playlist;
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, id, "lessons");
+                existingLesson.Cover = imageUrl;
+            }
 
             _context.Lessons.Update(existingLesson);
             await _context.SaveChangesAsync();
