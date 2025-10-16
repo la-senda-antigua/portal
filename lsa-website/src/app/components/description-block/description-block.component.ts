@@ -4,11 +4,12 @@ import {
   computed,
   input,
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { DescriptionBlockConfig } from 'src/app/models/app.config.models';
 
 @Component({
   selector: 'lsa-description-block',
-  imports: [],
+  imports: [MatButtonModule],
   templateUrl: './description-block.component.html',
   styleUrl: './description-block.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

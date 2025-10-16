@@ -13,6 +13,9 @@ export class GeneralServiceBase {
   getAll(): Observable<any[]> {
     return of([]);
   }
+  search(a: string, b:number, c:number): Observable<any> {
+    return of(null);
+  }
   edit(arg: any): Observable<any> {
     return of(null);
   }
@@ -23,6 +26,9 @@ export class GeneralServiceBase {
     return of(null);
   }
   add(arg: any): Observable<any> {
+    return of(null);
+  }
+  addWithImage(arg: FormData): Observable<any> {
     return of(null);
   }
 }

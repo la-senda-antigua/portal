@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace lsa_web_apis.Controllers
 {
@@ -17,14 +18,23 @@ namespace lsa_web_apis.Controllers
         public PreachersController(VideoRecordingsDbContext context) => _context = context;
 
         [HttpGet]
-        public async Task<ActionResult<PagedResult<Preacher>>> GetPreachers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<PagedResult<Preacher>>> GetPreachers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
         {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                var pagedResult = await _context.Preachers
+                .OrderBy(p => p.Id)
+                .ToPagedResultAsync(page, pageSize);
 
-            var pagedResult = await _context.Preachers
-            .OrderBy(p => p.Id)
-            .ToPagedResultAsync(page, pageSize);
+                return Ok(pagedResult);
+            }
 
-            return Ok(pagedResult);
+            var result = await _context.Preachers
+                .Where(p => !string.IsNullOrEmpty(p.Name) && EF.Functions.Like(p.Name, $"%{searchTerm}%"))
+                .ToPagedResultAsync(page, pageSize);
+                
+            return Ok(result);
+
         }
 
         [HttpGet("GetAll")]

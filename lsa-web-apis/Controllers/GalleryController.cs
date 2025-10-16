@@ -6,6 +6,7 @@ using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace lsa_web_apis.Controllers
 {
@@ -15,17 +16,25 @@ namespace lsa_web_apis.Controllers
     {
         private readonly VideoRecordingsDbContext _context;
         private readonly IVideoRecordingService _videoRecordingService;
-        public GalleryController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService)
+        private readonly IImageUploadService _imageUploadService;
+        public GalleryController(VideoRecordingsDbContext context, IVideoRecordingService videoRecordingService, IImageUploadService imageUploadService)
         {
             _context = context;
             _videoRecordingService = videoRecordingService;
+            _imageUploadService = imageUploadService;
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult> GetGallery([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm="")
         {
-            var pagedResult = await _context.GalleryVideos.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
-            return Ok(pagedResult);
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                var pagedResult = await _context.GalleryVideos.OrderByDescending(g => g.Date).ToPagedResultAsync(page, pageSize);
+                return Ok(pagedResult);
+            }
+
+            var result = await _videoRecordingService.FilterVideosPaged<GalleryVideo>(searchTerm, page, pageSize);
+            return Ok(result);
         }
 
         [HttpGet("GetAll")]
@@ -60,28 +69,42 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<ActionResult<GalleryVideo>> CreateGallery(GalleryVideo gallery)
+        public async Task<ActionResult<GalleryVideo>> CreateGallery([FromForm] string galleryStr, [FromForm] IFormFile coverImage)
         {
+            var gallery = JsonSerializer.Deserialize<GalleryVideo>(galleryStr)!;
             _context.GalleryVideos.Add(gallery);
             await _context.SaveChangesAsync();
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, gallery.Id, "gallery");
+                gallery.Cover = imageUrl;
+                await _context.SaveChangesAsync();
+            }
 
             return CreatedAtAction(nameof(GetGallery), new { id = gallery.Id }, gallery);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGallery(int id, GalleryVideo gallery)
+        public async Task<IActionResult> UpdateGallery(int id,[FromForm] string galleryStr, [FromForm] IFormFile? coverImage)
         {
+            var gallery = JsonSerializer.Deserialize<GalleryVideo>(galleryStr)!;
             if (id != gallery.Id) return BadRequest("Id does not match");
 
             var existingGallery = await _context.GalleryVideos.FindAsync(id);
             if (existingGallery is null) return NotFound();
 
             existingGallery.Title = gallery.Title;            
-            existingGallery.Cover = gallery.Cover;
             existingGallery.Date = gallery.Date;            
             existingGallery.VideoPath = gallery.VideoPath;
             existingGallery.Playlist = gallery.Playlist;
+
+            if (coverImage != null && coverImage.Length > 0)
+            {
+                var imageUrl = await _imageUploadService.UploadImageAsync(coverImage, id, "gallery");
+                existingGallery.Cover = imageUrl;
+            }
 
             _context.GalleryVideos.Update(existingGallery);
             await _context.SaveChangesAsync();

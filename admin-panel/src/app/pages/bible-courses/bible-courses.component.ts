@@ -75,15 +75,71 @@ export class BibleCoursesComponent extends PageBaseComponent {
     const course = {
       date: videoForm.data.date.toISOString().substring(0, 10),
       title: videoForm.data.title,
-      videoPath: videoForm.data.videoUrl,
-      cover: videoForm.data.cover,
+      videoPath: videoForm.data.videoUrl,      
       preacherId: videoForm.data.preacherId!,
       playlist: videoForm.data.playlistId
     } as SermonDto;
+
+    if (typeof videoForm.data.cover === 'string') {
+      course.cover = videoForm.data.cover;
+    }
+    
     if (videoForm.data.id != undefined) {
       course['id'] = videoForm.data.id;
     }
 
     return course;
+  }
+
+  override onAdd(form: VideoFormData) {
+    this.isLoading.set(true);
+
+    if (form.data.cover instanceof File) {      
+      const formData = new FormData();
+      const videoData = this.parseForm(form);
+      formData.append('lessonStr', JSON.stringify(videoData));
+      formData.append('coverImage', form.data.cover);
+
+      this.service.addWithImage(formData).subscribe({
+        next: () => this.reload(),
+        error: (err) => this.handleException(err, 'There was a problem adding the lesson.')
+      });
+    } else {
+      const video = this.parseForm(form);
+      this.service.add(video).subscribe({
+        next: () => this.reload(),
+        error: (err) => this.handleException(err, 'There was a problem adding the lesson.')
+      });
+    }
+  }
+
+  override onSearch(data: any): void {
+    const { searchTerm, page, pageSize } = data;
+    this.isLoading.set(true);
+    this.service.search(searchTerm, page, pageSize).subscribe({
+      next: (response) => {
+        const courses = response.items.map((s: Sermon) => ({
+          id: s.id,
+          date: this.datePipe.transform(s.date, 'yyyy-MM-dd'),
+          title: s.title,
+          preacherName: s.preacher.name,
+          preacherId: s.preacher.id,
+          cover: s.cover,
+          videoUrl: s.videoPath,
+          playlistId: s.playlist
+        }));
+        this.dataSource.set({
+          page: response.page,
+          pageSize: response.pageSize,
+          totalItems: response.totalItems,
+          items: courses,
+          columns: this.tableCols,
+        });
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.handleException(err, 'There was an error loading courses.');
+      },
+    })
   }
 }

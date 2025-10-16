@@ -25,8 +25,7 @@ export class LogoutComponent {
   logout() {
     const dialogRef = this.dialog.open(this.logoutDialog);
 
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log("result!!!", result)
+    dialogRef.afterClosed().subscribe((result) => {      
       if (result === 'confirm') {
         this.authService.logout()
       }

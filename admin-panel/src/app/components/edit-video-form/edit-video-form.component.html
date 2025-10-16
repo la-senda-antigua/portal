@@ -30,9 +30,13 @@
       <input matInput [formControl]="videoForm.controls.date" type="date" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline">
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Cover</mat-label>
-      <input matInput [formControl]="videoForm.controls.cover" />
+      <input matInput [value]="fileName" readonly placeholder="Seleccionar archivo">
+      <button mat-icon-button matSuffix (click)="fileInput.click()">
+        <mat-icon>attach_file</mat-icon>
+      </button>
+      <input hidden type="file" #fileInput (change)="onFileSelected($event)" accept="image/*">
     </mat-form-field>
 
     <mat-form-field appearance="outline">

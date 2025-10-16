@@ -287,15 +287,15 @@
         "background-color": "system",
         "use-shadow": false
       },
-      "sections": [       
+      "sections": [
         {
-          "name": "section-1",          
+          "name": "section-1",
           "calendar-list-view": {
             "title": "Nuestros próximos eventos",
             "description-block": {
               "lines": []
             }
-          },          
+          },
           "text-align": "center"
         }
       ]
@@ -326,7 +326,7 @@
           "background-color": "#3f4a49"
         },
         {
-          "name": "section-1",          
+          "name": "section-1",
           "description-block": {
             "lines": [
               "En Iglesia La Senda Antigua estamos comprometidos con Dios a invertir nuestro tesoro en las asuntos celestiales.",
@@ -335,9 +335,9 @@
           },
           "background-color": "#f5f5f5",
           "text-align": "center"
-        },                
+        },
         {
-          "name": "section-2",          
+          "name": "section-2",
           "image-card": {
             "title": "Escuela Bíblica de Verano:",
             "image-position": "left",
@@ -358,11 +358,11 @@
           }
         },
         {
-          "name": "section-3",   
-          "background-color": "#ffffff",     
+          "name": "section-3",
+          "background-color": "#ffffff",
           "image-card": {
             "title": "La obra en Morelia, México:",
-            "image-position": "right",            
+            "image-position": "right",
             "image": "assets/images/morelia.jpg",
             "background-size": "contain",
             "description": {
@@ -381,21 +381,21 @@
           }
         },
         {
-          "name": "section-4",          
+          "name": "section-4",
           "image-card": {
             "title": "La obra en el Oriente de Guatemala:",
             "description": {
               "lines": [
-                "Nuestra congregación local apoya el ministerio del pastor Weslye Salguero y su esposa Keren.", 
-                "Ellos tienen varias obras bajo su cargo en diferentes municipios del nor-oriente de Guatemala (Zacapa, Chiquimula y El Progreso).", 
-                "Ellos también trabajan con alrededor de 300 niños de escasos recursos, proveyéndoles de alimentos, ropa, educación, y principalmente, enseñándoles acerca del amor de Cristo."               
+                "Nuestra congregación local apoya el ministerio del pastor Weslye Salguero y su esposa Keren.",
+                "Ellos tienen varias obras bajo su cargo en diferentes municipios del nor-oriente de Guatemala (Zacapa, Chiquimula y El Progreso).",
+                "Ellos también trabajan con alrededor de 300 niños de escasos recursos, proveyéndoles de alimentos, ropa, educación, y principalmente, enseñándoles acerca del amor de Cristo."
               ],
               "button": {
                 "text": "Donar",
                 "target": "_blank",
                 "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
-            },            
+            },
             "image": "assets/images/guatemala_7.jpg"
           }
         },
@@ -408,7 +408,7 @@
             "description": {
               "lines": [
                 "Tono y Kelly Porras son obreros en el sureste de Asia, establecidos en la ciudad de Mae Sai, Tailandia, y con proyectos en Cambodia y Myanmar.",
-                "A su cargo está el cuidado de un orfanatorio de niños birmanos, de las tribus Ahka y Lahu. Una gran parte de su trabajo está también involucrada en el desarrollo de comunidades de extrema pobreza, centrando su labor en la niñez, con proyectos gratuitos de educación, salud, alimentación y construcción de pozos de agua potable.", 
+                "A su cargo está el cuidado de un orfanatorio de niños birmanos, de las tribus Ahka y Lahu. Una gran parte de su trabajo está también involucrada en el desarrollo de comunidades de extrema pobreza, centrando su labor en la niñez, con proyectos gratuitos de educación, salud, alimentación y construcción de pozos de agua potable.",
                 "En medio de este desarrollo comunitario, el Evangelio y el Amor de Jesucristo es compartido en estas naciones donde el Budhismo impera sobre el 98% de la población."
               ],
               "button": {
@@ -416,7 +416,7 @@
                 "target": "_blank",
                 "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
-            },            
+            },
             "image": "assets/images/asia_mission_2.jpg"
           }
         },
@@ -478,7 +478,7 @@
       },
       "sections": [
         {
-          "name": "header",                    
+          "name": "header",
           "background-image": "assets/images/thankyou.jpg",
           "background-color": "#3f4a49",
           "background-position": "center",
@@ -486,13 +486,14 @@
           "floating-description": {
             "position": "center",
             "description-block": {
-              "text-color": "#ffffff",              
+              "text-color": "#ffffff",
               "lines": [
-                "Gracias por su contribución a este ministerio.","El Señor de la mies le recompensará grandemente."
+                "Gracias por su contribución a este ministerio.",
+                "El Señor de la mies le recompensará grandemente."
               ]
             }
           }
-        },       
+        },
         {
           "name": "footer",
           "footer": {
@@ -564,6 +565,67 @@
           },
           "background-image": "assets/images/guatemala_7.jpg",
           "background-color": "#3f4a49"
+        }
+      ]
+    },
+    {
+      "name": "contact",
+      "title": "Contáctenos",
+      "navigation": {
+        "text-color": "dark",
+        "background-color": "system",
+        "use-shadow": false
+      },
+      "sections": [
+        {
+          "name": "section-1",
+          "title": "Contáctenos",
+          "text-align": "center",
+          "description-block": {
+            "lines": [
+              "Nos agradaría escuchar de usted.",
+              "Sus comentarios y preguntas puede enviárnoslas por medio de correo electrónico:"
+            ],
+            "button": {
+              "text": "Enviar e-mail",
+              "target": "_blank",
+              "link": "mailto:sendaantigua.la@gmail.com"
+            }
+          }
+        },
+        {
+          "name": "section-3",
+          "map-widget": {
+            "src": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.8440206931873!2d-118.26458292360405!3d34.02221452316823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80c2c87878fe9f35%3A0x7db571c889376201!2s631%20E%20Adams%20Blvd%2C%20Los%20Angeles%2C%20CA%2090011!5e0!3m2!1sen!2sus!4v1719464075904!5m2!1sen!2sus",
+            "title": "Nuestra ubicación",
+            "subtitle": "Nos reunimos en 631 E Adams Blvd, Los Angeles, CA 90011.",
+            "table": {
+              "rows": [
+                {
+                  "index": 1,
+                  "columns": [
+                    { "index": 1, "text": "Domingos, 9:00 a.m. - 9:50 a.m." },
+                    { "index": 2, "text": "Estudio bíblico" }
+                  ]
+                },
+                {
+                  "index": 2,
+                  "columns": [
+                    { "index": 1, "text": "Domingos, 10:30 a.m. - 1:00 p.m." },
+                    { "index": 2, "text": "Servicio general" }
+                  ]
+                },
+                {
+                  "index": 3,
+                  "columns": [
+                    { "index": 1, "text": "Martes, 7:30 p.m. - 9:00 p.m." },
+                    { "index": 2, "text": "Servicio general" }
+                  ]
+                }
+              ]
+            }
+          },
+          "background-color": "system"
         }
       ]
     }
