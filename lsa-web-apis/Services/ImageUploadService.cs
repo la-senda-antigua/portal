@@ -12,12 +12,13 @@ public class ImageUploadService : IImageUploadService
     private readonly string _ftpHost;
     private readonly string _ftpUsername;
     private readonly string _ftpPassword;
-
+    private readonly string _ftpDomain;
     public ImageUploadService(IConfiguration configuration)
     {
         _ftpHost = configuration["Ftp:Host"]!;
         _ftpUsername = configuration["Ftp:Username"]!;
         _ftpPassword = configuration["Ftp:Password"]!;
+        _ftpDomain = configuration["Ftp:Domain"]!;
     }
 
     public async Task<string> UploadImageAsync(IFormFile imageFile, int id, string folder)
@@ -32,10 +33,9 @@ public class ImageUploadService : IImageUploadService
         var fileName = $"{id}.jpg";
         var remotePath = $"/{folder}/{fileName}";
 
-        await UploadProcessedImageAsync(image, remotePath);
-        return $"https://thumbnails.iglesialasendaantigua.com{remotePath}";
+        await UploadProcessedImageAsync(image, remotePath);        
+        return $"{_ftpDomain}{remotePath}";
     }
-
 
     private async Task UploadProcessedImageAsync(Image image, string remotePath)
     {
@@ -48,5 +48,4 @@ public class ImageUploadService : IImageUploadService
         await client.UploadStream(memoryStream, remotePath);
         await client.Disconnect();
     }
-
 }

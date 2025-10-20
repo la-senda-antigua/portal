@@ -15,6 +15,15 @@ export class RequestManagerService {
   } {
     return {      
       Authorization: `Bearer ${this.accessToken}`,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  get headers_no_content_type(): {
+    [key: string]: string;
+  } {
+    return {      
+      Authorization: `Bearer ${this.accessToken}`,
     };
   }
 
@@ -32,8 +41,16 @@ export class RequestManagerService {
     return this.httpClient.post<T>(`${this.apiBaseUrl}${url}`, body, { headers: this.headers });
   }
 
+  post_auto_content<T>(url: string, body: any) {
+    return this.httpClient.post<T>(`${this.apiBaseUrl}${url}`, body, { headers: this.headers_no_content_type });
+  }
+
   put<T>(url: string, body: any){
     return this.httpClient.put<T>(`${this.apiBaseUrl}${url}`, body, { headers: this.headers });
+  }
+
+  put_auto_content<T>(url: string, body: any) {
+    return this.httpClient.put<T>(`${this.apiBaseUrl}${url}`, body, { headers: this.headers_no_content_type });
   }
 
   delete<T>(url: string){
