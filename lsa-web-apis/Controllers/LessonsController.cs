@@ -80,8 +80,9 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateLesson(int id, [FromForm] Lesson lesson, [FromForm] IFormFile? coverImage)
+        public async Task<IActionResult> UpdateLesson(int id, [FromForm] string lessonStr, [FromForm] IFormFile? coverImage)
         {
+            Lesson lesson = JsonSerializer.Deserialize<Lesson>(lessonStr)!;
             if (id != lesson.Id) return BadRequest("Id does not match");
 
             var existingLesson = await _context.Lessons.FindAsync(id);

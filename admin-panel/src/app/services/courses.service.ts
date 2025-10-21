@@ -42,6 +42,11 @@ export class CoursesService extends GeneralServiceBase {
   }
 
   override addWithImage(formData: FormData): Observable<SermonDto> {
-    return this.requestManager.post<SermonDto>(this.apiUrl, formData);
+    return this.requestManager.post_auto_content<SermonDto>(this.apiUrl, formData);
+  }
+  
+  override editWithImage(id: number, formData: FormData): Observable<void> {    
+    const url = `${this.apiUrl}/${id}`;
+    return this.requestManager.put_auto_content<void>(url, formData);
   }
 }

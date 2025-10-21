@@ -1,8 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, viewChild } from '@angular/core';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
-import { EditVideoFormComponent, VideoFormData } from '../../components/edit-video-form/edit-video-form.component';
-import { TableViewColumn, TableViewComponent } from '../../components/table-view/table-view.component';
+import {
+  EditVideoFormComponent,
+  VideoFormData,
+} from '../../components/edit-video-form/edit-video-form.component';
+import {
+  TableViewColumn,
+  TableViewComponent,
+} from '../../components/table-view/table-view.component';
 import { GalleryService } from '../../services/gallery.service';
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { GalleryVideo } from '../../models/GalleryVideo';
@@ -45,7 +51,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
           title: s.title,
           cover: s.cover,
           videoUrl: s.videoPath,
-          playlistId: s.playlist
+          playlistId: s.playlist,
         }));
         this.dataSource.set({
           page: response.page,
@@ -66,8 +72,8 @@ export class GalleryVideosComponent extends PageBaseComponent {
     const item = {
       date: videoForm.data.date.toISOString().substring(0, 10),
       title: videoForm.data.title,
-      videoPath: videoForm.data.videoUrl,      
-      playlist: videoForm.data.playlistId
+      videoPath: videoForm.data.videoUrl,
+      playlist: videoForm.data.playlistId,
     } as GalleryVideo;
     if (videoForm.data.id != undefined) {
       item['id'] = videoForm.data.id;
@@ -79,23 +85,34 @@ export class GalleryVideosComponent extends PageBaseComponent {
   override onAdd(form: VideoFormData) {
     this.isLoading.set(true);
 
+    const formData = new FormData();
+    const videoData = this.parseForm(form);
+    formData.append('galleryStr', JSON.stringify(videoData));
     if (form.data.cover instanceof File) {
-      const formData = new FormData();
-      const videoData = this.parseForm(form);
-      formData.append('galleryStr', JSON.stringify(videoData));
       formData.append('coverImage', form.data.cover);
-
-      this.service.addWithImage(formData).subscribe({
-        next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the gallery item.')
-      });
-    } else {
-      const video = this.parseForm(form);
-      this.service.add(video).subscribe({
-        next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the gallery item.')
-      });
     }
+
+    this.service.addWithImage(formData).subscribe({
+      next: () => this.reload(),
+      error: (err) =>
+        this.handleException(err,'There was a problem adding the gallery item.'),
+    });
+  }
+
+  override onEdit(form: VideoFormData) {
+    this.isLoading.set(true);    
+    const formData = new FormData();
+    const videoData = this.parseForm(form);
+    formData.append('galleryStr', JSON.stringify(videoData));
+    if (form.data.cover instanceof File) {
+      formData.append('coverImage', form.data.cover);
+    }
+    
+    this.service.editWithImage(videoData.id, formData).subscribe({
+      next: () => this.reload(),
+      error: (err) =>
+        this.handleException(err, 'There was a problem updating the video.'),
+    });
   }
 
   override onSearch(data: any): void {
@@ -109,7 +126,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
           title: s.title,
           cover: s.cover,
           videoUrl: s.videoPath,
-          playlistId: s.playlist
+          playlistId: s.playlist,
         }));
         this.dataSource.set({
           page: response.page,
@@ -123,7 +140,6 @@ export class GalleryVideosComponent extends PageBaseComponent {
       error: (err) => {
         this.handleException(err, 'There was an error loading gallery.');
       },
-    })
+    });
   }
-
 }
