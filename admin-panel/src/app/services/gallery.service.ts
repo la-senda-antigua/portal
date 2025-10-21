@@ -42,6 +42,11 @@ export class GalleryService extends GeneralServiceBase {
   }
 
   override addWithImage(formData: FormData): Observable<GalleryVideo> {
-    return this.requestManager.post<GalleryVideo>(this.apiUrl, formData);
+    return this.requestManager.post_auto_content<GalleryVideo>(this.apiUrl, formData);
+  }
+
+  override editWithImage(id: number, formData: FormData): Observable<void> {    
+    const url = `${this.apiUrl}/${id}`;
+    return this.requestManager.put_auto_content<void>(url, formData);
   }
 }

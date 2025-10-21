@@ -7,7 +7,7 @@ import {
 } from '../../components/edit-video-form/edit-video-form.component';
 import {
   TableViewColumn,
-  TableViewComponent
+  TableViewComponent,
 } from '../../components/table-view/table-view.component';
 import { Sermon, SermonDto } from '../../models/Sermon';
 import { CoursesService } from '../../services/courses.service';
@@ -54,7 +54,7 @@ export class BibleCoursesComponent extends PageBaseComponent {
           preacherId: s.preacher.id,
           cover: s.cover,
           videoUrl: s.videoPath,
-          playlistId: s.playlist
+          playlistId: s.playlist,
         }));
         this.dataSource.set({
           page: response.page,
@@ -75,15 +75,15 @@ export class BibleCoursesComponent extends PageBaseComponent {
     const course = {
       date: videoForm.data.date.toISOString().substring(0, 10),
       title: videoForm.data.title,
-      videoPath: videoForm.data.videoUrl,      
+      videoPath: videoForm.data.videoUrl,
       preacherId: videoForm.data.preacherId!,
-      playlist: videoForm.data.playlistId
+      playlist: videoForm.data.playlistId,
     } as SermonDto;
 
     if (typeof videoForm.data.cover === 'string') {
       course.cover = videoForm.data.cover;
     }
-    
+
     if (videoForm.data.id != undefined) {
       course['id'] = videoForm.data.id;
     }
@@ -94,23 +94,34 @@ export class BibleCoursesComponent extends PageBaseComponent {
   override onAdd(form: VideoFormData) {
     this.isLoading.set(true);
 
-    if (form.data.cover instanceof File) {      
-      const formData = new FormData();
-      const videoData = this.parseForm(form);
-      formData.append('lessonStr', JSON.stringify(videoData));
+    const formData = new FormData();
+    const videoData = this.parseForm(form);
+    formData.append('lessonStr', JSON.stringify(videoData));
+    if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);
-
-      this.service.addWithImage(formData).subscribe({
-        next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the lesson.')
-      });
-    } else {
-      const video = this.parseForm(form);
-      this.service.add(video).subscribe({
-        next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the lesson.')
-      });
     }
+
+    this.service.addWithImage(formData).subscribe({
+      next: () => this.reload(),
+      error: (err) =>
+        this.handleException(err, 'There was a problem adding the lesson.'),
+    });
+  }
+
+  override onEdit(form: VideoFormData) {
+    this.isLoading.set(true);    
+    const formData = new FormData();
+    const videoData = this.parseForm(form);
+    formData.append('lessonStr', JSON.stringify(videoData));
+    if (form.data.cover instanceof File) {
+      formData.append('coverImage', form.data.cover);
+    }
+    
+    this.service.editWithImage(videoData.id, formData).subscribe({
+      next: () => this.reload(),
+      error: (err) =>
+        this.handleException(err, 'There was a problem updating the lesson.'),
+    });
   }
 
   override onSearch(data: any): void {
@@ -126,7 +137,7 @@ export class BibleCoursesComponent extends PageBaseComponent {
           preacherId: s.preacher.id,
           cover: s.cover,
           videoUrl: s.videoPath,
-          playlistId: s.playlist
+          playlistId: s.playlist,
         }));
         this.dataSource.set({
           page: response.page,
@@ -140,6 +151,6 @@ export class BibleCoursesComponent extends PageBaseComponent {
       error: (err) => {
         this.handleException(err, 'There was an error loading courses.');
       },
-    })
+    });
   }
 }

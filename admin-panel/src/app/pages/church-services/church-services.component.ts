@@ -79,7 +79,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
       title: videoForm.data.title,
       videoPath: videoForm.data.videoUrl,
       preacherId: videoForm.data.preacherId!,
-      playlist: videoForm.data.playlistId
+      playlist: videoForm.data.playlistId,
     };
 
     if (typeof videoForm.data.cover === 'string') {
@@ -96,23 +96,34 @@ export class ChurchServicesComponent extends PageBaseComponent {
   override onAdd(form: VideoFormData) {
     this.isLoading.set(true);
 
-    if (form.data.cover instanceof File) {      
-      const formData = new FormData();
-      const videoData = this.parseForm(form);
-      formData.append('sermonStr', JSON.stringify(videoData));
+    const formData = new FormData();
+    const videoData = this.parseForm(form);
+    formData.append('sermonStr', JSON.stringify(videoData));
+    if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);
-
-      this.service.addWithImage(formData).subscribe({
-        next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the sermon.')
-      });
-    } else {
-      const video = this.parseForm(form);
-      this.service.add(video).subscribe({
-        next: () => this.reload(),
-        error: (err) => this.handleException(err, 'There was a problem adding the sermon.')
-      });
     }
+
+    this.service.addWithImage(formData).subscribe({
+      next: () => this.reload(),
+      error: (err) =>
+        this.handleException(err, 'There was a problem adding the sermon.'),
+    });
+  }
+
+  override onEdit(form: VideoFormData) {
+    this.isLoading.set(true);    
+    const formData = new FormData();
+    const videoData = this.parseForm(form);
+    formData.append('sermonStr', JSON.stringify(videoData));
+    if (form.data.cover instanceof File) {
+      formData.append('coverImage', form.data.cover);
+    }
+    
+    this.service.editWithImage(videoData.id, formData).subscribe({
+      next: () => this.reload(),
+      error: (err) =>
+        this.handleException(err, 'There was a problem updating the sermon.'),
+    });
   }
 
   override onSearch(data: any): void {
@@ -142,6 +153,6 @@ export class ChurchServicesComponent extends PageBaseComponent {
       error: (err) => {
         this.handleException(err, 'There was an error loading sermons.');
       },
-    })
+    });
   }
 }
