@@ -33,7 +33,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<UserDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("UsersDatabase")!));
 builder.Services.AddDbContext<VideoRecordingsDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("VideoRecordingsDatabase")!));
-builder.Services.AddDbContext<CalendarDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("VideoRecordingsDatabase")!));
+builder.Services.AddDbContext<PublicEventsDbContext>(options => options.UseMySQL(builder.Configuration.GetConnectionString("VideoRecordingsDatabase")!));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddCookie()

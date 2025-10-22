@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace lsa_web_apis.Entities;
 
-public class CalendarEvent
+public class PublicEvent
 {
     public int Id { get; set; }
     public string Title { get; set; } = "";
