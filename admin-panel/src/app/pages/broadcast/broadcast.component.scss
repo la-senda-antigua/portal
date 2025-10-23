@@ -1,15 +1,7 @@
-:host {
+.broadcast-container {  
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
-}
-
-a {
-  margin: 10px;
-}
-
-.container {
-  text-align: center;  
+  height: 100%;  
 }

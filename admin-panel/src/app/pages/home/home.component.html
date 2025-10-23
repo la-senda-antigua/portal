@@ -1,30 +1,35 @@
 <div class="container">
-  <app-logout/>
-  <app-stream />
-  
-  <h3 class="w-100">Edit Services</h3>
-  <p>Add or edit the lists of video recordings:</p>
-  <a mat-stroked-button href="services">
-    <mat-icon>podium</mat-icon> Preachings
+  <app-logout />
+
+  <h3 class="w-100 center mat">Admin Panel</h3>
+
+  <a mat-stroked-button href="broadcast" class="menu-button" 
+     [disabled]="!authService.hasRole('Admin', 'BroadcastManager')">
+    <mat-icon>bigtop_updates</mat-icon>
+    Broadcast
   </a>
-  <a mat-stroked-button href="courses">
-    <mat-icon>book</mat-icon>
-    Courses
-  </a>
-  <a mat-stroked-button href="gallery">
-    <mat-icon>gallery_thumbnail</mat-icon>
-    Gallery
-  </a>
-  <a mat-stroked-button href="playlists">
-    <mat-icon>subscriptions</mat-icon>
-    Playlists
-  </a>
-  <a mat-stroked-button href="preachers">
-    <mat-icon>group_add</mat-icon>
-    Preachers
-  </a>
-  <a mat-stroked-button href="calendar">
+
+  <a mat-stroked-button href="calendars" class="menu-button" 
+     [disabled]="!authService.hasRole('Admin', 'CalendarManager')">
     <mat-icon>event</mat-icon>
-    Events
+    Calendars
+  </a>
+
+  <a mat-stroked-button href="media" class="menu-button" 
+     [disabled]="!authService.hasRole('Admin', 'MediaManager')">
+    <mat-icon>video_settings</mat-icon> 
+    Media
+  </a>
+
+  <a mat-stroked-button href="users" class="menu-button" 
+     [disabled]="!authService.hasRole('Admin')">
+    <mat-icon>account_circle</mat-icon>
+    Users
+  </a>
+
+  <a mat-stroked-button href="userGroups" class="menu-button" 
+     [disabled]="!authService.hasRole('Admin', 'CalendarManager')">
+    <mat-icon>group_add</mat-icon>
+    User Groups
   </a>
 </div>
