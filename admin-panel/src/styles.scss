@@ -20,3 +20,15 @@ mat-icon {
 
 .flex-grow-1{flex-grow: 1;}
 .flex-grow-2{flex-grow: 2;}
+
+.back-button{
+  position: absolute !important;
+  top: 8px;
+  left: 8px;
+}
+
+app-logout{
+  position: absolute;
+  top: 8px;
+  right: 8px;  
+}
