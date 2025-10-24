@@ -12,10 +12,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
-            // Quitamos la autenticación real
             services.RemoveAll(typeof(AuthenticationSchemeOptions));
-
-            // Agregamos nuestro handler de prueba
             services.AddAuthentication("Test")
                     .AddScheme<AuthenticationSchemeOptions, FakeAuthHandlerForTest>("Test", options => { });
         });

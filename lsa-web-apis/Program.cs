@@ -72,6 +72,16 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+if (app.Environment.IsEnvironment("Testing"))
+{
+    app.Use(async (context, next) =>
+    {        
+        context.Request.Headers["Authorization"] = "Test";
+        await next();
+    });
+}
+
+
 app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
