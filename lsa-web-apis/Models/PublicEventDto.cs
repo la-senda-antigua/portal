@@ -4,7 +4,7 @@ using lsa_web_apis.Entities;
 
 namespace lsa_web_apis.Models;
 
-public class CalendarEventDto
+public class PublicEventDto
 {
     public int Id { get; set; }
     public string Title { get; set; } = "";
@@ -13,22 +13,22 @@ public class CalendarEventDto
     public string? Description { get; set; }
     private bool IsCancelled;
 
-    public CalendarEventStatus Status
+    public PublicEventStatus Status
     {
         get
         {
-            if (IsCancelled) return CalendarEventStatus.Cancelled;
+            if (IsCancelled) return PublicEventStatus.Cancelled;
 
             DateTime _endTime = EndTime ?? StartTime.AddHours(3);
             DateTime now = DateTime.Now;
 
-            if (_endTime < now) return CalendarEventStatus.Completed;
-            if (StartTime <= now && _endTime >= now) return CalendarEventStatus.Active;
-            return CalendarEventStatus.Future;
+            if (_endTime < now) return PublicEventStatus.Completed;
+            if (StartTime <= now && _endTime >= now) return PublicEventStatus.Active;
+            return PublicEventStatus.Future;
         }
     }
-    public CalendarEventDto() { }
-    public CalendarEventDto(CalendarEvent e)
+    public PublicEventDto() { }
+    public PublicEventDto(PublicEvent e)
     {
         Title = e.Title;
         Id = e.Id;
@@ -39,7 +39,7 @@ public class CalendarEventDto
     }
 }
 
-public enum CalendarEventStatus
+public enum PublicEventStatus
 {
     Future = 0,
     Active = 1,

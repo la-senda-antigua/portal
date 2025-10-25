@@ -8,7 +8,7 @@ import { CalendarEvent } from '../models/CalendarEvent';
   providedIn: 'root'
 })
 export class CalendarService extends GeneralServiceBase {
-  override apiUrl = '/calendar';
+  override apiUrl = '/publicEvents';
 
   override getPage(
     page: number = 1,
