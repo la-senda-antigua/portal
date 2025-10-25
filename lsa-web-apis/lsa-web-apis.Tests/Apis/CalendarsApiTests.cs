@@ -5,19 +5,18 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace lsa_web_apis.Tests.Apis;
 
 public class CalendarsApiTests : IClassFixture<CustomWebApplicationFactory>
 {
-    private readonly CustomWebApplicationFactory _factory;
-    public CalendarsApiTests(CustomWebApplicationFactory factory) => _factory = factory;
-
     [Fact]
     public async Task GetAll_ReturnsAllCalendars_ForAdminUser()
     {
-        _factory.TestUserRole = "Admin";
-        var client = _factory.CreateClient();
+        using var factory = new CustomWebApplicationFactory();
+        factory.TestUserRole = "Admin";
+        var client = factory.CreateClient();
 
         var response = await client.GetAsync("/api/calendars");
         var content = await response.Content.ReadAsStringAsync();
@@ -31,10 +30,11 @@ public class CalendarsApiTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Post_CreatesNewCalendar()
     {
-        _factory.TestUserRole = "Admin";
-        var client = _factory.CreateClient();
+        using var factory = new CustomWebApplicationFactory();
+        factory.TestUserRole = "Admin";
+        var client = factory.CreateClient();
 
-        using var scope = _factory.Services.CreateScope();
+        using var scope = factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
         var originalNItems = context.Calendars.Count();
 
@@ -60,10 +60,11 @@ public class CalendarsApiTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Delete_Calendar()
     {
-        _factory.TestUserRole = "Admin";
-        var client = _factory.CreateClient();
+        using var factory = new CustomWebApplicationFactory();
+        factory.TestUserRole = "Admin";
+        var client = factory.CreateClient();
 
-        using var scope = _factory.Services.CreateScope();
+        using var scope = factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
 
         var calendar = new Calendar
@@ -89,11 +90,12 @@ public class CalendarsApiTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Put_UpdatesCalendar_ForAdminUser()
     {
-        _factory.TestUserRole = "Admin";
-        var client = _factory.CreateClient();
+        using var factory = new CustomWebApplicationFactory();
+        factory.TestUserRole = "Admin";
+        var client = factory.CreateClient();
 
         //Add New
-        using var scope = _factory.Services.CreateScope();
+        using var scope = factory.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<UserDbContext>();
         var calendar = new Calendar
         {
@@ -126,8 +128,9 @@ public class CalendarsApiTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task GetAll_ReturnsForbidden_ForNonAdminUser()
     {
-        _factory.TestUserRole = "User";
-        var client = _factory.CreateClient();
+        using var factory = new CustomWebApplicationFactory();
+        factory.TestUserRole = "User";
+        var client = factory.CreateClient();
         var response = await client.GetAsync("/api/calendars");
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
