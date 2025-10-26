@@ -628,6 +628,38 @@
           "background-color": "system"
         }
       ]
+    },
+    {
+      "title": "Pastores",
+      "name": "pastors",
+      "navigation": {
+        "text-color": "dark",
+        "background-color": "system",
+        "use-shadow": false
+      },
+      "sections": [
+        {
+          "name": "section-1",
+          "text-align": "center",
+          "image-card": {
+            "title": "Pastor y su esposa",
+            "image-position": "left",
+            "description": {
+              "lines": [
+                "El Pastor Bernardo Rodríguez y su esposa Letty dirigen la obra 'La Senda Antigua' en Los Ángeles, California.", 
+                "Su labor pastoral se extiende más allá de la iglesia local, abarcando la supervisión de congregaciones en Morelia, México, y Mae Sai, Tailandia.", 
+                "Además de su profundo compromiso con el cuidado de las almas que les han sido encomendadas, los Pastores Rodríguez sienten una ferviente carga evangelística por alcanzar a las comunidades pobres de Latinoamérica y del mundo entero. Por esta razón, brindan apoyo continuo, tanto espiritual como económico, a la labor de diversos misioneros a nivel global.",
+                "Uno de los versos bíblicos favoritos del hermano Bernardo es Mat.11:5, en donde el Señor Jesús dice esta frase clave: 'A los pobres es anunciado el evangelio'."
+              ],
+              "button": {
+                "text": "Contribuir",
+                "link": "/contribute"
+              }
+            },
+            "image": "assets/images/pastors.jpeg"
+          }
+        }
+      ]
     }
   ],
   "navigation": {
@@ -651,7 +683,7 @@
           {
             "index": 3,
             "text": "Pastor y su esposa",
-            "link": "/pastor"
+            "link": "/pastors"
           },
           {
             "index": 4,
