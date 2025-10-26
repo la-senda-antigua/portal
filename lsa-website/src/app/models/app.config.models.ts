@@ -83,6 +83,7 @@ export interface QuickLinksConfig {
 export interface IconLinkConfig {
   icon?: string;
   path?: string;
+  url?: string;
   label?: string;
 }
 

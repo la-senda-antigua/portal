@@ -2,7 +2,7 @@
   <mat-drawer #mobileMenu [mode]="'over'">
     <lsa-mobile-menu (close)="mobileMenu.toggle()"></lsa-mobile-menu>
   </mat-drawer>
-  <mat-drawer-content>
+  <mat-drawer-content id="page-content">
     <router-outlet></router-outlet>
     <lsa-nav-bar class="menu-toolbar" [backgroundColor]="pageNavigationSettings()?.backgroundColor" [textColor]="pageNavigationSettings()?.textColor" [useShadow]="pageNavigationSettings()?.useShadow" (openMobileMenu)="mobileMenu.toggle()"></lsa-nav-bar>
   </mat-drawer-content>
