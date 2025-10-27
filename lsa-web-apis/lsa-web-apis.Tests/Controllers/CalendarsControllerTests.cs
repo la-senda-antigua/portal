@@ -129,7 +129,7 @@ public class CalendarsControllerTests
         await context.SaveChangesAsync();
 
         var controller = new CalendarsController(context);
-        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]{new Claim(ClaimTypes.Role, "Admin")}, "mock"));
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
         controller.ControllerContext = new ControllerContext()
         {
             HttpContext = new DefaultHttpContext() { User = user }
@@ -142,7 +142,7 @@ public class CalendarsControllerTests
     }
 
     [Fact]
-    public async Task GetCalendars_ByUserId()
+    public async Task GetByUserId_ReturnsUserCalendars()
     {
         var options = new DbContextOptionsBuilder<UserDbContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase_GetByUser")
@@ -154,12 +154,19 @@ public class CalendarsControllerTests
         var calendar1 = new Calendar { Id = Guid.NewGuid(), Name = "User Calendar 1", Active = true };
         var calendar2 = new Calendar { Id = Guid.NewGuid(), Name = "User Calendar 2", Active = false };
 
+        calendar1.Managers = new List<CalendarManager> { new CalendarManager { UserId = userId } };
+        calendar2.Members = new List<CalendarMember> { new CalendarMember { UserId = userId } };
+
         context.Calendars.AddRange(calendar1, calendar2);
         await context.SaveChangesAsync();
 
         var controller = new CalendarsController(context);
 
-        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]{new Claim(ClaimTypes.Role, "Admin")}, "mock"));
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        {
+        new Claim(ClaimTypes.Role, "Admin")
+        }, "mock"));
+
         controller.ControllerContext = new ControllerContext()
         {
             HttpContext = new DefaultHttpContext() { User = user }
