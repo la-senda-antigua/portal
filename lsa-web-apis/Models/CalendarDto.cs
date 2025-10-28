@@ -17,5 +17,17 @@
         public TimeOnly? StartTime { get; set; }
         public TimeOnly? EndTime { get; set; }
         public DateTime? AlertDate { get; set; }
-    }   
+    }
+    
+    public class CalendarManagerDto
+    {
+        public Guid CalendarId { get; set; }
+        public CalendarDto Calendar { get; set; } = null!;
+    }
+
+    public class CalendarMemberDto
+    {
+        public Guid CalendarId { get; set; }
+        public CalendarDto Calendar { get; set; } = null!;
+    }
 }

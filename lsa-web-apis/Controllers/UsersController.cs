@@ -6,27 +6,67 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using lsa_web_apis.Entities;
+using lsa_web_apis.Extensions;
 
 namespace lsa_web_apis.Controllers
 {
     [Authorize(Roles = "Admin")]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UsersController(IAuthService authService, UserDbContext context) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<UserDto>>> GetAllUsers()
-        {
-            var users = await context.PortalUsers
-            .Select(
-                u => new UserDto
-                {
-                    Username = u.Username,
-                    Role = u.Role
-                }
-            ).ToListAsync();
+        public async Task<ActionResult<PagedResult<UserDto>>> GetAllUsers([FromQuery] int page = 1,[FromQuery] int pageSize = 10,[FromQuery] string searchTerm = "")
+        {            
+            var usersQuery = context.PortalUsers
+                .Where(u => string.IsNullOrEmpty(searchTerm) ||
+                           u.Username.Contains(searchTerm) ||
+                           u.Role.Contains(searchTerm));
 
-            return Ok(users);
+            var pagedUsers = await usersQuery.ToPagedResultAsync(page, pageSize);
+            
+            var userDtos = new List<UserDto>();
+            foreach (var user in pagedUsers.Items)
+            {
+                // calendars as manager
+                var managerCalendars = await context.CalendarManagers
+                    .Where(cm => cm.UserId == user.Id)
+                    .Select(cm => new CalendarDto
+                    {
+                        Name = cm.Calendar.Name,
+                        Active = cm.Calendar.Active
+                    })
+                    .ToListAsync();
+
+                // calendars as member
+                var memberCalendars = await context.CalendarMembers
+                    .Where(cm => cm.UserId == user.Id)
+                    .Select(cm => new CalendarDto
+                    {
+                        Name = cm.Calendar.Name,
+                        Active = cm.Calendar.Active
+                    })
+                    .ToListAsync();
+
+                userDtos.Add(new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Role = user.Role,
+                    CalendarsAsManager = managerCalendars,
+                    CalendarsAsMember = memberCalendars
+                });
+            }
+
+            var result = new PagedResult<UserDto>
+            {
+                Items = userDtos,
+                Page = pagedUsers.Page,
+                PageSize = pagedUsers.PageSize,
+                TotalItems = pagedUsers.TotalItems
+            };
+
+            return Ok(result);
         }
 
         [HttpPost()]

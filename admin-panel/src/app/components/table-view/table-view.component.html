@@ -8,18 +8,29 @@
 <div class="table-container">
   @if (isLoading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-  } 
-  @if(tableDatasource != undefined) {  
+  }
+  @if(tableDatasource != undefined) {
   <mat-form-field appearance="outline" class="w-full">
     <input matInput placeholder="search..." [(ngModel)]="searchTerm" required (keydown.enter)="search()"/>
-  </mat-form-field> 
+  </mat-form-field>
 
   <table mat-table [dataSource]="tableDatasource!" class="mat-elevation-z8">
-    @for (field of datasource().columns; track $index) {
+  @for (field of datasource().columns; track $index) {
     <ng-container [matColumnDef]="field.datasourceName">
       <th mat-header-cell *matHeaderCellDef>{{ field.displayName }}</th>
       <td mat-cell *matCellDef="let entry">
-        {{ entry[field.datasourceName] }}
+        @if (field.isArray) {
+
+          <mat-chip-listbox >
+            @for (item of entry[field.datasourceName]; track $index) {
+              <mat-chip selected>
+                {{ field.displayProperty ? item[field.displayProperty] : item }}
+              </mat-chip>
+            }
+          </mat-chip-listbox>
+        } @else {
+          {{ entry[field.datasourceName] }}
+        }
       </td>
     </ng-container>
   }

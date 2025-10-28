@@ -8,10 +8,11 @@ import { HomeComponent } from './pages/home/home.component';
 import { ChurchServicesComponent } from './pages/church-services/church-services.component';
 import { BibleCoursesComponent } from './pages/bible-courses/bible-courses.component';
 import { GalleryVideosComponent } from './pages/gallery-videos/gallery-videos.component';
-import { CalendarComponent } from './pages/calendar-list-view/calendar-list-view.component';
+import { PublicEventComponent } from './pages/public-event-list-view/public-event-list-view.component';
 import { BroadcastComponent } from './pages/broadcast/broadcast.component';
 import { MediaMenuComponent } from './pages/media-menu/media-menu.component';
 import { RoleGuard } from './role.guard';
+import { UsersPageComponent } from './pages/users-page/users-page.component';
 
 export const routes: Routes = [
   {
@@ -60,8 +61,8 @@ export const routes: Routes = [
     data: { roles: ['Admin', 'MediaManager'] }
   },
   {
-    path: 'calendar',
-    component: CalendarComponent,
+    path: 'events',
+    component: PublicEventComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Admin', 'CalendarManager'] }
   },
@@ -77,4 +78,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Admin', 'MediaManager'] }
   },
+  {
+    path: 'users',
+    component: UsersPageComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin'] }
+  },
+
 ];

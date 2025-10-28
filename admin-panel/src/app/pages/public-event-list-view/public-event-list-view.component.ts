@@ -4,21 +4,21 @@ import { DatePipe } from '@angular/common';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { CalendarService } from '../../services/calendar.service';
-import { CalendarEvent } from '../../models/CalendarEvent';
-import { EditCalendarFormComponent, CalendarFormData } from '../../components/edit-calendar-form/edit-calendar-form.component';
+import { PublicEvent } from '../../models/PublicEvent';
+import { EditPublicEventFormComponent, PublicEventFormData } from '../../components/edit-public-event-form/edit-public-event-form.component';
 import { DisableConfirmationData } from '../../components/disable-confirmation/disable-confirmation.component';
 
 @Component({
-  selector: 'app-calendar',
+  selector: 'app-public-event',
   imports: [TableViewComponent],
-  templateUrl: './calendar-list-view.component.html',
-  styleUrl: './calendar-list-view.component.scss',
+  templateUrl: './public-event-list-view.component.html',
+  styleUrl: './public-event-list-view.component.scss',
   providers: [DatePipe],
 })
-export class CalendarComponent extends PageBaseComponent {
+export class PublicEventComponent extends PageBaseComponent {
   override tableViewComponent = viewChild(TableViewComponent);
-  override editForm = EditCalendarFormComponent;
-  override createForm = EditCalendarFormComponent;
+  override editForm = EditPublicEventFormComponent;
+  override createForm = EditPublicEventFormComponent;
   override tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'id' },
     { displayName: 'Title', datasourceName: 'title' },
@@ -33,13 +33,13 @@ export class CalendarComponent extends PageBaseComponent {
     matchingString: 'id',
     name: 'title',
   };
-  
+
   override disableFields: DisableConfirmationData = {
-    id: 'id',    
+    id: 'id',
     name: 'title',
     actionName: 'disable'
   };
-  
+
   override tableTitle = 'Calendar Events';
 
   constructor(service: CalendarService) {
@@ -50,13 +50,13 @@ export class CalendarComponent extends PageBaseComponent {
     this.isLoading.set(true);
     this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
-        const item = response.items.map((s: CalendarEvent) => ({
+        const item = response.items.map((s: PublicEvent) => ({
           id: s.id,
           title: s.title,
           startTime: this.datePipe.transform(s.startTime, 'yyyy-MM-dd hh:mm a'),
           endTime: this.datePipe.transform(s.endTime, 'yyyy-MM-dd hh:mm a'),
           description: s.description,
-          status: s.status     
+          status: s.status
         }));
         this.dataSource.set({
           page: response.page,
@@ -73,13 +73,13 @@ export class CalendarComponent extends PageBaseComponent {
     });
   }
 
-  override parseForm(calendarForm: CalendarFormData): CalendarEvent {
+  override parseForm(calendarForm: PublicEventFormData): PublicEvent {
     const item = {
       title: calendarForm.data.title,
       startTime: calendarForm.data.startTime,
       endTime: calendarForm.data.endTime,
       description: calendarForm.data.description
-    } as CalendarEvent;
+    } as PublicEvent;
     if (calendarForm.data.id != undefined) {
       item['id'] = calendarForm.data.id;
     }
