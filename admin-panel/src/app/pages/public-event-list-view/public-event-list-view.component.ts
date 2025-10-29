@@ -3,7 +3,7 @@ import { TableViewColumn, TableViewComponent } from '../../components/table-view
 import { DatePipe } from '@angular/common';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 import { PageBaseComponent } from '../page-base/page-base.component';
-import { CalendarService } from '../../services/calendar.service';
+import { PublicEventsService } from '../../services/publicEvent.service';
 import { PublicEvent } from '../../models/PublicEvent';
 import { EditPublicEventFormComponent, PublicEventFormData } from '../../components/edit-public-event-form/edit-public-event-form.component';
 import { DisableConfirmationData } from '../../components/disable-confirmation/disable-confirmation.component';
@@ -42,7 +42,7 @@ export class PublicEventComponent extends PageBaseComponent {
 
   override tableTitle = 'Calendar Events';
 
-  constructor(service: CalendarService) {
+  constructor(service: PublicEventsService) {
     super(service);
   }
 

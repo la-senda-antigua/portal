@@ -7,7 +7,7 @@ import { PublicEvent } from '../models/PublicEvent';
 @Injectable({
   providedIn: 'root'
 })
-export class CalendarService extends GeneralServiceBase {
+export class PublicEventsService extends GeneralServiceBase {
   override apiUrl = '/publicEvents';
 
   override getPage(
