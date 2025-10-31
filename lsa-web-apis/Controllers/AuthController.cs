@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using lsa_web_apis.Services;
@@ -82,6 +83,23 @@ public class AuthController(IAuthService authService) : ControllerBase
 
     [Authorize]
     [HttpGet("validate-token")]
-    public IActionResult ValidateToken() => Ok();
+    public IActionResult ValidateToken()
+    {
+        var roles = User.Claims
+        .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
+        .Select(c => c.Value)
+        .Distinct()
+        .ToList();
+
+        var user = new
+        {
+            id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+            email = User.FindFirst(ClaimTypes.Email)?.Value ?? User.Identity?.Name,
+            roles
+        };
+
+        return Ok(new { valid = true, user });
+
+    }
 }
 

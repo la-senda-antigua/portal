@@ -96,5 +96,13 @@ export class PageRendererComponent {
         this.configService.setCurrentPageName('inprogress');
       }
     });
+
+    effect(() => {
+      const _ = this.pageConfig();
+
+      document
+        .getElementById('page-content')
+        ?.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 }

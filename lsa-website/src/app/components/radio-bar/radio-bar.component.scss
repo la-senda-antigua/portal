@@ -18,11 +18,22 @@ button {
 
 @keyframes carrousel {
   0% {
-    left: 90%;
+    left: 0;
   }
+  50% {
+    left: calc(100% - var(--carrousel-span-width));
+  }
+  51% {
+    left: calc(100% - var(--carrousel-span-width));
+  }
+
   100% {
-    transform: translateX(-90%);
+    left: 0;
   }
+}
+
+.music-info span {
+  --carrousel-span-width: 0px;
 }
 
 .music-info {

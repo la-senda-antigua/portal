@@ -61,6 +61,7 @@ export class RadioService {
     this.radioDialog = this.matDialog.open(RadioDialogComponent, {
       disableClose: true,
       hasBackdrop: false,
+      panelClass: 'radio-dialog-shadow',
       position: { bottom: '20px', right: '20px' },
     });
     this.radioDialog.afterClosed().subscribe(() => {
