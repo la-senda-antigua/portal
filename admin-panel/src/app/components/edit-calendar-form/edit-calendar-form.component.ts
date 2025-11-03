@@ -1,6 +1,5 @@
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormControl,
@@ -9,7 +8,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatOption } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import {
@@ -101,10 +99,16 @@ export class EditCalendarFormComponent {
     });
   }
 
-
   addHours(date: Date, hoursToAdd: number) {
     return new Date(date.getTime() + (hoursToAdd * 60 * 60 * 1000));
   }
+
+  private toLocalDate(dateStr: string): Date {
+    const date = new Date(dateStr);
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset);
+  }
+
 
   save() {
     this.dialogRef.close(this.toCalendarFormData());
@@ -118,14 +122,18 @@ export class EditCalendarFormComponent {
     if (this.calendarForm.invalid) {
       return this.formData;
     }
+
+    const start = this.calendarForm.controls.startTime.value!;
+    const end = this.calendarForm.controls.endTime?.value;
+
     return {
       mode: this.formData.mode,
       type: this.formData.type,
       data: {
         id: this.formData.data.id,
         title: this.calendarForm.controls.title.value!,
-        startTime: new Date(this.calendarForm.controls.startTime.value!),
-        endTime: this.calendarForm.controls.endTime ? new Date(this.calendarForm.controls.endTime.value!) : null,
+        startTime: this.toLocalDate(start),
+        endTime: end ? this.toLocalDate(end) : null,
         description: this.calendarForm.controls.description?.value ? this.calendarForm.controls.description.value : null,
       },
     };
