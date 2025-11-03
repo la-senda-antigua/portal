@@ -89,7 +89,7 @@
             "title": "Escuela en casa",
             "description": {
               "lines": [
-                "En Iglesia La Senda Antigua, creemos que los padres son quienes han sido encomendados por Dios a educar a sus hijos.",
+                "En Iglesia La Senda Antigua creemos que los padres son quienes han sido encomendados por Dios a educar a sus hijos.",
                 "Hoy día, los hijos pasan la mayor parte de su tiempo en las escuelas y colegios, en donde son instruidos, no solamente por sus maestros, sino también por sus compañeros... ¡y hemos visto los desastrosos resultados!",
                 "",
                 "Pero ese no es el plan de Dios para nuestras familias."
@@ -100,7 +100,7 @@
               }
             },
             "background-color": "#ffffff",
-            "image": "assets/images/homeschool.jpeg"
+            "image": "assets/images/homeschool_kids_2.jpg"
           }
         },
         {
@@ -123,7 +123,7 @@
               {
                 "icon": "icons8-radio-100.png",
                 "path": "/radio",
-                "label": "Programación radial"
+                "label": "Radio La Senda Antigua"
               },
               {
                 "icon": "icons8-calendar-100.png",
@@ -628,6 +628,124 @@
           "background-color": "system"
         }
       ]
+    },
+    {
+      "title": "Pastores",
+      "name": "pastors",
+      "navigation": {
+        "text-color": "dark",
+        "background-color": "system",
+        "use-shadow": false
+      },
+      "sections": [
+        {
+          "name": "section-1",
+          "text-align": "center",
+          "image-card": {
+            "title": "Pastor y su esposa",
+            "image-position": "left",
+            "description": {
+              "lines": [
+                "El Pastor Bernardo Rodríguez y su esposa Leticia dirigen la obra 'La Senda Antigua' en Los Ángeles, California.", 
+                "Su labor pastoral se extiende más allá de la iglesia local, abarcando la supervisión de congregaciones en Morelia, México, y Mae Sai, Tailandia.", 
+                "Además de su profundo compromiso con el cuidado de las almas que les han sido encomendadas, los Pastores Rodríguez sienten una ferviente carga evangelística por alcanzar a las comunidades pobres de Latinoamérica y del mundo entero. Por esta razón, brindan apoyo continuo, tanto espiritual como económico, a la labor de diversos misioneros a nivel global.",
+                "Uno de los versos bíblicos favoritos del hermano Bernardo es Mat.11:5, en donde el Señor Jesús dice esta frase clave: 'A los pobres es anunciado el evangelio'."
+              ],
+              "button": {
+                "text": "Contribuir",
+                "link": "/contribute"
+              }
+            },
+            "image": "assets/images/pastors.jpeg"
+          }
+        }
+      ]
+    },
+    {
+      "name": "homeschool",
+      "title": "Escuela en casa",
+      "navigation": {
+        "text-color":"light",
+        "background-color":"none",
+        "use-shadow":true
+      },
+      "sections": [
+        {
+          "name": "header",
+          "title": "Escuela en casa",
+          "floating-description": {
+            "position": "right",
+            "description-block": {
+              "text-color": "#ffffff",
+              "lines": [
+                "QUOTE ... y todos tus hijos serán enseñados por Jehová; y se multiplicará la paz de tus hijos.",
+                "REF Isaías 54:13"
+              ]
+            }
+          },
+          "background-image": "assets/images/Homeschool-collage.png",
+          "background-color": "#3f4a49"
+        },
+        {
+          "name": "section-1",
+          "title": "Eduque a sus hijos en el hogar",
+          "text-align": "center",
+          "description-block": {
+            "lines": [
+                "En Iglesia La Senda Antigua, creemos que los padres son quienes han sido encomendados por Dios a educar a sus hijos.",
+                "Hoy día, los hijos pasan la mayor parte de su tiempo en las escuelas y colegios, en donde son instruidos, no solamente por sus maestros, sino también por sus compañeros... ¡y hemos visto los desastrosos resultados!",
+                "",
+                "Pero ese no es el plan de Dios para nuestras familias.",
+                "",
+                "La Biblia nos muestra que es el deber de los padres instruir a los niños en su carrera. ¡Ese es el diseño de Dios! y Satanás se ha encargado de vendernos la idea de que nosotros los padres no tenemos la capacidad para educar a nuestros hijos.",
+                "Y esa idea no puede estar más lejos de la verdad."
+              ]
+          }
+        },
+        {
+          "name": "section-2",
+          "background-color": "#3f4a49",
+          "text-color": "#fff",
+          "quick-links": {
+            "title": "Enlaces útiles:",
+            "links": [
+              {
+                "icon": "icons8-students-100.png",
+                "url": "https://www.colegiohebron.com/",
+                "label": "Colegio Hebrón"
+              },
+              {
+                "icon": "icons8-class-100.png",
+                "url": "https://www.masterbooks.com/",
+                "label": "Master Books"
+              },
+              {
+                "icon": "icons8-classroom-100.png",
+                "url": "https://aop.com/",
+                "label": "AOP Christian Homeschooling"
+              },
+              {
+                "icon": "icons8-school-100.png",
+                "url": "https://www.abeka.com/Homeschool/",
+                "label": "Abeka Homeschool"
+              }
+            ]
+          }
+        },
+        {
+          "name": "section-3",
+          "text-align": "center",
+          "description-block": {
+            "lines": [
+                "Actualmente existen tantas herramientas y recursos disponibles para los padres que desean educar a sus hijos en el hogar, que, simplemente, no hay excusa para no hacerlo.",
+                "Los testimonios de las familias que han decidido tomar este paso de fe son innumerables, y los resultados son asombrosos.",
+                "Por otro lado, los testimonios de las familias que han decidido enviar a sus hijos a las escuelas públicas, y aún a establecimientos privados y cristianos, son tristes y desastrosos.",
+                "",
+                "Le animamos a que considere y ponga en la balanza el obedecer o no a lo que la Biblia nos muestra acerca de la educación de los hijos."
+              ]
+          }
+        }
+      ]
     }
   ],
   "navigation": {
@@ -651,7 +769,7 @@
           {
             "index": 3,
             "text": "Pastor y su esposa",
-            "link": "/pastor"
+            "link": "/pastors"
           },
           {
             "index": 4,

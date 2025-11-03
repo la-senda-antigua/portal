@@ -102,3 +102,7 @@ h3 {
 .nav-menu-system {
   @include nav-menu("var(--mat-sys-background)");
 }
+
+.radio-dialog-shadow {
+  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2);
+}
