@@ -13,6 +13,7 @@ import { BroadcastComponent } from './pages/broadcast/broadcast.component';
 import { MediaMenuComponent } from './pages/media-menu/media-menu.component';
 import { RoleGuard } from './role.guard';
 import { UsersPageComponent } from './pages/users-page/users-page.component';
+import { CalendarsComponent } from './pages/calendars/calendars.component';
 
 export const routes: Routes = [
   {
@@ -49,12 +50,6 @@ export const routes: Routes = [
     data: { roles: ['Admin', 'MediaManager'] }
   },
   {
-    path: 'stream',
-    component: StreamComponent,
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'BroadcastManager'] }
-  },
-  {
     path: 'playlists',
     component: PlaylistsViewComponent,
     canActivate: [AuthGuard, RoleGuard],
@@ -64,7 +59,13 @@ export const routes: Routes = [
     path: 'events',
     component: PublicEventComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'CalendarManager'] }
+    data: { roles: ['Admin', 'MediaManager'] }
+  },
+  {
+    path: 'stream',
+    component: StreamComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin', 'BroadcastManager'] }
   },
   {
     path: 'broadcast',
@@ -77,6 +78,12 @@ export const routes: Routes = [
     component: MediaMenuComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Admin', 'MediaManager'] }
+  },
+  {
+    path: 'calendars',
+    component: CalendarsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin', 'CalendarManager'] }
   },
   {
     path: 'users',

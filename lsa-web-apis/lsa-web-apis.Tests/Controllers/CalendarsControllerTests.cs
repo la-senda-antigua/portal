@@ -172,7 +172,7 @@ public class CalendarsControllerTests
             HttpContext = new DefaultHttpContext() { User = user }
         };
 
-        var result = await controller.GetByUserId(userId);
+        var result = await controller.GetByUserId();
 
         var actionResult = Assert.IsType<ActionResult<List<Calendar>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
