@@ -92,30 +92,32 @@ namespace lsa_web_apis.Controllers
 
         [HttpGet("myCalendars")]
         [Authorize(Roles = "Admin,CalendarManager")]
-        public async Task<ActionResult<PagedResult<Calendar>>> GetByUserId(int page = 1, int pageSize = 10, string searchTerm = "")
+        public async Task<ActionResult<PagedResult<CalendarDto>>> GetByUserId(int page = 1, int pageSize = 10, string searchTerm = "")
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            Guid userId = Guid.Parse(userIdClaim!);
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            IQueryable<Calendar> baseQuery = _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId));
 
-            if (string.IsNullOrEmpty(searchTerm))
-            {
-                var pagedResult = await _context.Calendars
-                .Where(c => c.Managers.Any(m => m.UserId == userId))
-                .OrderBy(c => c.Id)
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+                baseQuery = baseQuery.Where(c => EF.Functions.Like(c.Name!, $"%{searchTerm}%"));
+
+            var paged = await baseQuery
+                .OrderBy(c => c.Name)
+                .Select(c => new CalendarDto
+                {
+                    Id = c.Id,
+                    Name = c.Name!,
+                    Active = c.Active,
+                    Managers = c.Managers.Select(m => new CalendarManagerDto
+                    {
+                        CalendarId = m.CalendarId,
+                        Username = m.User.Username,
+                        UserId = m.User.Id
+                    }).ToList()
+                })
                 .ToPagedResultAsync(page, pageSize);
 
-                return Ok(pagedResult);
-            }
-
-            var calendars = await _context.Calendars
-            .Where(
-                c => c.Managers.Any(m => m.UserId == userId)
-                && !string.IsNullOrEmpty(c.Name)
-                && EF.Functions.Like(c.Name, $"%{searchTerm}%")
-                )
-            .ToPagedResultAsync(page, pageSize);
-
-            return Ok(calendars);
+            return Ok(paged);
         }
+
     }
 }

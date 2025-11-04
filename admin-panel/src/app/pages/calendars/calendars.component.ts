@@ -7,6 +7,7 @@ import { PageBaseComponent } from '../page-base/page-base.component';
 import { CalendarsService } from '../../services/calendars.service';
 import { CalendarDto } from '../../models/CalendarDto';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-calendars',
@@ -19,10 +20,16 @@ export class CalendarsComponent extends PageBaseComponent {
   override tableViewComponent = viewChild(TableViewComponent);
   override tableCols: TableViewColumn[] = [
     { displayName: 'Name', datasourceName: 'name' },
+    {
+      displayName: 'Managers',
+      datasourceName: 'managers',
+      displayProperty: 'username',
+      isArray:true,
+    },
   ];
   override tableTitle = 'My Calendars';
 
-  constructor(service: CalendarsService) {
+  constructor(service: CalendarsService, private router: Router) {
     super(service);
   }
 
@@ -33,6 +40,7 @@ export class CalendarsComponent extends PageBaseComponent {
         const items = response.items.map((c: CalendarDto) => ({
           id: c.id,
           name: c.name,
+          managers: c.managers,
           active: c.active
         }))
 
@@ -50,5 +58,11 @@ export class CalendarsComponent extends PageBaseComponent {
         this.handleException(err, 'There was an error loading my calendars.');
       }
     })
+  }
+
+  goToDetails(data: any) {
+    console.log('from partent', data)
+    this.router.navigate(['/calendars/details', data.id]);
+
   }
 }

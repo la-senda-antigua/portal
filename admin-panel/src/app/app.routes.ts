@@ -14,6 +14,7 @@ import { MediaMenuComponent } from './pages/media-menu/media-menu.component';
 import { RoleGuard } from './role.guard';
 import { UsersPageComponent } from './pages/users-page/users-page.component';
 import { CalendarsComponent } from './pages/calendars/calendars.component';
+import { CalendarDetailsComponent } from './pages/calendar-details/calendar-details.component';
 
 export const routes: Routes = [
   {
@@ -82,6 +83,12 @@ export const routes: Routes = [
   {
     path: 'calendars',
     component: CalendarsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['Admin', 'CalendarManager'] }
+  },
+  {
+    path: 'calendars/details/:id',
+    component: CalendarDetailsComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Admin', 'CalendarManager'] }
   },
