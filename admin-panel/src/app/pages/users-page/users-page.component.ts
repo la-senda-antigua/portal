@@ -32,13 +32,13 @@ export class UsersPageComponent extends PageBaseComponent {
     { displayName: 'Id', datasourceName: 'username' },
     { displayName: 'Role', datasourceName: 'role' },
     {
-      displayName: 'Calendars As Manager',
+      displayName: 'Manager of',
       datasourceName: 'calendarsAsManager',
       displayProperty: 'name',
       isArray: true,
     },
     {
-      displayName: 'Calendars As Member',
+      displayName: 'Member of',
       datasourceName: 'calendarsAsMember',
       displayProperty: 'name',
       isArray: true,
