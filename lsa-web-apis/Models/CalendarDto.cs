@@ -2,6 +2,7 @@
 {
     public class CalendarDto
     {
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool Active { get; set; } = true;
     }
@@ -17,5 +18,17 @@
         public TimeOnly? StartTime { get; set; }
         public TimeOnly? EndTime { get; set; }
         public DateTime? AlertDate { get; set; }
-    }   
+    }
+    
+    public class CalendarManagerDto
+    {
+        public Guid CalendarId { get; set; }
+        public CalendarDto Calendar { get; set; } = null!;
+    }
+
+    public class CalendarMemberDto
+    {
+        public Guid CalendarId { get; set; }
+        public CalendarDto Calendar { get; set; } = null!;
+    }
 }

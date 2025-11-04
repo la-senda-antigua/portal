@@ -68,15 +68,15 @@ export class GalleryVideosComponent extends PageBaseComponent {
     });
   }
 
-  override parseForm(videoForm: VideoFormData): GalleryVideo {
+  override parseForm(form: VideoFormData): GalleryVideo {
     const item = {
-      date: videoForm.data.date.toISOString().substring(0, 10),
-      title: videoForm.data.title,
-      videoPath: videoForm.data.videoUrl,
-      playlist: videoForm.data.playlistId,
+      date: form.data.date.toISOString().substring(0, 10),
+      title: form.data.title,
+      videoPath: form.data.videoUrl,
+      playlist: form.data.playlistId,
     } as GalleryVideo;
-    if (videoForm.data.id != undefined) {
-      item['id'] = videoForm.data.id;
+    if (form.data.id != undefined) {
+      item['id'] = form.data.id;
     }
 
     return item;
@@ -100,14 +100,14 @@ export class GalleryVideosComponent extends PageBaseComponent {
   }
 
   override onEdit(form: VideoFormData) {
-    this.isLoading.set(true);    
+    this.isLoading.set(true);
     const formData = new FormData();
     const videoData = this.parseForm(form);
     formData.append('galleryStr', JSON.stringify(videoData));
     if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);
     }
-    
+
     this.service.editWithImage(videoData.id, formData).subscribe({
       next: () => this.reload(),
       error: (err) =>
