@@ -118,6 +118,5 @@ namespace lsa_web_apis.Controllers
 
             return Ok(paged);
         }
-
     }
 }
