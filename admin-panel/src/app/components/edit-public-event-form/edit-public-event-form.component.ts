@@ -110,7 +110,6 @@ export class EditPublicEventFormComponent {
     return new Date(date.getTime() - tzOffset);
   }
 
-
   save() {
     this.dialogRef.close(this.toPublicEventFormData());
   }
@@ -133,8 +132,8 @@ export class EditPublicEventFormComponent {
       data: {
         id: this.formData.data.id,
         title: this.publicEventForm.controls.title.value!,
-        startTime: new Date(this.publicEventForm.controls.startTime.value!),
-        endTime: this.publicEventForm.controls.endTime ? new Date(this.publicEventForm.controls.endTime.value!) : null,
+        startTime: this.toLocalDate(start),
+        endTime: end ? this.toLocalDate(end) : null,
         description: this.publicEventForm.controls.description?.value ? this.publicEventForm.controls.description.value : null,
       },
     };
