@@ -28,6 +28,8 @@ import { DisableConfirmationComponent, DisableConfirmationData } from '../disabl
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ArrayToStringPipe } from "../../pipes/array-to-string.pipe";
+import { MatChipsModule } from '@angular/material/chips';
 
 export enum TableViewType {
   'sermon' = 'sermon',
@@ -35,7 +37,8 @@ export enum TableViewType {
   'gallery' = 'gallery',
   'preacher' = 'preacher',
   'playlist' = 'playlist',
-  'calendar' = 'calendar'
+  'calendar' = 'calendar',
+  'publicEvent' = 'publicEvent',
 }
 
 export enum TableViewAccessMode {
@@ -46,6 +49,8 @@ export enum TableViewAccessMode {
 export interface TableViewColumn {
   displayName: string;
   datasourceName: string;
+  displayProperty?: string;
+  isArray?: boolean;
 }
 
 export interface TableViewDataSource {
@@ -73,8 +78,8 @@ export interface TableViewFormData {
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule
-  ],
+    FormsModule,MatChipsModule
+],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',
 })
@@ -103,7 +108,7 @@ export class TableViewComponent {
   readonly showActions = input<boolean>(true);
   /** Whether or not to show the disable button  */
   readonly showDisableButton = input<boolean>(false);
-  
+
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
     const cols: string[] = [];
@@ -124,7 +129,7 @@ export class TableViewComponent {
   readonly deleteRequest = output<string>();
   /** Emits the Id passed in the disableConfirmationFeilds object, when disable is confirmed.  */
   readonly disableRequest = output<string>();
-  
+
   readonly onSearch = output<any>();
   readonly dialog = inject(MatDialog);
 
@@ -196,7 +201,7 @@ export class TableViewComponent {
     });
   }
 
-  openDisableConfirmation(entry: any){    
+  openDisableConfirmation(entry: any){
     const confirmationData = {
       id: entry[this.disableConfirmationFields()!.id],
       name: entry[this.disableConfirmationFields()!.name],

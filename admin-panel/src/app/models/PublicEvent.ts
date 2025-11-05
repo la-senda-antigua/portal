@@ -1,4 +1,4 @@
-export interface CalendarEvent {
+export interface PublicEvent {
     id?: number;
     title: string;
     startTime: Date;
@@ -6,4 +6,4 @@ export interface CalendarEvent {
     description?: string;
     isCancelled: boolean;
     status: string;
-} 
+}

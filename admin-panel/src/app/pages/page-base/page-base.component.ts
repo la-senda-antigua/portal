@@ -12,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
 import { VideoFormData } from '../../components/edit-video-form/edit-video-form.component';
 import { EditIdNameFormData } from '../../components/edit-id-name-form/edit-id-name-form.component';
-import { CalendarFormData } from '../../components/edit-calendar-form/edit-calendar-form.component';
+import { PublicEventFormData } from '../../components/edit-public-event-form/edit-public-event-form.component';
 import { DisableConfirmationData } from '../../components/disable-confirmation/disable-confirmation.component';
 
 @Component({
@@ -42,7 +42,7 @@ export class PageBaseComponent implements OnInit {
   readonly datePipe = inject(DatePipe);
   readonly snackBar = inject(MatSnackBar);
   constructor(
-    protected service: GeneralServiceBase,    
+    protected service: GeneralServiceBase,
   ) {}
 
   ngOnInit(): void {
@@ -69,7 +69,7 @@ export class PageBaseComponent implements OnInit {
       },
     });
   }
-  
+
   onToggleDisable(data: any) {
     const {id, actionName} = data
     const isActive = actionName === 'disable'
@@ -87,7 +87,7 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  onEdit(form: VideoFormData) {
+  onEdit(form: any) {
     this.isLoading.set(true);
     const video = this.parseForm(form) as any;
     this.service.edit(video).subscribe({
@@ -100,7 +100,7 @@ export class PageBaseComponent implements OnInit {
     });
   }
 
-  onAdd(form: VideoFormData) {
+  onAdd(form: any) {
     this.isLoading.set(true);
     const video = this.parseForm(form);
     this.service.add(video).subscribe({
@@ -115,7 +115,7 @@ export class PageBaseComponent implements OnInit {
 
   onSearch(data: any): void {}
 
-  parseForm(videoForm: VideoFormData | EditIdNameFormData | CalendarFormData) {}
+  parseForm(form:  any) {}
 
   handleException(e: Error, message: string) {
     this.isLoading.set(false);

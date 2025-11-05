@@ -6,53 +6,144 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using lsa_web_apis.Entities;
+using lsa_web_apis.Extensions;
 
 namespace lsa_web_apis.Controllers
 {
     [Authorize(Roles = "Admin")]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UsersController(IAuthService authService, UserDbContext context) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<List<UserDto>>> GetAllUsers()
-        {
-            var users = await context.PortalUsers
-            .Select(
-                u => new UserDto
-                {
-                    Username = u.Username,
-                    Role = u.Role
-                }
-            ).ToListAsync();
+        public async Task<ActionResult<PagedResult<UserDto>>> GetUsers([FromQuery] int page = 1,[FromQuery] int pageSize = 10,[FromQuery] string searchTerm = "")
+        {            
+            var usersQuery = context.PortalUsers
+                .Where(u => string.IsNullOrEmpty(searchTerm) ||
+                           u.Username.Contains(searchTerm) ||
+                           u.Role.Contains(searchTerm));
 
-            return Ok(users);
+            var pagedUsers = await usersQuery.ToPagedResultAsync(page, pageSize);
+            
+            var userDtos = new List<UserDto>();
+            foreach (var user in pagedUsers.Items)
+            {
+                // calendars as manager
+                var managerCalendars = await context.CalendarManagers
+                    .Where(cm => cm.UserId == user.Id)
+                    .Select(cm => new CalendarDto
+                    {
+                        Id = cm.Calendar.Id,
+                        Name = cm.Calendar.Name,
+                        Active = cm.Calendar.Active
+                    })
+                    .ToListAsync();
+
+                // calendars as member
+                var memberCalendars = await context.CalendarMembers
+                    .Where(cm => cm.UserId == user.Id)
+                    .Select(cm => new CalendarDto
+                    {
+                        Id = cm.Calendar.Id,
+                        Name = cm.Calendar.Name,
+                        Active = cm.Calendar.Active
+                    })
+                    .ToListAsync();
+
+                userDtos.Add(new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Role = user.Role,
+                    CalendarsAsManager = managerCalendars,
+                    CalendarsAsMember = memberCalendars
+                });
+            }
+
+            var result = new PagedResult<UserDto>
+            {
+                Items = userDtos,
+                Page = pagedUsers.Page,
+                PageSize = pagedUsers.PageSize,
+                TotalItems = pagedUsers.TotalItems
+            };
+
+            return Ok(result);
         }
 
         [HttpPost()]
         public async Task<ActionResult<User>> Register(UserDto data)
         {
-            var username = data.Username;
-            var role = data.Role;
+            using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                var username = data.Username;
+                var role = data.Role;
 
-            var user = await authService.RegisterAsync(username, role);
-            if (user is null)
-                return BadRequest("User name already in use.");
+                var user = await authService.RegisterAsync(username, role);
+                if (user is null)
+                    return BadRequest("User name already in use.");
 
-            return Ok(user);
+                List<CalendarMember> calendarsAsMember = new List<CalendarMember>();
+                foreach (var item in data.CalendarsAsMember)            
+                    calendarsAsMember.Add(new CalendarMember{CalendarId = item.Id,UserId = user.Id});
+            
+                context.CalendarMembers.AddRange(calendarsAsMember);
+            
+                List<CalendarManager> calendarsAsManager = new List<CalendarManager>();
+                foreach (var item in data.CalendarsAsManager)
+                    calendarsAsManager.Add(new CalendarManager { CalendarId = item.Id,UserId = user.Id});
+            
+                context.CalendarManagers.AddRange(calendarsAsManager);
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();  
+                return StatusCode(500, $"An error occurred while creating the user. {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<User>> UpdateUserRole(Guid id, [FromBody] string newRole)
+        public async Task<ActionResult<User>> UpdateUser(Guid id, [FromBody] UserDto updateData)
         {
-            var user = await context.PortalUsers.FindAsync(id);
-            if (user is null)
-                return NotFound("User not found.");
+            using var transaction = await context.Database.BeginTransactionAsync();
 
-            user.Role = newRole;
-            await context.SaveChangesAsync();
+            try
+            {
+                var user = await context.PortalUsers.FindAsync(id);
+                if (user is null) return NotFound("User not found.");
 
-            return Ok(user);
+                user.Role = updateData.Role;
+                var existingCalendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
+                var existingCalendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
+                context.CalendarManagers.RemoveRange(existingCalendarsAsManager);
+                context.CalendarMembers.RemoveRange(existingCalendarsAsMember);
+
+                var newCalendarsAsManager = updateData.CalendarsAsManager
+                    .Select(calendar => new CalendarManager{CalendarId = calendar.Id,UserId = id})
+                    .ToList();
+
+                var newCalendarsAsMember = updateData.CalendarsAsMember
+                    .Select(calendar => new CalendarMember{CalendarId = calendar.Id,UserId = id})
+                    .ToList();
+
+                context.CalendarManagers.AddRange(newCalendarsAsManager);
+                context.CalendarMembers.AddRange(newCalendarsAsMember);
+
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, $"An error occurred while updating the user. {ex.Message}");
+            }
         }
 
         [HttpDelete("{id}")]
@@ -67,7 +158,5 @@ namespace lsa_web_apis.Controllers
 
             return NoContent();
         }
-
-
     }
 }

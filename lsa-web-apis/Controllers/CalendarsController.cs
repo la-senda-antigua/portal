@@ -1,5 +1,6 @@
 ﻿using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
+using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,8 +13,30 @@ namespace lsa_web_apis.Controllers
     [ApiController]
     public class CalendarsController(UserDbContext _context) : ControllerBase
     {
+        [Authorize(Roles = "Admin,CalendarManager")]        
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<Preacher>>> GetCalendars([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
+        {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                var pagedResult = await _context.Calendars
+                .OrderBy(c => c.Id)
+                .ToPagedResultAsync(page, pageSize);
+
+                return Ok(pagedResult);
+            }
+
+            var result = await _context.Calendars
+                .Where(c => !string.IsNullOrEmpty(c.Name) && EF.Functions.Like(c.Name, $"%{searchTerm}%"))
+                .ToPagedResultAsync(page, pageSize);
+
+            return Ok(result);
+
+        }
+
         [Authorize(Roles = "Admin,CalendarManager")]
         [HttpGet]
+        [Route("getAll")]
         public async Task<ActionResult<List<Calendar>>> GetAll()
         {
             var calendars = await _context.Calendars.ToListAsync();

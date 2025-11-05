@@ -71,21 +71,21 @@ export class BibleCoursesComponent extends PageBaseComponent {
     });
   }
 
-  override parseForm(videoForm: VideoFormData): SermonDto {
+  override parseForm(form: VideoFormData): SermonDto {
     const course = {
-      date: videoForm.data.date.toISOString().substring(0, 10),
-      title: videoForm.data.title,
-      videoPath: videoForm.data.videoUrl,
-      preacherId: videoForm.data.preacherId!,
-      playlist: videoForm.data.playlistId,
+      date: form.data.date.toISOString().substring(0, 10),
+      title: form.data.title,
+      videoPath: form.data.videoUrl,
+      preacherId: form.data.preacherId!,
+      playlist: form.data.playlistId,
     } as SermonDto;
 
-    if (typeof videoForm.data.cover === 'string') {
-      course.cover = videoForm.data.cover;
+    if (typeof form.data.cover === 'string') {
+      course.cover = form.data.cover;
     }
 
-    if (videoForm.data.id != undefined) {
-      course['id'] = videoForm.data.id;
+    if (form.data.id != undefined) {
+      course['id'] = form.data.id;
     }
 
     return course;
@@ -109,14 +109,14 @@ export class BibleCoursesComponent extends PageBaseComponent {
   }
 
   override onEdit(form: VideoFormData) {
-    this.isLoading.set(true);    
+    this.isLoading.set(true);
     const formData = new FormData();
     const videoData = this.parseForm(form);
     formData.append('lessonStr', JSON.stringify(videoData));
     if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);
     }
-    
+
     this.service.editWithImage(videoData.id, formData).subscribe({
       next: () => this.reload(),
       error: (err) =>
