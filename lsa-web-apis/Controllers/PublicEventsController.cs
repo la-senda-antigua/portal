@@ -33,7 +33,7 @@ namespace lsa_web_apis.Controllers
 
             query = query.Where(e => e.StartTime > dateTime);
 
-            var result = await query.OrderBy(e=> e.StartTime).Select(e => new PublicEventDto(e)).ToListAsync();
+            var result = await query.OrderBy(e => e.StartTime).Select(e => new PublicEventDto(e)).ToListAsync();
             return Ok(result);
         }
 
@@ -47,7 +47,7 @@ namespace lsa_web_apis.Controllers
             if (dateTime is not null)
                 query = query.Where(e => e.StartTime > dateTime);
 
-            PagedResult<PublicEventDto> result = await query.OrderBy(e=> e.StartTime).Select(e => new PublicEventDto(e)).ToPagedResultAsync(page, pageSize);
+            PagedResult<PublicEventDto> result = await query.OrderBy(e => e.StartTime).Select(e => new PublicEventDto(e)).ToPagedResultAsync(page, pageSize);
 
             return Ok(result);
         }
@@ -64,6 +64,11 @@ namespace lsa_web_apis.Controllers
         [HttpPost]
         public async Task<ActionResult<PublicEvent>> CreateEvent(PublicEvent publicEvent)
         {
+            publicEvent.StartTime = DateTime.SpecifyKind(publicEvent.StartTime, DateTimeKind.Unspecified);
+
+            if (publicEvent.EndTime.HasValue)
+                publicEvent.EndTime = DateTime.SpecifyKind(publicEvent.EndTime.Value, DateTimeKind.Unspecified);
+
             _context.PublicEvents.Add(publicEvent);
             await _context.SaveChangesAsync();
 
@@ -82,9 +87,10 @@ namespace lsa_web_apis.Controllers
 
             existingEvent.Title = publicEvent.Title;
             existingEvent.Description = publicEvent.Description;
-            existingEvent.StartTime = publicEvent.StartTime;
-            existingEvent.EndTime = publicEvent.EndTime;
-
+            existingEvent.StartTime = DateTime.SpecifyKind(publicEvent.StartTime, DateTimeKind.Unspecified);
+            if (publicEvent.EndTime.HasValue)
+                existingEvent.EndTime = DateTime.SpecifyKind(publicEvent.EndTime.Value, DateTimeKind.Unspecified);                                  
+            
             _context.PublicEvents.Update(existingEvent);
             await _context.SaveChangesAsync();
 
