@@ -61,6 +61,7 @@ export class AppConfigService {
       pages: config.pages.map(this.parseConfigPage.bind(this)),
       navigation: this.parseNavigation(config.navigation),
       live: this.parseLiveConfig(config.live),
+      footer: this.parseFooter(config.footer),
     };
   }
 
@@ -83,6 +84,11 @@ export class AppConfigService {
         backgroundColor: page.navigation?.['background-color'] ?? 'none',
       },
       sections: page.sections.map(this.parseConfigSection.bind(this)),
+      footer: {
+        show: page.footer?.show ?? false,
+        textColor: page.footer?.['text-color'],
+        backgroundColor: page.footer?.['background-color'],
+      }
     };
   }
 
@@ -115,7 +121,6 @@ export class AppConfigService {
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
       quickLinks: this.parseQuickLinks(section['quick-links']),
       calendarListView: this.parseCalendarListView(section['calendar-list-view']),
-      footer: this.parseFooter(section['footer']),      
     };
   }
 
