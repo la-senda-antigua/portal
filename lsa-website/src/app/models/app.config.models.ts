@@ -135,6 +135,7 @@ export interface SectionConfig {
   bibleCourses?: BibleCoursesConfig;
   videoGallery?: VideoGalleryConfig;
   calendarListView?: CalendarListViewConfig;
+  footer?: FooterConfig;
 }
 
 export interface PageConfig {
@@ -146,11 +147,6 @@ export interface PageConfig {
     useShadow: boolean;
   };
   sections: SectionConfig[];
-  footer?: {
-    show: boolean;
-    textColor?: string;
-    backgroundColor?: string;
-  }
 }
 
 export interface VideoGalleryConfig {
@@ -192,5 +188,4 @@ export interface AppConfig {
   pages: PageConfig[];
   navigation: NavigationConfig;
   live: LiveBroadcastConfig;
-  footer: FooterConfig;
 }

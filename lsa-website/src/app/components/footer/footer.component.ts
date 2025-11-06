@@ -6,12 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'lsa-footer',
   imports: [MatIconModule],
   templateUrl: './footer.component.html',
-  styleUrl: './footer.component.scss',
+  styleUrl: './footer.component.scss'
 })
 export class FooterComponent {
-  readonly config = input.required<FooterConfig>();
-  readonly backgroundColor = input<string | undefined>(
-    'var(--mat-sys-background)'
-  );
-  readonly textColor = input<string | undefined>('var(--mat-sys-on-background)');
+  readonly config = input.required<FooterConfig>();  
 }

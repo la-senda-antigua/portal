@@ -6,6 +6,3 @@
 @for (section of sections(); track $index) {
     <lsa-section-renderer [sectionConfig]="section"></lsa-section-renderer>
 }
-@if(pageFooterOptions()?.show){
-    <lsa-footer [backgroundColor]="pageFooterOptions()?.backgroundColor" [textColor]="pageFooterOptions()?.textColor" [config]="footerConfig()!"></lsa-footer>
-}

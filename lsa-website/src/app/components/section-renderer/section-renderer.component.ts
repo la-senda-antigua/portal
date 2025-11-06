@@ -5,16 +5,17 @@ import {
   input,
 } from '@angular/core';
 import { SectionConfig } from '../../models/app.config.models';
-import { BibleCoursesComponent } from '../bible-courses/bible-courses.component';
-import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
 import { DescriptionBlockComponent } from '../description-block/description-block.component';
+import { FooterComponent } from '../footer/footer.component';
 import { ImageCardComponent } from '../image-card/image-card.component';
 import { MapWidgetComponent } from '../map-widget/map-widget.component';
-import { PreachingPlaylistsComponent } from '../preaching-playlists/preaching-playlists.component';
-import { QuickLinksComponent } from '../quick-links/quick-links.component';
 import { RecentServices } from '../recent-services/recent-services.component';
+import { QuickLinksComponent } from '../quick-links/quick-links.component';
 import { SearchboxComponent } from '../searchbox/searchbox.component';
 import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.component';
+import { CalendarListViewComponent } from '../calendar-list-view/calendar-list-view.component';
+import { PreachingPlaylistsComponent } from '../preaching-playlists/preaching-playlists.component';
+import { BibleCoursesComponent } from '../bible-courses/bible-courses.component';
 import { VideoGalleryComponent } from '../video-gallery/video-gallery.component';
 
 @Component({
@@ -23,6 +24,7 @@ import { VideoGalleryComponent } from '../video-gallery/video-gallery.component'
     DescriptionBlockComponent,
     VerseOfTheDayComponent,
     MapWidgetComponent,
+    FooterComponent,
     ImageCardComponent,
     QuickLinksComponent,
     SearchboxComponent,

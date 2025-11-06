@@ -132,11 +132,54 @@
               }
             ]
           }
+        },
+        {
+          "name": "footer",
+          "footer": {
+            "items": [
+              {
+                "title": "Comuníquese",
+                "links": [
+                  {
+                    "text": "lasendaantigua.la@gmail.com",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "mail"
+                  },
+                  {
+                    "text": "+1 (626)808-1237",
+                    "href": "tel:+16268081237",
+                    "icon": "phone"
+                  }
+                ]
+              },
+              {
+                "title": "Comentarios:",
+                "links": [
+                  {
+                    "text": "Contáctenos",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "live_help"
+                  }
+                ]
+              },
+              {
+                "title": "Visite también",
+                "links": [
+                  {
+                    "text": "Ministerios Hebrón",
+                    "href": "https://ministerioshebron.com/"
+                  },
+                  {
+                    "text": "Colegio Hebrón",
+                    "href": "https://www.colegiohebron.com/"
+                  }
+                ]
+              }
+            ],
+            "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
         }
-      ],
-      "footer":{
-        "show": true
-      }
+      ]
     },
     {
       "name": "churchservices",
@@ -234,11 +277,7 @@
             "show": true
           }
         }
-      ],
-      "footer":{
-        "show": true,
-        "background-color": "#f5f5f5"
-      }
+      ]
     },
     {
       "name": "calendar",
@@ -380,11 +419,54 @@
             },
             "image": "assets/images/asia_mission_2.jpg"
           }
+        },
+        {
+          "name": "footer",
+          "footer": {
+            "items": [
+              {
+                "title": "Comuníquese",
+                "links": [
+                  {
+                    "text": "lasendaantigua.la@gmail.com",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "mail"
+                  },
+                  {
+                    "text": "+1 (626)808-1237",
+                    "href": "tel:+16268081237",
+                    "icon": "phone"
+                  }
+                ]
+              },
+              {
+                "title": "Comentarios:",
+                "links": [
+                  {
+                    "text": "Contáctenos",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "live_help"
+                  }
+                ]
+              },
+              {
+                "title": "Visite también",
+                "links": [
+                  {
+                    "text": "Ministerios Hebrón",
+                    "href": "https://ministerioshebron.com/"
+                  },
+                  {
+                    "text": "Colegio Hebrón",
+                    "href": "https://www.colegiohebron.com/"
+                  }
+                ]
+              }
+            ],
+            "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
         }
-      ],
-      "footer":{
-        "show": true
-      }
+      ]
     },
     {
       "name": "thankyou",
@@ -411,12 +493,54 @@
               ]
             }
           }
+        },
+        {
+          "name": "footer",
+          "footer": {
+            "items": [
+              {
+                "title": "Comuníquese",
+                "links": [
+                  {
+                    "text": "lasendaantigua.la@gmail.com",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "mail"
+                  },
+                  {
+                    "text": "+1 (626)808-1237",
+                    "href": "tel:+16268081237",
+                    "icon": "phone"
+                  }
+                ]
+              },
+              {
+                "title": "Comentarios:",
+                "links": [
+                  {
+                    "text": "Contáctenos",
+                    "href": "mailto:lasendaantigua.la@gmail.com",
+                    "icon": "live_help"
+                  }
+                ]
+              },
+              {
+                "title": "Visite también",
+                "links": [
+                  {
+                    "text": "Ministerios Hebrón",
+                    "href": "https://ministerioshebron.com/"
+                  },
+                  {
+                    "text": "Colegio Hebrón",
+                    "href": "https://www.colegiohebron.com/"
+                  }
+                ]
+              }
+            ],
+            "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
+          }
         }
-      ],
-      "footer":{
-        "show": true,
-        "background-color": "#f5f5f5"
-      }
+      ]
     },
     {
       "name": "inprogress",
@@ -522,8 +646,8 @@
             "image-position": "left",
             "description": {
               "lines": [
-                "El Pastor Bernardo Rodríguez y su esposa Leticia dirigen la obra 'La Senda Antigua' en Los Ángeles, California.",
-                "Su labor pastoral se extiende más allá de la iglesia local, abarcando la supervisión de congregaciones en Morelia, México, y Mae Sai, Tailandia.",
+                "El Pastor Bernardo Rodríguez y su esposa Leticia dirigen la obra 'La Senda Antigua' en Los Ángeles, California.", 
+                "Su labor pastoral se extiende más allá de la iglesia local, abarcando la supervisión de congregaciones en Morelia, México, y Mae Sai, Tailandia.", 
                 "Además de su profundo compromiso con el cuidado de las almas que les han sido encomendadas, los Pastores Rodríguez sienten una ferviente carga evangelística por alcanzar a las comunidades pobres de Latinoamérica y del mundo entero. Por esta razón, brindan apoyo continuo, tanto espiritual como económico, a la labor de diversos misioneros a nivel global.",
                 "Uno de los versos bíblicos favoritos del hermano Bernardo es Mat.11:5, en donde el Señor Jesús dice esta frase clave: 'A los pobres es anunciado el evangelio'."
               ],
@@ -535,19 +659,15 @@
             "image": "assets/images/pastors.jpeg"
           }
         }
-      ],
-      "footer":{
-        "show": true,
-        "background-color": "#f5f5f5"
-      }
+      ]
     },
     {
       "name": "homeschool",
       "title": "Escuela en casa",
       "navigation": {
-        "text-color": "light",
-        "background-color": "none",
-        "use-shadow": true
+        "text-color":"light",
+        "background-color":"none",
+        "use-shadow":true
       },
       "sections": [
         {
@@ -572,14 +692,14 @@
           "text-align": "center",
           "description-block": {
             "lines": [
-              "En Iglesia La Senda Antigua, creemos que los padres son quienes han sido encomendados por Dios a educar a sus hijos.",
-              "Hoy día, los hijos pasan la mayor parte de su tiempo en las escuelas y colegios, en donde son instruidos, no solamente por sus maestros, sino también por sus compañeros... ¡y hemos visto los desastrosos resultados!",
-              "",
-              "Pero ese no es el plan de Dios para nuestras familias.",
-              "",
-              "La Biblia nos muestra que es el deber de los padres instruir a los niños en su carrera. ¡Ese es el diseño de Dios! y Satanás se ha encargado de vendernos la idea de que nosotros los padres no tenemos la capacidad para educar a nuestros hijos.",
-              "Y esa idea no puede estar más lejos de la verdad."
-            ]
+                "En Iglesia La Senda Antigua, creemos que los padres son quienes han sido encomendados por Dios a educar a sus hijos.",
+                "Hoy día, los hijos pasan la mayor parte de su tiempo en las escuelas y colegios, en donde son instruidos, no solamente por sus maestros, sino también por sus compañeros... ¡y hemos visto los desastrosos resultados!",
+                "",
+                "Pero ese no es el plan de Dios para nuestras familias.",
+                "",
+                "La Biblia nos muestra que es el deber de los padres instruir a los niños en su carrera. ¡Ese es el diseño de Dios! y Satanás se ha encargado de vendernos la idea de que nosotros los padres no tenemos la capacidad para educar a nuestros hijos.",
+                "Y esa idea no puede estar más lejos de la verdad."
+              ]
           }
         },
         {
@@ -617,20 +737,15 @@
           "text-align": "center",
           "description-block": {
             "lines": [
-              "Actualmente existen tantas herramientas y recursos disponibles para los padres que desean educar a sus hijos en el hogar, que, simplemente, no hay excusa para no hacerlo.",
-              "Los testimonios de las familias que han decidido tomar este paso de fe son innumerables, y los resultados son asombrosos.",
-              "Por otro lado, los testimonios de las familias que han decidido enviar a sus hijos a las escuelas públicas, y aún a establecimientos privados y cristianos, son tristes y desastrosos.",
-              "",
-              "Le animamos a que considere y ponga en la balanza el obedecer o no a lo que la Biblia nos muestra acerca de la educación de los hijos."
-            ]
+                "Actualmente existen tantas herramientas y recursos disponibles para los padres que desean educar a sus hijos en el hogar, que, simplemente, no hay excusa para no hacerlo.",
+                "Los testimonios de las familias que han decidido tomar este paso de fe son innumerables, y los resultados son asombrosos.",
+                "Por otro lado, los testimonios de las familias que han decidido enviar a sus hijos a las escuelas públicas, y aún a establecimientos privados y cristianos, son tristes y desastrosos.",
+                "",
+                "Le animamos a que considere y ponga en la balanza el obedecer o no a lo que la Biblia nos muestra acerca de la educación de los hijos."
+              ]
           }
         }
-      ],
-      "footer":{
-        "show": true,
-        "text-color": "light",
-        "background-color": "none"
-      }
+      ]
     }
   ],
   "navigation": {
@@ -683,44 +798,6 @@
       "text": "CONTRIBUIR",
       "link": "/contribute"
     }
-  },
-  "footer": {
-    "items": [
-      {
-        "title": "Comuníquese",
-        "links": [
-          {
-            "text": "lasendaantigua.la@gmail.com",
-            "href": "mailto:lasendaantigua.la@gmail.com",
-            "icon": "mail"
-          }
-        ]
-      },
-      {
-        "title": "Comentarios:",
-        "links": [
-          {
-            "text": "Contáctenos",
-            "href": "/contact",
-            "icon": "live_help"
-          }
-        ]
-      },
-      {
-        "title": "Visite también",
-        "links": [
-          {
-            "text": "Ministerios Hebrón",
-            "href": "https://ministerioshebron.com/"
-          },
-          {
-            "text": "Colegio Hebrón",
-            "href": "https://www.colegiohebron.com/"
-          }
-        ]
-      }
-    ],
-    "copyright": "[year] Todas las fotografías y videos son propiedad de Iglesia La Senda Antigua. El uso de este material sin autorización es estrictamente prohibido."
   },
   "live": {
     "title": "Estamos transmitiendo en vivo",
