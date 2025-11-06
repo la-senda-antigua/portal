@@ -628,8 +628,7 @@
       ],
       "footer":{
         "show": true,
-        "text-color": "light",
-        "background-color": "none"
+        "background-color": "#f5f5f5"
       }
     }
   ],
