@@ -41,7 +41,11 @@ describe('EditPublicEventFormComponent', () => {
         fixture = TestBed.createComponent(EditPublicEventFormComponent);
         component = fixture.componentInstance;
         datePipe = TestBed.inject(DatePipe);
+        component.publicEventForm.controls.startTime.setValue(
+          datePipe.transform(baseData.data.startTime!, 'yyyy-MM-dd hh:mm a')
+        );
         fixture.detectChanges();
+        component.publicEventForm.updateValueAndValidity();
     });
 
     it('should create and initialize form with provided data', () => {
@@ -57,6 +61,10 @@ describe('EditPublicEventFormComponent', () => {
 
         // endTime should be set (defaults to start + 3 hours if undefined)
         const expectedEnd = component.addHours(baseData.data.startTime!, 3);
+
+        console.log('Expected end:', datePipe.transform(expectedEnd, 'yyyy-MM-dd hh:mm a'));
+        console.log('Actual end:', component.publicEventForm.controls.endTime.value);
+
         expect(component.publicEventForm.controls.endTime.value).toBe(
             datePipe.transform(expectedEnd, 'yyyy-MM-dd hh:mm a')
         );
