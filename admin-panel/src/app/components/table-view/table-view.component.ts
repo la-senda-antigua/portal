@@ -108,6 +108,8 @@ export class TableViewComponent {
   readonly showActions = input<boolean>(true);
   /** Whether or not to show the disable button  */
   readonly showDisableButton = input<boolean>(false);
+  /** Whether or not to show the details button  */
+  readonly showDetailsButton = input<boolean>(false);
 
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
@@ -115,7 +117,15 @@ export class TableViewComponent {
     if (this.datasource && this.datasource()?.columns?.length) {
       cols.push(...this.datasource().columns.map((c) => c.datasourceName));
     }
-    cols.push('actions');
+
+    if (this.showActions()) {
+      cols.push('actions');
+    }
+
+    if (this.showDetailsButton()){
+      cols.push('details')
+    }
+
     return cols;
   });
 
@@ -129,6 +139,8 @@ export class TableViewComponent {
   readonly deleteRequest = output<string>();
   /** Emits the Id passed in the disableConfirmationFeilds object, when disable is confirmed.  */
   readonly disableRequest = output<string>();
+  /** Emits the Id to details.  */
+  readonly detailsRequest = output<string>();
 
   readonly onSearch = output<any>();
   readonly dialog = inject(MatDialog);
@@ -215,6 +227,10 @@ export class TableViewComponent {
         this.disableRequest.emit(confirmationId);
       }
     });
+  }
+
+  goToDetails(entry: any){
+    this.detailsRequest.emit(entry)
   }
 
   search(){

@@ -22,6 +22,14 @@ export class CalendarsService extends GeneralServiceBase {
     return this.requestManager.get<TableResult<CalendarDto>>(url);
   }
 
+  override getMyPage(
+    page: number = 1,
+    pageSize: number = 10
+  ): Observable<TableResult<CalendarDto>> {
+    const url: string = `${this.apiUrl}/myCalendars?page=${page}&pageSize=${pageSize}`;
+    return this.requestManager.get<TableResult<CalendarDto>>(url);
+  }
+
   override add(item: CalendarDto): Observable<CalendarDto> {
     return this.requestManager.post<CalendarDto>(this.apiUrl, item);
   }

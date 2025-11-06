@@ -47,12 +47,18 @@
         <button mat-icon-button (click)="openEditForm(entry)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="openDeleteConfirmation(entry)"
-        >
+        <button mat-icon-button color="warn" (click)="openDeleteConfirmation(entry)">
           <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+  }
+  @if(showDetailsButton()){
+    <ng-container matColumnDef="details">
+      <th mat-header-cell *matHeaderCellDef>Details</th>
+      <td mat-cell *matCellDef="let entry">
+        <button mat-icon-button (click)="goToDetails(entry)" title="details">
+          <mat-icon>list_alt</mat-icon>
         </button>
       </td>
     </ng-container>

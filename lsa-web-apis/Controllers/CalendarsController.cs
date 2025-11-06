@@ -1,4 +1,5 @@
-﻿using lsa_web_apis.Data;
+﻿using System.Security.Claims;
+using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
@@ -13,7 +14,7 @@ namespace lsa_web_apis.Controllers
     [ApiController]
     public class CalendarsController(UserDbContext _context) : ControllerBase
     {
-        [Authorize(Roles = "Admin,CalendarManager")]        
+        [Authorize(Roles = "Admin,CalendarManager")]
         [HttpGet]
         public async Task<ActionResult<PagedResult<Preacher>>> GetCalendars([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
         {
@@ -89,18 +90,33 @@ namespace lsa_web_apis.Controllers
             return NoContent();
         }
 
-        [HttpGet("user/{userId}")]
+        [HttpGet("myCalendars")]
         [Authorize(Roles = "Admin,CalendarManager")]
-        public async Task<ActionResult<List<Calendar>>> GetByUserId(Guid userId)
+        public async Task<ActionResult<PagedResult<CalendarDto>>> GetByUserId(int page = 1, int pageSize = 10, string searchTerm = "")
         {
-            var calendars = await _context.Calendars
-            .Where(c => c.Managers.Any(m => m.UserId == userId)
-                     || c.Members.Any(m => m.UserId == userId))
-            .ToListAsync();
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            IQueryable<Calendar> baseQuery = _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId));
 
-            return Ok(calendars);
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+                baseQuery = baseQuery.Where(c => EF.Functions.Like(c.Name!, $"%{searchTerm}%"));
 
+            var paged = await baseQuery
+                .OrderBy(c => c.Name)
+                .Select(c => new CalendarDto
+                {
+                    Id = c.Id,
+                    Name = c.Name!,
+                    Active = c.Active,
+                    Managers = c.Managers.Select(m => new CalendarManagerDto
+                    {
+                        CalendarId = m.CalendarId,
+                        Username = m.User.Username,
+                        UserId = m.User.Id
+                    }).ToList()
+                })
+                .ToPagedResultAsync(page, pageSize);
+
+            return Ok(paged);
         }
-
     }
 }

@@ -164,7 +164,8 @@ public class CalendarsControllerTests
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {
-        new Claim(ClaimTypes.Role, "Admin")
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Role, "Admin")
         }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
@@ -172,12 +173,13 @@ public class CalendarsControllerTests
             HttpContext = new DefaultHttpContext() { User = user }
         };
 
-        var result = await controller.GetByUserId(userId);
+        var result = await controller.GetByUserId();
 
-        var actionResult = Assert.IsType<ActionResult<List<Calendar>>>(result);
+        var actionResult = Assert.IsType<ActionResult<PagedResult<CalendarDto>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var calendars = Assert.IsType<List<Calendar>>(okResult.Value);
-        Assert.Equal(2, calendars.Count);
+        var calendars = Assert.IsType<PagedResult<CalendarDto>>(okResult.Value);
+        // Only one calendar as manager
+        Assert.Single(calendars.Items);
     }
 
 }
