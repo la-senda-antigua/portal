@@ -1,4 +1,4 @@
-<footer>
+<footer [style]="{'background-color': backgroundColor(), 'color': textColor()}">
   <div class="columns">
     @for (item of config().items; track $index) {
       <section>
