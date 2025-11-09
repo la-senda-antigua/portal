@@ -118,5 +118,64 @@ namespace lsa_web_apis.Controllers
 
             return Ok(paged);
         }
+
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        public async Task<ActionResult<CalendarDto>> GetById(Guid id)
+        {
+            var calendar = await _context.Calendars
+                .Where(c => c.Id == id)
+                .Select(c => new CalendarDto
+                {
+                    Id = c.Id,
+                    Name = c.Name!,
+                    Active = c.Active,
+                    Managers = c.Managers.Select(m => new CalendarManagerDto
+                    {
+                        CalendarId = m.CalendarId,
+                        Username = m.User.Username,
+                        UserId = m.User.Id
+                    }).ToList(),
+                    Members = c.Members.Select(m => new CalendarMemberDto
+                    {
+                        UserId = m.UserId,
+                        Username = m.User.Username
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (calendar is null)
+                return NotFound("Calendar not found.");
+
+            return Ok(calendar);
+        }
+
+        [HttpGet("{id}/events")]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetUpcomingEvents(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            var now = DateTime.UtcNow;
+
+            var pagedEvents = await _context.Calendars
+                .Where(c => c.Id == id)
+                .SelectMany(c => c.Events)
+                .Where(e => e.EventDate >= now)
+                .OrderBy(e => e.EventDate)
+                .Select(e => new CalendarEventDto
+                {
+                    Title = e.Title,
+                    Description = e.Description,
+                    EventDate = e.EventDate,
+                    CalendarId = e.CalendarId,
+                    Date = e.Date,
+                    StartTime = e.StartTime,
+                    EndTime = e.EndTime,
+                    AlertDate = e.AlertDate
+                })
+                .ToPagedResultAsync(page, pageSize);
+
+            return Ok(pagedEvents);
+        }
+
     }
 }

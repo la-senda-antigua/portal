@@ -24,7 +24,7 @@ export class CalendarsComponent extends PageBaseComponent {
       displayName: 'Managers',
       datasourceName: 'managers',
       displayProperty: 'username',
-      isArray:true,
+      isArray: true,
     },
   ];
   override tableTitle = 'My Calendars';
@@ -54,15 +54,13 @@ export class CalendarsComponent extends PageBaseComponent {
 
         this.isLoading.set(false);
       },
-      error: (err)=> {
+      error: (err) => {
         this.handleException(err, 'There was an error loading my calendars.');
       }
     })
   }
 
   goToDetails(data: any) {
-    console.log('from partent', data)
-    this.router.navigate(['/calendars/details', data.id]);
-
+    this.router.navigate(['/calendars/details', data.id], { state: { name: data.name } });
   }
 }

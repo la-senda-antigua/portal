@@ -1,1 +1,14 @@
-<p>calendar-details works!</p>
+<app-table-view
+  [isLoading]="isLoading()"
+  [datasource]="dataSource()"
+  [tableTitle]="tableTitle"
+  [createForm]="createForm"
+  [editForm]="editForm"
+  [deleteConfirmationFields]="deleteFields"
+  [viewType]="tableViewTypes.calendar"
+  (pageChange)="onPageChange($event)"
+  (createRequest)="onAdd($event)"
+  (editRequest)="onEdit($event)"
+  (deleteRequest)="onDelete($event)"
+  (onSearch)="onSearch($event)"
+></app-table-view>

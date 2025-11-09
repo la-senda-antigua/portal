@@ -13,6 +13,9 @@ export class GeneralServiceBase {
   getMyPage(a: number, b: number): Observable<any> {
     return of(null);
   }
+
+  getById(id: string): Observable<any> {return of(null);}
+
   getAll(): Observable<any[]> {
     return of([]);
   }

@@ -3,6 +3,7 @@ import { GeneralServiceBase } from './general.service.base';
 import { CalendarDto } from '../models/CalendarDto';
 import { Observable } from 'rxjs';
 import { TableResult } from '../models/TableResult';
+import { CalendarEvent } from '../models/CalendarEvent';
 
 @Injectable({
   providedIn: 'root',
@@ -42,5 +43,15 @@ export class CalendarsService extends GeneralServiceBase {
   override delete(id: number): Observable<void> {
     const url = `${this.apiUrl}/${id}`;
     return this.requestManager.delete<void>(url);
+  }
+
+  override getById(id: string): Observable<CalendarDto> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.requestManager.get<CalendarDto>(url);
+  }
+
+  getCalendarEvent(calendarId: string): Observable<CalendarEvent> {
+    const url = `${this.apiUrl}/${calendarId}`;
+    return this.requestManager.get<CalendarEvent>(url);
   }
 }
