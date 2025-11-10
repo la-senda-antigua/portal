@@ -14,6 +14,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 import { MatDialog } from '@angular/material/dialog';
+import { Location } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import {
   MatPaginator,
@@ -149,7 +150,7 @@ export class TableViewComponent {
 
   searchTerm: string = '';
 
-  constructor(private changeDetector: ChangeDetectorRef) {
+  constructor(private changeDetector: ChangeDetectorRef, private location: Location) {
     effect(() => {
       if (this.datasource && this.datasource()) {
         this.tableDatasource = new MatTableDataSource(this.datasource().items);
@@ -165,6 +166,10 @@ export class TableViewComponent {
         }
       }
     });
+  }
+
+  goBack(){
+    this.location.back();
   }
 
   openCreateForm() {

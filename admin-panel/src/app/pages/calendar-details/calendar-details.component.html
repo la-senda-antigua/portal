@@ -1,4 +1,4 @@
-<app-table-view
+<!-- <app-table-view
   [isLoading]="isLoading()"
   [datasource]="dataSource()"
   [tableTitle]="tableTitle"
@@ -11,4 +11,46 @@
   (editRequest)="onEdit($event)"
   (deleteRequest)="onDelete($event)"
   (onSearch)="onSearch($event)"
-></app-table-view>
+></app-table-view> -->
+
+<div class="header">
+  <button mat-stroked-button (click)="goBack()">
+    <mat-icon>arrow_back</mat-icon>back
+  </button>
+  <h1>{{ tableTitle }}</h1>
+  <span class="spacer"></span>
+  <!-- <button mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button> -->
+</div>
+<div class="members-section" *ngIf="members && members.length">
+  <h3>Members</h3>
+
+  <mat-chip-listbox #chipList>
+    <mat-chip *ngFor="let m of members" removable (removed)="onRemoveMember(m)">
+      {{ m?.username }}
+      <button matChipRemove>
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip>
+  </mat-chip-listbox>
+
+  <mat-form-field appearance="outline" class="member-input">
+    <input
+      matInput
+      placeholder="add member..."
+      [formControl]="memberCtrl"
+      [matAutocomplete]="auto"
+    />
+  </mat-form-field>
+
+  <mat-autocomplete
+    #auto="matAutocomplete"
+    (optionSelected)="addMember($event.option.value)"
+  >
+    <mat-option *ngIf="(filteredOptions$ | async)?.length === 0" [value]="null">
+      No hay resultados
+    </mat-option>
+    <mat-option *ngFor="let user of filteredOptions$ | async" [value]="user">
+      {{ user.username || user.name || user.email }}
+    </mat-option>
+  </mat-autocomplete>
+</div>

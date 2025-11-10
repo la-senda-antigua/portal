@@ -1,5 +1,5 @@
 <div class="header">
-  <a href="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
+  <button mat-stroked-button (click)="goBack()"><mat-icon>arrow_back</mat-icon>back</button>
   <h1>{{ tableTitle() }}</h1>
   <span class="spacer"></span>
   <button mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button>
