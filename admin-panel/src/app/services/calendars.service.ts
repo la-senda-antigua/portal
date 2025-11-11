@@ -54,4 +54,9 @@ export class CalendarsService extends GeneralServiceBase {
     const url = `${this.apiUrl}/${calendarId}`;
     return this.requestManager.get<CalendarEvent>(url);
   }
+
+  addMember(data: { calendarId: string; userId: string }): Observable<void> {
+    const url = `${this.apiUrl}/addMember`;
+    return this.requestManager.post<void>(url, data);
+  }
 }

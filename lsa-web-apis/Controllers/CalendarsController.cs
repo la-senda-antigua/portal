@@ -95,7 +95,9 @@ namespace lsa_web_apis.Controllers
         public async Task<ActionResult<PagedResult<CalendarDto>>> GetByUserId(int page = 1, int pageSize = 10, string searchTerm = "")
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            IQueryable<Calendar> baseQuery = _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId));
+            IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
+                ? _context.Calendars
+                : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId));
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
                 baseQuery = baseQuery.Where(c => EF.Functions.Like(c.Name!, $"%{searchTerm}%"));
@@ -177,5 +179,35 @@ namespace lsa_web_apis.Controllers
             return Ok(pagedEvents);
         }
 
+        public record AddMemberRequest(Guid CalendarId, Guid UserId);
+
+        [HttpPost]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        [Route("addMember")]
+        public async Task<ActionResult> AddMember(AddMemberRequest request)
+        {
+            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+            if (calendar is null)
+                return NotFound("Calendar not found.");
+
+            var user = await _context.PortalUsers.FindAsync(request.UserId);
+            if (user is null)
+                return NotFound("User not found."); 
+
+            var existingMember = await _context.CalendarMembers
+                .FirstOrDefaultAsync(cm => cm.CalendarId == request.CalendarId && cm.UserId == request.UserId);
+            if (existingMember is not null)
+                return BadRequest("User is already a member of this calendar.");
+
+            var calendarMember = new CalendarMember
+            {
+                CalendarId = request.CalendarId,
+                UserId = request.UserId
+            };
+            _context.CalendarMembers.Add(calendarMember);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
     }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Observable, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, catchError, map } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, map, finalize, tap, shareReplay } from 'rxjs/operators';
 import { UsersService } from '../../services/users.service';
 import { CalendarsService } from '../../services/calendars.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,6 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { CalendarDto } from '../../models/CalendarDto';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -22,7 +23,7 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-calendar-details',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatChipsModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatChipsModule, ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule],
   templateUrl: './calendar-details.component.html',
   styleUrl: './calendar-details.component.scss',
   providers: [DatePipe],
@@ -33,8 +34,9 @@ export class CalendarDetailsComponent extends PageBaseComponent implements OnIni
   members: any[] = [];
   id: string | null = null;
 
-  memberCtrl = new FormControl('');
+  memberForm = new FormControl('');
   filteredOptions$!: Observable<any[]>;
+  memberLoading: boolean = false;
 
   override tableTitle = '';
   constructor(service: CalendarsService, private usersService: UsersService, private router: Router, private route: ActivatedRoute, private location: Location) {
@@ -50,16 +52,23 @@ export class CalendarDetailsComponent extends PageBaseComponent implements OnIni
   override ngOnInit() {
     this.load();
 
-    this.filteredOptions$ = this.memberCtrl.valueChanges.pipe(
+    this.filteredOptions$ = this.memberForm.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged(),
       switchMap(value => {
-        if (!value || value.length < 2) return of([]);
+        if (!value || value.length < 2) {
+          this.memberLoading = false;
+          return of([]);
+        }
+        this.memberLoading = true;
         return this.usersService.search(value).pipe(
           map(res => (res && (res as any).items) ? (res as any).items : []),
-          catchError(() => of([]))
+          tap(() => (this.memberLoading = false)), // turn off loading when data arrives
+          catchError(() => of([])),
+          finalize(() => (this.memberLoading = false)) // safety net: turn off if error
         );
-      })
+      }),
+      shareReplay(1) // cache last result and prevent duplicate subscriptions
     );
   }
 
@@ -85,29 +94,28 @@ export class CalendarDetailsComponent extends PageBaseComponent implements OnIni
   }
 
   addMember(user: any) {
+    console.log('Selected user to add:', user);
     if (!user) return;
-    // prevenir duplicados por id o username
+
     const exists = this.members.some(m => (m.id && user.id && m.id === user.id) || (m.username && user.username && m.username === user.username));
     if (exists) {
-      this.snackBar.open('El usuario ya es miembro', '', { duration: 2000 });
-      this.memberCtrl.setValue(''); // limpiar input
+      this.snackBar.open('User already a member', '', { duration: 2000 });
+      this.memberForm.setValue('');
       return;
     }
 
-    // optimista: agregar al UI
     this.members = [...this.members, user];
-    this.memberCtrl.setValue('');
+    this.memberForm.setValue('');
 
-    // persistir: ideal usar endpoint dedicado. Si no, usar edit(updatedCalendar)
-    const updatedCalendar = {
-      id: this.id,
-      members: this.members
+    const data = {
+      calendarId: this.id as string,
+      userId: user.id as string
     };
-    this.service.edit(updatedCalendar).subscribe({
-      next: () => this.snackBar.open('Miembro agregado', '', { duration: 1500 }),
+
+    (this.service as CalendarsService).addMember(data).subscribe({
+      next: () => this.snackBar.open('Member added', '', { duration: 1500 }),
       error: (err) => {
-        this.snackBar.open('No se pudo agregar el miembro', '', { duration: 3000 });
-        // revertir optimista
+        this.snackBar.open('Could not add member', '', { duration: 3000 });
         this.members = this.members.filter(m => m !== user);
       }
     });

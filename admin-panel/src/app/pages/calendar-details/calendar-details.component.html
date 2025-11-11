@@ -21,7 +21,7 @@
   <span class="spacer"></span>
   <!-- <button mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button> -->
 </div>
-<div class="members-section" *ngIf="members && members.length">
+<div class="members-section">
   <h3>Members</h3>
 
   <mat-chip-listbox #chipList>
@@ -37,9 +37,17 @@
     <input
       matInput
       placeholder="add member..."
-      [formControl]="memberCtrl"
+      [formControl]="memberForm"
       [matAutocomplete]="auto"
     />
+    <mat-icon matSuffix *ngIf="!memberLoading">person_add</mat-icon>
+    <mat-progress-spinner
+      *ngIf="memberLoading"
+      matSuffix
+      diameter="20"
+      class="loagind-field"
+      mode="indeterminate"
+    ></mat-progress-spinner>
   </mat-form-field>
 
   <mat-autocomplete
