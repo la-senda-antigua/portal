@@ -1,20 +1,22 @@
 <div class="header">
-  <button mat-stroked-button (click)="goBack()"><mat-icon>arrow_back</mat-icon>back</button>
+  @if(showBackButton()){
+    <button mat-stroked-button (click)="goBack()"><mat-icon>arrow_back</mat-icon>back</button>
+  }
   <h1>{{ tableTitle() }}</h1>
   <span class="spacer"></span>
   <button mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button>
 </div>
-
+<p *ngIf="!isLoading() && datasource().totalItems == 0">No records found</p>
 <div class="table-container">
   @if (isLoading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   }
   @if(tableDatasource != undefined) {
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field *ngIf="!isLoading() && datasource().totalItems > 0" appearance="outline" class="w-full">
     <input matInput placeholder="search..." [(ngModel)]="searchTerm" required (keydown.enter)="search()"/>
   </mat-form-field>
 
-  <table mat-table [dataSource]="tableDatasource!" class="mat-elevation-z8">
+  <table mat-table [dataSource]="tableDatasource!" class="mat-elevation-z8"  *ngIf="datasource().totalItems > 0">
   @for (field of datasource().columns; track $index) {
     <ng-container [matColumnDef]="field.datasourceName">
       <th mat-header-cell *matHeaderCellDef>{{ field.displayName }}</th>
@@ -75,6 +77,7 @@
 </div>
 <mat-divider></mat-divider>
 <mat-paginator
+  *ngIf="!isLoading() && datasource().totalItems > 0"
   [pageSizeOptions]="[5, 10, 25, 50]"
   showFirstLastButtons
   (page)="loadWithPagination() && pageChange.emit($event)"

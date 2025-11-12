@@ -24,7 +24,7 @@ export class UsersService extends GeneralServiceBase {
   }
 
   override edit(item: PortalUser): Observable<PortalUser> {
-    const url = `${this.apiUrl}/${item.id}`;
+    const url = `${this.apiUrl}/${item.userId}`;
     return this.requestManager.put<PortalUser>(url, item);
   }
 

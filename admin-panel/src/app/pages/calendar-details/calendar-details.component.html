@@ -1,25 +1,9 @@
-<!-- <app-table-view
-  [isLoading]="isLoading()"
-  [datasource]="dataSource()"
-  [tableTitle]="tableTitle"
-  [createForm]="createForm"
-  [editForm]="editForm"
-  [deleteConfirmationFields]="deleteFields"
-  [viewType]="tableViewTypes.calendar"
-  (pageChange)="onPageChange($event)"
-  (createRequest)="onAdd($event)"
-  (editRequest)="onEdit($event)"
-  (deleteRequest)="onDelete($event)"
-  (onSearch)="onSearch($event)"
-></app-table-view> -->
-
 <div class="header">
   <button mat-stroked-button (click)="goBack()">
     <mat-icon>arrow_back</mat-icon>back
   </button>
   <h1>{{ tableTitle }}</h1>
   <span class="spacer"></span>
-  <!-- <button mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button> -->
 </div>
 <div class="members-section">
   <h3>Members</h3>
@@ -54,11 +38,27 @@
     #auto="matAutocomplete"
     (optionSelected)="addMember($event.option.value)"
   >
-    <mat-option *ngIf="(filteredOptions$ | async)?.length === 0" [value]="null">
+    <mat-option *ngIf="(filteredMembers$ | async)?.length === 0" [value]="null">
       No hay resultados
     </mat-option>
-    <mat-option *ngFor="let user of filteredOptions$ | async" [value]="user">
-      {{ user.username || user.name || user.email }}
+    <mat-option *ngFor="let user of filteredMembers$ | async" [value]="user">
+      {{ user.username}}
     </mat-option>
   </mat-autocomplete>
 </div>
+
+<app-table-view
+  [isLoading]="isLoading()"
+  [showBackButton]="false"
+  [datasource]="dataSource()"
+  [tableTitle]="'Events'"
+  [createForm]="createForm"
+  [editForm]="editForm"
+  [deleteConfirmationFields]="deleteFields"
+  [viewType]="tableViewTypes.calendar"
+  (pageChange)="onPageChange($event)"
+  (createRequest)="onAdd($event)"
+  (editRequest)="onEdit($event)"
+  (deleteRequest)="onDelete($event)"
+  (onSearch)="onSearch($event)"
+></app-table-view>

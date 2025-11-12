@@ -14,7 +14,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 import { MatDialog } from '@angular/material/dialog';
-import { Location } from '@angular/common';
+import { Location, NgIf } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import {
   MatPaginator,
@@ -79,7 +79,8 @@ export interface TableViewFormData {
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule,MatChipsModule
+    FormsModule, MatChipsModule,
+    NgIf
 ],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',
@@ -111,6 +112,8 @@ export class TableViewComponent {
   readonly showDisableButton = input<boolean>(false);
   /** Whether or not to show the details button  */
   readonly showDetailsButton = input<boolean>(false);
+  /** Whether or not to show the goback button  */
+  readonly showBackButton = input<boolean>(true);
 
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
@@ -147,7 +150,6 @@ export class TableViewComponent {
   readonly dialog = inject(MatDialog);
 
   tableDatasource?: MatTableDataSource<any>;
-
   searchTerm: string = '';
 
   constructor(private changeDetector: ChangeDetectorRef, private location: Location) {

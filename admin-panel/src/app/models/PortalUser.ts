@@ -1,5 +1,5 @@
 export interface PortalUser{
-  id: string,
+  userId: string,
   username: string,
   role: string,
   calendarsAsManager: any[],

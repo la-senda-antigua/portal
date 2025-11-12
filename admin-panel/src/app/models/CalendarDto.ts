@@ -1,7 +1,9 @@
+import { CalendarMemberDto } from "./CalendarMemberDto";
+
 export interface CalendarDto{
   id?: string;
   name: string;
   active: boolean;
-  managers?: any[];
-  members?: any[];
+  managers?: CalendarMemberDto[];
+  members?: CalendarMemberDto[];
 }

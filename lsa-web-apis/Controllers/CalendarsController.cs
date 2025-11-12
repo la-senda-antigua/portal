@@ -192,7 +192,7 @@ namespace lsa_web_apis.Controllers
 
             var user = await _context.PortalUsers.FindAsync(request.UserId);
             if (user is null)
-                return NotFound("User not found."); 
+                return NotFound("User not found.");
 
             var existingMember = await _context.CalendarMembers
                 .FirstOrDefaultAsync(cm => cm.CalendarId == request.CalendarId && cm.UserId == request.UserId);
@@ -205,6 +205,39 @@ namespace lsa_web_apis.Controllers
                 UserId = request.UserId
             };
             _context.CalendarMembers.Add(calendarMember);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+        
+        [HttpPost]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        [Route("removeMember")]
+        public async Task<ActionResult> RemoveMember(AddMemberRequest request)
+        {
+            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+            if (calendar is null)
+                return NotFound("Calendar not found.");
+
+            var user = await _context.PortalUsers.FindAsync(request.UserId);
+            if (user is null)
+                return NotFound("User not found.");
+           
+            var existingMember = await _context.CalendarMembers
+                .FirstOrDefaultAsync(
+                    cm => cm.CalendarId == request.CalendarId
+                    && cm.UserId == request.UserId
+                );
+            
+            if (existingMember is null)
+                return Ok("User is already removed.");
+
+            var calendarMember = new CalendarMember
+            {
+                CalendarId = request.CalendarId,
+                UserId = request.UserId
+            };
+            _context.CalendarMembers.Remove(existingMember!);
             await _context.SaveChangesAsync();
 
             return Ok();

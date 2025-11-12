@@ -16,15 +16,15 @@ namespace lsa_web_apis.Controllers
     public class UsersController(IAuthService authService, UserDbContext context) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<PagedResult<UserDto>>> GetUsers([FromQuery] int page = 1,[FromQuery] int pageSize = 10,[FromQuery] string searchTerm = "")
-        {            
+        public async Task<ActionResult<PagedResult<UserDto>>> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
+        {
             var usersQuery = context.PortalUsers
                 .Where(u => string.IsNullOrEmpty(searchTerm) ||
                            u.Username.Contains(searchTerm) ||
                            u.Role.Contains(searchTerm));
 
             var pagedUsers = await usersQuery.ToPagedResultAsync(page, pageSize);
-            
+
             var userDtos = new List<UserDto>();
             foreach (var user in pagedUsers.Items)
             {
@@ -52,7 +52,7 @@ namespace lsa_web_apis.Controllers
 
                 userDtos.Add(new UserDto
                 {
-                    Id = user.Id,
+                    UserId = user.Id,
                     Username = user.Username,
                     Role = user.Role,
                     CalendarsAsManager = managerCalendars,
@@ -69,6 +69,19 @@ namespace lsa_web_apis.Controllers
             };
 
             return Ok(result);
+        }
+        
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<PagedResult<UserDto>>> GetAllUsers()
+        {
+            var users = await context.PortalUsers.Select(u => new UserDto
+            {
+                UserId = u.Id,
+                Username = u.Username,
+                Role = u.Role
+            }).ToListAsync();
+            
+            return Ok(users);
         }
 
         [HttpPost()]
