@@ -157,24 +157,21 @@ namespace lsa_web_apis.Controllers
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetUpcomingEvents(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var now = DateTime.UtcNow;
-
-            var pagedEvents = await _context.Calendars
-                .Where(c => c.Id == id)
-                .SelectMany(c => c.Events)
-                .Where(e => e.EventDate >= now)
-                .OrderBy(e => e.EventDate)
+            var pagedEvents = await _context.CalendarEvents
+                .Where(e => e.CalendarId == id)
+                .OrderByDescending(e => e.EventDate)
                 .Select(e => new CalendarEventDto
                 {
                     Title = e.Title,
                     Description = e.Description,
                     EventDate = e.EventDate,
-                    CalendarId = e.CalendarId,
-                    Date = e.Date,
+                    CalendarId = e.CalendarId,                    
                     StartTime = e.StartTime,
                     EndTime = e.EndTime,
                     AlertDate = e.AlertDate
                 })
                 .ToPagedResultAsync(page, pageSize);
+                
 
             return Ok(pagedEvents);
         }
@@ -238,6 +235,30 @@ namespace lsa_web_apis.Controllers
                 UserId = request.UserId
             };
             _context.CalendarMembers.Remove(existingMember!);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+        
+        [HttpPost]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        [Route("addEvent")]
+        public async Task<ActionResult> AddEvent(CalendarEventDto request)
+        {
+            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+            if (calendar is null) return NotFound("Calendar not found.");
+            
+            var calendarEvent = new CalendarEvent
+            {
+                Title = request.Title,
+                Description = request.Description,
+                EventDate = request.EventDate,
+                CalendarId = request.CalendarId,                
+                StartTime = request.StartTime,
+                EndTime = request.EndTime                
+            };
+            
+            _context.CalendarEvents.Add(calendarEvent);
             await _context.SaveChangesAsync();
 
             return Ok();

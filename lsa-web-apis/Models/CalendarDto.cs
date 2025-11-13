@@ -13,10 +13,9 @@
     {
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public DateTime EventDate { get; set; }
+        public DateOnly EventDate { get; set; }
         public Guid CalendarId { get; set; }
 
-        public DateOnly? Date { get; set; }
         public TimeOnly? StartTime { get; set; }
         public TimeOnly? EndTime { get; set; }
         public DateTime? AlertDate { get; set; }
