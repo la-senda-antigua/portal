@@ -1,0 +1,17 @@
+<app-table-view
+  [isLoading]="isLoading()"
+  [datasource]="dataSource()"
+  [tableTitle]="tableTitle"
+  [createForm]="createForm"
+  [editForm]="editForm"
+  [showActions]="false"
+  [showDetailsButton]="true"
+  [deleteConfirmationFields]="deleteFields"
+  [viewType]="tableViewTypes.calendar"
+  (pageChange)="onPageChange($event)"
+  (createRequest)="onAdd($event)"
+  (editRequest)="onEdit($event)"
+  (deleteRequest)="onDelete($event)"
+  (detailsRequest)="goToDetails($event)"
+  (onSearch)="onSearch($event)"
+></app-table-view>

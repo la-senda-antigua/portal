@@ -18,9 +18,18 @@ export class AuthService {
     return this.requestManager
       .get('/Auth/validate-token')
       .pipe(
-        map(() => true),
+        map((res: any) => {
+          const roles = res?.user?.roles || [];
+          localStorage.setItem('user-roles', JSON.stringify(roles));
+          return true;
+        }),
         catchError(() => of(false))
       );
+  }
+
+  hasRole(...roles: string[]): boolean {
+    const userRoles = JSON.parse(localStorage.getItem('user-roles') || '[]') as string[];
+    return roles.some(r => userRoles.includes(r));
   }
 
   startGoogleLoginRedirect() {

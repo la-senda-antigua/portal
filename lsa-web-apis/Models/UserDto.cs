@@ -2,5 +2,9 @@ namespace lsa_web_apis.Models;
 
 public class UserDto
 {
+    public Guid? Id { get; set; }
     public string Username { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public List<CalendarDto> CalendarsAsManager { get; set; } = new List<CalendarDto>();
+    public List<CalendarDto> CalendarsAsMember { get; set; } = new List<CalendarDto>();
 }

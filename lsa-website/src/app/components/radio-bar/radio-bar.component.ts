@@ -4,13 +4,16 @@ import {
   ElementRef,
   inject,
   OnInit,
-  viewChild
+  signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarRef } from '@angular/material/snack-bar';
 import { RadioService } from '../radio-dialog/radio.service';
+import { RadioTrackInfo } from 'src/app/models/radio-track-info.model';
 
 @Component({
   selector: 'lsa-radio-bar',
@@ -26,6 +29,9 @@ export class RadioBarComponent implements OnInit {
   readonly volumeValue = this.radioService.volumeValue;
   readonly audioElement = viewChild<ElementRef>('audioElement');
   readonly currentTrack = this.radioService.currentTrack;
+  readonly resetCurrentTrack = signal(false);
+  private lastTrack: RadioTrackInfo | undefined;
+  readonly streamInfoElement = viewChild<ElementRef>('streaminfo');
 
   constructor() {
     effect(() => {
@@ -35,6 +41,29 @@ export class RadioBarComponent implements OnInit {
         if (this.playState() === 'playing') {
           this.audioElement()!.nativeElement.play();
         }
+      }
+    });
+    effect(() => {
+      const infoElement = this.streamInfoElement()
+        ?.nativeElement as HTMLSpanElement;
+      if (infoElement) {
+        infoElement.style.setProperty(
+          '--carrousel-span-width',
+          `${infoElement.offsetWidth}px`
+        );
+      }
+    });
+    effect(() => {
+      const trackChanged = this.currentTrack();
+      if (
+        trackChanged.title !== this.lastTrack?.title &&
+        trackChanged.artist !== this.lastTrack?.artist
+      ) {
+        this.lastTrack = trackChanged;
+        untracked(() => {
+          this.resetCurrentTrack.set(true);
+          setTimeout(() => this.resetCurrentTrack.set(false), 500);
+        });
       }
     });
   }

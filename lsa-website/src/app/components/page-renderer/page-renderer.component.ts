@@ -16,10 +16,11 @@ import { HeaderComponent } from '../header/header.component';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';
 import { RadioService } from '../radio-dialog/radio.service';
 import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'lsa-page-renderer',
-  imports: [HeaderComponent, SectionRendererComponent],
+  imports: [HeaderComponent, SectionRendererComponent, FooterComponent],
   templateUrl: './page-renderer.component.html',
   styleUrl: './page-renderer.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -38,6 +39,8 @@ export class PageRendererComponent {
   readonly headerConfig = computed(() =>
     this.pageConfig()?.sections.find((section) => section.name === 'header')
   );
+  readonly pageFooterOptions = computed(() => this.pageConfig()?.footer);
+  readonly footerConfig = computed(() => this.configService.appConfig()?.footer);
 
   readonly pageName = input<string>();
   readonly matDialog = inject(MatDialog);
@@ -95,6 +98,14 @@ export class PageRendererComponent {
       ) {
         this.configService.setCurrentPageName('inprogress');
       }
+    });
+
+    effect(() => {
+      const _ = this.pageConfig();
+
+      document
+        .getElementById('page-content')
+        ?.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 }
