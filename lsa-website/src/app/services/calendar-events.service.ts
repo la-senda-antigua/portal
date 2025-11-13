@@ -9,11 +9,11 @@ export class CalendarEventService {
     private baseUrl = environment.apiUrl;
     private httpClient = inject(HttpClient);
     calendarEventList = signal<CalendarEventModel[]>([]);
-    
+
     loadEvents(): void {
-        this.httpClient.get<CalendarEventModel[]>(`${this.baseUrl}/calendar/GetEvents`)
+        this.httpClient.get<CalendarEventModel[]>(`${this.baseUrl}/publicEvents/GetEvents`)
         .subscribe(res=> {
             this.calendarEventList.set(res)
-        })        
+        })
     }
 }
