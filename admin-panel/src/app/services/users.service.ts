@@ -33,6 +33,11 @@ export class UsersService extends GeneralServiceBase {
     return this.requestManager.delete<void>(url);
   }
 
+  override getAll(): Observable<PortalUser[]> {
+    const url = `${this.apiUrl}/getAll`;
+    return this.requestManager.get<PortalUser[]>(url);
+  }
+
   override search(
     searchTerm: string,
     page: number = 1,

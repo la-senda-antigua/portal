@@ -65,7 +65,7 @@ public class UsersControllerTests
         using var context = new UserDbContext(options);
         var mockAuthService = new Mock<IAuthService>();
         var newUser = new User { Id = Guid.NewGuid(), Username = "newuser", Role = "User" };
-        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User")).ReturnsAsync(newUser);
+        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User", "Usuario Nuevo")).ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
@@ -98,7 +98,7 @@ public class UsersControllerTests
         await context.SaveChangesAsync();
 
         var newUser = new User { Id = Guid.NewGuid(), Username = "calendar_manager_name", Role = "CalendarManager" };
-        mockAuthService.Setup(x => x.RegisterAsync("calendar_manager_name", "CalendarManager")).ReturnsAsync(newUser);
+        mockAuthService.Setup(x => x.RegisterAsync("calendar_manager_name", "CalendarManager", "Administrador de Calendario")).ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));

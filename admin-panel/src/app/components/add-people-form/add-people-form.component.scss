@@ -1,0 +1,83 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-form-field {
+  width: 300px;
+}
+
+button {
+  margin-left: 10px;
+}
+
+.option-button {
+  width: 268px;
+  margin: 0;
+  justify-content: left;
+}
+
+.red-color {
+  color: red;
+}
+
+.user-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-email {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+mat-chip-row.mat-mdc-chip-row {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 16px;
+  margin: 4px;
+
+  .chip-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chip-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    line-height: 24px;
+  }
+
+  .chip-text {
+    font-size: 14px;
+  }
+}

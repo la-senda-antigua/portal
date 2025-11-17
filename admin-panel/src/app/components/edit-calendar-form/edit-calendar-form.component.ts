@@ -23,6 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { PreachersService } from '../../services/preachers.service';
 import { TableViewFormData } from '../table-view/table-view.component';
+import { AddPeopleFormComponent } from '../add-people-form/add-people-form.component';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
@@ -61,13 +62,11 @@ export class EditCalendarFormComponent {
 
   readonly calendarForm: FormGroup<{
     name: FormControl<string | null>;
-    description: FormControl<string | null>;
   }>;
 
   constructor() {
     this.calendarForm = new FormGroup({
       name: new FormControl(this.formData.data.name, Validators.required),
-      description: new FormControl(this.formData.data.description ?? null),
     });
   }
 
@@ -90,10 +89,20 @@ export class EditCalendarFormComponent {
       data: {
         id: this.formData.data.id,
         name: this.calendarForm.controls.name.value!,
-        description: this.calendarForm.controls.description?.value
-          ? this.calendarForm.controls.description.value
-          : null,
       },
     };
+  }
+
+  openPeopleModal() {
+    const dialogRef = this.dialog.open(AddPeopleFormComponent, {
+      data: { calendarId: this.formData.data.id },
+    });
+
+    dialogRef.afterClosed().subscribe((selectedUsers) => {
+      if (selectedUsers) {
+        // Aquí manejas los usuarios seleccionados
+        console.log('Selected users:', selectedUsers);
+      }
+    });
   }
 }

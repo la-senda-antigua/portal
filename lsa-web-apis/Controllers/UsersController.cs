@@ -54,6 +54,7 @@ namespace lsa_web_apis.Controllers
                 {
                     UserId = user.Id,
                     Username = user.Username,
+                    Name = user.Name,
                     Role = user.Role,
                     CalendarsAsManager = managerCalendars,
                     CalendarsAsMember = memberCalendars
@@ -78,6 +79,7 @@ namespace lsa_web_apis.Controllers
             {
                 UserId = u.Id,
                 Username = u.Username,
+                Name = u.Name,
                 Role = u.Role
             }).ToListAsync();
             
@@ -93,7 +95,7 @@ namespace lsa_web_apis.Controllers
                 var username = data.Username;
                 var role = data.Role;
 
-                var user = await authService.RegisterAsync(username, role);
+                var user = await authService.RegisterAsync(username, role, data.Name ?? "");
                 if (user is null)
                     return BadRequest("User name already in use.");
 
@@ -131,6 +133,7 @@ namespace lsa_web_apis.Controllers
                 if (user is null) return NotFound("User not found.");
 
                 user.Role = updateData.Role;
+                user.Name = updateData.Name;
                 var existingCalendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
                 var existingCalendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
                 context.CalendarManagers.RemoveRange(existingCalendarsAsManager);

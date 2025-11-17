@@ -1,5 +1,6 @@
 import {
   Component,
+  inject,
   OnInit,
   signal,
   viewChild,
@@ -15,7 +16,7 @@ import { Router } from '@angular/router';
 import {
   CalendarFormData,
   EditCalendarFormComponent,
-} from '../../components/edit-calentar-form/edit-calendar-form.component';
+} from '../../components/edit-calendar-form/edit-calendar-form.component';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -23,6 +24,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { EventInput } from '@fullcalendar/core';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -63,7 +65,8 @@ export class CalendarsComponent implements OnInit {
   selectedCalendars: string[] = [];
   private allEvents: any[] = [];
 
-  constructor(private service: CalendarsService, private router: Router) {}
+  constructor(private service: CalendarsService, private router: Router, public dialog: MatDialog) {
+  }
 
   ngOnInit(): void {
     this.loadMyCaelndars().then(() => {
@@ -151,10 +154,6 @@ export class CalendarsComponent implements OnInit {
     });
   }
 
-  showModal() {
-    console.log('adding');
-  }
-
   showToolTip(info: any) {
     const tooltip = document.createElement('div');
     tooltip.className = 'fc-tooltip';
@@ -205,7 +204,7 @@ export class CalendarsComponent implements OnInit {
     tooltip.style.padding = '5px';
     tooltip.style.borderRadius = '3px';
     tooltip.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-    tooltip.style.zIndex = '9999';
+    tooltip.style.zIndex = '9';
     document.body.appendChild(tooltip);
 
     info.el.addEventListener('mouseleave', () => {
@@ -214,7 +213,42 @@ export class CalendarsComponent implements OnInit {
   }
 
   showCalendarOptions(event: MouseEvent, calendar: CalendarDto) {
-    event.stopPropagation();
-    console.log('Opciones para:', calendar.name);
+  event.stopPropagation();
+
+  const dialogRef = this.dialog.open(EditCalendarFormComponent, {
+    data: {
+      mode: 'edit',
+      type: 'calendar',
+      data: {
+        id: calendar.id,
+        name: calendar.name,
+      }
+    } as CalendarFormData
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      // Aquí puedes manejar la actualización del calendario
+      console.log('Calendar updated:', result);
+      // Por ejemplo: this.updateCalendar(result);
+    }
+  });
+}
+
+
+  openModal() {
+    const dialogRef = this.dialog.open(EditCalendarFormComponent, {
+      data: {
+        mode: 'add',
+        type: 'calendar',
+        data: {},
+      } as CalendarFormData,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log('Form data:', result);
+      }
+    });
   }
 }
