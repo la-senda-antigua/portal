@@ -1,6 +1,7 @@
 <div class="main-container">
   <div class="calendar-list">
     My Calendars
+    <mat-icon class="add-button">add</mat-icon>
 
     <mat-selection-list (selectionChange)="onCalendarSelectionChange($event)">
       @for (item of myCalendars; track item.id) {

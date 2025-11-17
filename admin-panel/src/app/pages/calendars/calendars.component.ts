@@ -20,11 +20,20 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { EventInput } from '@fullcalendar/core';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
   selector: 'app-calendars',
-  imports: [FullCalendarModule, MatListModule, MatCheckboxModule],
+  imports: [
+    FullCalendarModule,
+    MatListModule,
+    MatCheckboxModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
   templateUrl: './calendars.component.html',
   styleUrl: './calendars.component.scss',
   providers: [DatePipe],
@@ -37,7 +46,15 @@ export class CalendarsComponent implements OnInit {
     initialView: 'dayGridMonth',
     editable: true,
     selectable: true,
-    events: [{ title: 'Evento demo', date: '2025-11-16' }],
+    events: [] as EventInput,
+    datesSet: (dateInfo: any) => this.getMonthEvents(dateInfo),
+    displayEventTime: true,
+    eventTimeFormat: {
+      hour: '2-digit' as const,
+      minute: '2-digit' as const,
+      hour12: false
+    }
+
   };
 
   myCalendars: CalendarDto[] = [];
@@ -46,12 +63,12 @@ export class CalendarsComponent implements OnInit {
   constructor(private service: CalendarsService, private router: Router) {}
 
   ngOnInit(): void {
-    this.load();
+    this.loadMyCaelndars();
   }
 
-  load(): void {
+  loadMyCaelndars(): void {
     this.isLoading.set(true);
-    this.service.getMyPage().subscribe({
+    this.service.getMyCalendars().subscribe({
       next: (response) => {
         const items = response.map(
           (c: CalendarDto) =>
@@ -69,6 +86,25 @@ export class CalendarsComponent implements OnInit {
       error: (err) => {
         this.myCalendars = [];
         this.isLoading.set(false);
+      },
+    });
+  }
+
+  getMonthEvents(dateInfo: any) {
+    const month = dateInfo.view.currentStart.getMonth() + 1;
+    const year = dateInfo.view.currentStart.getFullYear();
+
+    this.service.getMonthEvents(month, year).subscribe({
+      next: (response) => {
+        this.calendarOptions.events = response.map(e => ({
+          title: e.title,
+          backgroundColor: this.service.getCalendarColor(e.calendarId),
+          borderColor: this.service.getCalendarColor(e.calendarId),
+          start: `${e.eventDate.split('T')[0]}T${e.startTime}`,
+        } as EventInput));
+      },
+      error: (err) => {
+        console.log('error', err);
       },
     });
   }

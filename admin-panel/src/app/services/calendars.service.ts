@@ -23,8 +23,7 @@ export class CalendarsService extends GeneralServiceBase {
     return this.requestManager.get<TableResult<CalendarDto>>(url);
   }
 
-  override getMyPage(
-  ): Observable<CalendarDto[]> {
+  override getMyCalendars(): Observable<CalendarDto[]> {
     const url: string = `${this.apiUrl}/myCalendars`;
     return this.requestManager.get<CalendarDto[]>(url);
   }
@@ -50,6 +49,11 @@ export class CalendarsService extends GeneralServiceBase {
 
   getCalendarEvent(calendarId: string): Observable<CalendarEvent[]> {
     const url = `${this.apiUrl}/${calendarId}`;
+    return this.requestManager.get<CalendarEvent[]>(url);
+  }
+
+  getMonthEvents(month: number, year: number): Observable<CalendarEvent[]> {
+    const url = `${this.apiUrl}/events?month=${month}&year=${year}`;
     return this.requestManager.get<CalendarEvent[]>(url);
   }
 

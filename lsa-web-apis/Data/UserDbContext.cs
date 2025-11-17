@@ -18,14 +18,6 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
     {
         base.OnModelCreating(modelBuilder);
         
-        // modelBuilder.Entity<CalendarEvent>()
-        //     .Property(e => e.EventDate)
-        //     .HasConversion<DateOnly>(
-        //         dateOnly => dateOnly.ToDateTime(TimeOnly.MinValue),
-        //         dateTime => DateOnly.FromDateTime(dateTime));
-
-
-
         modelBuilder.Entity<CalendarEvent>()
             .Property(e => e.StartTime)
             .HasConversion<TimeSpan?>(

@@ -166,6 +166,20 @@ namespace lsa_web_apis.Controllers
             return Ok(pagedEvents);
         }
 
+        [HttpGet("events")]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetMonthEvents(int month, int year)
+        {
+            var query = _context.CalendarEvents.Where(e=> e.EventDate.Month ==month && e.EventDate.Year == year);
+            if (!User.IsInRole("Admin"))
+            {                
+                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                query = query.Where(e => e.Calendar.Managers.Any(m => m.UserId == userId));
+            }
+            var result = await query.ToListAsync();
+            return Ok(result);
+        }
+
         public record AddMemberRequest(Guid CalendarId, Guid UserId);
 
         [HttpPost]

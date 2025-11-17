@@ -10,7 +10,7 @@ export class GeneralServiceBase {
   getPage(a: number, b: number): Observable<any> {
     return of(null);
   }
-  getMyPage(a: number, b: number): Observable<any> {
+  getMyCalendars(a: number, b: number): Observable<any> {
     return of(null);
   }
 
