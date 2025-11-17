@@ -8,6 +8,8 @@ import { CalendarsService } from '../../services/calendars.service';
 import { CalendarDto } from '../../models/CalendarDto';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { CalendarFormData, EditCalendarFormComponent } from '../../components/edit-calentar-form/edit-calendar-form.component';
+
 
 @Component({
   selector: 'app-calendars',
@@ -18,6 +20,9 @@ import { Router } from '@angular/router';
 })
 export class CalendarsComponent extends PageBaseComponent {
   override tableViewComponent = viewChild(TableViewComponent);
+  override editForm = EditCalendarFormComponent;
+  override createForm = EditCalendarFormComponent;
+
   override tableCols: TableViewColumn[] = [
     { displayName: 'Name', datasourceName: 'name' },
     {
@@ -59,8 +64,23 @@ export class CalendarsComponent extends PageBaseComponent {
       }
     })
   }
+  override parseForm(calendarForm: CalendarFormData): CalendarDto {
+    const item = {
+      name: calendarForm.data.name,
+      description: calendarForm.data.description,
+      active: true
+    } as CalendarDto;
+    if (calendarForm.data.id != undefined) {
+      item['id'] = calendarForm.data.id;
+    }
 
+    return item;
+  }
   goToDetails(data: any) {
     this.router.navigate(['/calendars/details', data.id], { state: { name: data.name } });
+  }
+
+  showModal(){
+    console.log('adding')
   }
 }

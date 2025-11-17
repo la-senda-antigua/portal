@@ -57,10 +57,20 @@
   }
   @if(showDetailsButton()){
     <ng-container matColumnDef="details">
-      <th mat-header-cell *matHeaderCellDef>Details</th>
+      <th mat-header-cell *matHeaderCellDef>{{detailsLabel()}}</th>
       <td mat-cell *matCellDef="let entry">
-        <button mat-icon-button (click)="goToDetails(entry)" title="details">
+        <button mat-icon-button (click)="goToDetails(entry)" title="{{detailsLabel()}}">
           <mat-icon>list_alt</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+  }
+  @if(showSettingsButton()){
+    <ng-container matColumnDef="settings">
+      <th mat-header-cell *matHeaderCellDef>Settings</th>
+      <td mat-cell *matCellDef="let entry">
+        <button mat-icon-button (click)="openSettings(entry)" title="settings">
+          <mat-icon>settings</mat-icon>
         </button>
       </td>
     </ng-container>

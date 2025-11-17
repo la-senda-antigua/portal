@@ -29,7 +29,6 @@ import { DisableConfirmationComponent, DisableConfirmationData } from '../disabl
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { ArrayToStringPipe } from "../../pipes/array-to-string.pipe";
 import { MatChipsModule } from '@angular/material/chips';
 
 export enum TableViewType {
@@ -112,6 +111,9 @@ export class TableViewComponent {
   readonly showDisableButton = input<boolean>(false);
   /** Whether or not to show the details button  */
   readonly showDetailsButton = input<boolean>(false);
+  readonly detailsLabel = input<string>('Details');
+  /** Whether or not to show the settings button  */
+  readonly showSettingsButton = input<boolean>(false);
   /** Whether or not to show the goback button  */
   readonly showBackButton = input<boolean>(true);
 
@@ -130,6 +132,10 @@ export class TableViewComponent {
       cols.push('details')
     }
 
+    if (this.showSettingsButton()){
+      cols.push('settings')
+    }
+
     return cols;
   });
 
@@ -145,6 +151,8 @@ export class TableViewComponent {
   readonly disableRequest = output<string>();
   /** Emits the Id to details.  */
   readonly detailsRequest = output<string>();
+  /** Emits the Id to settings.  */
+  readonly settingsRequest = output<string>();
 
   readonly onSearch = output<any>();
   readonly dialog = inject(MatDialog);
@@ -237,6 +245,10 @@ export class TableViewComponent {
   }
 
   goToDetails(entry: any){
+    this.detailsRequest.emit(entry)
+  }
+
+  openSettings(entry: any){
     this.detailsRequest.emit(entry)
   }
 
