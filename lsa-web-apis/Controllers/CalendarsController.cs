@@ -92,15 +92,12 @@ namespace lsa_web_apis.Controllers
 
         [HttpGet("myCalendars")]
         [Authorize(Roles = "Admin,CalendarManager")]
-        public async Task<ActionResult<PagedResult<CalendarDto>>> GetByUserId(int page = 1, int pageSize = 10, string searchTerm = "")
+        public async Task<ActionResult<List<CalendarDto>>> GetByUserId()
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
                 ? _context.Calendars
                 : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId));
-
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-                baseQuery = baseQuery.Where(c => EF.Functions.Like(c.Name!, $"%{searchTerm}%"));
 
             var paged = await baseQuery
                 .OrderBy(c => c.Name)
@@ -109,14 +106,7 @@ namespace lsa_web_apis.Controllers
                     Id = c.Id,
                     Name = c.Name!,
                     Active = c.Active,
-                    Managers = c.Managers.Select(m => new CalendarManagerDto
-                    {
-                        CalendarId = m.CalendarId,
-                        Username = m.User.Username,
-                        UserId = m.User.Id
-                    }).ToList()
-                })
-                .ToPagedResultAsync(page, pageSize);
+                }).ToListAsync();
 
             return Ok(paged);
         }

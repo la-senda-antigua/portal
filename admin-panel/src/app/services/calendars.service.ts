@@ -24,11 +24,9 @@ export class CalendarsService extends GeneralServiceBase {
   }
 
   override getMyPage(
-    page: number = 1,
-    pageSize: number = 10
-  ): Observable<TableResult<CalendarDto>> {
-    const url: string = `${this.apiUrl}/myCalendars?page=${page}&pageSize=${pageSize}`;
-    return this.requestManager.get<TableResult<CalendarDto>>(url);
+  ): Observable<CalendarDto[]> {
+    const url: string = `${this.apiUrl}/myCalendars`;
+    return this.requestManager.get<CalendarDto[]>(url);
   }
 
   override add(item: CalendarDto): Observable<CalendarDto> {
@@ -64,4 +62,26 @@ export class CalendarsService extends GeneralServiceBase {
     const url = `${this.apiUrl}/removeMember`;
     return this.requestManager.post<void>(url, data);
   }
+
+  private colors = [
+    '#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5',
+    '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50',
+    '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800',
+    '#FF5722', '#795548', '#9E9E9E', '#607D8B', '#E65100',
+    '#880E4F', '#4A148C', '#311B92', '#1A237E', '#0D47A1',
+    '#01579B', '#006064', '#004D40', '#1B5E20', '#33691E'
+  ];
+
+  private calendarColors = new Map<string, string>();
+  private colorIndex = 0;
+
+  getCalendarColor(calendarId: string): string {
+    if (!this.calendarColors.has(calendarId)) {
+      const color = this.colors[this.colorIndex];
+      this.calendarColors.set(calendarId, color);
+      this.colorIndex = (this.colorIndex + 1) % this.colors.length;
+    }
+    return this.calendarColors.get(calendarId)!;
+  }
+
 }

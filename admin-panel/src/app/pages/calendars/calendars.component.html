@@ -1,18 +1,21 @@
-<app-table-view
-  [isLoading]="isLoading()"
-  [datasource]="dataSource()"
-  [tableTitle]="tableTitle"
-  [createForm]="createForm"
-  [editForm]="editForm"
-  [showSettingsButton]="true"
-  [showDetailsButton]="true"
-  [detailsLabel]="'Events'"
-  [deleteConfirmationFields]="deleteFields"
-  [viewType]="tableViewTypes.calendar"
-  (pageChange)="onPageChange($event)"
-  (createRequest)="onAdd($event)"
-  (editRequest)="onEdit($event)"
-  (deleteRequest)="onDelete($event)"
-  (detailsRequest)="goToDetails($event)"
-  (onSearch)="onSearch($event)"
-></app-table-view>
+<div class="main-container">
+  <div class="calendar-list">
+    My Calendars
+
+    <mat-selection-list (selectionChange)="onCalendarSelectionChange($event)">
+      @for (item of myCalendars; track item.id) {
+      <mat-list-option
+        [value]="item.id"
+        [selected]="selectedCalendars.includes(item.id!)"
+        togglePosition="before"
+        [style.--checkbox-color]="item.color"
+      >
+        {{ item.name }}
+      </mat-list-option>
+
+      }
+    </mat-selection-list>
+  </div>
+
+  <full-calendar [options]="calendarOptions"></full-calendar>
+</div>
