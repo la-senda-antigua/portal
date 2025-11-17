@@ -1,19 +1,31 @@
 <div class="main-container">
   <div class="calendar-list">
-    My Calendars
-    <mat-icon class="add-button">add</mat-icon>
+    <div class="calendar-header">
+      <span>My Calendars</span>
+      <button mat-icon-button class="add-button" (click)="showModal()">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
 
     <mat-selection-list (selectionChange)="onCalendarSelectionChange($event)">
       @for (item of myCalendars; track item.id) {
-      <mat-list-option
-        [value]="item.id"
-        [selected]="selectedCalendars.includes(item.id!)"
-        togglePosition="before"
-        [style.--checkbox-color]="item.color"
-      >
-        {{ item.name }}
-      </mat-list-option>
-
+      <div class="calendar-item">
+        <mat-list-option
+          [value]="item.id"
+          [selected]="selectedCalendars.includes(item.id!)"
+          togglePosition="before"
+          [style.--checkbox-color]="item.color"
+        >
+          {{ item.name }}
+        </mat-list-option>
+        <button
+          mat-icon-button
+          class="more-options"
+          (click)="showCalendarOptions($event, item)"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </div>
       }
     </mat-selection-list>
   </div>

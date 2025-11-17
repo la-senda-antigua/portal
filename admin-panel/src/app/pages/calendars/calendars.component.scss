@@ -12,6 +12,43 @@
   position: relative;
 }
 
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.calendar-header span {
+  font-weight: 500;
+}
+
+.add-button {
+  width: 40px;
+  height: 40px;
+}
+
+
+.calendar-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.calendar-item mat-list-option {
+  flex: 1;
+}
+
+.more-options {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.calendar-item:hover .more-options {
+  opacity: 1;
+}
+
+
 full-calendar {
   flex: 1;
   overflow: auto;
@@ -30,6 +67,12 @@ full-calendar {
 .add-button:hover{
   background-color: #e0e0e0;
 }
+
+.fc-tooltip {
+  pointer-events: none;
+  max-width: 200px;
+}
+
 
 .mat-mdc-list-option {
   .mdc-checkbox {
