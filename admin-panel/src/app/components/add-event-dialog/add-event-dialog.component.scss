@@ -1,0 +1,9 @@
+.full-width{width: 100%;}
+.time-fields {
+  display: flex;
+  gap: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}

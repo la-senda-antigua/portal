@@ -27,6 +27,7 @@ import { EventInput } from '@fullcalendar/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
+import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -58,9 +59,9 @@ export class CalendarsComponent implements OnInit {
       minute: '2-digit' as const,
       hour12: false,
     },
-    eventMouseEnter: (info: any) => {
-      this.showToolTip(info);
-    },
+    eventMouseEnter: (info: any) => {this.showToolTip(info);},
+    eventClick: (info: any) => this.selectEvent(info),
+    dateClick: (inf: any) => this.openAddEventDialog(inf),
   };
 
   myCalendars: CalendarDto[] = [];
@@ -74,7 +75,7 @@ export class CalendarsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.reload()
+    this.reload();
   }
 
   reload() {
@@ -145,6 +146,7 @@ export class CalendarsComponent implements OnInit {
             extendedProps: {
               calendarId: e.calendarId,
               description: e.description,
+              id: e.id,
             },
           } as EventInput)
       );
@@ -155,12 +157,6 @@ export class CalendarsComponent implements OnInit {
       (option) => option.value
     );
     this.filterEvents();
-  }
-
-  goToDetails(data: any) {
-    this.router.navigate(['/calendars/details', data.id], {
-      state: { name: data.name },
-    });
   }
 
   showToolTip(info: any) {
@@ -243,7 +239,7 @@ export class CalendarsComponent implements OnInit {
       if (!result) return;
 
       const { data } = result;
-      const {name, id} = data;
+      const { name, id } = data;
       const selectedUsers = data.selectedUsers as PortalUser[];
       const members: CalendarMemberDto[] = selectedUsers
         .filter((u) => u.role === 'User')
@@ -272,11 +268,11 @@ export class CalendarsComponent implements OnInit {
 
       this.service.edit(calendar).subscribe({
         next: () => {
-          this.reload()
+          this.reload();
         },
-        error: (error)=> {
+        error: (error) => {
           console.error('Error updating calendar:', error);
-        }
+        },
       });
     });
   }
@@ -305,5 +301,48 @@ export class CalendarsComponent implements OnInit {
         });
       }
     });
+  }
+
+  openAddEventDialog(eventData?: any): void {
+    const dialogRef = this.dialog.open(AddEventDialogComponent, {
+      width: '400px',
+      data: { calendars: this.myCalendars, event: eventData },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log('el result', result);
+        console.log('el event data de regreso', eventData);
+        if (eventData) {
+          console.log('modificar evento');
+          // this.service.updateEvent(eventData.id, formattedResult).subscribe({
+          //   next: () => {
+          //     console.log('Evento actualizado exitosamente');
+          //     this.getMonthEvents({ view: { currentStart: new Date() } }); // Refrescar el calendario
+          //   },
+          //   error: (err) => {
+          //     console.error('Error al actualizar el evento:', err);
+          //   },
+          // });
+        } else {
+          // Aquí crearemos un nuevo evento
+          console.log('Nuevo evento:', result);
+        }
+      }
+    });
+  }
+
+  selectEvent(item: any) {
+    const event = {
+      id: item.event.extendedProps.id,
+      title: item.event.title,
+      description: item.event.extendedProps.description,
+      date: item.event.startStr.split('T')[0],
+      start: item.event.startStr.split('T')[1]?.substring(0, 5) || '',
+      end: item.event.endStr?.split('T')[1]?.substring(0, 5) || '',
+      calendarId: item.event.extendedProps.calendarId,
+    };
+    this.openAddEventDialog(event);
+    console.log(event);
   }
 }

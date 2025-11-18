@@ -205,6 +205,7 @@ namespace lsa_web_apis.Controllers
                 .OrderByDescending(e => e.EventDate)
                 .Select(e => new CalendarEventDto
                 {
+                    EventId = e.Id,
                     Title = e.Title,
                     Description = e.Description,
                     EventDate = e.EventDate,

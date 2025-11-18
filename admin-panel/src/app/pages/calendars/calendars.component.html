@@ -1,5 +1,9 @@
 <div class="main-container">
   <div class="calendar-list">
+    <button mat-raised-button color="primary" (click)="openAddEventDialog()">
+      Add Event
+    </button>
+
     <div class="calendar-header">
       <span>My Calendars</span>
       <button mat-icon-button class="add-button" (click)="openModal()">
@@ -31,4 +35,5 @@
   </div>
 
   <full-calendar [options]="calendarOptions"></full-calendar>
+
 </div>
