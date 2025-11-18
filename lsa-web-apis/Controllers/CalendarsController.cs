@@ -65,16 +65,69 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<Calendar>> Edit(Guid id, [FromBody] CalendarDto dto)
         {
-            var calendar = await _context.Calendars.FindAsync(id);
-            if (calendar is null)
-                return NotFound("Calendar not found.");
+            using var transaction = await _context.Database.BeginTransactionAsync();
+    
+            try
+            {
+                var calendar = await _context.Calendars.FindAsync(id);
+                if (calendar is null)
+                    return NotFound("Calendar not found.");
+        
+                calendar.Name = dto.Name;               
 
-            calendar.Name = dto.Name;
-            calendar.Active = dto.Active;
+                var managerIds = new HashSet<Guid>(dto.Managers?.Select(m => m.UserId) ?? new List<Guid>());
 
-            await _context.SaveChangesAsync();
-            return Ok(calendar);
+                // Remove existing members
+                var existingMembers = await _context.CalendarMembers
+                    .Where(cm => cm.CalendarId == id)
+                    .ToListAsync();
+                _context.CalendarMembers.RemoveRange(existingMembers);
+
+                // Remove existing managers
+                var existingManagers = await _context.CalendarManagers
+                    .Where(cm => cm.CalendarId == id)
+                    .ToListAsync();
+                _context.CalendarManagers.RemoveRange(existingManagers);
+
+                // Add new members (excluding those who are managers)
+                if (dto.Members != null && dto.Members.Any())
+                {
+                    var newMembers = dto.Members
+                        .Where(member => !managerIds.Contains(member.UserId))
+                        .Select(member => new CalendarMember
+                        {
+                            CalendarId = id,
+                            UserId = member.UserId
+                        }).ToList();
+            
+                    await _context.CalendarMembers.AddRangeAsync(newMembers);
+                }
+
+                // Add new managers
+                if (dto.Managers != null && dto.Managers.Any())
+                {
+                    var newManagers = dto.Managers.Select(member => new CalendarManager
+                    {
+                        CalendarId = id,
+                        UserId = member.UserId
+                    }).ToList();
+
+                    await _context.CalendarManagers.AddRangeAsync(newManagers);
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+        
+                return Ok();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, "An error occurred while updating the calendar.");
+            }
         }
+
+
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]

@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 
 import {
   FormBuilder,
@@ -21,16 +21,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { PreachersService } from '../../services/preachers.service';
 import { TableViewFormData } from '../table-view/table-view.component';
 import { AddPeopleFormComponent } from '../add-people-form/add-people-form.component';
 import { PortalUser } from '../../models/PortalUser';
+import { CalendarsService } from '../../services/calendars.service';
+import { MatProgressBar } from '@angular/material/progress-bar';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
     id?: string;
     name: string;
     description?: string | null;
+    selectedUsers?: PortalUser[];
   };
 }
 
@@ -48,27 +50,48 @@ export interface CalendarFormData extends TableViewFormData {
     MatIconModule,
     MatProgressSpinnerModule,
     TitleCasePipe,
+    MatProgressBar,
   ],
   templateUrl: './edit-calendar-form.component.html',
   styleUrl: './edit-calendar-form.component.scss',
   providers: [DatePipe],
 })
-export class EditCalendarFormComponent {
+export class EditCalendarFormComponent implements OnInit {
   readonly formBuilder = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<EditCalendarFormComponent>);
   readonly formData = inject<CalendarFormData>(MAT_DIALOG_DATA);
-  readonly preachersService = inject(PreachersService);
+  readonly calendarsService = inject(CalendarsService);
   readonly datePipe = inject(DatePipe);
   readonly dialog = inject(MatDialog);
   readonly calendarForm: FormGroup<{
     name: FormControl<string | null>;
   }>;
-
   selectedUsers: PortalUser[] = [];
+  loadingUsers = signal(true);
 
   constructor() {
     this.calendarForm = new FormGroup({
       name: new FormControl(this.formData.data.name, Validators.required),
+    });
+  }
+
+  ngOnInit(): void {
+    this.getDetails();
+  }
+
+  getDetails() {
+    this.loadingUsers.set(true);
+    this.calendarsService.getById(this.formData.data.id!).subscribe((data) => {
+      const members = data.members!.map((member) => ({
+        ...(member as PortalUser),
+        role: 'User',
+      }));
+      const managers = data.managers!.map((manager) => ({
+        ...(manager as PortalUser),
+        role: 'Manager',
+      }));
+      this.selectedUsers = [...members, ...managers];
+      this.loadingUsers.set(false);
     });
   }
 
@@ -91,13 +114,17 @@ export class EditCalendarFormComponent {
       data: {
         id: this.formData.data.id,
         name: this.calendarForm.controls.name.value!,
+        selectedUsers: this.selectedUsers,
       },
     };
   }
 
   openPeopleModal() {
     const dialogRef = this.dialog.open(AddPeopleFormComponent, {
-      data: { calendarId: this.formData.data.id },
+      data: {
+        calendarId: this.formData.data.id,
+        existingUsers: this.selectedUsers,
+      },
       width: '400px',
       height: 'auto',
       maxWidth: '90vw',
@@ -105,7 +132,11 @@ export class EditCalendarFormComponent {
 
     dialogRef.afterClosed().subscribe((selectedUsers) => {
       if (selectedUsers) {
-        this.selectedUsers = selectedUsers;
+        const existingUsers = this.selectedUsers
+        .filter((existing) => !selectedUsers
+        .some((selected: PortalUser) => selected.userId === existing.userId));
+
+        this.selectedUsers = [...existingUsers, ...selectedUsers];
       }
     });
   }

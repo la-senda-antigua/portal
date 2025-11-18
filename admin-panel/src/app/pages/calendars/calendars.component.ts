@@ -25,6 +25,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { EventInput } from '@fullcalendar/core';
 import { MatDialog } from '@angular/material/dialog';
+import { PortalUser } from '../../models/PortalUser';
+import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -72,6 +74,10 @@ export class CalendarsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.reload()
+  }
+
+  reload() {
     this.loadMyCaelndars().then(() => {
       const now = new Date();
       this.getMonthEvents({
@@ -121,7 +127,7 @@ export class CalendarsComponent implements OnInit {
         this.filterEvents();
       },
       error: (err) => {
-        console.log('error', err);
+        console.error('error', err);
       },
     });
   }
@@ -232,9 +238,46 @@ export class CalendarsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('Calendar updated:', result);
-      }
+      console.log('Calendar updated:', result);
+
+      if (!result) return;
+
+      const { data } = result;
+      const {name, id} = data;
+      const selectedUsers = data.selectedUsers as PortalUser[];
+      const members: CalendarMemberDto[] = selectedUsers
+        .filter((u) => u.role === 'User')
+        .map((u) => ({
+          calendarId: id,
+          userId: u.userId,
+          username: u.username,
+          role: u.role,
+        }));
+
+      const managers: CalendarMemberDto[] = selectedUsers
+        .filter((u) => u.role === 'Manager')
+        .map((u) => ({
+          calendarId: id,
+          userId: u.userId,
+          username: u.username,
+          role: u.role,
+        }));
+
+      const calendar: CalendarDto = {
+        id,
+        name,
+        members,
+        managers,
+      };
+
+      this.service.edit(calendar).subscribe({
+        next: () => {
+          this.reload()
+        },
+        error: (error)=> {
+          console.error('Error updating calendar:', error);
+        }
+      });
     });
   }
 

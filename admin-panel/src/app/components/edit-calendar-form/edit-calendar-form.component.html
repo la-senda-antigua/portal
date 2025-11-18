@@ -17,6 +17,11 @@
     </button>
 
     <div class="users-list">
+      <!-- agrega un loading -->
+      @if(loadingUsers()){
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      }
+
       @for(user of selectedUsers; track user.userId) {
       <div class="user-item">
         <div class="user-info">

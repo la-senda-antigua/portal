@@ -61,10 +61,6 @@ describe('EditPublicEventFormComponent', () => {
 
         // endTime should be set (defaults to start + 3 hours if undefined)
         const expectedEnd = component.addHours(baseData.data.startTime!, 3);
-
-        console.log('Expected end:', datePipe.transform(expectedEnd, 'yyyy-MM-dd hh:mm a'));
-        console.log('Actual end:', component.publicEventForm.controls.endTime.value);
-
         expect(component.publicEventForm.controls.endTime.value).toBe(
             datePipe.transform(expectedEnd, 'yyyy-MM-dd hh:mm a')
         );

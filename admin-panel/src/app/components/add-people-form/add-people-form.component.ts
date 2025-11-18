@@ -47,12 +47,14 @@ export class AddPeopleFormComponent {
 
   constructor(
     public dialogRef: MatDialogRef<AddPeopleFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { calendarId: string },
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      calendarId: string;
+      existingUsers?: PortalUser[];
+    },
     private usersService: UsersService
   ) {
-    // Carga inicial de usuarios
     this.usersService.getAll().subscribe((result) => {
-      console.log('todos los usuarios', result);
       this.allUsers = result;
     });
 
@@ -67,10 +69,16 @@ export class AddPeopleFormComponent {
       typeof value === 'string'
         ? value.toLowerCase()
         : value.username.toLowerCase();
+
+    const existingUserIds = [
+      ...this.selectedUsers,
+      ...(this.data.existingUsers || []),
+    ].map((user) => user.userId);
+
     return this.allUsers.filter(
       (user) =>
         user.username.toLowerCase().includes(filterValue) &&
-        !this.selectedUsers.some((selected) => selected.userId === user.userId)
+        !existingUserIds.includes(user.userId)
     );
   }
 
