@@ -16,10 +16,7 @@
     >
       <mat-option *ngFor="let user of filteredUsers | async" [value]="user">
         <div class="user-option">
-          <div
-            class="user-avatar"
-            [style.background-color]="getRandomColor(user.userId)"
-          >
+          <div class="user-avatar" [style.background-color]="getRandomColor(user.userId)">
             {{ user.username.charAt(0).toUpperCase() }}
           </div>
           <div class="user-info">
@@ -31,22 +28,28 @@
     </mat-autocomplete>
   </mat-form-field>
 
-  <mat-chip-listbox>
-    <mat-chip-row *ngFor="let user of selectedUsers" (removed)="remove(user)">
+  <div class="chip-container">
+    <div class="chip" *ngFor="let user of selectedUsers">
       <div class="chip-content">
-        <div class="chip-avatar" [style.background-color]="getRandomColor(user.userId)">
+        <div
+          class="chip-avatar"
+          [style.background-color]="getRandomColor(user.userId)"
+        >
           {{ getInitial(user) }}
         </div>
         <span class="chip-text">{{ getDisplayName(user) }}</span>
       </div>
-      <mat-icon matChipRemove>cancel</mat-icon>
-    </mat-chip-row>
-  </mat-chip-listbox>
+      <button class="remove-btn" (click)="remove(user)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
 </mat-dialog-content>
 
 <mat-dialog-actions>
   <button mat-button (click)="close()">Cancel</button>
   <button mat-button (click)="save()" [disabled]="!selectedUsers.length">
-    Share
+    Ok
   </button>
 </mat-dialog-actions>

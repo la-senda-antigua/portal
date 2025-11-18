@@ -65,8 +65,11 @@ export class CalendarsComponent implements OnInit {
   selectedCalendars: string[] = [];
   private allEvents: any[] = [];
 
-  constructor(private service: CalendarsService, private router: Router, public dialog: MatDialog) {
-  }
+  constructor(
+    private service: CalendarsService,
+    private router: Router,
+    public dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.loadMyCaelndars().then(() => {
@@ -193,7 +196,7 @@ export class CalendarsComponent implements OnInit {
     if (left + 200 > window.innerWidth) {
       left = info.jsEvent.pageX - 210;
     }
-    if (top + 100 > window.innerHeight) {
+    if (top + 200 > window.innerHeight) {
       top = info.jsEvent.pageY - 110;
     }
 
@@ -213,28 +216,27 @@ export class CalendarsComponent implements OnInit {
   }
 
   showCalendarOptions(event: MouseEvent, calendar: CalendarDto) {
-  event.stopPropagation();
+    event.stopPropagation();
 
-  const dialogRef = this.dialog.open(EditCalendarFormComponent, {
-    data: {
-      mode: 'edit',
-      type: 'calendar',
+    const dialogRef = this.dialog.open(EditCalendarFormComponent, {
+      width: '450px',
+      maxHeight: '80vh',
       data: {
-        id: calendar.id,
-        name: calendar.name,
+        mode: 'edit',
+        type: 'calendar',
+        data: {
+          id: calendar.id,
+          name: calendar.name,
+        },
+      } as CalendarFormData,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log('Calendar updated:', result);
       }
-    } as CalendarFormData
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      // Aquí puedes manejar la actualización del calendario
-      console.log('Calendar updated:', result);
-      // Por ejemplo: this.updateCalendar(result);
-    }
-  });
-}
-
+    });
+  }
 
   openModal() {
     const dialogRef = this.dialog.open(EditCalendarFormComponent, {
@@ -247,7 +249,17 @@ export class CalendarsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        console.log('Form data:', result);
+        const { data } = result;
+        this.service.add(data).subscribe({
+          next: () => {
+            const calendarWithColor = {
+              ...data,
+              color: this.service.getCalendarColor(data.id!),
+            };
+            this.myCalendars.push(calendarWithColor);
+            this.selectedCalendars.push(data.id);
+          },
+        });
       }
     });
   }

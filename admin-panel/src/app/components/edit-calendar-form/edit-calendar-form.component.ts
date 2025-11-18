@@ -24,6 +24,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { PreachersService } from '../../services/preachers.service';
 import { TableViewFormData } from '../table-view/table-view.component';
 import { AddPeopleFormComponent } from '../add-people-form/add-people-form.component';
+import { PortalUser } from '../../models/PortalUser';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
@@ -59,10 +60,11 @@ export class EditCalendarFormComponent {
   readonly preachersService = inject(PreachersService);
   readonly datePipe = inject(DatePipe);
   readonly dialog = inject(MatDialog);
-
   readonly calendarForm: FormGroup<{
     name: FormControl<string | null>;
   }>;
+
+  selectedUsers: PortalUser[] = [];
 
   constructor() {
     this.calendarForm = new FormGroup({
@@ -96,13 +98,46 @@ export class EditCalendarFormComponent {
   openPeopleModal() {
     const dialogRef = this.dialog.open(AddPeopleFormComponent, {
       data: { calendarId: this.formData.data.id },
+      width: '400px',
+      height: 'auto',
+      maxWidth: '90vw',
     });
 
     dialogRef.afterClosed().subscribe((selectedUsers) => {
       if (selectedUsers) {
-        // Aquí manejas los usuarios seleccionados
-        console.log('Selected users:', selectedUsers);
+        this.selectedUsers = selectedUsers;
       }
     });
+  }
+
+  getRandomColor(userId: string): string {
+    const colors = [
+      '#f44336',
+      '#e91e63',
+      '#9c27b0',
+      '#673ab7',
+      '#3f51b5',
+      '#2196f3',
+      '#03a9f4',
+      '#00bcd4',
+      '#009688',
+      '#4caf50',
+    ];
+    const index = userId
+      .split('')
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return colors[index % colors.length];
+  }
+
+  getInitial(user: PortalUser): string {
+    const name = user.name || user.username;
+    return name.charAt(0).toUpperCase();
+  }
+
+  remove(user: PortalUser): void {
+    const index = this.selectedUsers.indexOf(user);
+    if (index >= 0) {
+      this.selectedUsers.splice(index, 1);
+    }
   }
 }

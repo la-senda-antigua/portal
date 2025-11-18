@@ -67,8 +67,10 @@ export class AddPeopleFormComponent {
       typeof value === 'string'
         ? value.toLowerCase()
         : value.username.toLowerCase();
-    return this.allUsers.filter((user) =>
-      user.username.toLowerCase().includes(filterValue)
+    return this.allUsers.filter(
+      (user) =>
+        user.username.toLowerCase().includes(filterValue) &&
+        !this.selectedUsers.some((selected) => selected.userId === user.userId)
     );
   }
 
@@ -93,20 +95,12 @@ export class AddPeopleFormComponent {
 
   getRandomColor(userId: string): string {
     const colors = [
-      '#F44336',
-      '#E91E63',
       '#9C27B0',
       '#673AB7',
       '#3F51B5',
-      '#2196F3',
-      '#03A9F4',
-      '#00BCD4',
       '#009688',
       '#4CAF50',
       '#8BC34A',
-      '#CDDC39',
-      '#FFEB3B',
-      '#FFC107',
       '#FF9800',
       '#FF5722',
     ];
@@ -130,6 +124,9 @@ export class AddPeopleFormComponent {
   }
 
   save() {
+    this.selectedUsers.forEach((element) => {
+      element.role = 'User';
+    });
     this.dialogRef.close(this.selectedUsers);
   }
 

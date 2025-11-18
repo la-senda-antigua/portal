@@ -15,8 +15,36 @@
       <mat-icon>add</mat-icon>
       add people or group
     </button>
-    }
 
+    <div class="users-list">
+      @for(user of selectedUsers; track user.userId) {
+      <div class="user-item">
+        <div class="user-info">
+          <div
+            class="avatar"
+            [style.background-color]="getRandomColor(user.userId)"
+          >
+            {{ getInitial(user) }}
+          </div>
+          <div class="user-details">
+            <div class="name">{{ user.name || user.username }}</div>
+            <div class="username">{{ user.username }}</div>
+          </div>
+        </div>
+        <mat-form-field class="role-select">
+          <mat-select [(value)]="user.role">
+            <mat-option value="User">User</mat-option>
+            <mat-option value="Manager">Manager</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button (click)="remove(user)" class="remove-btn">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      }
+    </div>
+
+    }
   </mat-card-content>
   <mat-card-actions align="end">
     <button mat-button type="button" (click)="close()">Cancel</button>

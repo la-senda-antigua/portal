@@ -4,7 +4,7 @@
 }
 
 mat-form-field {
-  width: 300px;
+  width: 100%;
 }
 
 button {
@@ -54,30 +54,85 @@ button {
   color: rgba(0, 0, 0, 0.54);
 }
 
-mat-chip-row.mat-mdc-chip-row {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  border-radius: 16px;
+.chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  padding: 6px;
   margin: 4px;
+  cursor: default;
+  transition: all 0.2s ease;
+}
 
-  .chip-content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.chip:hover {
+  background-color: #e0e0e0;
+}
 
-  .chip-avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    color: white;
-    font-size: 12px;
-    text-align: center;
-    line-height: 24px;
-  }
+.chip-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .chip-text {
-    font-size: 14px;
-  }
+.chip-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  text-align: center;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+.chip-text {
+  font-size: 14px;
+  color: #333;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: color 0.2s ease;
+  outline: none;
+}
+
+.remove-btn:hover {
+  color: #333;
+}
+
+.remove-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+}
+
+.modal-content {
+  overflow: visible;
+  width: 100%;
+}
+
+.modal-dialog {
+  height: auto !important;
+  max-height: none !important;
 }
