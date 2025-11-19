@@ -3,8 +3,8 @@ export interface CalendarEvent {
   title: string;
   description?: string | null;
   eventDate: string;
-  startTime?: string | null;
-  endTime?: string | null;
+  start?: string | null;
+  end?: string | null;
   backgroundColor?: string;
   calendarId: string;
 }

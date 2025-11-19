@@ -65,15 +65,19 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<Calendar>> Edit(Guid id, [FromBody] CalendarDto dto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-    
+            // Solo usar transacciones si no estamos en modo de prueba
+            var useTransaction = !_context.Database.IsInMemory();
+            if (useTransaction)
+                await _context.Database.BeginTransactionAsync();
+
             try
             {
                 var calendar = await _context.Calendars.FindAsync(id);
                 if (calendar is null)
                     return NotFound("Calendar not found.");
-        
-                calendar.Name = dto.Name;               
+
+                calendar.Name = dto.Name;
+                calendar.Active = dto.Active;
 
                 var managerIds = new HashSet<Guid>(dto.Managers?.Select(m => m.UserId) ?? new List<Guid>());
 
@@ -99,7 +103,7 @@ namespace lsa_web_apis.Controllers
                             CalendarId = id,
                             UserId = member.UserId
                         }).ToList();
-            
+
                     await _context.CalendarMembers.AddRangeAsync(newMembers);
                 }
 
@@ -116,18 +120,19 @@ namespace lsa_web_apis.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-        
-                return Ok();
+
+                if (useTransaction)
+                    await _context.Database.CommitTransactionAsync();
+
+                return Ok(calendar);
             }
             catch
             {
-                await transaction.RollbackAsync();
+                if (useTransaction)
+                    await _context.Database.RollbackTransactionAsync();
                 return StatusCode(500, "An error occurred while updating the calendar.");
             }
         }
-
-
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
@@ -195,38 +200,13 @@ namespace lsa_web_apis.Controllers
             return Ok(calendar);
         }
 
-        [HttpGet("{id}/events")]
-        [Authorize(Roles = "Admin,CalendarManager")]
-        public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetUpcomingEvents(Guid id, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
-        {
-            var now = DateTime.UtcNow;
-            var pagedEvents = await _context.CalendarEvents
-                .Where(e => e.CalendarId == id)
-                .OrderByDescending(e => e.EventDate)
-                .Select(e => new CalendarEventDto
-                {
-                    EventId = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    EventDate = e.EventDate,
-                    CalendarId = e.CalendarId,                    
-                    StartTime = e.StartTime,
-                    EndTime = e.EndTime,
-                    AlertDate = e.AlertDate
-                })
-                .ToPagedResultAsync(page, pageSize);
-                
-
-            return Ok(pagedEvents);
-        }
-
         [HttpGet("events")]
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetMonthEvents(int month, int year)
         {
-            var query = _context.CalendarEvents.Where(e=> e.EventDate.Month ==month && e.EventDate.Year == year);
+            var query = _context.CalendarEvents.Where(e => e.EventDate.Month == month && e.EventDate.Year == year);
             if (!User.IsInRole("Admin"))
-            {                
+            {
                 var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 query = query.Where(e => e.Calendar.Managers.Any(m => m.UserId == userId));
             }
@@ -234,70 +214,7 @@ namespace lsa_web_apis.Controllers
             return Ok(result);
         }
 
-        public record AddMemberRequest(Guid CalendarId, Guid UserId);
 
-        [HttpPost]
-        [Authorize(Roles = "Admin,CalendarManager")]
-        [Route("addMember")]
-        public async Task<ActionResult> AddMember(AddMemberRequest request)
-        {
-            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
-            if (calendar is null)
-                return NotFound("Calendar not found.");
-
-            var user = await _context.PortalUsers.FindAsync(request.UserId);
-            if (user is null)
-                return NotFound("User not found.");
-
-            var existingMember = await _context.CalendarMembers
-                .FirstOrDefaultAsync(cm => cm.CalendarId == request.CalendarId && cm.UserId == request.UserId);
-            if (existingMember is not null)
-                return BadRequest("User is already a member of this calendar.");
-
-            var calendarMember = new CalendarMember
-            {
-                CalendarId = request.CalendarId,
-                UserId = request.UserId
-            };
-            _context.CalendarMembers.Add(calendarMember);
-            await _context.SaveChangesAsync();
-
-            return Ok();
-        }
-        
-        [HttpPost]
-        [Authorize(Roles = "Admin,CalendarManager")]
-        [Route("removeMember")]
-        public async Task<ActionResult> RemoveMember(AddMemberRequest request)
-        {
-            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
-            if (calendar is null)
-                return NotFound("Calendar not found.");
-
-            var user = await _context.PortalUsers.FindAsync(request.UserId);
-            if (user is null)
-                return NotFound("User not found.");
-           
-            var existingMember = await _context.CalendarMembers
-                .FirstOrDefaultAsync(
-                    cm => cm.CalendarId == request.CalendarId
-                    && cm.UserId == request.UserId
-                );
-            
-            if (existingMember is null)
-                return Ok("User is already removed.");
-
-            var calendarMember = new CalendarMember
-            {
-                CalendarId = request.CalendarId,
-                UserId = request.UserId
-            };
-            _context.CalendarMembers.Remove(existingMember!);
-            await _context.SaveChangesAsync();
-
-            return Ok();
-        }
-        
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
         [Route("addEvent")]
@@ -305,21 +222,46 @@ namespace lsa_web_apis.Controllers
         {
             var calendar = await _context.Calendars.FindAsync(request.CalendarId);
             if (calendar is null) return NotFound("Calendar not found.");
-            
+
             var calendarEvent = new CalendarEvent
             {
                 Title = request.Title,
                 Description = request.Description,
                 EventDate = request.EventDate,
-                CalendarId = request.CalendarId,                
-                StartTime = request.StartTime,
-                EndTime = request.EndTime                
+                CalendarId = request.CalendarId,
+                StartTime = request.Start,
             };
-            
+
+            if (request.End.HasValue) { calendarEvent.EndTime = request.End.Value; }
+
             _context.CalendarEvents.Add(calendarEvent);
             await _context.SaveChangesAsync();
 
             return Ok();
         }
+
+        [HttpPut]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        [Route("updateEvent")]
+        public async Task<ActionResult> UpdateEvent(CalendarEventDto request)
+        {
+            var existingEvent = await _context.CalendarEvents.FindAsync(request.Id);
+            if (existingEvent is null) return NotFound("Event not found.");
+
+            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+            if (calendar is null) return NotFound("Calendar not found.");
+
+            existingEvent.Id = request.Id!.Value;
+            existingEvent.Title = request.Title;
+            existingEvent.Description = request.Description;
+            existingEvent.EventDate = request.EventDate;
+            existingEvent.CalendarId = request.CalendarId;
+            existingEvent.StartTime = request.Start;
+            if (request.End.HasValue) { existingEvent.EndTime = request.End.Value; }
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
     }
 }

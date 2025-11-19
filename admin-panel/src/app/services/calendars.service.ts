@@ -68,8 +68,13 @@ export class CalendarsService extends GeneralServiceBase {
   }
 
   updateEvent(item: CalendarEvent): Observable<void> {
-    const url = `${this.apiUrl}/updateEvent/${item.id}`;
+    const url = `${this.apiUrl}/updateEvent`;
     return this.requestManager.put<void>(url, item);
+  }
+
+  addEvent(item: CalendarEvent): Observable<void> {
+    const url = `${this.apiUrl}/addEvent`;
+    return this.requestManager.post<void>(url, item);
   }
 
   private colors = [

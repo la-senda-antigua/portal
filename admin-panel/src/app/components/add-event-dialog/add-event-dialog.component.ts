@@ -54,13 +54,15 @@ export class AddEventDialogComponent {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = today.getFullYear() + '-' +
+    String(today.getMonth() + 1).padStart(2, '0') + '-' +
+    String(today.getDate()).padStart(2, '0');
 
     this.eventForm = this.fb.group({
       id: [data.event?.id || null],
       title: [data.event?.title || '', Validators.required],
       description: [data.event?.description || ''],
-      date: [data.event?.dateStr || todayStr, Validators.required],
+      date: [data.event?.dateStr || data.event?.date || todayStr, Validators.required],
 
       start: [data.event?.start || '10:00', Validators.required],
       end: [data.event?.end || ''],

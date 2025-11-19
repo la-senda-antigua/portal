@@ -1,7 +1,8 @@
 <div class="main-container">
   <div class="calendar-list">
-    <button mat-raised-button color="primary" (click)="openAddEventDialog()">
+    <button mat-raised-button color="primary" (click)="openAddEventDialog()" class="full-width add-event-button">
       Add Event
+      <mat-icon>add</mat-icon>
     </button>
 
     <div class="calendar-header">
@@ -34,6 +35,10 @@
     </mat-selection-list>
   </div>
 
-  <full-calendar [options]="calendarOptions"></full-calendar>
+
+    @if(isLoading()){
+    <mat-progress-bar mode="indeterminate" class="progress-bar"></mat-progress-bar>
+    }
+    <full-calendar [options]="calendarOptions"></full-calendar>
 
 </div>

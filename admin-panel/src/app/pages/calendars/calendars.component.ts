@@ -28,6 +28,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
+import { MatProgressBar } from '@angular/material/progress-bar';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -38,6 +39,7 @@ import { AddEventDialogComponent } from '../../components/add-event-dialog/add-e
     MatCheckboxModule,
     MatIconModule,
     MatButtonModule,
+    MatProgressBar,
   ],
   templateUrl: './calendars.component.html',
   styleUrl: './calendars.component.scss',
@@ -59,9 +61,14 @@ export class CalendarsComponent implements OnInit {
       minute: '2-digit' as const,
       hour12: false,
     },
-    eventMouseEnter: (info: any) => {this.showToolTip(info);},
+    eventMouseEnter: (info: any) => {
+      this.showToolTip(info);
+    },
     eventClick: (info: any) => this.selectEvent(info),
     dateClick: (inf: any) => this.openAddEventDialog(inf),
+    loading: (isLoading: boolean) => {
+      this.isLoading.set(isLoading);
+    },
   };
 
   myCalendars: CalendarDto[] = [];
@@ -79,6 +86,7 @@ export class CalendarsComponent implements OnInit {
   }
 
   reload() {
+    this.isLoading.set(true);
     this.loadMyCaelndars().then(() => {
       const now = new Date();
       this.getMonthEvents({
@@ -86,11 +94,11 @@ export class CalendarsComponent implements OnInit {
           currentStart: new Date(now.getFullYear(), now.getMonth()),
         },
       });
+      this.isLoading.set(false);
     });
   }
 
   async loadMyCaelndars(): Promise<void> {
-    this.isLoading.set(true);
     return new Promise((resolve) => {
       this.service.getMyCalendars().subscribe({
         next: (response) => {
@@ -105,13 +113,11 @@ export class CalendarsComponent implements OnInit {
 
           this.myCalendars = items;
           this.selectedCalendars = items.map((item) => item.id!);
-          this.isLoading.set(false);
           resolve();
         },
         error: (err) => {
           this.myCalendars = [];
           this.selectedCalendars = [];
-          this.isLoading.set(false);
           resolve();
         },
       });
@@ -119,6 +125,7 @@ export class CalendarsComponent implements OnInit {
   }
 
   getMonthEvents(dateInfo: any) {
+    this.isLoading.set(true);
     const month = dateInfo.view.currentStart.getMonth() + 1;
     const year = dateInfo.view.currentStart.getFullYear();
 
@@ -126,9 +133,11 @@ export class CalendarsComponent implements OnInit {
       next: (response) => {
         this.allEvents = response;
         this.filterEvents();
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('error', err);
+        this.isLoading.set(false);
       },
     });
   }
@@ -310,24 +319,40 @@ export class CalendarsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        console.log('el result', result);
-        console.log('el event data de regreso', eventData);
-        if (eventData) {
-          console.log('modificar evento');
-          // this.service.updateEvent(eventData.id, formattedResult).subscribe({
-          //   next: () => {
-          //     console.log('Evento actualizado exitosamente');
-          //     this.getMonthEvents({ view: { currentStart: new Date() } }); // Refrescar el calendario
-          //   },
-          //   error: (err) => {
-          //     console.error('Error al actualizar el evento:', err);
-          //   },
-          // });
-        } else {
-          // Aquí crearemos un nuevo evento
-          console.log('Nuevo evento:', result);
-        }
+      if (!result) {return;}
+
+      if (result.start){result.start = result.start + ':00';}
+      if (result.end){
+        result.end = result.end + ':00';
+      } else {
+        result.end = null;
+      }
+
+      result.eventDate = result.date;
+      this.isLoading.set(true);
+
+      if (result.id) {
+        this.service.updateEvent(result).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.getMonthEvents({ view: { currentStart: new Date() } });
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            console.error('Error al actualizar el evento:', err);
+          },
+        });
+      } else {
+        this.service.addEvent(result).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.getMonthEvents({ view: { currentStart: new Date() } });
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            console.error('Error al agregar el evento:', err);
+          },
+        });
       }
     });
   }
@@ -343,6 +368,5 @@ export class CalendarsComponent implements OnInit {
       calendarId: item.event.extendedProps.calendarId,
     };
     this.openAddEventDialog(event);
-    console.log(event);
   }
 }
