@@ -14,7 +14,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 import { MatDialog } from '@angular/material/dialog';
-import { Location, NgIf } from '@angular/common';
 import { MatDividerModule } from '@angular/material/divider';
 import {
   MatPaginator,
@@ -29,6 +28,7 @@ import { DisableConfirmationComponent, DisableConfirmationData } from '../disabl
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ArrayToStringPipe } from "../../pipes/array-to-string.pipe";
 import { MatChipsModule } from '@angular/material/chips';
 
 export enum TableViewType {
@@ -78,8 +78,7 @@ export interface TableViewFormData {
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule, MatChipsModule,
-    NgIf
+    FormsModule,MatChipsModule
 ],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',
@@ -111,11 +110,6 @@ export class TableViewComponent {
   readonly showDisableButton = input<boolean>(false);
   /** Whether or not to show the details button  */
   readonly showDetailsButton = input<boolean>(false);
-  readonly detailsLabel = input<string>('Details');
-  /** Whether or not to show the settings button  */
-  readonly showSettingsButton = input<boolean>(false);
-  /** Whether or not to show the goback button  */
-  readonly showBackButton = input<boolean>(true);
 
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
@@ -130,10 +124,6 @@ export class TableViewComponent {
 
     if (this.showDetailsButton()){
       cols.push('details')
-    }
-
-    if (this.showSettingsButton()){
-      cols.push('settings')
     }
 
     return cols;
@@ -151,16 +141,15 @@ export class TableViewComponent {
   readonly disableRequest = output<string>();
   /** Emits the Id to details.  */
   readonly detailsRequest = output<string>();
-  /** Emits the Id to settings.  */
-  readonly settingsRequest = output<string>();
 
   readonly onSearch = output<any>();
   readonly dialog = inject(MatDialog);
 
   tableDatasource?: MatTableDataSource<any>;
+
   searchTerm: string = '';
 
-  constructor(private changeDetector: ChangeDetectorRef, private location: Location) {
+  constructor(private changeDetector: ChangeDetectorRef) {
     effect(() => {
       if (this.datasource && this.datasource()) {
         this.tableDatasource = new MatTableDataSource(this.datasource().items);
@@ -176,10 +165,6 @@ export class TableViewComponent {
         }
       }
     });
-  }
-
-  goBack(){
-    this.location.back();
   }
 
   openCreateForm() {
@@ -245,10 +230,6 @@ export class TableViewComponent {
   }
 
   goToDetails(entry: any){
-    this.detailsRequest.emit(entry)
-  }
-
-  openSettings(entry: any){
     this.detailsRequest.emit(entry)
   }
 
