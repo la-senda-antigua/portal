@@ -15,7 +15,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { provideNativeDateAdapter } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
 import { CalendarDto } from '../../models/CalendarDto';
 
@@ -29,7 +28,7 @@ export interface DialogData {
   templateUrl: './add-event-dialog.component.html',
   styleUrls: ['./add-event-dialog.component.scss'],
   standalone: true,
-  providers: [provideNativeDateAdapter()],
+  providers: [],
   imports: [
     CommonModule,
     ReactiveFormsModule,
