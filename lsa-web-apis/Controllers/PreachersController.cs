@@ -38,7 +38,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<PagedResult<Preacher>>> GetAllPreachers()
+        public async Task<ActionResult<List<Preacher>>> GetAllPreachers()
         {
 
             var pagedResult = await _context.Preachers
