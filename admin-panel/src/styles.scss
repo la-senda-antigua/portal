@@ -1,4 +1,3 @@
-/* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
@@ -13,7 +12,7 @@ mat-icon {
 }
 
 
-.dialog-container{  
+.dialog-container{
   padding: 16px;
   min-width: 400px;
 }
@@ -30,5 +29,34 @@ mat-icon {
 app-logout{
   position: absolute;
   top: 8px;
-  right: 8px;  
+  right: 8px;
 }
+
+.mat-mdc-form-field-icon-suffix {
+  display: flex;
+  align-items: center;
+}
+
+.mat-mdc-form-field-icon-suffix > .mat-icon {
+  padding: 0 12px;
+  line-height: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mat-mdc-form-field-icon-suffix > .mat-progress-spinner {
+  padding: 8px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mat-mdc-form-field-icon-suffix > .mat-progress-spinner svg {
+  display: block;
+}
+
+
+.full-width{width: 100%;}

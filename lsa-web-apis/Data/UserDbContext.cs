@@ -17,6 +17,18 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.Entity<CalendarEvent>()
+            .Property(e => e.StartTime)
+            .HasConversion<TimeSpan?>(
+                timeOnly => timeOnly.HasValue ? timeOnly.Value.ToTimeSpan() : (TimeSpan?)null,
+                timeSpan => timeSpan.HasValue ? TimeOnly.FromTimeSpan(timeSpan.Value) : (TimeOnly?)null);
+
+        modelBuilder.Entity<CalendarEvent>()
+            .Property(e => e.EndTime)
+            .HasConversion<TimeSpan?>(
+                timeOnly => timeOnly.HasValue ? timeOnly.Value.ToTimeSpan() : (TimeSpan?)null,
+                timeSpan => timeSpan.HasValue ? TimeOnly.FromTimeSpan(timeSpan.Value) : (TimeOnly?)null);
 
         modelBuilder.Entity<CalendarManager>()
             .HasKey(cm => new { cm.CalendarId, cm.UserId });

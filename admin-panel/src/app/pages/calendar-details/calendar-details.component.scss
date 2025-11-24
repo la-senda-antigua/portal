@@ -1,0 +1,40 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 10px;
+  .spacer {
+    flex: 1;
+  }
+}
+.plus-icon{
+  font-size: 24px;
+}
+
+.members-section {
+  margin-top: 12px;
+
+  .member-input {
+    width: 100%;
+    max-width: 420px;
+    display: block;
+  }
+
+  mat-chip {
+    margin: 4px 6px 4px 0;
+  }
+}
+
+.loagind-field{
+  margin-right: 10px;
+}

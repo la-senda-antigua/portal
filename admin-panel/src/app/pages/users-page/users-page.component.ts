@@ -62,7 +62,7 @@ export class UsersPageComponent extends PageBaseComponent {
     this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
         const users = response.items.map((u: PortalUser) => ({
-          id: u.id,
+          id: u.userId,
           username: u.username,
           role: u.role,
           calendarsAsManager: u.calendarsAsManager,
@@ -91,7 +91,7 @@ export class UsersPageComponent extends PageBaseComponent {
       calendarsAsMember: form.data.calendarsAsMember,
     } as PortalUser;
 
-    if (form.data.id) item.id = form.data.id;
+    if (form.data.id) item.userId = form.data.id;
 
     return item;
   }
@@ -102,7 +102,7 @@ export class UsersPageComponent extends PageBaseComponent {
     this.service.search(searchTerm, page, pageSize).subscribe({
       next: (response) => {
         const users = response.items.map((u: PortalUser) => ({
-          id: u.id,
+          userId: u.userId,
           username: u.username,
           role: u.role,
           calendarsAsManager: u.calendarsAsManager,

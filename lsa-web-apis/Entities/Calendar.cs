@@ -19,8 +19,6 @@
         public DateTime EventDate { get; set; }
         public Guid CalendarId { get; set; }
         public Calendar Calendar { get; set; } = null!;
-
-        public DateOnly? Date { get; set; }
         public TimeOnly? StartTime { get; set; }
         public TimeOnly? EndTime { get; set; }
         public DateTime? AlertDate { get; set; }
