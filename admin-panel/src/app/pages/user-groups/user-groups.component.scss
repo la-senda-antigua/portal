@@ -8,6 +8,22 @@
   height: 60px;
 }
 
+.add-button{
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin: 16px;
+
+  & .plus-icon{
+    font-size: 24px;
+  }
+}
+
+.user-list{
+  height: 100%;
+  overflow-y: auto;
+}
+
 .container{
   display: flex;
 }
@@ -122,3 +138,4 @@
   height: 18px;
   line-height: 18px;
 }
+

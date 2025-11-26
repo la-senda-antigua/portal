@@ -13,4 +13,18 @@ export class UserGroupsService extends GeneralServiceBase {
     const url = `${this.apiUrl}/getAll`;
     return this.requestManager.get<UserGroup[]>(url);
   }
+
+    override add(item: UserGroup): Observable<UserGroup> {
+      return this.requestManager.post<UserGroup>(this.apiUrl, item);
+    }
+
+    override edit(item: UserGroup): Observable<UserGroup> {
+      const url = `${this.apiUrl}/${item.userId}`;
+      return this.requestManager.put<UserGroup>(url, item);
+    }
+
+    override delete(id: number): Observable<void> {
+      const url = `${this.apiUrl}/${id}`;
+      return this.requestManager.delete<void>(url);
+    }
 }

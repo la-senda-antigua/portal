@@ -1,7 +1,7 @@
 export interface UserGroup{
-  userId: string;
+  userId?: string;
   groupName: string;
-  members: UserGroupMember[];
+  members?: UserGroupMember[];
 
 }
 

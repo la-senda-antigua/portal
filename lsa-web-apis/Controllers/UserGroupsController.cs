@@ -82,17 +82,12 @@ namespace lsa_web_apis.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] UserGroupDto dto)
         {
-            // Use transactions if not in UnitTests
-            var useTransaction = !_context.Database.IsInMemory();
-            if (useTransaction)
-                await _context.Database.BeginTransactionAsync();
-
+            Console.WriteLine("Creating user group");
             try
             {
                 var group = _context.UserGroups.Add(new UserGroup { GroupName = dto.GroupName, Active = true });
-
                 await _context.SaveChangesAsync();
-                return Ok();
+                return Ok(dto);
             }
             catch (Exception ex)
             {

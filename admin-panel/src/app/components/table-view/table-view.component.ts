@@ -28,7 +28,6 @@ import { DisableConfirmationComponent, DisableConfirmationData } from '../disabl
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { ArrayToStringPipe } from "../../pipes/array-to-string.pipe";
 import { MatChipsModule } from '@angular/material/chips';
 
 export enum TableViewType {
