@@ -87,7 +87,7 @@ export const routes: Routes = [
     data: { roles: ['Admin', 'CalendarManager'] }
   },
   {
-    path: 'calendars/userGroups',
+    path: 'userGroups',
     component: UserGroupsComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Admin', 'CalendarManager'] }

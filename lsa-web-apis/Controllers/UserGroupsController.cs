@@ -14,7 +14,7 @@ namespace lsa_web_apis.Controllers
     public class UserGroupsController(UserDbContext _context) : ControllerBase
     {
         [Authorize(Roles = "Admin,CalendarManager")]
-        [HttpGet]
+        [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<UserGroupDto>>> Get()
         {
             try
@@ -44,15 +44,15 @@ namespace lsa_web_apis.Controllers
         }
 
         [Authorize(Roles = "Admin,CalendarManager")]
-        [HttpGet]
-        public async  Task<ActionResult<UserGroupDto>> Get(Guid id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserGroupDto>> Get(Guid id)
         {
             try
             {
                 var group = await _context.UserGroups
                     .Include(ug => ug.Members)
                     .ThenInclude(m => m.User)
-                    .Where(ug=> ug.Id == id)
+                    .Where(ug => ug.Id == id)
                     .Select(ug => new UserGroupDto
                     {
                         Id = ug.Id,
@@ -65,8 +65,9 @@ namespace lsa_web_apis.Controllers
                         }).ToList()
                     }).FirstAsync();
 
-                if (group == null){ 
-                    NotFound(); 
+                if (group == null)
+                {
+                    NotFound();
                 }
 
                 return Ok(group);
@@ -81,7 +82,6 @@ namespace lsa_web_apis.Controllers
         [HttpPost]
         public async Task<ActionResult> Create([FromBody] UserGroupDto dto)
         {
-            // members are not required, but if it has, they should be saved
             // Use transactions if not in UnitTests
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction)
@@ -89,7 +89,7 @@ namespace lsa_web_apis.Controllers
 
             try
             {
-                var group = _context.UserGroups.Add(new UserGroup { GroupName = dto.GroupName , Active = true});
+                var group = _context.UserGroups.Add(new UserGroup { GroupName = dto.GroupName, Active = true });
 
                 await _context.SaveChangesAsync();
                 return Ok();
@@ -101,33 +101,109 @@ namespace lsa_web_apis.Controllers
         }
 
         [Authorize(Roles = "Admin,CalendarManager")]
-        [HttpPut ("{userGroupId}")]
-        public async Task<ActionResult> AddMembers(Guid userGroupId, [FromBody] List<UserGroupMemberDto> dto)
+        [HttpPut("{userGroupId}")]
+        public async Task<ActionResult> UpdateUserGroup(Guid userGroupId, [FromBody] UserGroupDto dto)
         {
+            // Use transactions if not in UnitTests
+            var useTransaction = !_context.Database.IsInMemory();
+            if (useTransaction)
+                await _context.Database.BeginTransactionAsync();
+
             try
             {
-                var group = await _context.UserGroups.FindAsync(userGroupId);
-                if (group is null)
+                var userGroup = await _context.UserGroups.FindAsync(userGroupId);
+                if (userGroup is null)
+                    return NotFound("Group not found");
+
+                userGroup.GroupName = dto.GroupName;
+
+                //remove existing members
+                var existingMembers = await _context.UserGroupMembers
+                    .Where(ug => ug.UserGroupId == userGroupId)
+                    .ToListAsync();
+
+                _context.UserGroupMembers.RemoveRange(existingMembers);
+
+                //add new members
+                if (dto.Members != null && dto.Members.Any())
                 {
-                    BadRequest();
+                    var newMembers = dto.Members
+                        .Select(member => new UserGroupMember
+                        {
+                            UserGroupId = userGroupId,
+                            UserId = member.UserId
+                        }).ToList();
+
+                    await _context.UserGroupMembers.AddRangeAsync(newMembers);
                 }
 
-                foreach (var member in dto)
-                {
-                    group!.Members.Add(
-                        new UserGroupMember { 
-                            UserId = member.UserId, 
-                            UserGroupId = userGroupId 
-                        });
-                }
                 await _context.SaveChangesAsync();
 
-                return Ok();
+                if (useTransaction)
+                    await _context.Database.CommitTransactionAsync();
+
+                return Ok(userGroup);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [Authorize(Roles = "Admin,CalendarManager")]
+        [HttpPost("addMembers/{userGroupId}")]
+        public async Task<ActionResult> AddMembers(Guid userGroupId, [FromBody] List<UserGroupMemberDto> members)
+        {
+            try
+            {
+                var userGroup = await _context.UserGroups.FindAsync(userGroupId);
+                if (userGroup is null)
+                    return NotFound("Group not found");
+
+                var newMembers = members.Select(member => new UserGroupMember
+                {
+                    UserGroupId = userGroupId,
+                    UserId = member.UserId
+                }).ToList();
+
+                await _context.UserGroupMembers.AddRangeAsync(newMembers);
+                await _context.SaveChangesAsync();
+
+                return Ok(userGroup);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Admin,CalendarManager")]
+        [HttpDelete("removeMembers/{userGroupId}")]
+        public async Task<ActionResult> RemoveMembers(Guid userGroupId, [FromBody] List<UserGroupMemberDto> members)
+        {
+            try
+            {
+                var userGroup = await _context.UserGroups.FindAsync(userGroupId);
+                if (userGroup is null)
+                    return NotFound("Group not found");
+
+                var membersToRemove = await _context.UserGroupMembers
+                    .Where(m => m.UserGroupId == userGroupId && members.Select(x => x.UserId).Contains(m.UserId))
+                    .ToListAsync();
+
+                if (!membersToRemove.Any())
+                    return NotFound("No matching members found in the group");
+
+                _context.UserGroupMembers.RemoveRange(membersToRemove);
+                await _context.SaveChangesAsync();
+
+                return Ok(userGroup);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 }

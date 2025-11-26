@@ -13,28 +13,6 @@
     Broadcast
   </a>
 
-  <button
-    mat-stroked-button
-    [matMenuTriggerFor]="calendarMenu"
-    [disabled]="!authService.hasRole('Admin', 'CalendarManager')"
-    class="menu-button"
-  >
-    <mat-icon>event</mat-icon>
-    Calendars
-    <mat-icon>arrow_drop_down</mat-icon>
-  </button>
-
-  <mat-menu #calendarMenu="matMenu" class="calendar-menu">
-    <a mat-menu-item href="/calendars">
-      <mat-icon>calendar_today</mat-icon>
-      <span>My Calendars</span>
-    </a>
-    <a mat-menu-item href="/calendars/userGroups">
-      <mat-icon>people</mat-icon>
-      <span>User Groups</span>
-    </a>
-  </mat-menu>
-
   <a
     mat-stroked-button
     href="media"
@@ -42,6 +20,15 @@
     [disabled]="!authService.hasRole('Admin', 'MediaManager')"
   >
     <mat-icon>video_settings</mat-icon> Media</a
+  >
+
+  <a
+    mat-stroked-button
+    href="calendars"
+    class="menu-button"
+    [disabled]="!authService.hasRole('Admin', 'MediaManager')"
+  >
+    <mat-icon>calendar_today</mat-icon> Calendars</a
   >
 
   <a

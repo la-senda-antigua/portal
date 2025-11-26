@@ -1,17 +1,40 @@
 <div class="nav-header">
-  <a href="/" mat-stroked-button class="back-button"><mat-icon>arrow_back</mat-icon>back</a>
+  <a href="/" mat-stroked-button class="back-button"
+    ><mat-icon>arrow_back</mat-icon>back</a
+  >
 </div>
 
-<div class="container group-container">
-  <mat-expansion-panel hideToggle>
-    <mat-expansion-panel-header>
-      <mat-panel-title>
-        This is the expansion title
-      </mat-panel-title>
-      <mat-panel-description>
-        This is a summary of the content
-      </mat-panel-description>
-    </mat-expansion-panel-header>
-    <p>This is the primary content of the panel.</p>
-  </mat-expansion-panel>
+<div class="container">
+  @for (group of groups(); track $index) {
+    <div class="user-group">
+      <mat-expansion-panel >
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{ group.groupName }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <button mat-stroked-button color="primary" class="center">
+          <mat-icon>add</mat-icon>
+          add people
+        </button>
+
+        <div class="chip-container">
+          @for (user of group.members; track $index) {
+            <div class="chip" >
+              <div class="chip-content">
+                <div class="chip-avatar"  style="background-color: grey;">
+                  {{ getInitial(user) }}
+                </div>
+                <span class="chip-text">{{ getDisplayName(user) }}</span>
+              </div>
+              <button class="remove-btn" (click)="remove(user)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </mat-expansion-panel>
+    </div>
+  }
 </div>
