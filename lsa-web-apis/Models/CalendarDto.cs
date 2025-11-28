@@ -48,7 +48,7 @@ namespace lsa_web_apis.Models
 
     public class UserGroupMemberDto
     {
-        public Guid UserGroupId { get; set; }       
+        //public Guid UserGroupId { get; set; }       
         public Guid UserId { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

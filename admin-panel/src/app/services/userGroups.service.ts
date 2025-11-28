@@ -19,7 +19,7 @@ export class UserGroupsService extends GeneralServiceBase {
     }
 
     override edit(item: UserGroup): Observable<UserGroup> {
-      const url = `${this.apiUrl}/${item.userId}`;
+      const url = `${this.apiUrl}/${item.id}`;
       return this.requestManager.put<UserGroup>(url, item);
     }
 
@@ -27,4 +27,5 @@ export class UserGroupsService extends GeneralServiceBase {
       const url = `${this.apiUrl}/${id}`;
       return this.requestManager.delete<void>(url);
     }
+
 }

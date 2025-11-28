@@ -50,6 +50,7 @@ export class AddPeopleFormComponent {
     @Inject(MAT_DIALOG_DATA)
     public data: {
       calendarId: string;
+      groupId?: string;
       existingUsers?: PortalUser[];
     },
     private usersService: UsersService

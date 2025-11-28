@@ -137,7 +137,7 @@ namespace lsa_web_apis.Controllers
                 if (useTransaction)
                     await _context.Database.CommitTransactionAsync();
 
-                return Ok(userGroup);
+                return Ok(dto);
             }
             catch (Exception ex)
             {

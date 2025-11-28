@@ -1,5 +1,5 @@
 export interface UserGroup{
-  userId?: string;
+  id?: string;
   groupName: string;
   members?: UserGroupMember[];
 

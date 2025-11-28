@@ -2,6 +2,10 @@
   <a href="/" mat-stroked-button class="back-button"><mat-icon>arrow_back</mat-icon>back</a>
 
   <button class="add-button" mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button>
+
+  @if (isLoading()) {
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
 </div>
 
 <div class="container">
@@ -14,9 +18,9 @@
           </mat-panel-title>
         </mat-expansion-panel-header>
 
-        <button mat-stroked-button color="primary" class="center">
+        <button mat-stroked-button color="primary" class="center" (click)="openAddPeopleModal(group)">
           <mat-icon>add</mat-icon>
-          add people
+          add members
         </button>
 
         <div class="chip-container">
