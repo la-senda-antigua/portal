@@ -99,6 +99,28 @@ namespace lsa_web_apis.Controllers
         [HttpPut("{userGroupId}")]
         public async Task<ActionResult> UpdateUserGroup(Guid userGroupId, [FromBody] UserGroupDto dto)
         {
+            try
+            {
+                var userGroup = await _context.UserGroups.FindAsync(userGroupId);
+                if (userGroup is null)
+                    return NotFound("Group not found");
+
+                userGroup.GroupName = dto.GroupName;
+
+                await _context.SaveChangesAsync();
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
+        [Authorize(Roles = "Admin,CalendarManager")]
+        [HttpPut("editMembers/{userGroupId}")]
+        public async Task<ActionResult> EditMembers(Guid userGroupId, [FromBody] UserGroupDto dto)
+        {
             // Use transactions if not in UnitTests
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction)
@@ -173,23 +195,22 @@ namespace lsa_web_apis.Controllers
         }
 
         [Authorize(Roles = "Admin,CalendarManager")]
-        [HttpDelete("removeMembers/{userGroupId}")]
-        public async Task<ActionResult> RemoveMembers(Guid userGroupId, [FromBody] List<UserGroupMemberDto> members)
+        [HttpDelete("removeMember/{userGroupId}/{userId}")]
+        public async Task<ActionResult> RemoveMembers(Guid userGroupId, Guid userId)
         {
             try
             {
                 var userGroup = await _context.UserGroups.FindAsync(userGroupId);
                 if (userGroup is null)
-                    return NotFound("Group not found");
+                    return StatusCode(500,"Group not found");
 
-                var membersToRemove = await _context.UserGroupMembers
-                    .Where(m => m.UserGroupId == userGroupId && members.Select(x => x.UserId).Contains(m.UserId))
-                    .ToListAsync();
+                var memberToRemove = await _context.UserGroupMembers
+                    .Where(m => m.UserGroupId == userGroupId && m.UserId == userId).FirstAsync();
 
-                if (!membersToRemove.Any())
-                    return NotFound("No matching members found in the group");
+                if (memberToRemove is null)
+                    return StatusCode(500,"No matching members found in the group");
 
-                _context.UserGroupMembers.RemoveRange(membersToRemove);
+                _context.UserGroupMembers.Remove(memberToRemove);
                 await _context.SaveChangesAsync();
 
                 return Ok(userGroup);

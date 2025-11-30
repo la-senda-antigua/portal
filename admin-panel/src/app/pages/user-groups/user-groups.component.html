@@ -1,7 +1,11 @@
 <div class="nav-header">
-  <a href="/" mat-stroked-button class="back-button"><mat-icon>arrow_back</mat-icon>back</a>
+  <a href="/" mat-stroked-button class="back-button"
+    ><mat-icon>arrow_back</mat-icon>back</a
+  >
 
-  <button class="add-button" mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button>
+  <button class="add-button" mat-fab (click)="openCreateForm()">
+    <mat-icon class="plus-icon">add_2</mat-icon>
+  </button>
 
   @if (isLoading()) {
   <mat-progress-bar mode="indeterminate"></mat-progress-bar>
@@ -10,35 +14,57 @@
 
 <div class="container">
   @for (group of groups(); track $index) {
-    <div class="user-group">
-      <mat-expansion-panel >
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            {{ group.groupName }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+  <div class="user-group">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header (click)="$event.stopPropagation()">
+        <mat-panel-title>
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            (click)="$event.stopPropagation()"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="openEditForm(group)">
+              <mat-icon>edit</mat-icon>
+              <span>Rename</span>
+            </button>
+            <button mat-menu-item (click)="deleteGroup(group)">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+          {{ group.groupName }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
 
-        <button mat-stroked-button color="primary" class="center" (click)="openAddPeopleModal(group)">
-          <mat-icon>add</mat-icon>
-          add members
-        </button>
+      <button
+        mat-stroked-button
+        color="primary"
+        class="center"
+        (click)="openAddPeopleModal(group)"
+      >
+        <mat-icon>add</mat-icon>
+        add members
+      </button>
 
-        <div class="chip-container">
-          @for (user of group.members; track $index) {
-            <div class="chip" >
-              <div class="chip-content">
-                <div class="chip-avatar"  style="background-color: grey;">
-                  {{ getInitial(user) }}
-                </div>
-                <span class="chip-text">{{ getDisplayName(user) }}</span>
-              </div>
-              <button class="remove-btn" (click)="remove(user)">
-                <mat-icon>close</mat-icon>
-              </button>
+      <div class="chip-container">
+        @for (user of group.members; track $index) {
+        <div class="chip">
+          <div class="chip-content">
+            <div class="chip-avatar" style="background-color: grey">
+              {{ getInitial(user) }}
             </div>
-          }
+            <span class="chip-text">{{ getDisplayName(user) }}</span>
+          </div>
+          <button class="remove-btn" (click)="remove(user, group)">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
-      </mat-expansion-panel>
-    </div>
+        }
+      </div>
+    </mat-expansion-panel>
+  </div>
   }
 </div>

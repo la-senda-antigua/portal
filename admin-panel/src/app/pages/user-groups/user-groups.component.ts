@@ -7,15 +7,26 @@ import { UserGroup, UserGroupMember } from '../../models/UserGroup';
 import { MatDialog } from '@angular/material/dialog';
 import { EditIdNameFormComponent } from '../../components/edit-id-name-form/edit-id-name-form.component';
 import { AddPeopleFormComponent } from '../../components/add-people-form/add-people-form.component';
+import {
+  DeleteConfirmationComponent,
+  DeleteConfirmationData,
+} from '../../components/delete-confirmation/delete-confirmation.component';
 
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { DatePipe } from '@angular/common';
 import { PortalUser } from '../../models/PortalUser';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-user-groups',
-  imports: [MatExpansionModule, MatIconModule, MatButtonModule, MatProgressBar],
+  imports: [
+    MatExpansionModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressBar,
+    MatMenuModule,
+  ],
   templateUrl: './user-groups.component.html',
   styleUrl: './user-groups.component.scss',
   providers: [DatePipe],
@@ -50,11 +61,44 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
     return user.username.split('@')[0];
   }
 
-  remove(user: UserGroupMember): void {
-    const index = this.selectedUsers.indexOf(user);
-    if (index >= 0) {
-      this.selectedUsers.splice(index, 1);
-    }
+  remove(user: UserGroupMember, userGroup: UserGroup): void {
+    const { userId, username, name } = user;
+    const confirmationData = {
+      id: userId,
+      matchingString: username,
+      name,
+    } as DeleteConfirmationData;
+    const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
+      data: confirmationData,
+    });
+
+    dialogRef.afterClosed().subscribe((confirmationId) => {
+      if (!confirmationId) {
+        return;
+      }
+
+      const index = userGroup.members!.findIndex(
+        (m: UserGroupMember) => m.userId === userId
+      );
+      if (index < 0) {
+        return;
+      }
+
+      userGroup.members!.splice(index, 1);
+      (this.service as UserGroupsService)
+        .removeMember(userId, userGroup.id!)
+        .subscribe({
+          next: () => {
+            this.reload();
+          },
+          error: (err) => {
+            this.handleException(
+              err,
+              'There was a problem removing the user from the group.'
+            );
+          },
+        });
+    });
   }
 
   openCreateForm() {
@@ -69,7 +113,6 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         const { data } = result;
-        console.log('el data!', data);
         const newUserGroup: UserGroup = {
           groupName: data.name as string,
         };
@@ -147,7 +190,7 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
 
       const groupToUpdate: UserGroup = { ...group, members: updatedMembers };
 
-      this.service.edit(groupToUpdate).subscribe({
+      (this.service as UserGroupsService).editMembers(groupToUpdate).subscribe({
         next: () => {
           this.reload();
           this.isLoading.set(false);
@@ -166,6 +209,44 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
   protected override reload(): void {
     this.service.getAll().subscribe((data: UserGroup[]) => {
       this.groups.set(data);
+      this.isLoading.set(false);
     });
+  }
+
+  openEditForm(group: UserGroup) {
+    const dialogRef = this.dialog.open(EditIdNameFormComponent, {
+      data: {
+        mode: 'edit',
+        type: 'user group',
+        data: {
+          id: group.id,
+          name: group.groupName,
+        },
+      },
+    });
+    dialogRef.afterClosed().subscribe((form) => {
+      if (!form) {return}
+
+      this.isLoading.set(true)
+      const {data} = form
+      const updatedGroup: UserGroup = {
+        id: data.id,
+        groupName: data.name,
+      }
+
+      this.service.edit(updatedGroup).subscribe({
+        next: () => {
+          this.reload();
+        },
+        error: (err) => {
+          this.handleException(err,'There was a problem editing the user group.');
+          this.isLoading.set(false)
+        },
+      })
+    });
+  }
+
+  deleteGroup(group: UserGroup) {
+    // Aquí implementa la lógica para eliminar el grupo
   }
 }
