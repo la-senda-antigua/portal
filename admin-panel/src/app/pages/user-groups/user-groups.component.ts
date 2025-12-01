@@ -17,6 +17,7 @@ import { DatePipe } from '@angular/common';
 import { PortalUser } from '../../models/PortalUser';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { getInitial, getUserColor, getDisplayName } from '../../../utils/user.utils';
 
 @Component({
   selector: 'app-user-groups',
@@ -36,6 +37,9 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   override readonly createForm = input.required<any>();
   selectedUsers: UserGroupMember[] = [];
+  protected readonly getUserColor = getUserColor;
+  protected readonly getInitial = getInitial;
+  protected readonly getDisplayName = getDisplayName;
 
   constructor(service: UserGroupsService) {
     super(service);
@@ -47,18 +51,6 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
       this.isLoading.set(false);
       this.groups.set(data);
     });
-  }
-
-  getInitial(user: UserGroupMember): string {
-    const name = user.name || user.username;
-    return name.charAt(0).toUpperCase();
-  }
-
-  getDisplayName(user: UserGroupMember): string {
-    if (user.name) {
-      return user.name.split(' ')[0];
-    }
-    return user.username.split('@')[0];
   }
 
   remove(user: UserGroupMember, userGroup: UserGroup): void {

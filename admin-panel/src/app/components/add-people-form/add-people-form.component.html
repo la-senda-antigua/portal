@@ -16,7 +16,7 @@
     >
       <mat-option *ngFor="let user of filteredUsers | async" [value]="user">
         <div class="user-option">
-          <div class="user-avatar" [style.background-color]="getRandomColor(user.userId)">
+          <div class="user-avatar" [style.background-color]="getUserColor(user.userId)">
             {{ user.username.charAt(0).toUpperCase() }}
           </div>
           <div class="user-info">
@@ -33,7 +33,7 @@
       <div class="chip-content">
         <div
           class="chip-avatar"
-          [style.background-color]="getRandomColor(user.userId)"
+          [style.background-color]="getUserColor(user.userId)"
         >
           {{ getInitial(user) }}
         </div>

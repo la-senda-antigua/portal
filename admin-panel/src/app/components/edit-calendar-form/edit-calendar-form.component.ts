@@ -26,6 +26,7 @@ import { AddPeopleFormComponent } from '../add-people-form/add-people-form.compo
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarsService } from '../../services/calendars.service';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { getInitial, getUserColor, getDisplayName } from '../../../utils/user.utils';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
@@ -68,6 +69,10 @@ export class EditCalendarFormComponent implements OnInit {
   }>;
   selectedUsers: PortalUser[] = [];
   loadingUsers = signal(true);
+
+  protected readonly getUserColor = getUserColor;
+  protected readonly getInitial = getInitial;
+  protected readonly getDisplayName = getDisplayName;
 
   constructor() {
     this.calendarForm = new FormGroup({
@@ -139,30 +144,6 @@ export class EditCalendarFormComponent implements OnInit {
         this.selectedUsers = [...existingUsers, ...selectedUsers];
       }
     });
-  }
-
-  getRandomColor(userId: string): string {
-    const colors = [
-      '#f44336',
-      '#e91e63',
-      '#9c27b0',
-      '#673ab7',
-      '#3f51b5',
-      '#2196f3',
-      '#03a9f4',
-      '#00bcd4',
-      '#009688',
-      '#4caf50',
-    ];
-    const index = userId
-      .split('')
-      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[index % colors.length];
-  }
-
-  getInitial(user: PortalUser): string {
-    const name = user.name || user.username;
-    return name.charAt(0).toUpperCase();
   }
 
   remove(user: PortalUser): void {
