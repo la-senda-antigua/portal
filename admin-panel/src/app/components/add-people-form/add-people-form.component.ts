@@ -57,6 +57,7 @@ export class AddPeopleFormComponent {
     public dialogRef: MatDialogRef<AddPeopleFormComponent>,
     @Inject(MAT_DIALOG_DATA)
     public data: {
+      title: string;
       calendarId: string;
       groupId?: string;
       existingUsers?: PortalUser[];

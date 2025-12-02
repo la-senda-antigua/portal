@@ -127,6 +127,7 @@ export class EditCalendarFormComponent implements OnInit {
   openPeopleModal() {
     const dialogRef = this.dialog.open(AddPeopleFormComponent, {
       data: {
+        title: 'Share With',
         calendarId: this.formData.data.id,
         existingUsers: this.selectedUsers,
       },

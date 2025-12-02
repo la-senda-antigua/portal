@@ -136,6 +136,7 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
 
     const dialogRef = this.dialog.open(AddPeopleFormComponent, {
       data: {
+        title: 'Add Members',
         groupId: group.id,
         existingUsers: selectedUsers,
       },
