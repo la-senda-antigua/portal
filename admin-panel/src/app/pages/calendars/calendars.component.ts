@@ -131,10 +131,8 @@ export class CalendarsComponent implements OnInit {
 
     this.service.getMonthEvents(month, year).subscribe({
       next: (response) => {
-        console.log('response', response);
         this.allEvents = response;
         this.filterEvents();
-        console.log('filtered events', this.calendarOptions.events);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -245,7 +243,6 @@ export class CalendarsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('Calendar updated:', result);
 
       if (!result) return;
 
