@@ -131,8 +131,10 @@ export class CalendarsComponent implements OnInit {
 
     this.service.getMonthEvents(month, year).subscribe({
       next: (response) => {
+        console.log('response', response);
         this.allEvents = response;
         this.filterEvents();
+        console.log('filtered events', this.calendarOptions.events);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -150,8 +152,8 @@ export class CalendarsComponent implements OnInit {
           ({
             title: e.title,
             backgroundColor: this.service.getCalendarColor(e.calendarId),
-            start: `${e.eventDate.split('T')[0]}T${e.startTime}`,
-            end: `${e.eventDate.split('T')[0]}T${e.endTime}`,
+            start: `${e.eventDate}T${e.start}`,
+            end: `${e.eventDate}T${e.end}`,
             extendedProps: {
               calendarId: e.calendarId,
               description: e.description,

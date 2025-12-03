@@ -24,16 +24,21 @@ namespace lsa_web_apis.Controllers
         [Route("GetEvents")]
         public async Task<ActionResult<IEnumerable<PublicEventDto>>> GetEvents(DateTime? dateTime, bool includeCancelled = false)
         {
-            var query = includeCancelled
-                ? _context.PublicEvents
-                : _context.PublicEvents.Where(s => !s.IsCancelled);
-
             if (dateTime is null)
                 dateTime = DateTime.Now;
 
-            query = query.Where(e => e.StartTime > dateTime);
+            var query = includeCancelled
+                ? _context.PublicEvents
+                : _context.PublicEvents.Where(s => !s.IsCancelled);
+            
+            var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
-            var result = await query.OrderBy(e => e.StartTime).Select(e => new PublicEventDto(e)).ToListAsync();
+            var result = await query
+                .Where(e => string.Compare(e.StartTime, dateString) > 0)
+                .OrderBy(e => e.StartTime)
+                .Select(e => new PublicEventDto(e))
+                .ToListAsync();
+
             return Ok(result);
         }
 
@@ -45,7 +50,7 @@ namespace lsa_web_apis.Controllers
                 : _context.PublicEvents;
 
             if (dateTime is not null)
-                query = query.Where(e => e.StartTime > dateTime);
+                query = query.Where(e => DateTime.Parse(e.StartTime) > dateTime);
 
             PagedResult<PublicEventDto> result = await query.OrderBy(e => e.StartTime).Select(e => new PublicEventDto(e)).ToPagedResultAsync(page, pageSize);
 
@@ -64,10 +69,21 @@ namespace lsa_web_apis.Controllers
         [HttpPost]
         public async Task<ActionResult<PublicEvent>> CreateEvent(PublicEvent publicEvent)
         {
-            publicEvent.StartTime = DateTime.SpecifyKind(publicEvent.StartTime, DateTimeKind.Unspecified);
+            if (!DateTime.TryParse(publicEvent.StartTime, out DateTime startTime))
+            {
+                return BadRequest("Invalid StartTime format");
+            }
 
-            if (publicEvent.EndTime.HasValue)
-                publicEvent.EndTime = DateTime.SpecifyKind(publicEvent.EndTime.Value, DateTimeKind.Unspecified);
+            publicEvent.StartTime = startTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+            if (!string.IsNullOrEmpty(publicEvent.EndTime))
+            {
+                if (!DateTime.TryParse(publicEvent.EndTime, out DateTime endTime))
+                {
+                    return BadRequest("Invalid EndTime format");
+                }
+                publicEvent.EndTime = endTime.ToString("yyyy-MM-dd HH:mm:ss");
+            }
 
             _context.PublicEvents.Add(publicEvent);
             await _context.SaveChangesAsync();
@@ -85,17 +101,34 @@ namespace lsa_web_apis.Controllers
             var existingEvent = await _context.PublicEvents.FindAsync(id);
             if (existingEvent is null) { return NotFound(); }
 
+            if (!DateTime.TryParse(publicEvent.StartTime, out DateTime startTime))
+            {
+                return BadRequest("Invalid StartTime format");
+            }
+
             existingEvent.Title = publicEvent.Title;
             existingEvent.Description = publicEvent.Description;
-            existingEvent.StartTime = DateTime.SpecifyKind(publicEvent.StartTime, DateTimeKind.Unspecified);
-            if (publicEvent.EndTime.HasValue)
-                existingEvent.EndTime = DateTime.SpecifyKind(publicEvent.EndTime.Value, DateTimeKind.Unspecified);                                  
-            
+            existingEvent.StartTime = startTime.ToString("yyyy-MM-dd HH:mm:ss");
+
+            if (!string.IsNullOrEmpty(publicEvent.EndTime))
+            {
+                if (!DateTime.TryParse(publicEvent.EndTime, out DateTime endTime))
+                {
+                    return BadRequest("Invalid EndTime format");
+                }
+                existingEvent.EndTime = endTime.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            else
+            {
+                existingEvent.EndTime = null;
+            }
+
             _context.PublicEvents.Update(existingEvent);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]

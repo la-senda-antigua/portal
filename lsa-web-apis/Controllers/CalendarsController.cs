@@ -204,16 +204,33 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetMonthEvents(int month, int year)
         {
-            var query = _context.CalendarEvents.Where(e => e.EventDate.Month == month && e.EventDate.Year == year);
+            var yearMonth = $"{year:D4}-{month:D2}";
+
+            var query = _context.CalendarEvents
+                .Where(e => e.EventDate != null && e.EventDate.Substring(0, 7) == yearMonth);
+
             if (!User.IsInRole("Admin"))
             {
                 var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 query = query.Where(e => e.Calendar.Managers.Any(m => m.UserId == userId));
             }
-            var result = await query.ToListAsync();
+
+            var result = await query
+                .Select(e => new CalendarEventDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    EventDate = e.EventDate,
+                    CalendarId = e.CalendarId,
+                    Start = e.StartTime,
+                    End = e.EndTime
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
             return Ok(result);
         }
-
 
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
