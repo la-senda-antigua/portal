@@ -20,6 +20,11 @@ import { PortalUser } from '../../models/PortalUser';
 import { map, Observable, startWith } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
+import {
+  getInitial,
+  getUserColor,
+  getDisplayName,
+} from '../../../utils/user.utils';
 
 @Component({
   selector: 'app-add-people-form',
@@ -44,12 +49,17 @@ export class AddPeopleFormComponent {
   userCtrl = new FormControl('');
   filteredUsers: Observable<PortalUser[]>;
   allUsers: PortalUser[] = [];
+  protected readonly getUserColor = getUserColor;
+  protected readonly getInitial = getInitial;
+  protected readonly getDisplayName = getDisplayName;
 
   constructor(
     public dialogRef: MatDialogRef<AddPeopleFormComponent>,
     @Inject(MAT_DIALOG_DATA)
     public data: {
+      title: string;
       calendarId: string;
+      groupId?: string;
       existingUsers?: PortalUser[];
     },
     private usersService: UsersService
@@ -99,36 +109,6 @@ export class AddPeopleFormComponent {
 
   displayFn(user: PortalUser): string {
     return user ? `${user.name} (${user.username})` : '';
-  }
-
-  getRandomColor(userId: string): string {
-    const colors = [
-      '#9C27B0',
-      '#673AB7',
-      '#3F51B5',
-      '#009688',
-      '#4CAF50',
-      '#8BC34A',
-      '#FF9800',
-      '#FF5722',
-    ];
-    let hash = 0;
-    for (let i = 0; i < userId.length; i++) {
-      hash = userId.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash % colors.length)];
-  }
-
-  getInitial(user: PortalUser): string {
-    const name = user.name || user.username;
-    return name.charAt(0).toUpperCase();
-  }
-
-  getDisplayName(user: PortalUser): string {
-    if (user.name) {
-      return user.name.split(' ')[0];
-    }
-    return user.username.split('@')[0];
   }
 
   save() {

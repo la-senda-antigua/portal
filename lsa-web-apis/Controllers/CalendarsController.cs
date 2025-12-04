@@ -65,7 +65,7 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<Calendar>> Edit(Guid id, [FromBody] CalendarDto dto)
         {
-            // Solo usar transacciones si no estamos en modo de prueba
+            // Use transactions if not in UnitTests
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction)
                 await _context.Database.BeginTransactionAsync();

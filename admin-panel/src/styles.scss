@@ -58,5 +58,70 @@ app-logout{
   display: block;
 }
 
-
 .full-width{width: 100%;}
+
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  padding: 6px;
+  margin: 4px;
+  cursor: default;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #333;
+
+  .remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    transition: color 0.2s ease;
+    outline: none;
+  }
+
+  .remove-btn:hover {
+    color: #333;
+  }
+
+  .remove-btn mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
+}
+
+.chip:hover {
+  background-color: #e0e0e0;
+}
+
+.chip-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chip-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  text-align: center;
+  line-height: 24px;
+  font-weight: 500;
+}
+
+.chip-text {
+  font-size: 14px;
+  color: #333;
+}
+
