@@ -110,7 +110,7 @@ public class CalendarsControllerTests
         Assert.False(calendar.Active);
         Assert.Equal(existingCalendarId, calendar.Id);
     }
-    
+
     [Fact]
     public async Task Delete_Calendar()
     {
@@ -156,10 +156,10 @@ public class CalendarsControllerTests
         var calendar2Id = Guid.NewGuid();
         var calendar1 = new Calendar { Id = calendar1Id, Name = "User Calendar 1", Active = true };
         var calendar2 = new Calendar { Id = calendar2Id, Name = "User Calendar 2", Active = true };
-        
+
         context.Calendars.AddRange(calendar1, calendar2);
         await context.SaveChangesAsync();
-        
+
         context.CalendarManagers.Add(new CalendarManager
         {
             CalendarId = calendar1Id,
@@ -189,13 +189,11 @@ public class CalendarsControllerTests
         var actionResult = Assert.IsType<ActionResult<List<CalendarDto>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
         var calendars = Assert.IsType<List<CalendarDto>>(okResult.Value);
-        
-        Assert.Equal(2, calendars.Count);        
+
+        Assert.Equal(2, calendars.Count);
         Assert.Contains(calendars, c => c.Id == calendar1Id);
         Assert.Contains(calendars, c => c.Id == calendar2Id);
     }
-
-
 }
 
 

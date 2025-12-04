@@ -150,8 +150,8 @@ export class CalendarsComponent implements OnInit {
           ({
             title: e.title,
             backgroundColor: this.service.getCalendarColor(e.calendarId),
-            start: `${e.eventDate.split('T')[0]}T${e.startTime}`,
-            end: `${e.eventDate.split('T')[0]}T${e.endTime}`,
+            start: `${e.eventDate}T${e.start}`,
+            end: `${e.eventDate}T${e.end}`,
             extendedProps: {
               calendarId: e.calendarId,
               description: e.description,
@@ -243,7 +243,6 @@ export class CalendarsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('Calendar updated:', result);
 
       if (!result) return;
 
