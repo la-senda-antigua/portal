@@ -1,0 +1,99 @@
+<main>
+  <form [formGroup]="dateTimeForm">
+    <div class="date-time-wrapper">
+      <div class="date-time-row">
+        <!-- Start Time Group -->
+        <div class="time-group">
+          <mat-form-field appearance="outline">
+            <mat-label>Start</mat-label>
+            <input
+              matInput
+              [matDatepicker]="startdatepicker"
+              formControlName="startDateTime"
+              (ngModelChange)="onStartDateChange($event)"
+            />
+            <mat-datepicker #startdatepicker />
+            <mat-datepicker-toggle [for]="startdatepicker" matSuffix />
+            <!-- ERROR PARA START -->
+            @if(dateTimeForm.get('startDateTime')?.errors?.['invalidDateTimeRange']){
+            <mat-error>Start must be before end</mat-error>
+            } @if(dateTimeForm.get('startDateTime')?.hasError('required')){
+            <mat-error>Start date is required</mat-error>
+            }
+          </mat-form-field>
+
+          @if (!isAllDay) {
+          <mat-form-field appearance="outline">
+            <input
+              matInput
+              [matTimepicker]="starttimepicker"
+              [(ngModel)]="startTimeValue"
+              (ngModelChange)="onStartTimeChange($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <mat-timepicker #starttimepicker />
+            <mat-timepicker-toggle [for]="starttimepicker" matSuffix />
+          </mat-form-field>
+          }
+        </div>
+
+        <!-- End Time Group -->
+        <div class="time-group">
+          <mat-form-field appearance="outline">
+            <mat-label>End</mat-label>
+            <input
+              matInput
+              [matDatepicker]="enddatepicker"
+              [matDatepickerFilter]="dateFilter"
+              formControlName="endDateTime"
+              (ngModelChange)="onEndDateChange($event)"
+            />
+            <mat-datepicker #enddatepicker />
+            <mat-datepicker-toggle [for]="enddatepicker" matSuffix />
+            <!-- ERROR PARA END -->
+            @if(dateTimeForm.get('endDateTime')?.errors?.['invalidDateTimeRange']){
+            <mat-error>End must be after start</mat-error>
+            } @if(dateTimeForm.get('endDateTime')?.hasError('required')){
+            <mat-error>End date is required</mat-error>
+            }
+          </mat-form-field>
+
+          @if (!isAllDay) {
+          <mat-form-field appearance="outline">
+            <input
+              matInput
+              [matTimepicker]="endtimepicker"
+              [(ngModel)]="endTimeValue"
+              (ngModelChange)="onEndTimeChange($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <mat-timepicker #endtimepicker />
+            <mat-timepicker-toggle [for]="endtimepicker" matSuffix />
+          </mat-form-field>
+          }
+        </div>
+      </div>
+
+      <mat-checkbox
+        [(ngModel)]="isAllDay"
+        (ngModelChange)="onAllDayChange()"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        All day
+      </mat-checkbox>
+
+      <!-- Debug Values -->
+      <div class="debug-section">
+        <p>Start Time: {{ startTimeString }}</p>
+        <p>End Time: {{ endTimeString }}</p>
+        <p>All Day: {{ isAllDay }}</p>
+        <p>Form Valid: {{ dateTimeForm.valid }}</p>
+        <p>Form Errors: {{ dateTimeForm.errors | json }}</p>
+        <p>
+          Start Errors: {{ dateTimeForm.get("startDateTime")?.errors | json }}
+        </p>
+        <p>End Errors: {{ dateTimeForm.get("endDateTime")?.errors | json }}</p>
+      </div>
+    </div>
+  </form>
+</main>

@@ -1,0 +1,49 @@
+main {
+  width: 400px; // Cambia a 1200px para probar modo desktop
+  border: 1px solid black;
+  margin-left: 25%;
+  margin-top: 5%;
+}
+
+.date-time-wrapper {
+  padding: 16px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.date-time-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.time-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+
+  mat-form-field {
+    flex: 1;
+
+    &:not(:first-child) {
+      margin-top: 0;
+    }
+  }
+}
+
+.debug-section {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+
+  p {
+    margin: 4px 0;
+    font-family: monospace;
+  }
+}
+
