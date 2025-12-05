@@ -15,7 +15,6 @@ import { RoleGuard } from './role.guard';
 import { UsersPageComponent } from './pages/users-page/users-page.component';
 import { CalendarsComponent } from './pages/calendars/calendars.component';
 import { CalendarDetailsComponent } from './pages/calendar-details/calendar-details.component';
-import { DateTimePickerComponent } from './components/date-time-picker/date-time-picker.component';
 
 export const routes: Routes = [
   {
