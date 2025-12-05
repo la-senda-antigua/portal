@@ -5,18 +5,17 @@
         <!-- Start Time Group -->
         <div class="time-group">
           <mat-form-field appearance="outline">
-            <mat-label>Start</mat-label>
+            <mat-label>Start Date</mat-label>
             <input
               matInput
               [matDatepicker]="startdatepicker"
               formControlName="startDateTime"
-              (ngModelChange)="onStartDateChange($event)"
             />
             <mat-datepicker #startdatepicker />
             <mat-datepicker-toggle [for]="startdatepicker" matSuffix />
             <!-- ERROR PARA START -->
             @if(dateTimeForm.get('startDateTime')?.errors?.['invalidDateTimeRange']){
-            <mat-error>Start must be before end</mat-error>
+            <mat-error>Invalid date range</mat-error>
             } @if(dateTimeForm.get('startDateTime')?.hasError('required')){
             <mat-error>Start date is required</mat-error>
             }
@@ -24,6 +23,7 @@
 
           @if (!isAllDay) {
           <mat-form-field appearance="outline">
+            <mat-label>Start Time</mat-label>
             <input
               matInput
               [matTimepicker]="starttimepicker"
@@ -40,19 +40,18 @@
         <!-- End Time Group -->
         <div class="time-group">
           <mat-form-field appearance="outline">
-            <mat-label>End</mat-label>
+            <mat-label>End Date</mat-label>
             <input
               matInput
               [matDatepicker]="enddatepicker"
               [matDatepickerFilter]="dateFilter"
               formControlName="endDateTime"
-              (ngModelChange)="onEndDateChange($event)"
             />
             <mat-datepicker #enddatepicker />
             <mat-datepicker-toggle [for]="enddatepicker" matSuffix />
             <!-- ERROR PARA END -->
             @if(dateTimeForm.get('endDateTime')?.errors?.['invalidDateTimeRange']){
-            <mat-error>End must be after start</mat-error>
+            <mat-error>Invalid date range</mat-error>
             } @if(dateTimeForm.get('endDateTime')?.hasError('required')){
             <mat-error>End date is required</mat-error>
             }
@@ -60,6 +59,7 @@
 
           @if (!isAllDay) {
           <mat-form-field appearance="outline">
+            <mat-label>End Time</mat-label>
             <input
               matInput
               [matTimepicker]="endtimepicker"
@@ -81,19 +81,6 @@
       >
         All day
       </mat-checkbox>
-
-      <!-- Debug Values -->
-      <div class="debug-section">
-        <p>Start Time: {{ startTimeString }}</p>
-        <p>End Time: {{ endTimeString }}</p>
-        <p>All Day: {{ isAllDay }}</p>
-        <p>Form Valid: {{ dateTimeForm.valid }}</p>
-        <p>Form Errors: {{ dateTimeForm.errors | json }}</p>
-        <p>
-          Start Errors: {{ dateTimeForm.get("startDateTime")?.errors | json }}
-        </p>
-        <p>End Errors: {{ dateTimeForm.get("endDateTime")?.errors | json }}</p>
-      </div>
     </div>
   </form>
 </main>

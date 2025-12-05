@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import {
   FormsModule,
   ReactiveFormsModule,
@@ -37,19 +44,30 @@ import { CommonModule } from '@angular/common';
   templateUrl: './date-time-picker.component.html',
   styleUrl: './date-time-picker.component.scss',
 })
-export class DateTimePickerComponent {
-  isAllDay: boolean = false;
+export class DateTimePickerComponent implements OnInit {
+  @Input() initialStartDate: string = '';
+  @Input() initialEndDate: string = '';
+  @Input() initialIsAllDay: boolean = false;
+
+  @Output() startDateChange = new EventEmitter<string>();
+  @Output() endDateChange = new EventEmitter<string>();
+  @Output() startTimeChange = new EventEmitter<string>();
+  @Output() endTimeChange = new EventEmitter<string>();
+  @Output() isAllDayChange = new EventEmitter<boolean>();
+  @Output() isValid = new EventEmitter<boolean>();
+
+  isAllDay: boolean = this.initialIsAllDay;
   private updatingForm: boolean = false;
 
   // Start time properties
-  startDateValue: Date = new Date('2025-12-10T09:25:00');
-  startTimeValue: Date = new Date('2025-12-10T09:25:00');
-  startTimeString: string = '2025-12-10T09:25:00';
+  startDateValue: Date = new Date(this.initialStartDate);
+  startTimeValue: Date = new Date(this.initialStartDate);
+  startTimeString: string = this.initialStartDate;
 
   // End time properties
-  endDateValue: Date = new Date('2025-12-10T18:00:00');
-  endTimeValue: Date = new Date('2025-12-10T18:00:00');
-  endTimeString: string = '2025-12-10T18:00:00';
+  endDateValue: Date = new Date(this.initialEndDate);
+  endTimeValue: Date = new Date(this.initialEndDate);
+  endTimeString: string = this.initialEndDate;
 
   // Form setup
   dateTimeForm = new FormGroup(
@@ -99,6 +117,23 @@ export class DateTimePickerComponent {
     }
   );
 
+  ngOnInit() {
+    if (this.initialStartDate) {
+      this.startDateValue = new Date(this.initialStartDate);
+      this.startTimeValue = new Date(this.initialStartDate);
+      this.startTimeString = this.initialStartDate;
+    }
+
+    if (this.initialEndDate) {
+      this.endDateValue = new Date(this.initialEndDate);
+      this.endTimeValue = new Date(this.initialEndDate);
+      this.endTimeString = this.initialEndDate;
+    }
+
+    this.isAllDay = this.initialIsAllDay;
+    this.updateFormValues();
+  }
+
   onStartDateChange(event: any) {
     if (this.updatingForm) return;
 
@@ -117,6 +152,9 @@ export class DateTimePickerComponent {
       }
 
       this.updateFormValues();
+
+      this.startDateChange.emit(this.startTimeString);
+      this.isValid.emit(this.dateTimeForm.valid);
     }
   }
 
@@ -130,6 +168,8 @@ export class DateTimePickerComponent {
       const existingDate = this.startTimeString.split('T')[0];
       this.startTimeString = `${existingDate}T${hours}:${minutes}:${seconds}`;
       this.updateFormValues();
+      this.startTimeChange.emit(this.startTimeString);
+      this.isValid.emit(this.dateTimeForm.valid);
     }
   }
 
@@ -143,6 +183,8 @@ export class DateTimePickerComponent {
       const existingTime = this.endTimeString.split('T')[1];
       this.endTimeString = `${year}-${month}-${day}T${existingTime}`;
       this.updateFormValues();
+      this.endTimeChange.emit(this.endTimeString);
+      this.isValid.emit(this.dateTimeForm.valid);
     }
   }
 
@@ -156,6 +198,8 @@ export class DateTimePickerComponent {
       const existingDate = this.endTimeString.split('T')[0];
       this.endTimeString = `${existingDate}T${hours}:${minutes}:${seconds}`;
       this.updateFormValues();
+      this.isAllDayChange.emit(this.isAllDay);
+      this.isValid.emit(this.dateTimeForm.valid);
     }
   }
 
@@ -187,6 +231,8 @@ export class DateTimePickerComponent {
     }
 
     this.updateFormValues();
+    this.isAllDayChange.emit(this.isAllDay);
+    this.isValid.emit(this.dateTimeForm.valid);
   }
 
   private updateFormValues() {
@@ -197,7 +243,7 @@ export class DateTimePickerComponent {
     this.dateTimeForm.get('endDateTime')?.setValue(this.endTimeString);
     this.updatingForm = false;
 
-    console.log('errors found', this.dateTimeForm.errors);
+    this.isValid.emit(this.dateTimeForm.valid);
   }
 
   dateFilter = (date: Date | null): boolean => {
