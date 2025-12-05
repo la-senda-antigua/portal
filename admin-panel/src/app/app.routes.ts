@@ -99,11 +99,5 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['Admin'] }
   },
-  {
-    path: 'test',
-    component: DateTimePickerComponent,
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin'] }
-  },
 
 ];

@@ -87,12 +87,10 @@ export class DateTimePickerComponent implements OnInit {
         const endDate = new Date(end);
 
         if (startDate >= endDate) {
-          // Asigna el error a ambos controles
           form.get('startDateTime')?.setErrors({ invalidDateTimeRange: true });
           form.get('endDateTime')?.setErrors({ invalidDateTimeRange: true });
           return { invalidDateTimeRange: true };
         } else {
-          // Limpia el error si es válido
           const startErrors = form.get('startDateTime')?.errors;
           const endErrors = form.get('endDateTime')?.errors;
 
@@ -141,7 +139,11 @@ export class DateTimePickerComponent implements OnInit {
       const year = event.getFullYear();
       const month = String(event.getMonth() + 1).padStart(2, '0');
       const day = String(event.getDate()).padStart(2, '0');
-      const existingTime = this.startTimeString.split('T')[1];
+      const existingTime =
+        this.startTimeString.split('T')[1] ||
+        `${String(event.getHours()).padStart(2, '0')}:${String(
+          event.getMinutes()
+        ).padStart(2, '0')}:00`;
       this.startTimeString = `${year}-${month}-${day}T${existingTime}`;
 
       if (this.endDateValue && event > this.endDateValue) {
@@ -152,7 +154,6 @@ export class DateTimePickerComponent implements OnInit {
       }
 
       this.updateFormValues();
-
       this.startDateChange.emit(this.startTimeString);
       this.isValid.emit(this.dateTimeForm.valid);
     }
@@ -242,7 +243,6 @@ export class DateTimePickerComponent implements OnInit {
     this.dateTimeForm.get('startDateTime')?.setValue(this.startTimeString);
     this.dateTimeForm.get('endDateTime')?.setValue(this.endTimeString);
     this.updatingForm = false;
-
     this.isValid.emit(this.dateTimeForm.valid);
   }
 
