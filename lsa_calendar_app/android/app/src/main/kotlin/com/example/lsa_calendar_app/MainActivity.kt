@@ -1,4 +1,4 @@
-package com.example.lsa_calendar_app
+package com.iglesialasendaantigua.calendar
 
 import io.flutter.embedding.android.FlutterActivity
 
