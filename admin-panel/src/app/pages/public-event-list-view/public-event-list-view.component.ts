@@ -46,7 +46,7 @@ export class PublicEventComponent extends PageBaseComponent {
     actionName: 'disable',
   };
 
-  override tableTitle = 'Calendar Events';
+  override tableTitle = 'Public Events';
 
   constructor(service: PublicEventsService) {
     super(service);
