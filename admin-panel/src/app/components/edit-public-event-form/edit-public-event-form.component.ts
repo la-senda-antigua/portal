@@ -29,8 +29,8 @@ export interface PublicEventFormData extends TableViewFormData {
   data: {
     id?: number;
     title: string;
-    startTime: Date;
-    endTime?: Date | null;
+    startTime: Date | string;
+    endTime?: Date | string | null;
     description?: string | null;
   };
 }
@@ -100,7 +100,6 @@ export class EditPublicEventFormComponent {
   }
 
   private convertToISOString(date: Date | string): string {
-    console.log('Converting date:', date);
     // If it's already a string in ISO format, return it
     if (typeof date === 'string') {
       return date;
@@ -118,12 +117,6 @@ export class EditPublicEventFormComponent {
 
   addHours(date: Date, hoursToAdd: number) {
     return new Date(date.getTime() + (hoursToAdd * 60 * 60 * 1000));
-  }
-
-  private toLocalDate(dateStr: string): Date {
-    const date = new Date(dateStr);
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    return new Date(date.getTime() - tzOffset);
   }
 
   save() {
@@ -152,8 +145,8 @@ export class EditPublicEventFormComponent {
       data: {
         id: this.formData.data.id,
         title: this.publicEventForm.controls.title.value!,
-        startTime: this.toLocalDate(start),
-        endTime: end ? this.toLocalDate(end) : null,
+        startTime: this.convertToISOString(start),
+        endTime: end ? this.convertToISOString(end) : null,
         description: this.publicEventForm.controls.description?.value ? this.publicEventForm.controls.description.value : null,
       },
     };
