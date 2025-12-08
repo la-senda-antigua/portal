@@ -10,19 +10,17 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline">
-        <mat-label>Start Time</mat-label>
-        <input matInput [formControl]="publicEventForm.controls.startTime" type="datetime" />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label>End Time</mat-label>
-        <input matInput [formControl]="publicEventForm.controls.endTime" type="datetime" />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
       <mat-label>Description</mat-label>
       <input matInput [formControl]="publicEventForm.controls.description" />
     </mat-form-field>
+
+    <app-date-time-picker
+      [initialStartDate]="publicEventForm.controls.startTime.value ?? ''"
+      [initialEndDate]="publicEventForm.controls.endTime.value ?? ''"
+      (startDateChange)="setStartTime($event)"
+      (endDateChange)="setEndTime($event)"
+      (isValid)="onDateTimePickerValidityChange($event)"
+    ></app-date-time-picker>
 
   </mat-card-content>
   <mat-card-actions align="end">
@@ -30,7 +28,7 @@
     <button
       mat-flat-button
       color="primary"
-      [disabled]="publicEventForm.invalid"
+      [disabled]="publicEventForm.invalid || !isDateTimePickerValid"
       (click)="save()"
     >
       Save

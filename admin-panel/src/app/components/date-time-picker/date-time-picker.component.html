@@ -1,0 +1,76 @@
+<main>
+  <form [formGroup]="dateTimeForm">
+    <div class="date-time-wrapper">
+      <div class="date-time-row">
+        <!-- Start Time Group -->
+        <div class="time-group">
+          <mat-form-field appearance="outline" class="compact-field">
+            <mat-label>Start Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="startdatepicker"
+              [value]="startDateValue"
+              (dateChange)="onStartDateChange($event.value)"
+            />
+            <mat-datepicker #startdatepicker />
+            <mat-datepicker-toggle [for]="startdatepicker" matSuffix />
+          </mat-form-field>
+
+          @if (!isAllDay) {
+          <mat-form-field appearance="outline" class="compact-field">
+            <mat-label>Start Time</mat-label>
+            <input
+              matInput
+              [matTimepicker]="starttimepicker"
+              [(ngModel)]="startTimeValue"
+              (ngModelChange)="onStartTimeChange($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <mat-timepicker #starttimepicker />
+            <mat-timepicker-toggle [for]="starttimepicker" matSuffix />
+          </mat-form-field>
+          }
+        </div>
+
+        <!-- End Time Group -->
+        <div class="time-group">
+          <mat-form-field appearance="outline" class="compact-field">
+            <mat-label>End Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="enddatepicker"
+              [matDatepickerFilter]="dateFilter"
+              [value]="endDateValue"
+              (dateChange)="onEndDateChange($event.value)"
+            />
+            <mat-datepicker #enddatepicker />
+            <mat-datepicker-toggle [for]="enddatepicker" matSuffix />
+          </mat-form-field>
+
+          @if (!isAllDay) {
+          <mat-form-field appearance="outline" class="compact-field">
+            <mat-label>End Time</mat-label>
+            <input
+              matInput
+              [matTimepicker]="endtimepicker"
+              [(ngModel)]="endTimeValue"
+              (ngModelChange)="onEndTimeChange($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <mat-timepicker #endtimepicker />
+            <mat-timepicker-toggle [for]="endtimepicker" matSuffix />
+          </mat-form-field>
+          }
+        </div>
+      </div>
+
+      <mat-checkbox class="checkbox"
+        [(ngModel)]="isAllDay"
+        (ngModelChange)="onAllDayChange()"
+        [ngModelOptions]="{ standalone: true }"
+      >
+        All day
+      </mat-checkbox>
+    </div>
+  </form>
+</main>
