@@ -1,14 +1,23 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/screens/login_screen.dart';
-import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  try {
+    if (kReleaseMode) {
+      await dotenv.load(fileName: ".env.production");
+    } else {
+      await dotenv.load(fileName: ".env.testing");
+    }
+  } catch (e) {
+    // Fallback
+    await dotenv.load(fileName: ".env");
+    debugPrint('Fallback to default .env');
+  }
 
   runApp(const MainApp());
 }
@@ -19,9 +28,9 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(        
+      home: Scaffold(
         backgroundColor: AppColors.background,
-        body: LoginScreen()
+        body: LoginScreen(),
       ),
     );
   }

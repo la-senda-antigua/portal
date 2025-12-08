@@ -1,13 +1,14 @@
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+using Google.Apis.Auth;
 using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace lsa_web_apis.Services;
 
@@ -56,6 +57,24 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.Username.ToLower() == email.ToLower());
         if (user is null)
             throw new InvalidOperationException("User not found.");
+
+        return await CreateTokenResponse(user);
+    }
+
+    public async Task<TokenResponseDto?> LoginWithGoogleAsync(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            return null;
+        }
+
+        var user = await context.PortalUsers
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == email.ToLower());
+
+        if (user is null)
+        {            
+            throw new InvalidOperationException("User not found.");
+        }
 
         return await CreateTokenResponse(user);
     }
@@ -138,5 +157,20 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return true;
     }
 
-
+    public async Task<GoogleUserInfo?> VerifyGoogleToken(string idToken)
+    {
+        try
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+            return new GoogleUserInfo
+            {
+                Email = payload.Email,
+                Name = payload.Name
+            };
+        }
+        catch (Exception)
+        {            
+            return null;
+        }
+    }
 }

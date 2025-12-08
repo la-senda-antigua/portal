@@ -69,6 +69,32 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Redirect(finalUrl);
     }
 
+    [HttpPost("google-mobile")]
+    public async Task<ActionResult<TokenResponseDto?>> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
+    {
+        try
+        {            
+            var googleUser = await authService.VerifyGoogleToken(request.IdToken);
+            if (googleUser == null)
+                return Unauthorized("Invalid token");
+         
+            if (string.IsNullOrEmpty(googleUser.Email))
+                return BadRequest("Cannot find email");
+
+            var tokenResponse = await authService.LoginWithGoogleAsync(googleUser.Email);
+            
+            return Ok(tokenResponse);
+        }
+        catch (InvalidOperationException ex) when (ex.Message == "User not found.")
+        {
+            return Unauthorized("User not registered.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+
     [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequetDto request)
