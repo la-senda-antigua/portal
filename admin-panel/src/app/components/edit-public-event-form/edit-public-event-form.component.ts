@@ -1,4 +1,4 @@
-import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { Component, inject, } from '@angular/core';
 
 import {
@@ -23,6 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { PreachersService } from '../../services/preachers.service';
 import { TableViewFormData } from '../table-view/table-view.component';
+import { DateTimePickerComponent } from "../date-time-picker/date-time-picker.component";
 
 export interface PublicEventFormData extends TableViewFormData {
   data: {
@@ -46,10 +47,10 @@ export interface PublicEventFormData extends TableViewFormData {
     MatCardModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    TitleCasePipe,],
+    TitleCasePipe, DateTimePickerComponent],
   templateUrl: './edit-public-event-form.component.html',
   styleUrl: './edit-public-event-form.component.scss',
-  providers: [DatePipe],
+
 
 })
 export class EditPublicEventFormComponent {
@@ -57,8 +58,9 @@ export class EditPublicEventFormComponent {
   readonly dialogRef = inject(MatDialogRef<EditPublicEventFormComponent>);
   readonly formData = inject<PublicEventFormData>(MAT_DIALOG_DATA);
   readonly preachersService = inject(PreachersService);
-  readonly datePipe = inject(DatePipe);
   readonly dialog = inject(MatDialog);
+
+  isDateTimePickerValid: boolean = true;
 
   readonly publicEventForm: FormGroup<{
     title: FormControl<string | null>;
@@ -68,20 +70,17 @@ export class EditPublicEventFormComponent {
   }>;
 
   constructor() {
+    const startDateValue = this.formData.data.startTime ?? new Date();
+    const endDateValue = this.formData.data.endTime ?? this.addHours(new Date(), 3);
+
     this.publicEventForm = new FormGroup({
       title: new FormControl(this.formData.data.title, Validators.required),
       startTime: new FormControl(
-        this.datePipe.transform(
-          this.formData.data.startTime ?? new Date(),
-          'yyyy-MM-dd hh:mm a'
-        ),
+        this.convertToISOString(startDateValue),
         Validators.required
       ),
       endTime: new FormControl(
-        this.datePipe.transform(
-          this.formData.data.endTime ?? this.addHours(new Date(), 3),
-          'yyyy-MM-dd hh:mm a'
-        ),
+        this.convertToISOString(endDateValue),
       ),
       description: new FormControl(this.formData.data.description ?? null),
     });
@@ -92,12 +91,29 @@ export class EditPublicEventFormComponent {
         if (!isNaN(startDate.getTime())) {
           const newEndDate = this.addHours(startDate, 3);
           this.publicEventForm.controls.endTime.setValue(
-            this.datePipe.transform(newEndDate, 'yyyy-MM-dd hh:mm a'),
+            this.convertToISOString(newEndDate),
             { emitEvent: false }
           );
         }
       }
     });
+  }
+
+  private convertToISOString(date: Date | string): string {
+    console.log('Converting date:', date);
+    // If it's already a string in ISO format, return it
+    if (typeof date === 'string') {
+      return date;
+    }
+
+    // If it's a Date object, convert to ISO format
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
   addHours(date: Date, hoursToAdd: number) {
@@ -116,6 +132,10 @@ export class EditPublicEventFormComponent {
 
   close() {
     this.dialogRef.close();
+  }
+
+  onDateTimePickerValidityChange(isValid: boolean) {
+    this.isDateTimePickerValid = isValid;
   }
 
   private toPublicEventFormData(): PublicEventFormData {
@@ -137,6 +157,14 @@ export class EditPublicEventFormComponent {
         description: this.publicEventForm.controls.description?.value ? this.publicEventForm.controls.description.value : null,
       },
     };
+  }
+
+  setStartTime(isoString: string) {
+    this.publicEventForm.controls.startTime.setValue(isoString);
+  }
+
+  setEndTime(isoString: string) {
+    this.publicEventForm.controls.endTime.setValue(isoString);
   }
 
 }

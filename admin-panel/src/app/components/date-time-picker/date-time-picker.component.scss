@@ -1,6 +1,5 @@
 
 .date-time-wrapper {
-  padding: 16px;
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -10,7 +9,6 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
 }
 
 .time-group {
@@ -27,4 +25,10 @@
       margin-top: 0;
     }
   }
+}
+
+.checkbox {
+  margin-top: -12px;
+  margin-left: -8px;
+  margin-bottom: 4px;
 }
