@@ -94,9 +94,12 @@ describe('EditPublicEventFormComponent', () => {
         expect(arg.data.title).toBe('Saved Title');
         expect(arg.data.description).toBe('Saved description');
 
-        // The component converts ISO strings to Date objects for output
-        expect(arg.data.startTime instanceof Date).toBeTrue();
-        expect(arg.data.endTime instanceof Date).toBeTrue();
+        // Now the component emits ISO strings for start/end
+        expect(typeof arg.data.startTime).toBe('string');
+        expect(typeof arg.data.endTime).toBe('string');
+        // Optional: assert the exact values we set
+        expect(arg.data.startTime).toBe(startIso);
+        expect(arg.data.endTime).toBe(endIso);
     });
 
     it('save() should close with original formData when form is invalid', () => {
