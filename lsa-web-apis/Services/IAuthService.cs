@@ -12,4 +12,5 @@ public interface IAuthService
     Task<TokenResponseDto?> LoginWithGoogleAsync(string email);
     public Task<bool> RevokeRefreshTokenAsync(string refreshToken);
     public Task<GoogleUserInfo?> VerifyGoogleToken(string idToken);
+    public Task<GoogleUserInfo?> VerifyGoogleAccessToken(string accessToken);
 }

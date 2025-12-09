@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace lsa_web_apis.Services;
 
@@ -72,7 +73,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
             .FirstOrDefaultAsync(u => u.Username.ToLower() == email.ToLower());
 
         if (user is null)
-        {            
+        {
             throw new InvalidOperationException("User not found.");
         }
 
@@ -169,7 +170,34 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
             };
         }
         catch (Exception)
-        {            
+        {
+            return null;
+        }
+    }
+
+    public async Task<GoogleUserInfo?> VerifyGoogleAccessToken(string accessToken)
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(
+                $"https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={accessToken}");
+
+            var json = await response.Content.ReadAsStringAsync();
+            var data = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            if (data.TryGetProperty("email_verified", out var verified) && verified.GetString() == "true")
+            {
+                return new GoogleUserInfo
+                {
+                    Email = data.GetProperty("email").GetString()!,
+                    Name = data.TryGetProperty("name", out var name) ? name.GetString() : null
+                };
+            }
+            return null;
+        }
+        catch
+        {
             return null;
         }
     }

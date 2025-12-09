@@ -73,16 +73,22 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<ActionResult<TokenResponseDto?>> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
     {
         try
-        {            
-            var googleUser = await authService.VerifyGoogleToken(request.IdToken);
-            if (googleUser == null)
+        {
+            GoogleUserInfo? googleUser = null;
+            
+            if (!string.IsNullOrEmpty(request.IdToken))
+            {
+                googleUser = await authService.VerifyGoogleToken(request.IdToken);
+            }
+            else if (!string.IsNullOrEmpty(request.AccessToken))
+            {
+                googleUser = await authService.VerifyGoogleAccessToken(request.AccessToken);
+            }
+
+            if (googleUser == null || string.IsNullOrEmpty(googleUser.Email))
                 return Unauthorized("Invalid token");
-         
-            if (string.IsNullOrEmpty(googleUser.Email))
-                return BadRequest("Cannot find email");
 
             var tokenResponse = await authService.LoginWithGoogleAsync(googleUser.Email);
-            
             return Ok(tokenResponse);
         }
         catch (InvalidOperationException ex) when (ex.Message == "User not found.")
@@ -126,6 +132,13 @@ public class AuthController(IAuthService authService) : ControllerBase
 
         return Ok(new { valid = true, user });
 
+    }
+
+    [HttpGet]
+    [Route("test")]
+    public IActionResult Test()
+    {
+        return Ok("Working");
     }
 }
 
