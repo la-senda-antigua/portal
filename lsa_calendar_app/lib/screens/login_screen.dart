@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lsa_calendar_app/core/app_colors.dart';
+import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/screens/calendars_home_screen.dart';
+import 'package:lsa_calendar_app/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString('access_token', token);
   }
 
-  Future<void> _handleGoogleSignIn() async {    
+  Future<void> _handleGoogleSignIn() async {
     if (_isLoading) return;
 
     setState(() => _isLoading = true);
@@ -53,34 +53,24 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      await dotenv.load();
-      final String baseUrl = dotenv.env['API_BASE_URL']!;
-
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/google-mobile'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'accessToken': accessToken}),
+      final response = await ApiService.post('/auth/google-mobile', 
+        body: {'accessToken': accessToken}
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final String token = data['accesToken'] ?? data['accessToken'] ?? data['token'];
+      final String token = response['accesToken'] ?? 
+                          response['accessToken'] ?? 
+                          response['token'];
 
-        await _saveToken(token);
+      await _saveToken(token);
 
-        if (!mounted) return;
+      if (!mounted) return;
 
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
-          (route) => false,
-        );
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
+        (route) => false,
+      );
 
-        _showSnack('Welcome ${account.displayName ?? 'User'}!');
-      } else {
-        final errorBody = response.body.isNotEmpty? jsonDecode(response.body): {};
-        final message = errorBody['message'] ?? 'Login failed (${response.statusCode})';
-        _showSnack(message);
-      }
+      _showSnack('Welcome ${account.displayName ?? 'User'}!');
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
       _showSnack('Connection error. Please try again.');
@@ -98,38 +88,31 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              "LSA Calendars",
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
+            const Text("LSA Calendars", style: AppTextStyles.h1),
             const SizedBox(height: 60),
-
-            // ← Botón con loading
+            
             _isLoading
                 ? const Column(
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 16),
-                      Text('Signing you in...', style: TextStyle(fontSize: 16)),
+                      Text('Signing you in...', style: AppTextStyles.body),
                     ],
                   )
                 : ElevatedButton.icon(
                     onPressed: _handleGoogleSignIn,
                     icon: const FaIcon(FontAwesomeIcons.google, size: 28),
-                    label: const Text(
-                      'Continue with Google',
-                      style: TextStyle(fontSize: 18),
-                    ),
+                    label: const Text('Continue with Google',style: AppTextStyles.body,),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black87,
+                      backgroundColor: AppColors.light,
+                      foregroundColor: AppColors.dark,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
                         vertical: 16,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(color: Colors.grey),
+                        side: const BorderSide(color: AppColors.secondary),
                       ),
                       elevation: 3,
                     ),

@@ -11,7 +11,8 @@ void main() async {
     if (kReleaseMode) {
       await dotenv.load(fileName: ".env.production");
     } else {
-      await dotenv.load(fileName: ".env.testing");
+      await dotenv.load(fileName: ".env");  
+      // await dotenv.load(fileName: ".env.testing");
     }
   } catch (e) {
     // Fallback
