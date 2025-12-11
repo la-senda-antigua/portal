@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    debugPrint('Starting Google Sign-In!!!!!!');
     if (_isLoading) return;
 
     setState(() => _isLoading = true);
