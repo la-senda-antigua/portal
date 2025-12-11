@@ -3,6 +3,7 @@ import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/services/api_service.dart';
 import 'package:lsa_calendar_app/services/user_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CalendarsHomeScreen extends StatefulWidget {
   const CalendarsHomeScreen({super.key});
@@ -15,6 +16,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   List<Calendar> calendars = [];
   bool isLoading = true;
   String? error;
+  String username = 'Guest';
 
   Future<void> fetchCalendars() async {
     try {
@@ -36,15 +38,21 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   @override
   void initState() {
     super.initState();
+    _loadUsername();
     fetchCalendars();
   }
 
+  Future<void> _loadUsername() async {
+  final prefs = await SharedPreferences.getInstance();
+  setState(() {
+    username = prefs.getString('username') ?? 'Guest';
+  });
+}
+
   @override
   Widget build(BuildContext context) {
-    final user = UserService.currentUser;
-
     return Scaffold(
-      appBar: AppBar(title: Text('My Calendars - ${user?.name ?? "Guest"}')),
+      appBar: AppBar(title: Text('My Calendars - $username')),
       body: RefreshIndicator(
         onRefresh: fetchCalendars,
         child: isLoading

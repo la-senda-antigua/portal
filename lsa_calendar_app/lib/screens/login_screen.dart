@@ -25,9 +25,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _saveToken(String token) async {
+  Future<void> _saveData(String token, String? username) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
+    await prefs.setString('username', username ?? 'Guest');
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -62,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           response['accessToken'] ?? 
                           response['token'];
 
-      await _saveToken(token);
+      await _saveData(token, account.displayName);
 
       if (!mounted) return;
 
