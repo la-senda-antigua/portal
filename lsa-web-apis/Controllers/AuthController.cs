@@ -69,6 +69,38 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Redirect(finalUrl);
     }
 
+    [HttpPost("google-mobile")]
+    public async Task<ActionResult<TokenResponseDto?>> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
+    {
+        try
+        {
+            GoogleUserInfo? googleUser = null;
+            
+            if (!string.IsNullOrEmpty(request.IdToken))
+            {
+                googleUser = await authService.VerifyGoogleToken(request.IdToken);
+            }
+            else if (!string.IsNullOrEmpty(request.AccessToken))
+            {
+                googleUser = await authService.VerifyGoogleAccessToken(request.AccessToken);
+            }
+
+            if (googleUser == null || string.IsNullOrEmpty(googleUser.Email))
+                return Unauthorized("Invalid token");
+
+            var tokenResponse = await authService.LoginWithGoogleAsync(googleUser.Email);
+            return Ok(tokenResponse);
+        }
+        catch (InvalidOperationException ex) when (ex.Message == "User not found.")
+        {
+            return Unauthorized("User not registered.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+
     [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequetDto request)
@@ -100,6 +132,13 @@ public class AuthController(IAuthService authService) : ControllerBase
 
         return Ok(new { valid = true, user });
 
+    }
+
+    [HttpGet]
+    [Route("test")]
+    public IActionResult Test()
+    {
+        return Ok("Working");
     }
 }
 

@@ -149,13 +149,13 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet("myCalendars")]
-        [Authorize(Roles = "Admin,CalendarManager")]
+        [Authorize]
         public async Task<ActionResult<List<CalendarDto>>> GetByUserId()
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
                 ? _context.Calendars
-                : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId));
+                : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId) || c.Members.Any(m=> m.UserId == userId));
 
             var paged = await baseQuery
                 .OrderBy(c => c.Name)
