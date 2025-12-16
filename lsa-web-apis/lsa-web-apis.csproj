@@ -41,4 +41,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="lsa-web-apis.Tests\**\*.cs" />
+  </ItemGroup>
+
 </Project>
