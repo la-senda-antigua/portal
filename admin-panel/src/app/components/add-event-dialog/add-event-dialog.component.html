@@ -14,22 +14,13 @@
       <textarea matInput formControlName="description" rows="3"></textarea>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Date</mat-label>
-      <input matInput type="date" formControlName="date" required />
-    </mat-form-field>
-
-    <div class="time-fields">
-      <mat-form-field appearance="outline">
-        <mat-label>Start</mat-label>
-        <input matInput type="time" formControlName="start" required />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>End</mat-label>
-        <input matInput type="time" formControlName="end" />
-      </mat-form-field>
-    </div>
+    <app-date-time-picker
+      [initialStartDate]="eventForm.controls['startTime'].value ?? ''"
+      [initialEndDate]="eventForm.controls['endTime'].value ?? ''"
+      (startDateChange)="eventForm.controls['startTime'].setValue($event)"
+      (endDateChange)="eventForm.controls['endTime'].setValue($event)"
+      (isValid)="onDateTimePickerValidityChange($event)"
+    ></app-date-time-picker>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Calendar</mat-label>
@@ -47,7 +38,7 @@
       mat-raised-button
       color="primary"
       type="submit"
-      [disabled]="!eventForm.valid"
+      [disabled]="eventForm.invalid || !isDateTimePickerValid"
     >
       Save
     </button>
