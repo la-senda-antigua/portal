@@ -16,11 +16,11 @@
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public string? EventDate { get; set; }
         public Guid CalendarId { get; set; }
         public Calendar Calendar { get; set; } = null!;
-        public TimeOnly? StartTime { get; set; }
-        public TimeOnly? EndTime { get; set; }        
+        public string? StartTime { get; set; }
+        public string? EndTime { get; set; }
+        public bool AllDay { get; set; } = false;        
     }
 
     public class CalendarManager

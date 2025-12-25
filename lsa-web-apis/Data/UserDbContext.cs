@@ -18,19 +18,6 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<CalendarEvent>()
-        .Property(e => e.StartTime)
-        .HasConversion(
-            timeOnly => timeOnly.HasValue ? timeOnly.Value.ToTimeSpan() : (TimeSpan?)null,
-            timeSpan => timeSpan.HasValue ? TimeOnly.FromTimeSpan(timeSpan.Value) : (TimeOnly?)null);
-
-        modelBuilder.Entity<CalendarEvent>()
-            .Property(e => e.EndTime)
-            .HasConversion(
-                timeOnly => timeOnly.HasValue ? timeOnly.Value.ToTimeSpan() : (TimeSpan?)null,
-                timeSpan => timeSpan.HasValue ? TimeOnly.FromTimeSpan(timeSpan.Value) : (TimeOnly?)null);
-
-
         modelBuilder.Entity<CalendarManager>()
             .HasKey(cm => new { cm.CalendarId, cm.UserId });
 

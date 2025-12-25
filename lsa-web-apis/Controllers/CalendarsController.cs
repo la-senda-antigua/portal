@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Ocsp;
 
 namespace lsa_web_apis.Controllers
 {
@@ -155,7 +156,7 @@ namespace lsa_web_apis.Controllers
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
                 ? _context.Calendars
-                : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId) || c.Members.Any(m=> m.UserId == userId));
+                : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId) || c.Members.Any(m => m.UserId == userId));
 
             var paged = await baseQuery
                 .OrderBy(c => c.Name)
@@ -207,7 +208,7 @@ namespace lsa_web_apis.Controllers
             var yearMonth = $"{year:D4}-{month:D2}";
 
             var query = _context.CalendarEvents
-                .Where(e => e.EventDate != null && e.EventDate.Substring(0, 7) == yearMonth);
+                .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth);
 
             if (!User.IsInRole("Admin"))
             {
@@ -221,10 +222,10 @@ namespace lsa_web_apis.Controllers
                     Id = e.Id,
                     Title = e.Title,
                     Description = e.Description,
-                    EventDate = e.EventDate,
                     CalendarId = e.CalendarId,
                     Start = e.StartTime,
-                    End = e.EndTime
+                    End = e.EndTime,
+                    AllDay = e.AllDay
                 })
                 .AsNoTracking()
                 .ToListAsync();
@@ -244,12 +245,15 @@ namespace lsa_web_apis.Controllers
             {
                 Title = request.Title,
                 Description = request.Description,
-                EventDate = request.EventDate,
                 CalendarId = request.CalendarId,
                 StartTime = request.Start,
+                AllDay = request.AllDay,
             };
 
-            if (request.End.HasValue) { calendarEvent.EndTime = request.End.Value; }
+            if (!string.IsNullOrEmpty(request.End))
+            {
+                calendarEvent.EndTime = request.End;
+            }
 
             _context.CalendarEvents.Add(calendarEvent);
             await _context.SaveChangesAsync();
@@ -271,10 +275,10 @@ namespace lsa_web_apis.Controllers
             existingEvent.Id = request.Id!.Value;
             existingEvent.Title = request.Title;
             existingEvent.Description = request.Description;
-            existingEvent.EventDate = request.EventDate;
             existingEvent.CalendarId = request.CalendarId;
-            existingEvent.StartTime = request.Start;
-            if (request.End.HasValue) { existingEvent.EndTime = request.End.Value; }
+            existingEvent.StartTime = request.Start;            
+            existingEvent.AllDay = request.AllDay;
+            if (!string.IsNullOrEmpty(request.End)) { existingEvent.EndTime = request.End; }
 
             await _context.SaveChangesAsync();
             return Ok();

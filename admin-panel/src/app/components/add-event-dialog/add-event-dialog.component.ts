@@ -17,6 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { CommonModule } from '@angular/common';
 import { CalendarDto } from '../../models/CalendarDto';
+import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
 
 export interface DialogData {
   calendars: CalendarDto[];
@@ -38,12 +39,14 @@ export interface DialogData {
     MatSelectModule,
     MatButtonModule,
     MatDatepickerModule,
+    DateTimePickerComponent,
   ],
 })
 export class AddEventDialogComponent {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
   isEditMode = signal(false);
+  isDateTimePickerValid: boolean = true;
 
   constructor(
     private fb: FormBuilder,
@@ -52,19 +55,35 @@ export class AddEventDialogComponent {
   ) {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
-    const today = new Date();
-    const todayStr = today.getFullYear() + '-' +
-    String(today.getMonth() + 1).padStart(2, '0') + '-' +
-    String(today.getDate()).padStart(2, '0');
+
+    let initialStartTime: string;
+    let initialEndTime: string | null;
+    let initialIsAllDay: boolean = false;
+
+    if (this.isEditMode()) {
+      const event = data.event;
+      const endDate = event.endDate || event.date;
+      initialStartTime = `${event.date}T${event.start}:00`;
+      initialEndTime = event.end ? `${endDate}T${event.end}:00` : '';
+      initialIsAllDay = !!event.allDay;
+    } else {
+      // Para un evento nuevo, usamos la fecha clickeada o la actual.
+      const startDate = data.event?.date ? new Date(data.event.date) : new Date();
+      startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
+      initialStartTime = this.convertToISOString(startDate);
+
+      const endDate = new Date(startDate);
+      endDate.setHours(startDate.getHours() + 1); // Default a 1 hora de duración
+      initialEndTime = this.convertToISOString(endDate);
+    }
 
     this.eventForm = this.fb.group({
       id: [data.event?.id || null],
       title: [data.event?.title || '', Validators.required],
       description: [data.event?.description || ''],
-      date: [data.event?.dateStr || data.event?.date || todayStr, Validators.required],
-
-      start: [data.event?.start || '10:00', Validators.required],
-      end: [data.event?.end || ''],
+      startTime: [initialStartTime, Validators.required],
+      endTime: [initialEndTime],
+      allDay: [initialIsAllDay],
       calendarId: [data.event?.calendarId || '', Validators.required],
     });
   }
@@ -72,21 +91,46 @@ export class AddEventDialogComponent {
   onSubmit(): void {
     if (this.eventForm.valid) {
       const result = this.eventForm.value;
+      const startTime = result.startTime;
+      const endTime = result.endTime ? result.endTime : null;
 
-      if (this.isEditMode()) {
-        // Modo edición
-        this.dialogRef.close({
-          ...result,
-          id: this.data.event.id, // Mantenemos el ID original
-        });
-      } else {
-        // Modo creación
-        this.dialogRef.close(result);
-      }
+      const finalResult = {
+        id: result.id,
+        title: result.title,
+        description: result.description,
+        calendarId: result.calendarId,
+        start: startTime,
+        allDay: result.allDay,
+        end: endTime ? endTime : null,
+      };
+
+      this.dialogRef.close(finalResult);
     }
   }
 
   onCancel(): void {
     this.dialogRef.close();
   }
+
+  onDateTimePickerValidityChange(isValid: boolean) {
+    this.isDateTimePickerValid = isValid;
+  }
+
+  private convertToISOString(date: Date): string {
+    const pad = (n: number) => (n < 10 ? '0' + n : n);
+    return (
+      date.getFullYear() +
+      '-' +
+      pad(date.getMonth() + 1) +
+      '-' +
+      pad(date.getDate()) +
+      'T' +
+      pad(date.getHours()) +
+      ':' +
+      pad(date.getMinutes()) +
+      ':' +
+      pad(date.getSeconds())
+    );
+  }
+
 }

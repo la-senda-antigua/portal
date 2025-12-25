@@ -15,12 +15,11 @@ namespace lsa_web_apis.Models
     {
         public Guid? Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string? EventDate { get; set; }
+        public string? Description { get; set; }        
         public Guid CalendarId { get; set; }
-
-        public TimeOnly? Start { get; set; }
-        public TimeOnly? End { get; set; }
+        public string? Start { get; set; }
+        public string? End { get; set; }
+        public bool AllDay { get; set; } = false;
     }
 
     public class CalendarManagerDto
