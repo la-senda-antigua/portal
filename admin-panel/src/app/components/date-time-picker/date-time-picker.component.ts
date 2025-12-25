@@ -47,7 +47,7 @@ import { CommonModule } from '@angular/common';
 export class DateTimePickerComponent implements OnInit {
   @Input() initialStartDate: string = '';
   @Input() initialEndDate: string = '';
-  @Input() initialisAllDay: boolean = false;
+  @Input() initialIsAllDay: boolean = false;
   @Input() startDateRequired: boolean = true;
   @Input() endDateRequired: boolean = false;
 
@@ -58,7 +58,7 @@ export class DateTimePickerComponent implements OnInit {
   @Output() allDayChange = new EventEmitter<boolean>();
   @Output() isValid = new EventEmitter<boolean>();
 
-  allDay: boolean = this.initialisAllDay;
+  allDay: boolean = this.initialIsAllDay;
   private updatingForm: boolean = false;
 
   // Start time properties
@@ -136,7 +136,7 @@ export class DateTimePickerComponent implements OnInit {
       this.endTimeString = this.formatAsLocalString(this.endTimeValue);
     }
 
-    this.allDay = this.initialisAllDay;
+    this.allDay = this.initialIsAllDay;
 
     // Update validators based on inputs
     this.dateTimeForm

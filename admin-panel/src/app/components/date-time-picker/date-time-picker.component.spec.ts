@@ -23,7 +23,7 @@ describe('DateTimePickerComponent', () => {
   it('should initialize with input values', () => {
     component.initialStartDate = '2025-12-10T10:00:00';
     component.initialEndDate = '2025-12-10T18:00:00';
-    component.initialisAllDay = true;
+    component.initialIsAllDay = true;
 
     component.ngOnInit();
 

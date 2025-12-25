@@ -17,7 +17,7 @@
     <app-date-time-picker
       [initialStartDate]="eventForm.controls['startTime'].value ?? ''"
       [initialEndDate]="eventForm.controls['endTime'].value ?? ''"
-      [initialisAllDay]="eventForm.controls['allDay'].value ?? ''"
+      [initialIsAllDay]="eventForm.controls['allDay'].value ?? ''"
       (startDateChange)="eventForm.controls['startTime'].setValue($event)"
       (endDateChange)="eventForm.controls['endTime'].setValue($event)"
       (allDayChange)="eventForm.controls['allDay'].setValue($event)"

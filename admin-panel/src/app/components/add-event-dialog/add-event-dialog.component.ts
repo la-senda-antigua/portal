@@ -58,14 +58,14 @@ export class AddEventDialogComponent {
 
     let initialStartTime: string;
     let initialEndTime: string | null;
-    let initialisAllDay: boolean = false;
+    let initialIsAllDay: boolean = false;
 
     if (this.isEditMode()) {
       const event = data.event;
       const endDate = event.endDate || event.date;
       initialStartTime = `${event.date}T${event.start}:00`;
       initialEndTime = event.end ? `${endDate}T${event.end}:00` : '';
-      initialisAllDay = !!event.allDay;
+      initialIsAllDay = !!event.allDay;
     } else {
       // Para un evento nuevo, usamos la fecha clickeada o la actual.
       const startDate = data.event?.date ? new Date(data.event.date) : new Date();
@@ -83,7 +83,7 @@ export class AddEventDialogComponent {
       description: [data.event?.description || ''],
       startTime: [initialStartTime, Validators.required],
       endTime: [initialEndTime],
-      allDay: [initialisAllDay],
+      allDay: [initialIsAllDay],
       calendarId: [data.event?.calendarId || '', Validators.required],
     });
   }
