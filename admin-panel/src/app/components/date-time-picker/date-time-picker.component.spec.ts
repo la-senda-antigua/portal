@@ -23,13 +23,13 @@ describe('DateTimePickerComponent', () => {
   it('should initialize with input values', () => {
     component.initialStartDate = '2025-12-10T10:00:00';
     component.initialEndDate = '2025-12-10T18:00:00';
-    component.initialIsAllDay = true;
+    component.initialisAllDay = true;
 
     component.ngOnInit();
 
     expect(component.startTimeString).toBe('2025-12-10T10:00:00');
     expect(component.endTimeString).toBe('2025-12-10T18:00:00');
-    expect(component.isAllDay).toBe(true);
+    expect(component.allDay).toBe(true);
   });
 
   it('should validate date range', () => {
@@ -58,13 +58,13 @@ describe('DateTimePickerComponent', () => {
   });
 
   it('should handle all day toggle correctly', () => {
-    spyOn(component.isAllDayChange, 'emit');
-    component.isAllDay = true;
+    spyOn(component.allDayChange, 'emit');
+    component.allDay = true;
 
     component.onAllDayChange();
 
     expect(component.startTimeString).toContain('T00:00:00');
     expect(component.endTimeString).toContain('T23:59:59');
-    expect(component.isAllDayChange.emit).toHaveBeenCalledWith(true);
+    expect(component.allDayChange.emit).toHaveBeenCalledWith(true);
   });
 });

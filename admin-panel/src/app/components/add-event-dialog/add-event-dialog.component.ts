@@ -58,11 +58,14 @@ export class AddEventDialogComponent {
 
     let initialStartTime: string;
     let initialEndTime: string | null;
+    let initialisAllDay: boolean = false;
 
     if (this.isEditMode()) {
       const event = data.event;
+      const endDate = event.endDate || event.date;
       initialStartTime = `${event.date}T${event.start}:00`;
-      initialEndTime = event.end ? `${event.date}T${event.end}:00` : '';
+      initialEndTime = event.end ? `${endDate}T${event.end}:00` : '';
+      initialisAllDay = !!event.allDay;
     } else {
       // Para un evento nuevo, usamos la fecha clickeada o la actual.
       const startDate = data.event?.date ? new Date(data.event.date) : new Date();
@@ -80,6 +83,7 @@ export class AddEventDialogComponent {
       description: [data.event?.description || ''],
       startTime: [initialStartTime, Validators.required],
       endTime: [initialEndTime],
+      allDay: [initialisAllDay],
       calendarId: [data.event?.calendarId || '', Validators.required],
     });
   }
@@ -87,17 +91,17 @@ export class AddEventDialogComponent {
   onSubmit(): void {
     if (this.eventForm.valid) {
       const result = this.eventForm.value;
-      const startTime = new Date(result.startTime);
-      const endTime = result.endTime ? new Date(result.endTime) : null;
+      const startTime = result.startTime;
+      const endTime = result.endTime ? result.endTime : null;
 
       const finalResult = {
         id: result.id,
         title: result.title,
         description: result.description,
         calendarId: result.calendarId,
-        date: this.getDatePart(startTime),
-        start: this.getTimePart(startTime),
-        end: endTime ? this.getTimePart(endTime) : null,
+        start: startTime,
+        allDay: result.allDay,
+        end: endTime ? endTime : null,
       };
 
       this.dialogRef.close(finalResult);
@@ -113,14 +117,20 @@ export class AddEventDialogComponent {
   }
 
   private convertToISOString(date: Date): string {
-    return date.toISOString().slice(0, 19);
+    const pad = (n: number) => (n < 10 ? '0' + n : n);
+    return (
+      date.getFullYear() +
+      '-' +
+      pad(date.getMonth() + 1) +
+      '-' +
+      pad(date.getDate()) +
+      'T' +
+      pad(date.getHours()) +
+      ':' +
+      pad(date.getMinutes()) +
+      ':' +
+      pad(date.getSeconds())
+    );
   }
 
-  private getDatePart(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
-
-  private getTimePart(date: Date): string {
-    return date.toISOString().split('T')[1].substring(0, 8);
-  }
 }

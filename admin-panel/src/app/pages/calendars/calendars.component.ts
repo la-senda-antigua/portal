@@ -145,20 +145,28 @@ export class CalendarsComponent implements OnInit {
   private filterEvents() {
     this.calendarOptions.events = this.allEvents
       .filter((e) => this.selectedCalendars.includes(e.calendarId))
-      .map(
-        (e) =>
-          ({
-            title: e.title,
-            backgroundColor: this.service.getCalendarColor(e.calendarId),
-            start: `${e.eventDate}T${e.start}`,
-            end: `${e.eventDate}T${e.end}`,
-            extendedProps: {
-              calendarId: e.calendarId,
-              description: e.description,
-              id: e.id,
-            },
-          } as EventInput)
-      );
+      .map((e) => {
+        let end = e.end?.replace(' ', 'T');
+
+        if (e.allDay && e.end) {
+          const date = new Date(e.end.substring(0, 10));
+          date.setUTCDate(date.getUTCDate() + 1);
+          end = date.toISOString().split('T')[0];
+        }
+
+        return {
+          title: e.title,
+          backgroundColor: this.service.getCalendarColor(e.calendarId),
+          start: e.start?.replace(' ', 'T'),
+          end: end,
+          allDay: e.allDay,
+          extendedProps: {
+            calendarId: e.calendarId,
+            description: e.description,
+            id: e.id,
+          },
+        } as EventInput;
+      });
   }
 
   onCalendarSelectionChange(event: MatSelectionListChange) {
@@ -320,9 +328,13 @@ export class CalendarsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) {return;}
 
-      if (result.start){result.start = result.start + ':00';}
+      if (result.start && result.start.length === 5) {
+        result.start = result.start + ':00';
+      }
       if (result.end){
-        result.end = result.end + ':00';
+        if (result.end.length === 5) {
+          result.end = result.end + ':00';
+        }
       } else {
         result.end = null;
       }
@@ -357,14 +369,30 @@ export class CalendarsComponent implements OnInit {
   }
 
   selectEvent(item: any) {
+    const { allDay, startStr, endStr, extendedProps, title } = item.event;
+    const startDate = allDay ? startStr : startStr.split('T')[0];
+    let endDate = startDate;
+
+    if (endStr) {
+      if (allDay) {
+        const date = new Date(endStr);
+        date.setUTCDate(date.getUTCDate() - 1);
+        endDate = date.toISOString().split('T')[0];
+      } else {
+        endDate = endStr.split('T')[0];
+      }
+    }
+
     const event = {
-      id: item.event.extendedProps.id,
-      title: item.event.title,
-      description: item.event.extendedProps.description,
-      date: item.event.startStr.split('T')[0],
-      start: item.event.startStr.split('T')[1]?.substring(0, 5) || '',
-      end: item.event.endStr?.split('T')[1]?.substring(0, 5) || '',
-      calendarId: item.event.extendedProps.calendarId,
+      id: extendedProps.id,
+      title: title,
+      description: extendedProps.description,
+      date: startDate,
+      endDate: endDate,
+      start: allDay ? '00:00' : (startStr.split('T')[1]?.substring(0, 5) || ''),
+      end: allDay ? '23:59' : (endStr?.split('T')[1]?.substring(0, 5) || ''),
+      allDay: allDay,
+      calendarId: extendedProps.calendarId,
     };
     this.openAddEventDialog(event);
   }

@@ -47,7 +47,7 @@ import { CommonModule } from '@angular/common';
 export class DateTimePickerComponent implements OnInit {
   @Input() initialStartDate: string = '';
   @Input() initialEndDate: string = '';
-  @Input() initialIsAllDay: boolean = false;
+  @Input() initialisAllDay: boolean = false;
   @Input() startDateRequired: boolean = true;
   @Input() endDateRequired: boolean = false;
 
@@ -55,10 +55,10 @@ export class DateTimePickerComponent implements OnInit {
   @Output() endDateChange = new EventEmitter<string>();
   @Output() startTimeChange = new EventEmitter<string>();
   @Output() endTimeChange = new EventEmitter<string>();
-  @Output() isAllDayChange = new EventEmitter<boolean>();
+  @Output() allDayChange = new EventEmitter<boolean>();
   @Output() isValid = new EventEmitter<boolean>();
 
-  isAllDay: boolean = this.initialIsAllDay;
+  allDay: boolean = this.initialisAllDay;
   private updatingForm: boolean = false;
 
   // Start time properties
@@ -136,7 +136,7 @@ export class DateTimePickerComponent implements OnInit {
       this.endTimeString = this.formatAsLocalString(this.endTimeValue);
     }
 
-    this.isAllDay = this.initialIsAllDay;
+    this.allDay = this.initialisAllDay;
 
     // Update validators based on inputs
     this.dateTimeForm
@@ -276,7 +276,7 @@ export class DateTimePickerComponent implements OnInit {
       const existingDate = this.getDatePart(this.endTimeString, this.endDateValue);
       this.endTimeString = `${existingDate}T${hours}:${minutes}:${seconds}`;
       this.updateFormValues();
-      this.isAllDayChange.emit(this.isAllDay);
+      this.allDayChange.emit(this.allDay);
       // Also emit end date change so parent forms listening to endDateChange
       // receive updates when only the time is modified.
       this.endDateChange.emit(this.endTimeString);
@@ -287,7 +287,7 @@ export class DateTimePickerComponent implements OnInit {
   onAllDayChange() {
     if (this.updatingForm) return;
 
-    if (this.isAllDay) {
+    if (this.allDay) {
       const startDate = this.getDatePart(this.startTimeString, this.startDateValue);
       const endDate = this.getDatePart(this.endTimeString, this.endDateValue);
 
@@ -312,7 +312,7 @@ export class DateTimePickerComponent implements OnInit {
     }
 
     this.updateFormValues();
-    this.isAllDayChange.emit(this.isAllDay);
+    this.allDayChange.emit(this.allDay);
     // Emit start/end updates because toggling All-day changes the stored strings
     this.startDateChange.emit(this.startTimeString);
     this.endDateChange.emit(this.endTimeString);

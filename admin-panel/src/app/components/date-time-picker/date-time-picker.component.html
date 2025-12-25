@@ -16,7 +16,7 @@
             <mat-datepicker-toggle [for]="startdatepicker" matSuffix />
           </mat-form-field>
 
-          @if (!isAllDay) {
+          @if (!allDay) {
           <mat-form-field appearance="outline" class="compact-field">
             <mat-label>Start Time</mat-label>
             <input
@@ -47,7 +47,7 @@
             <mat-datepicker-toggle [for]="enddatepicker" matSuffix />
           </mat-form-field>
 
-          @if (!isAllDay) {
+          @if (!allDay) {
           <mat-form-field appearance="outline" class="compact-field">
             <mat-label>End Time</mat-label>
             <input
@@ -65,7 +65,7 @@
       </div>
 
       <mat-checkbox class="checkbox"
-        [(ngModel)]="isAllDay"
+        [(ngModel)]="allDay"
         (ngModelChange)="onAllDayChange()"
         [ngModelOptions]="{ standalone: true }"
       >
