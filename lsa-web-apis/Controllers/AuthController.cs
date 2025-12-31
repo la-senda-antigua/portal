@@ -70,7 +70,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("google-mobile")]
-    public async Task<ActionResult<TokenResponseDto?>> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
+    public async Task<IActionResult> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
     {
         try
         {
@@ -89,7 +89,11 @@ public class AuthController(IAuthService authService) : ControllerBase
                 return Unauthorized("Invalid token");
 
             var tokenResponse = await authService.LoginWithGoogleAsync(googleUser.Email);
-            return Ok(tokenResponse);
+            return Ok(new
+            {
+                Token = tokenResponse,
+                User = new { googleUser.Name, googleUser.Email, Avatar = googleUser.Picture }
+            });
         }
         catch (InvalidOperationException ex) when (ex.Message == "User not found.")
         {
@@ -141,4 +145,3 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok("Working");
     }
 }
-

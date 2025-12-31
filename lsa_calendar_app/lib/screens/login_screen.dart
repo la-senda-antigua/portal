@@ -25,10 +25,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _saveData(String token, String? username) async {
+  Future<void> _saveData(String token, String? username, String? email, String? avatar) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
     await prefs.setString('username', username ?? 'Guest');
+    if (email != null) await prefs.setString('email', email);
+    if (avatar != null) await prefs.setString('avatar', avatar);
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -59,11 +61,18 @@ class _LoginScreenState extends State<LoginScreen> {
         body: {'accessToken': accessToken}
       );
 
-      final String token = response['accesToken'] ?? 
-                          response['accessToken'] ?? 
-                          response['token'];
+      // La respuesta ahora tiene estructura { "token": {...}, "user": {...} }
+      final tokenData = response['token'];
+      final userData = response['user'];
 
-      await _saveData(token, account.displayName);
+      debugPrint('##### ruserdata: $userData');
+
+      final String token = tokenData['accesToken'] ?? 
+                          tokenData['accessToken'] ?? 
+                          tokenData['token'];
+
+      // Guardamos token y datos del usuario (nombre, email, avatar)
+      await _saveData(token, userData['name'], userData['email'], userData['avatar']);
 
       if (!mounted) return;
 
@@ -101,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 : ElevatedButton.icon(
                     onPressed: _handleGoogleSignIn,
                     icon: const FaIcon(FontAwesomeIcons.google, size: 28),
-                    label: const Text('Continue with Google',style: AppTextStyles.body,),
+                    label: const Text('Sign in with Google',style: AppTextStyles.body,),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.light,
                       foregroundColor: AppColors.dark,
