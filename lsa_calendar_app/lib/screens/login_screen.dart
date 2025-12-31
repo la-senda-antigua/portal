@@ -90,9 +90,6 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("LSA Calendars", style: AppTextStyles.h1),
-            const SizedBox(height: 60),
-            
             _isLoading
                 ? const Column(
                     children: [

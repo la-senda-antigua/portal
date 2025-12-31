@@ -30,7 +30,7 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final accessToken = data['accesToken'];
+        final accessToken = data['accesToken'] ?? data['accessToken'] ?? data['token'];
         return accessToken;
       } else {
         final error = jsonDecode(response.body);
