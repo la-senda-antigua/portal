@@ -233,6 +233,71 @@ namespace lsa_web_apis.Controllers
             return Ok(result);
         }
 
+        [HttpGet("dateEvents/{date}")]
+        [Authorize]
+        public async Task<ActionResult<List<dynamic>>> GetDateEvents(string date)
+        {
+            Console.WriteLine($"!!!!!date {date}");
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            List<Guid> myCalendarIds = new();
+
+            if (User.IsInRole("Admin"))
+            {
+                myCalendarIds = await _context.Calendars.Where(c=> c.Active == true).Select(c => c.Id).ToListAsync();
+            } else {
+                myCalendarIds = await _context.CalendarMembers
+                .Where(m => m.UserId == userId)
+                .Select(m => m.CalendarId)
+                .Union(_context.CalendarManagers.Where(m => m.UserId == userId).Select(m => m.CalendarId))
+                .ToListAsync();                
+            }
+
+            // Calculamos el día siguiente para comparar de forma segura (indiferente a 'T' o espacio)
+            var nextDayDate = DateTime.Parse(date).AddDays(1).ToString("yyyy-MM-dd");
+
+            var events = await _context.CalendarEvents
+            .Where(
+                e => 
+                e.StartTime != null 
+                && e.StartTime.CompareTo(date) >= 0
+                && e.StartTime.CompareTo(nextDayDate) < 0
+                && myCalendarIds.Contains(e.CalendarId)
+            )
+            .Select(e => new CalendarEventDto
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                CalendarId = e.CalendarId,
+                Start = e.StartTime,
+                End = e.EndTime,
+                AllDay = e.AllDay
+            })
+            .ToListAsync();
+
+            var previousEvent = await _context.CalendarEvents
+                .Where(e => e.StartTime != null && e.StartTime.CompareTo(date) < 0 && myCalendarIds.Contains(e.CalendarId))
+                .OrderByDescending(e => e.StartTime)
+                .Select(e => e.StartTime)
+                .FirstOrDefaultAsync();
+
+            var nextEvent = await _context.CalendarEvents
+                .Where(e => e.StartTime != null && e.StartTime.CompareTo(nextDayDate) >= 0 && myCalendarIds.Contains(e.CalendarId))
+                .OrderBy(e => e.StartTime)
+                .Select(e => e.StartTime)
+                .FirstOrDefaultAsync();
+
+            var previousDate = previousEvent != null ? previousEvent.Substring(0, 10) : "";
+            var nextDate = nextEvent != null ? nextEvent.Substring(0, 10) : "";
+
+            return Ok(new
+            {
+                events,
+                previousDate,
+                nextDate
+            });
+        }
+
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
         [Route("addEvent")]

@@ -41,7 +41,7 @@ class UserProfileMenu extends StatelessWidget {
         const PopupMenuDivider(),
         const PopupMenuItem<String>(
           value: 'logout',
-          child: Text('Cerrar Sesión'),
+          child: Text('Logout'),
         ),
       ],
       child: CircleAvatar(
