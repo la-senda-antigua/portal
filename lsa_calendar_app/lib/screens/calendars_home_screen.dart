@@ -26,7 +26,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   String? avatar;
   String? email;
   
-  DateTime currentDate = DateTime.now();
+  // DateTime currentDate = DateTime.now();
+  DateTime currentDate = DateTime(2025,12,20);
   String? previousDate;
   String? nextDate;
 
@@ -92,9 +93,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   setState(() {
     username = prefs.getString('username') ?? 'Guest';
     avatar = prefs.getString('avatar');
-    email = prefs.getString('email');
-    debugPrint('Username: $username');
-    debugPrint('Avatar: $avatar');
+    email = prefs.getString('email');    
   });
 }
 
@@ -109,7 +108,6 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     );
   }
 
-  // Métodos auxiliares para fechas en español
   String _getMonthName(int month) {
     const months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -166,7 +164,6 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       },
       body: Column(
         children: [
-          // Barra de Mes y Año
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             width: double.infinity,
@@ -177,7 +174,6 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          // Barra de Navegación (Anterior - Actual - Siguiente)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
             child: Row(
@@ -189,7 +185,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                     child: Text('< ${_formatDateButton(previousDate)}'),
                   )
                 else
-                  const SizedBox(width: 80), // Espacio para mantener centrado
+                  const SizedBox(width: 80), 
                 Text(
                   '${_getDayName(currentDate.weekday)} ${currentDate.day}',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -204,7 +200,6 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
               ],
             ),
           ),
-          // Lista de Eventos
           Expanded(
             child: RefreshIndicator(
               onRefresh: () => _loadData(showLoading: false),
@@ -249,6 +244,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         final color = calendarIndex != -1 
             ? CalendarColors.colors[calendarIndex % CalendarColors.colors.length] 
             : Colors.grey;
+        final textColor = color.computeLuminance() > 0.1 ? Colors.black : Colors.white;
         final calendarName = calendarIndex != -1 ? calendars[calendarIndex].name : '';
         final start = event['start'] != null && event['start'].length >= 16 
             ? event['start'].toString().substring(11, 16) 
@@ -256,18 +252,20 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         final end = event['end'] != null && event['end'].length >= 16 
             ? event['end'].toString().substring(11, 16) 
             : '';
+        final bool allDay = event['allDay'] ?? false;
+        final timeDescription = allDay ? 'All Day' : '$start - $end';
 
         return Card(
           color: color,
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: ListTile(
-            title: Text(event['title'] ?? '- -', style: AppTextStyles.title),
+            title: Text(event['title'] ?? '- -', style: AppTextStyles.title.copyWith(color: textColor)),
             subtitle: Text.rich(
               TextSpan(
-                text: '$start - $end - ',
-                style: AppTextStyles.body,
+                text: '$timeDescription - ',
+                style: AppTextStyles.body.copyWith(color: textColor),
                 children: [
-                  TextSpan(text: calendarName, style: AppTextStyles.bodyItalic),
+                  TextSpan(text: calendarName, style: AppTextStyles.bodyItalic.copyWith(color: textColor)),
                 ],
               ),
             ),
