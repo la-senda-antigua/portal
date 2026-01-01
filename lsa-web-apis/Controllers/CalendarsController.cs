@@ -252,15 +252,11 @@ namespace lsa_web_apis.Controllers
                 .ToListAsync();                
             }
 
-            // Calculamos el día siguiente para comparar de forma segura (indiferente a 'T' o espacio)
-            var nextDayDate = DateTime.Parse(date).AddDays(1).ToString("yyyy-MM-dd");
-
             var events = await _context.CalendarEvents
             .Where(
                 e => 
                 e.StartTime != null 
-                && e.StartTime.CompareTo(date) >= 0
-                && e.StartTime.CompareTo(nextDayDate) < 0
+                && EF.Functions.Like(e.StartTime, $"{date}%")
                 && myCalendarIds.Contains(e.CalendarId)
             )
             .Select(e => new CalendarEventDto
@@ -282,7 +278,10 @@ namespace lsa_web_apis.Controllers
                 .FirstOrDefaultAsync();
 
             var nextEvent = await _context.CalendarEvents
-                .Where(e => e.StartTime != null && e.StartTime.CompareTo(nextDayDate) >= 0 && myCalendarIds.Contains(e.CalendarId))
+                .Where(e => e.StartTime != null 
+                    && e.StartTime.CompareTo(date) > 0 
+                    && !EF.Functions.Like(e.StartTime, $"{date}%")
+                    && myCalendarIds.Contains(e.CalendarId))
                 .OrderBy(e => e.StartTime)
                 .Select(e => e.StartTime)
                 .FirstOrDefaultAsync();

@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../lsa-web-apis"
+		}
+	],
+	"settings": {
+		"sqltools.connections": [
+			{
+				"mysqlOptions": {
+					"authProtocol": "default",
+					"enableSsl": "Disabled"
+				},
+				"ssh": "Disabled",
+				"previewLimit": 50,
+				"server": "154.53.61.184",
+				"port": 3306,
+				"driver": "MySQL",
+				"name": "ilsa_test",
+				"database": "test_portal_users",
+				"username": "test_portal_users",
+				"password": "REaK6XnPCpDm75jy"
+			}
+		]
+	}
+}
