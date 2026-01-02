@@ -31,6 +31,12 @@ class AppTextStyles {
     fontWeight: FontWeight.normal,
   );
   
+  static const TextStyle bodyItalic = TextStyle(
+    fontSize: 14,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.normal,
+  );
+  
   static const TextStyle caption = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.normal,

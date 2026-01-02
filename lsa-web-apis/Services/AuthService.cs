@@ -180,18 +180,19 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         try
         {
             using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(
-                $"https://www.googleapis.com/oauth2/v3/tokeninfo?access_token={accessToken}");
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
 
             var json = await response.Content.ReadAsStringAsync();
             var data = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
 
-            if (data.TryGetProperty("email_verified", out var verified) && verified.GetString() == "true")
+            if (data.TryGetProperty("email_verified", out var verified) && (verified.ValueKind == JsonValueKind.True || (verified.ValueKind == JsonValueKind.String && verified.GetString() == "true")))
             {
                 return new GoogleUserInfo
                 {
                     Email = data.GetProperty("email").GetString()!,
-                    Name = data.TryGetProperty("name", out var name) ? name.GetString() : null
+                    Name = data.TryGetProperty("name", out var name) ? name.GetString() : null,
+                    Picture = data.TryGetProperty("picture", out var picture) ? picture.GetString() : null
                 };
             }
             return null;
