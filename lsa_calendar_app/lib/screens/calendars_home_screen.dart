@@ -254,11 +254,14 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
             : '';
         final bool allDay = event['allDay'] ?? false;
         final timeDescription = allDay ? 'All Day' : '$start - $end';
+        final totalDays = event['totalDays'] ?? 0;
+        final currentDay = event['currentDay'] ?? 0;
+        
 
         return Card(
           color: color,
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: ListTile(
+          child: ListTile(            
             title: Text(event['title'] ?? '- -', style: AppTextStyles.title.copyWith(color: textColor)),
             subtitle: Text.rich(
               TextSpan(
@@ -269,6 +272,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                 ],
               ),
             ),
+            trailing: totalDays > 1
+                ? Text('Day $currentDay of $totalDays',
+                    style: AppTextStyles.body.copyWith(color: textColor, fontSize: 12, fontWeight: FontWeight.bold))
+                : null,
             onTap: () {
               // TODO: Navigate to calendar details
             },
