@@ -27,8 +27,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   String? avatar;
   String? email;
 
-  // DateTime currentDate = DateTime.now();
-  DateTime currentDate = DateTime(2025, 12, 20);
+  DateTime currentDate = DateTime.now();
   String? previousDate;
   String? nextDate;
 
