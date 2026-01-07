@@ -17,7 +17,7 @@ namespace lsa_web_apis.Controllers
   {
     [Authorize(Roles = "Admin,CalendarManager")]
     [HttpGet]
-    public async Task<ActionResult<PagedResult<Preacher>>> GetCalendars([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
+    public async Task<ActionResult<PagedResult<Calendar>>> GetCalendars([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
     {
       if (string.IsNullOrEmpty(searchTerm))
       {
