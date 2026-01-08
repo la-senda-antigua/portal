@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lsa_calendar_app/core/app_colors.dart';
-import 'package:lsa_calendar_app/core/calendar_colors.dart';
-import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 import 'package:lsa_calendar_app/screens/login_screen.dart';
@@ -49,7 +46,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     }
   }
 
-  Future<void> fetchEvents() async {
+  Future<void> fetchEvents({bool snapToFirst = false}) async {
+    debugPrint('--- fetchEvents called. Month: ${currentDate.month}, Year: ${currentDate.year}, snapToFirst: $snapToFirst');
     setState(() => isLoadingEvents = true);
 
     try {
@@ -58,18 +56,45 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         'year': currentDate.year,
         'calendarIds': selectedCalendarIds ?? [],
       };
+      debugPrint('--- Sending body: $body');
 
-      final response = await ApiService.post(
-        '/calendars/GetEventsByMonth',
-        body: body,
-      );
+      final response = await ApiService.post('/calendars/GetEventsByMonth',body: body);
+      debugPrint('--- API Response items: ${(response as List).length}');
 
       setState(() {
-        events = (response as List).map((e) => Event.fromJson(e)).toList();
+        events = [];
+        for (var item in (response)) {
+          try {
+            events.add(Event.fromJson(item));
+          } catch (e) {
+            debugPrint('### ERROR PARSING EVENT: $item');
+            debugPrint('### REASON: $e');
+          }
+        }
+        debugPrint('### Fetched ${events.length} events for ${currentDate.month}/${currentDate.year}');
+        if (snapToFirst) {
+          final uniqueDates = events
+              .where(
+                (e) =>
+                    selectedCalendarIds == null ||
+                    selectedCalendarIds!.contains(e.calendarId),
+              )
+              .map((e) => "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}")
+              .toSet()
+              .toList()
+            ..sort();
+          debugPrint('--- Unique dates: $uniqueDates');
+          final currentStr = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
+          if (uniqueDates.isNotEmpty && !uniqueDates.contains(currentStr)) {
+            debugPrint('--- Snapping to first date: ${uniqueDates.first}');
+            currentDate = DateTime.parse(uniqueDates.first);
+          }
+        }
         _updateNavigationDates();
         isLoadingEvents = false;
       });
     } catch (e) {
+      debugPrint('--- Error fetching events: $e');
       setState(() {
         error = 'Error fetching events';
         isLoadingEvents = false;
@@ -90,15 +115,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
             .toList()
           ..sort();
 
-    final dateStr =
-        "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
-
-    if (uniqueDates.isNotEmpty && !uniqueDates.contains(dateStr)) {
-      currentDate = DateTime.parse(uniqueDates.first);
-    }
-
-    final currentStr =
-        "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
+    final currentStr = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
     String? prev;
     String? next;
 
@@ -116,6 +133,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       selectedCalendarIds = prefs.getStringList('selected_calendars');
+      selectedCalendarIds ??= calendars.map((c) => c.id.toString()).toList();
     });
   }
 
@@ -129,8 +147,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   Future<void> _loadData({bool showLoading = true}) async {
     if (showLoading) setState(() => isLoading = true);
     setState(() => error = null);
-    await _loadSelectedCalendars();
     await fetchCalendars();
+    await _loadSelectedCalendars();
     await fetchEvents();
     setState(() => isLoading = false);
   }
@@ -164,23 +182,26 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   void _changeMonth(int offset) {
+    debugPrint('--- _changeMonth called. Offset: $offset');
     setState(() {
       currentDate = DateTime(currentDate.year, currentDate.month + offset, 1);
+      debugPrint('--- New currentDate: $currentDate');
+      events = [];
+      previousDate = null;
+      nextDate = null;
     });
-    fetchEvents();
+    fetchEvents(snapToFirst: true);
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('--- Build. CurrentDate: $currentDate. Events: ${events.length}');
     final visibleEvents = events.where((e) {
-      final matchesCalendar =
-          selectedCalendarIds == null ||
-          selectedCalendarIds!.contains(e.calendarId);
-      final matchesDate = e.start.year == currentDate.year &&
-          e.start.month == currentDate.month &&
-          e.start.day == currentDate.day;
+      final matchesCalendar = selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId);
+      final matchesDate = e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day;
       return matchesCalendar && matchesDate;
     }).toList();
+    debugPrint('--- Visible events: ${visibleEvents.length}');
 
     return Scaffold(
       appBar: AppBar(
@@ -228,8 +249,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
               isLoading: isLoading || isLoadingEvents,
               error: error,
               onRefresh: () => _loadData(showLoading: false),
-              onEventTap: (event) {
-                // TODO: Navigate to calendar details
+              onEventTap: (event) {                // Implement event details navigation if needed
+                // Implement event details navigation if needed
               },
             ),
           ),

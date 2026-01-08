@@ -4,7 +4,7 @@ import 'package:lsa_calendar_app/core/calendar_colors.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 
-class EventCard extends StatelessWidget {
+class EventCard extends StatefulWidget {
   final Event event;
   final List<Calendar> calendars;
   final VoidCallback? onTap;
@@ -17,9 +17,16 @@ class EventCard extends StatelessWidget {
   });
 
   @override
+  State<EventCard> createState() => _EventCardState();
+}
+
+class _EventCardState extends State<EventCard> {
+  bool _isExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
-    final calendarIndex = calendars.indexWhere(
-      (c) => c.id.toString() == event.calendarId,
+    final calendarIndex = widget.calendars.indexWhere(
+      (c) => c.id.toString() == widget.event.calendarId,
     );
     final color = calendarIndex != -1
         ? CalendarColors.colors[calendarIndex % CalendarColors.colors.length]
@@ -27,40 +34,75 @@ class EventCard extends StatelessWidget {
     final textColor = color.computeLuminance() > 0.15
         ? Colors.black
         : Colors.white;
-    final calendarName = calendarIndex != -1 ? calendars[calendarIndex].name : '';
+    final calendarName = calendarIndex != -1 ? widget.calendars[calendarIndex].name : '';
+
+    final hasDescription = widget.event.description != null && widget.event.description!.isNotEmpty;
 
     return Card(
       color: color,
       elevation: 8.0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
-        title: Text(
-          event.title,
-          style: AppTextStyles.title.copyWith(color: textColor),
-        ),
-        subtitle: Text.rich(
-          TextSpan(
-            text: '${event.timeDescription} - ',
-            style: AppTextStyles.body.copyWith(color: textColor),
-            children: [
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            title: Text(
+              widget.event.title,
+              style: AppTextStyles.title.copyWith(color: textColor),
+            ),
+            subtitle: Text.rich(
               TextSpan(
-                text: calendarName,
-                style: AppTextStyles.bodyItalic.copyWith(color: textColor),
+                text: '${widget.event.timeDescription} - ',
+                style: AppTextStyles.body.copyWith(color: textColor),
+                children: [
+                  TextSpan(
+                    text: calendarName,
+                    style: AppTextStyles.bodyItalic.copyWith(color: textColor),
+                  ),
+                ],
               ),
-            ],
+            ),
+            trailing: widget.event.totalDays > 1
+                ? Text(
+                    'Day ${widget.event.currentDay} of ${widget.event.totalDays}',
+                    style: AppTextStyles.body.copyWith(
+                      color: textColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : null,
+            onTap: hasDescription
+                ? () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  }
+                : widget.onTap,
           ),
-        ),
-        trailing: event.totalDays > 1
-            ? Text(
-                'Day ${event.currentDay} of ${event.totalDays}',
-                style: AppTextStyles.body.copyWith(
-                  color: textColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+          if (hasDescription)
+            AnimatedCrossFade(
+              firstChild: const SizedBox(width: double.infinity),
+              secondChild: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [                    
+                    Text(
+                      widget.event.description!,
+                      style: AppTextStyles.subtitle.copyWith(color: textColor),
+                    ),
+                  ],
                 ),
-              )
-            : null,
-        onTap: onTap,
+              ),
+              crossFadeState: _isExpanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 300),
+              alignment: Alignment.topCenter,
+            ),
+        ],
       ),
     );
   }

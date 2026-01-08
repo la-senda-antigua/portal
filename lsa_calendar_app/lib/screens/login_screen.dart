@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    debugPrint('Starting Google Sign-In!!!!!!');
+    debugPrint('Starting Google Sign-In##');
     if (_isLoading) return;
 
     setState(() => _isLoading = true);
@@ -64,8 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
       // La respuesta ahora tiene estructura { "token": {...}, "user": {...} }
       final tokenData = response['token'];
       final userData = response['user'];
-
-      debugPrint('##### ruserdata: $userData');
 
       final String token = tokenData['accesToken'] ?? 
                           tokenData['accessToken'] ?? 

@@ -1,5 +1,6 @@
 class Event {
   final String title;
+  final String? description;
   final DateTime start;
   final DateTime end;
   final bool allDay;
@@ -9,6 +10,7 @@ class Event {
 
   Event({
     required this.title,
+    this.description,
     required this.start,
     required this.end,
     required this.allDay,
@@ -20,8 +22,9 @@ class Event {
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
       title: json['title'] ?? '- -',
+      description: json['description'],
       start: DateTime.parse(json['start']),
-      end: DateTime.parse(json['end']),
+      end: json['end'] != null ? DateTime.parse(json['end']) : DateTime.parse(json['start']),
       allDay: json['allDay'] ?? false,
       calendarId: json['calendarId'].toString(),
       totalDays: json['totalDays'] ?? 0,
