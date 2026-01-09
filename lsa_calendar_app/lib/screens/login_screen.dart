@@ -16,7 +16,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
-  bool _isLoading = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkExistingSession();
+  }
 
   void _showSnack(String message) {
     if (!mounted) return;
@@ -25,12 +31,70 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _saveData(String token, String? username, String? email, String? avatar) async {
+  Future<void> _saveData(String token, String? refreshToken, String? username, String? email, String? avatar) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
+    if (refreshToken != null) await prefs.setString('refresh_token', refreshToken);
     await prefs.setString('username', username ?? 'Guest');
     if (email != null) await prefs.setString('email', email);
     if (avatar != null) await prefs.setString('avatar', avatar);
+  }
+
+  Future<void> _checkExistingSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final token = prefs.getString('access_token');
+      
+      if (token != null && token.isNotEmpty) {
+        await ApiService.get('/auth/validate-token');
+
+        if (!mounted) return;
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
+          (route) => false,
+        );
+        return;
+      }
+    } catch (e) {
+      debugPrint('Sesión inválida o expirada: $e. Intentando refresh...');
+      
+      final token = prefs.getString('access_token');
+      final refreshToken = prefs.getString('refresh_token');
+
+      if (token != null && refreshToken != null) {
+        try {
+          // Intentamos refrescar los tokens
+          final response = await ApiService.post('/auth/refresh-tokens', body: {
+            'accessToken': token,
+            'refreshToken': refreshToken,
+          });
+
+          final newToken = response['accesToken'] ?? response['accessToken'];
+          final newRefreshToken = response['refreshToken'];
+
+          if (newToken != null) {
+            // Guardamos los nuevos tokens y mantenemos los datos de usuario
+            await _saveData(newToken, newRefreshToken, prefs.getString('username'), prefs.getString('email'), prefs.getString('avatar'));
+            
+            if (!mounted) return;
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
+              (route) => false,
+            );
+            return;
+          }
+        } catch (refreshError) {
+          debugPrint('Error al refrescar token: $refreshError');
+        }
+      }
+
+      // Si falló el refresh o no había tokens, limpiamos todo
+      await prefs.remove('access_token');
+      await prefs.remove('refresh_token');
+    }
+
+    // Si no hay token o hubo error, quitamos la carga para mostrar el botón de login
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -61,16 +125,16 @@ class _LoginScreenState extends State<LoginScreen> {
         body: {'accessToken': accessToken}
       );
 
-      // La respuesta ahora tiene estructura { "token": {...}, "user": {...} }
       final tokenData = response['token'];
       final userData = response['user'];
 
       final String token = tokenData['accesToken'] ?? 
                           tokenData['accessToken'] ?? 
                           tokenData['token'];
+      final String? refreshToken = tokenData['refreshToken'];
 
       // Guardamos token y datos del usuario (nombre, email, avatar)
-      await _saveData(token, userData['name'], userData['email'], userData['avatar']);
+      await _saveData(token, refreshToken, userData['name'], userData['email'], userData['avatar']);
 
       if (!mounted) return;
 
