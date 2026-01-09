@@ -205,6 +205,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, size: 42),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
