@@ -40,7 +40,7 @@ class _EventCardState extends State<EventCard> {
 
     return Card(
       color: color,
-      elevation: 8.0,
+      elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
