@@ -1,0 +1,31 @@
+name: lsa_calendar_app
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.1+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:  
+  google_sign_in: ^6.2.2
+  font_awesome_flutter: ^10.7.0
+  flutter_dotenv: ^5.0.2
+  flutter_secure_storage: ^9.0.0
+  http: ^0.13.5
+  shared_preferences: ^2.3.0
+
+  flutter:
+    sdk: flutter  
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+    - .env.testing
+    - .env.production

@@ -64,19 +64,44 @@ public class UsersControllerTests
 
         using var context = new UserDbContext(options);
         var mockAuthService = new Mock<IAuthService>();
-        var newUser = new User { Id = Guid.NewGuid(), Username = "newuser", Role = "User" };
-        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User")).ReturnsAsync(newUser);
+        var newUser = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = "newuser",
+            Role = "User",
+            Name = "Usuario Nuevo"
+        };
+
+        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User", "Usuario Nuevo"))
+            .ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
-        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
-        controller.ControllerContext = new ControllerContext() { HttpContext = new DefaultHttpContext() { User = user } };
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
+        new Claim(ClaimTypes.Role, "Admin")
+    }, "mock"));
+        controller.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = user }
+        };
 
-        var userDto = new UserDto { Username = "newuser", Role = "User" };
+        var userDto = new UserDto
+        {
+            Username = "newuser",
+            Role = "User",
+            Name = "Usuario Nuevo"
+        };
+
         var result = await controller.Register(userDto);
 
         var actionResult = Assert.IsType<ActionResult<User>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var returnedUser = Assert.IsType<User>(okResult.Value);
+
+        Assert.Equal("newuser", returnedUser.Username);
+        Assert.Equal("User", returnedUser.Role);
+        Assert.Equal("Usuario Nuevo", returnedUser.Name);
     }
+
 
     [Fact]
     public async Task RegisterUser_WithCalendars_Test()
@@ -87,8 +112,8 @@ public class UsersControllerTests
             .Options;
 
         using var context = new UserDbContext(options);
-        var mockAuthService = new Mock<IAuthService>();
 
+        var mockAuthService = new Mock<IAuthService>();
         var calendarId1 = Guid.NewGuid();
         var calendarId2 = Guid.NewGuid();
         var calendarId3 = Guid.NewGuid();
@@ -97,31 +122,50 @@ public class UsersControllerTests
         context.Calendars.Add(new Calendar { Id = calendarId3, Name = "Test Calendar3", Active = true });
         await context.SaveChangesAsync();
 
-        var newUser = new User { Id = Guid.NewGuid(), Username = "calendar_manager_name", Role = "CalendarManager" };
-        mockAuthService.Setup(x => x.RegisterAsync("calendar_manager_name", "CalendarManager")).ReturnsAsync(newUser);
+        var newUser = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = "calendar_manager_name",
+            Role = "CalendarManager",
+            Name = "Administrador de Calendario"
+        };
+
+        mockAuthService.Setup(x => x.RegisterAsync(
+            "calendar_manager_name",
+            "CalendarManager",
+            "Administrador de Calendario"
+        )).ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
-        controller.ControllerContext = new ControllerContext() { HttpContext = new DefaultHttpContext() { User = user } };
+        controller.ControllerContext = new ControllerContext()
+        {
+            HttpContext = new DefaultHttpContext() { User = user }
+        };
 
         var userDto = new UserDto
         {
             Username = "calendar_manager_name",
             Role = "CalendarManager",
+            Name = "Administrador de Calendario",
             CalendarsAsManager = new List<CalendarDto>
-            {
-                new CalendarDto { Id = calendarId1, Name = "Test Calendar", Active = true },
-                new CalendarDto { Id = calendarId2, Name = "Test Calendar2", Active = true },
-            },
-            CalendarsAsMember = new List<CalendarDto>()
-            {
-                new CalendarDto { Id = calendarId3, Name = "Test Calendar3", Active = true },                
-            }
+        {
+            new CalendarDto { Id = calendarId1, Name = "Test Calendar", Active = true },
+            new CalendarDto { Id = calendarId2, Name = "Test Calendar2", Active = true },
+        },
+            CalendarsAsMember = new List<CalendarDto>
+        {
+            new CalendarDto { Id = calendarId3, Name = "Test Calendar3", Active = true },
+        }
         };
+
         var result = await controller.Register(userDto);
         var actionResult = Assert.IsType<ActionResult<User>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        Assert.Equal("calendar_manager_name", ((User)okResult.Value!).Username);        
+        var returnedUser = Assert.IsType<User>(okResult.Value);
+
+        Assert.Equal("calendar_manager_name", returnedUser.Username);
+        Assert.Equal("CalendarManager", returnedUser.Role);
     }
 
     [Fact]

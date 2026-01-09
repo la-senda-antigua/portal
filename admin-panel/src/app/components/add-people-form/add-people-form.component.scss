@@ -1,0 +1,75 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+button {
+  margin-left: 10px;
+}
+
+.option-button {
+  width: 268px;
+  margin: 0;
+  justify-content: left;
+}
+
+.red-color {
+  color: red;
+}
+
+.user-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-email {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.modal-content {
+  overflow: visible;
+  width: 100%;
+}
+
+.modal-dialog {
+  height: auto !important;
+  max-height: none !important;
+}

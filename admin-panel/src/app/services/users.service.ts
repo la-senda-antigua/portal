@@ -24,13 +24,18 @@ export class UsersService extends GeneralServiceBase {
   }
 
   override edit(item: PortalUser): Observable<PortalUser> {
-    const url = `${this.apiUrl}/${item.id}`;
+    const url = `${this.apiUrl}/${item.userId}`;
     return this.requestManager.put<PortalUser>(url, item);
   }
 
   override delete(id: number): Observable<void> {
     const url = `${this.apiUrl}/${id}`;
     return this.requestManager.delete<void>(url);
+  }
+
+  override getAll(): Observable<PortalUser[]> {
+    const url = `${this.apiUrl}/getAll`;
+    return this.requestManager.get<PortalUser[]>(url);
   }
 
   override search(

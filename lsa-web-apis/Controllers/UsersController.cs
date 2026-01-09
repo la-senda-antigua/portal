@@ -16,15 +16,15 @@ namespace lsa_web_apis.Controllers
     public class UsersController(IAuthService authService, UserDbContext context) : ControllerBase
     {
         [HttpGet]
-        public async Task<ActionResult<PagedResult<UserDto>>> GetUsers([FromQuery] int page = 1,[FromQuery] int pageSize = 10,[FromQuery] string searchTerm = "")
-        {            
+        public async Task<ActionResult<PagedResult<UserDto>>> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
+        {
             var usersQuery = context.PortalUsers
                 .Where(u => string.IsNullOrEmpty(searchTerm) ||
                            u.Username.Contains(searchTerm) ||
                            u.Role.Contains(searchTerm));
 
             var pagedUsers = await usersQuery.ToPagedResultAsync(page, pageSize);
-            
+
             var userDtos = new List<UserDto>();
             foreach (var user in pagedUsers.Items)
             {
@@ -52,8 +52,9 @@ namespace lsa_web_apis.Controllers
 
                 userDtos.Add(new UserDto
                 {
-                    Id = user.Id,
+                    UserId = user.Id,
                     Username = user.Username,
+                    Name = user.Name,
                     Role = user.Role,
                     CalendarsAsManager = managerCalendars,
                     CalendarsAsMember = memberCalendars
@@ -70,6 +71,20 @@ namespace lsa_web_apis.Controllers
 
             return Ok(result);
         }
+        
+        [HttpGet("GetAll")]
+        public async Task<ActionResult<PagedResult<UserDto>>> GetAllUsers()
+        {
+            var users = await context.PortalUsers.Select(u => new UserDto
+            {
+                UserId = u.Id,
+                Username = u.Username,
+                Name = u.Name,
+                Role = u.Role
+            }).ToListAsync();
+            
+            return Ok(users);
+        }
 
         [HttpPost()]
         public async Task<ActionResult<User>> Register(UserDto data)
@@ -80,7 +95,7 @@ namespace lsa_web_apis.Controllers
                 var username = data.Username;
                 var role = data.Role;
 
-                var user = await authService.RegisterAsync(username, role);
+                var user = await authService.RegisterAsync(username, role, data.Name ?? "");
                 if (user is null)
                     return BadRequest("User name already in use.");
 
@@ -118,6 +133,7 @@ namespace lsa_web_apis.Controllers
                 if (user is null) return NotFound("User not found.");
 
                 user.Role = updateData.Role;
+                user.Name = updateData.Name;
                 var existingCalendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
                 var existingCalendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
                 context.CalendarManagers.RemoveRange(existingCalendarsAsManager);

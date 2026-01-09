@@ -1,19 +1,21 @@
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+using Google.Apis.Auth;
 using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace lsa_web_apis.Services;
 
 public class AuthService(UserDbContext context, IConfiguration configuration) : IAuthService
 {
-    public async Task<User?> RegisterAsync(string username, string role)
+    public async Task<User?> RegisterAsync(string username, string role, string name)
     {
         if (await context.PortalUsers.AnyAsync(u => u.Username == username))
         {
@@ -22,6 +24,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         var user = new User()
         {
             Username = username,
+            Name = name,
             Role = role,
         };
         context.PortalUsers.Add(user);
@@ -55,6 +58,24 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.Username.ToLower() == email.ToLower());
         if (user is null)
             throw new InvalidOperationException("User not found.");
+
+        return await CreateTokenResponse(user);
+    }
+
+    public async Task<TokenResponseDto?> LoginWithGoogleAsync(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            return null;
+        }
+
+        var user = await context.PortalUsers
+            .FirstOrDefaultAsync(u => u.Username.ToLower() == email.ToLower());
+
+        if (user is null)
+        {
+            throw new InvalidOperationException("User not found.");
+        }
 
         return await CreateTokenResponse(user);
     }
@@ -137,5 +158,48 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return true;
     }
 
+    public async Task<GoogleUserInfo?> VerifyGoogleToken(string idToken)
+    {
+        try
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+            return new GoogleUserInfo
+            {
+                Email = payload.Email,
+                Name = payload.Name
+            };
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 
+    public async Task<GoogleUserInfo?> VerifyGoogleAccessToken(string accessToken)
+    {
+        try
+        {
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+            var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
+
+            var json = await response.Content.ReadAsStringAsync();
+            var data = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+            if (data.TryGetProperty("email_verified", out var verified) && (verified.ValueKind == JsonValueKind.True || (verified.ValueKind == JsonValueKind.String && verified.GetString() == "true")))
+            {
+                return new GoogleUserInfo
+                {
+                    Email = data.GetProperty("email").GetString()!,
+                    Name = data.TryGetProperty("name", out var name) ? name.GetString() : null,
+                    Picture = data.TryGetProperty("picture", out var picture) ? picture.GetString() : null
+                };
+            }
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

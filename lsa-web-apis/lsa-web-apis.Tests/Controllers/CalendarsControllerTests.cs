@@ -110,6 +110,7 @@ public class CalendarsControllerTests
         Assert.False(calendar.Active);
         Assert.Equal(existingCalendarId, calendar.Id);
     }
+
     [Fact]
     public async Task Delete_Calendar()
     {
@@ -151,21 +152,32 @@ public class CalendarsControllerTests
         using var context = new UserDbContext(options);
 
         var userId = Guid.NewGuid();
-        var calendar1 = new Calendar { Id = Guid.NewGuid(), Name = "User Calendar 1", Active = true };
-        var calendar2 = new Calendar { Id = Guid.NewGuid(), Name = "User Calendar 2", Active = false };
-
-        calendar1.Managers = new List<CalendarManager> { new CalendarManager { UserId = userId } };
-        calendar2.Members = new List<CalendarMember> { new CalendarMember { UserId = userId } };
+        var calendar1Id = Guid.NewGuid();
+        var calendar2Id = Guid.NewGuid();
+        var calendar1 = new Calendar { Id = calendar1Id, Name = "User Calendar 1", Active = true };
+        var calendar2 = new Calendar { Id = calendar2Id, Name = "User Calendar 2", Active = true };
 
         context.Calendars.AddRange(calendar1, calendar2);
+        await context.SaveChangesAsync();
+
+        context.CalendarManagers.Add(new CalendarManager
+        {
+            CalendarId = calendar1Id,
+            UserId = userId
+        });
+        context.CalendarMembers.Add(new CalendarMember
+        {
+            CalendarId = calendar2Id,
+            UserId = userId
+        });
         await context.SaveChangesAsync();
 
         var controller = new CalendarsController(context);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-            new Claim(ClaimTypes.Role, "Admin")
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+        new Claim(ClaimTypes.Role, "Admin")
         }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
@@ -174,14 +186,14 @@ public class CalendarsControllerTests
         };
 
         var result = await controller.GetByUserId();
-
-        var actionResult = Assert.IsType<ActionResult<PagedResult<CalendarDto>>>(result);
+        var actionResult = Assert.IsType<ActionResult<List<CalendarDto>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var calendars = Assert.IsType<PagedResult<CalendarDto>>(okResult.Value);
-        // Only one calendar as manager
-        Assert.Single(calendars.Items);
-    }
+        var calendars = Assert.IsType<List<CalendarDto>>(okResult.Value);
 
+        Assert.Equal(2, calendars.Count);
+        Assert.Contains(calendars, c => c.Id == calendar1Id);
+        Assert.Contains(calendars, c => c.Id == calendar2Id);
+    }
 }
 
 

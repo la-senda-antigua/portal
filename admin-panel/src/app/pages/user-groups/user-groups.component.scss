@@ -1,0 +1,44 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-header {
+  position: relative;
+  height: 60px;
+}
+
+.add-button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin: 16px;
+
+  & .plus-icon {
+    font-size: 24px;
+  }
+}
+
+.container {
+  display: flex;
+  gap: 16px;
+}
+
+.user-group {
+  width: 25%;
+  min-width: 300px;
+  max-width: 450px;
+}
+
+.chip-container {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+

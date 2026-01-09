@@ -3,33 +3,52 @@
 
   <h3 class="w-100 center mat">Admin Panel</h3>
 
-  <a mat-stroked-button href="broadcast" class="menu-button" 
-     [disabled]="!authService.hasRole('Admin', 'BroadcastManager')">
+  <a
+    mat-stroked-button
+    href="broadcast"
+    class="menu-button"
+    [disabled]="!authService.hasRole('Admin', 'BroadcastManager')"
+  >
     <mat-icon>bigtop_updates</mat-icon>
     Broadcast
   </a>
 
-  <a mat-stroked-button href="calendars" class="menu-button" 
-     [disabled]="!authService.hasRole('Admin', 'CalendarManager')">
-    <mat-icon>event</mat-icon>
-    Calendars
-  </a>
+  <a
+    mat-stroked-button
+    href="media"
+    class="menu-button"
+    [disabled]="!authService.hasRole('Admin', 'MediaManager')"
+  >
+    <mat-icon>video_settings</mat-icon> Media</a
+  >
 
-  <a mat-stroked-button href="media" class="menu-button" 
-     [disabled]="!authService.hasRole('Admin', 'MediaManager')">
-    <mat-icon>video_settings</mat-icon> 
-    Media
-  </a>
+  <a
+    mat-stroked-button
+    href="calendars"
+    class="menu-button"
+    [disabled]="!authService.hasRole('Admin', 'MediaManager')"
+  >
+    <mat-icon>calendar_today</mat-icon> Calendars</a
+  >
 
-  <a mat-stroked-button href="users" class="menu-button" 
-     [disabled]="!authService.hasRole('Admin')">
+  <a
+    mat-stroked-button
+    href="users"
+    class="menu-button"
+    [disabled]="!authService.hasRole('Admin')"
+  >
     <mat-icon>account_circle</mat-icon>
     Users
   </a>
 
-  <a mat-stroked-button href="userGroups" class="menu-button" 
-     [disabled]="!authService.hasRole('Admin', 'CalendarManager')">
+  <a
+    mat-stroked-button
+    href="userGroups"
+    class="menu-button"
+    [disabled]="!authService.hasRole('Admin', 'CalendarManager')"
+  >
     <mat-icon>group_add</mat-icon>
     User Groups
   </a>
+
 </div>
