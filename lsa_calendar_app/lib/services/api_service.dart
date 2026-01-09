@@ -49,8 +49,7 @@ class ApiService {
   }) async {
     try {
       final baseUrl = dotenv.env['API_BASE_URL']!;
-      final headers = await _getHeaders();
-      
+      final headers = await _getHeaders();      
       final response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
         headers: headers,
