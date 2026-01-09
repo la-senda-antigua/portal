@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lsa_calendar_app/core/app_text_styles.dart';
 
 class MonthNavigator extends StatelessWidget {
   final DateTime currentDate;
@@ -12,18 +13,18 @@ class MonthNavigator extends StatelessWidget {
 
   String _getMonthName(int month) {
     const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
+      'January',
+      'February',
+      'March',
+      'April',
       'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return months[month - 1];
   }
@@ -37,6 +38,7 @@ class MonthNavigator extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Previous Month
           TextButton(
             onPressed: () => onMonthChanged(-1),
             child: Row(
@@ -49,26 +51,27 @@ class MonthNavigator extends StatelessWidget {
                       currentDate.year,
                       currentDate.month - 1,
                     ).month,
-                  ),
+                  ).substring(0,3),                  
                 ),
               ],
             ),
           ),
+          
+          //Current Month
           Column(
             children: [
               Text(
-                _getMonthName(currentDate.month),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                _getMonthName(currentDate.month),                
+                style: AppTextStyles.h2,
               ),
               Text(
                 '${currentDate.year}',
-                style: const TextStyle(fontSize: 12),
+                style: AppTextStyles.body,
               ),
             ],
           ),
+
+          // Next Month
           TextButton(
             onPressed: () => onMonthChanged(1),
             child: Row(
@@ -80,7 +83,7 @@ class MonthNavigator extends StatelessWidget {
                       currentDate.year,
                       currentDate.month + 1,
                     ).month,
-                  ),
+                  ).substring(0,3),
                 ),
                 const Icon(Icons.chevron_right),
               ],
