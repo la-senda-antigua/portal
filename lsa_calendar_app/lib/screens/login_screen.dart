@@ -184,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(30),
                         side: const BorderSide(color: AppColors.secondary),
                       ),
-                      elevation: 3,
+                      elevation: 0,
                     ),
                   ),
           ],
