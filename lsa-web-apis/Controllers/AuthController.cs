@@ -24,6 +24,27 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(user);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpPost("register-with-password")]
+    public async Task<ActionResult<User>> RegisterWithPassword([FromBody] RegisterWithPasswordDto request)
+    {
+        var user = await authService.RegisterWithPasswordAsync(request.Username, request.Password, request.Role, request.Name ?? "");
+        if (user is null)
+            return BadRequest("User name already in use.");
+
+        return Ok(user);
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<TokenResponseDto>> Login([FromBody] LoginDto request)
+    {
+        var response = await authService.LoginAsync(request.Username, request.Password);
+        if (response is null)
+            return BadRequest("Username or password incorrect.");
+
+        return Ok(response);
+    }
+
     [HttpPost("refresh-tokens")]
     public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequetDto request)
     {

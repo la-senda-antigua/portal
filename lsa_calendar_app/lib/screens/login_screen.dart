@@ -16,12 +16,22 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = true;
+  bool _obscurePassword = true;
 
   @override
   void initState() {
     super.initState();
     _checkExistingSession();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   void _showSnack(String message) {
@@ -97,6 +107,38 @@ class _LoginScreenState extends State<LoginScreen> {
     if (mounted) setState(() => _isLoading = false);
   }
 
+  Future<void> _handleStandardLogin() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showSnack('Por favor ingrese usuario y contraseña');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await ApiService.post('/auth/login', body: {
+        'username': _usernameController.text,
+        'password': _passwordController.text,
+      });
+
+      final String token = response['accesToken'] ?? response['accessToken'];
+      final String? refreshToken = response['refreshToken'];
+
+      await _saveData(token, refreshToken, _usernameController.text, null, null);
+
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      debugPrint('Login error: $e');
+      _showSnack('Usuario o contraseña incorrectos');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _handleGoogleSignIn() async {
     debugPrint('Starting Google Sign-In##');
     if (_isLoading) return;
@@ -158,36 +200,95 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _isLoading
-                ? const Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Signing you in...', style: AppTextStyles.body),
-                    ],
-                  )
-                : ElevatedButton.icon(
-                    onPressed: _handleGoogleSignIn,
-                    icon: const FaIcon(FontAwesomeIcons.google, size: 28),
-                    label: const Text('Sign in with Google',style: AppTextStyles.body,),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.light,
-                      foregroundColor: AppColors.dark,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(42.0),
+          child: _isLoading
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 16),
+                    Text('Iniciando sesión...', style: AppTextStyles.body),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Usuario',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.person),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(color: AppColors.secondary),
-                      ),
-                      elevation: 0,
                     ),
-                  ),
-          ],
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _handleStandardLogin,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: AppColors.accent,
+                          foregroundColor: AppColors.light,
+                          fixedSize: const Size.fromHeight(60),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Text('Iniciar Sesión', style: AppTextStyles.body),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Row(children: [
+                      Expanded(child: Divider()),                      
+                    ]),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _handleGoogleSignIn,
+                        icon: const FaIcon(FontAwesomeIcons.google, size: 28),
+                        label: const Text(
+                          'Continuar con Google',
+                          style: AppTextStyles.body,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.light,
+                          foregroundColor: AppColors.dark,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            side: const BorderSide(color: AppColors.secondary),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

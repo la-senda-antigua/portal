@@ -33,6 +33,45 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return user;
     }
 
+    public async Task<User?> RegisterWithPasswordAsync(string username, string password, string role, string name)
+    {
+        if (await context.PortalUsers.AnyAsync(u => u.Username == username))
+        {
+            return null;
+        }
+
+        CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+
+        var user = new User()
+        {
+            Username = username,
+            Name = name,
+            Role = role,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt
+        };
+        context.PortalUsers.Add(user);
+        await context.SaveChangesAsync();
+
+        return user;
+    }
+
+    public async Task<TokenResponseDto?> LoginAsync(string username, string password)
+    {
+        var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.Username == username);
+        if (user is null)
+        {
+            return null;
+        }
+
+        if (user.PasswordHash == null || user.PasswordSalt == null || !VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+        {
+            return null;
+        }
+
+        return await CreateTokenResponse(user);
+    }
+
     public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequetDto request)
     {
         var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
@@ -95,6 +134,20 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
         return Convert.ToBase64String(randomNumber);
+    }
+
+    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    {
+        using var hmac = new HMACSHA512();
+        passwordSalt = hmac.Key;
+        passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+    }
+
+    private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    {
+        using var hmac = new HMACSHA512(passwordSalt);
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return computedHash.SequenceEqual(passwordHash);
     }
 
     private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
