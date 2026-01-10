@@ -25,13 +25,13 @@ dev_dependencies:
   flutter_launcher_icons: ^0.13.1
 
 flutter_native_splash:  
-  color: "#e7d9be"   
-  image: assets/images/splash_base.png    
+  color: "#ffffff"   
+  image: assets/images/splash.png    
   # fullscreen: true
   
   android_12:
-    image: assets/images/splash_android12.png
-    color: "#e7d9be"
+    image: assets/images/splash.png
+    color: "#ffffff"
 
 flutter_launcher_icons:
   android: "launcher_icon"
