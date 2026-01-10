@@ -150,7 +150,62 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     await fetchCalendars();
     await _loadSelectedCalendars();
     await fetchEvents();
+
+    final visibleEvents = events.where((e) {
+      final matchesCalendar = selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId);
+      final matchesDate = e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day;
+      return matchesCalendar && matchesDate;
+    }).toList();
+    if (visibleEvents.isEmpty) {
+      final found = await _findAndSetNextEventDateFrom(currentDate);
+      if (found) await fetchEvents();
+    }
     setState(() => isLoading = false);
+  }
+
+  Future<bool> _findAndSetNextEventDateFrom(DateTime fromDate) async {
+    final uniqueDatesCurrent = events
+        .where((e) => selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId))
+        .map((e) => DateTime(e.start.year, e.start.month, e.start.day))
+        .toSet()
+        .toList()
+      ..sort();
+
+    for (final d in uniqueDatesCurrent) {
+      if (d.isAfter(DateTime(fromDate.year, fromDate.month, fromDate.day))) {
+        setState(() => currentDate = d);
+        _updateNavigationDates();
+        return true;
+      }
+    }
+
+    DateTime probe = DateTime(fromDate.year, fromDate.month + 1, 1);
+    for (int i = 0; i < 24; i++) {
+      final body = {
+        'month': probe.month,
+        'year': probe.year,
+        'calendarIds': selectedCalendarIds ?? [],
+      };
+      try {
+        final resp = await ApiService.post('/calendars/GetEventsByMonth', body: body);
+        final monthEvents = (resp as List)
+            .map((json) => Event.fromJson(json))
+            .where((e) => selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId))
+            .toList();
+        if (monthEvents.isNotEmpty) {
+          monthEvents.sort((a, b) => a.start.compareTo(b.start));
+          final earliest = DateTime(monthEvents.first.start.year, monthEvents.first.start.month, monthEvents.first.start.day);
+          setState(() => currentDate = earliest);
+          _updateNavigationDates();
+          return true;
+        }
+      } catch (e) {
+        debugPrint('Error probing month ${probe.month}/${probe.year}: $e');
+      }
+      probe = DateTime(probe.year, probe.month + 1, 1);
+    }
+
+    return false;
   }
 
   Future<void> _loadUsername() async {
