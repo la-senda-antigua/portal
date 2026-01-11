@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 import 'package:lsa_calendar_app/screens/login_screen.dart';
@@ -39,10 +40,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         calendars = (data as List).map((json) => Calendar.fromJson(json)).toList();
       });
     } catch (e) {
-      setState(() {
-        error = 'Could not connect to server. Try refreshing.';
-        debugPrint('Error fetching calendars: $error');
-      });
+      if (mounted) {
+        setState(() {
+          error = AppLocalizations.of(context)!.serverConnectionError;
+          debugPrint('Error fetching calendars: $error');
+        });
+      }
     }
   }
 
@@ -95,10 +98,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       });
     } catch (e) {
       debugPrint('--- Error fetching events: $e');
-      setState(() {
-        error = 'Error fetching events';
-        isLoadingEvents = false;
-      });
+      if (mounted) {
+        setState(() {
+          error = AppLocalizations.of(context)!.fetchEventsError;
+          isLoadingEvents = false;
+        });
+      }
     }
   }
 
@@ -210,8 +215,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
   Future<void> _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
-      username = prefs.getString('username') ?? 'Guest';
+      username = prefs.getString('username') ?? AppLocalizations.of(context)!.guestUser;
       avatar = prefs.getString('avatar');
       email = prefs.getString('email');
     });

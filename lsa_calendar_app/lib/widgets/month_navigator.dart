@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 
 class MonthNavigator extends StatelessWidget {
@@ -11,26 +12,10 @@ class MonthNavigator extends StatelessWidget {
     required this.onMonthChanged,
   });
 
-  String _getMonthName(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return months[month - 1];
-  }
-
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       width: double.infinity,
@@ -46,12 +31,9 @@ class MonthNavigator extends StatelessWidget {
               children: [
                 const Icon(Icons.chevron_left),
                 Text(
-                  _getMonthName(
-                    DateTime(
-                      currentDate.year,
-                      currentDate.month - 1,
-                    ).month,
-                  ).substring(0,3),                  
+                  DateFormat.MMM(locale).format(
+                    DateTime(currentDate.year, currentDate.month - 1),
+                  ),
                 ),
               ],
             ),
@@ -61,7 +43,7 @@ class MonthNavigator extends StatelessWidget {
           Column(
             children: [
               Text(
-                _getMonthName(currentDate.month),                
+                DateFormat.MMMM(locale).format(currentDate),
                 style: AppTextStyles.h2,
               ),
               Text(
@@ -78,12 +60,9 @@ class MonthNavigator extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  _getMonthName(
-                    DateTime(
-                      currentDate.year,
-                      currentDate.month + 1,
-                    ).month,
-                  ).substring(0,3),
+                  DateFormat.MMM(locale).format(
+                    DateTime(currentDate.year, currentDate.month + 1),
+                  ),
                 ),
                 const Icon(Icons.chevron_right),
               ],

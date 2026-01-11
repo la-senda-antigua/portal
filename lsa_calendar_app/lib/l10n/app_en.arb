@@ -1,0 +1,18 @@
+{
+  "usernameLabel": "Username",
+  "passwordLabel": "Password",
+  "loginButton": "Log In",
+  "googleLoginButton": "Continue with Google",
+  "loggingIn": "Logging in...",
+  "enterCredentials": "Please enter username and password",
+  "loginError": "Incorrect username or password",
+  "loginCancelled": "Login cancelled",
+  "googleTokenError": "Failed to get Google access token",
+  "welcomeMessage": "Welcome {name}!",
+  "connectionError": "Connection error. Please try again.",
+  "serverConnectionError": "Could not connect to server. Try refreshing.",
+  "fetchEventsError": "Error fetching events",
+  "guestUser": "Guest",
+  "myCalendars": "My Calendars",
+  "logout": "Logout"
+}

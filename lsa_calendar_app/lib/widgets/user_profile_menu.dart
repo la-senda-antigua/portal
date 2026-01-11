@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 
 class UserProfileMenu extends StatelessWidget {
   final String username;
@@ -39,9 +40,9 @@ class UserProfileMenu extends StatelessWidget {
           ),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'logout',
-          child: Text('Logout'),
+          child: Text(AppLocalizations.of(context)!.logout),
         ),
       ],
       child: CircleAvatar(

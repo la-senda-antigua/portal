@@ -14,3 +14,6 @@ flutter build apk --release --dart-define=ENV_FILE=.env.production
 dart run flutter_native_splash:create
 # for creating icon
 dart run flutter_launcher_icons
+
+# for generating language files
+flutter gen-l10n

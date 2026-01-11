@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DateNavigator extends StatelessWidget {
   final DateTime currentDate;
@@ -14,16 +15,11 @@ class DateNavigator extends StatelessWidget {
     required this.onDateSelected,
   });
 
-  String _getDayName(int weekday) {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days[weekday - 1];
-  }
-
-  String _formatDateButton(String? dateStr) {
+  String _formatDateButton(String? dateStr, String locale) {
     if (dateStr == null || dateStr.isEmpty) return '';
     try {
       final date = DateTime.parse(dateStr);
-      return '${_getDayName(date.weekday)} ${date.day}';
+      return '${DateFormat.E(locale).format(date)} ${date.day}';
     } catch (e) {
       return '';
     }
@@ -31,6 +27,8 @@ class DateNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 8.0,
@@ -46,14 +44,14 @@ class DateNavigator extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.chevron_left),
-                  Text(_formatDateButton(previousDate)),
+                  Text(_formatDateButton(previousDate, locale)),
                 ],
               ),
             )
           else
             const SizedBox(width: 80),
           Text(
-            '${_getDayName(currentDate.weekday)} ${currentDate.day}',
+            '${DateFormat.E(locale).format(currentDate)} ${currentDate.day}',
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -65,7 +63,7 @@ class DateNavigator extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(_formatDateButton(nextDate)),
+                  Text(_formatDateButton(nextDate, locale)),
                   const Icon(Icons.chevron_right),
                 ],
               ),
