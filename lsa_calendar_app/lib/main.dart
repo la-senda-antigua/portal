@@ -30,6 +30,14 @@ class MainApp extends StatelessWidget {
         Locale('en'),
         Locale('es'),
       ],
+      localeResolutionCallback: (locale, supportedLocales) {
+        for (var supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale?.languageCode) {
+            return supportedLocale;
+          }
+        }
+        return supportedLocales.first;
+      },
       home: const LoginScreen(),
     );
   }
