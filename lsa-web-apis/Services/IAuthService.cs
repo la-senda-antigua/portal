@@ -15,4 +15,5 @@ public interface IAuthService
     public Task<bool> RevokeRefreshTokenAsync(string refreshToken);
     public Task<GoogleUserInfo?> VerifyGoogleToken(string idToken);
     public Task<GoogleUserInfo?> VerifyGoogleAccessToken(string accessToken);
+    Task<TokenResponseDto?> LoginWithAppleAsync(AppleLoginRequest request);
 }

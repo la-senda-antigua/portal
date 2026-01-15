@@ -3,6 +3,8 @@ using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -117,6 +119,48 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         }
 
         return await CreateTokenResponse(user);
+    }
+
+    public async Task<TokenResponseDto?> LoginWithAppleAsync(AppleLoginRequest request)
+    {
+        if (string.IsNullOrEmpty(request.IdentityToken)) return null;
+
+        string email;
+        try
+        {
+            var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+                "https://appleid.apple.com/.well-known/openid-configuration",
+                new OpenIdConnectConfigurationRetriever());
+
+            var openIdConfig = await configurationManager.GetConfigurationAsync(CancellationToken.None);
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = "https://appleid.apple.com",
+                ValidateAudience = true,
+                ValidAudience = configuration["Authentication:Apple:ClientId"],
+                ValidateLifetime = true,
+                IssuerSigningKeys = openIdConfig.SigningKeys
+            };
+
+            var handler = new JwtSecurityTokenHandler();
+            var result = await handler.ValidateTokenAsync(request.IdentityToken, validationParameters);
+
+            if (!result.IsValid)
+                return null;
+
+            if (!result.Claims.TryGetValue("email", out var emailObj) || emailObj is not string emailStr)
+                return null;
+
+            email = emailStr;
+        }
+        catch
+        {
+            return null;
+        }
+
+        return await LoginWithGoogleAsync(email);
     }
 
     private async Task<TokenResponseDto> CreateTokenResponse(User user)

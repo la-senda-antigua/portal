@@ -126,6 +126,24 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
     }
 
+    [HttpPost("apple-login")]
+    public async Task<ActionResult<TokenResponseDto>> AppleLogin([FromBody] AppleLoginRequest request)
+    {
+        try
+        {
+            var response = await authService.LoginWithAppleAsync(request);
+            if (response is null)
+                return BadRequest("Apple authentication failed.");
+
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex) when (ex.Message == "User not found.")
+        {
+            return Unauthorized("User not registered.");
+        }
+    }
+    
+
     [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] RefreshTokenRequetDto request)
