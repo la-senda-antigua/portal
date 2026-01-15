@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
@@ -203,6 +204,63 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleAppleSignIn() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final response = await ApiService.post('/auth/apple-login', body: {
+        'identityToken': credential.identityToken,
+      });
+
+      final String token = response['accesToken'] ?? response['accessToken'];
+      final String? refreshToken = response['refreshToken'];
+
+      // Guardamos el token temporalmente para poder hacer llamadas autenticadas
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', token);
+
+      String username = 'Apple User';
+      String? email = credential.email;
+
+      // Intentamos obtener más detalles del backend (email/username) ya que Apple solo devuelve el nombre en el primer login
+      try {
+        final userValidation = await ApiService.get('/auth/validate-token');
+        if (userValidation['valid'] == true && userValidation['user'] != null) {
+          email = userValidation['user']['email'] ?? email;
+          // Si es el primer login, credential tiene el nombre. Si no, usamos el del backend o el email.
+          if (credential.givenName != null) {
+            username = '${credential.givenName} ${credential.familyName ?? ''}'.trim();
+          } else if (email != null) {
+             username = email.split('@')[0];
+          }
+        }
+      } catch (_) {}
+
+      await _saveData(token, refreshToken, username, email, null);
+
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      debugPrint('Apple Sign-In error: $e');
+      if (mounted) {
+        _showSnack(AppLocalizations.of(context)!.connectionError);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -289,6 +347,29 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                             side: const BorderSide(color: AppColors.secondary),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _handleAppleSignIn,
+                        icon: const FaIcon(FontAwesomeIcons.apple, size: 28),
+                        label: const Text(
+                          'Continuar con Apple',
+                          style: AppTextStyles.body,
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           elevation: 0,
                         ),
