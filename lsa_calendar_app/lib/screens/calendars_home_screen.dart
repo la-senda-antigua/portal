@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 import 'package:lsa_calendar_app/screens/login_screen.dart';
@@ -39,10 +40,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         calendars = (data as List).map((json) => Calendar.fromJson(json)).toList();
       });
     } catch (e) {
-      setState(() {
-        error = 'Could not connect to server. Try refreshing.';
-        debugPrint('Error fetching calendars: $error');
-      });
+      if (mounted) {
+        setState(() {
+          error = AppLocalizations.of(context)!.serverConnectionError;
+          debugPrint('Error fetching calendars: $error');
+        });
+      }
     }
   }
 
@@ -95,10 +98,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       });
     } catch (e) {
       debugPrint('--- Error fetching events: $e');
-      setState(() {
-        error = 'Error fetching events';
-        isLoadingEvents = false;
-      });
+      if (mounted) {
+        setState(() {
+          error = AppLocalizations.of(context)!.fetchEventsError;
+          isLoadingEvents = false;
+        });
+      }
     }
   }
 
@@ -150,13 +155,69 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     await fetchCalendars();
     await _loadSelectedCalendars();
     await fetchEvents();
+
+    final visibleEvents = events.where((e) {
+      final matchesCalendar = selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId);
+      final matchesDate = e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day;
+      return matchesCalendar && matchesDate;
+    }).toList();
+    if (visibleEvents.isEmpty) {
+      final found = await _findAndSetNextEventDateFrom(currentDate);
+      if (found) await fetchEvents();
+    }
     setState(() => isLoading = false);
+  }
+
+  Future<bool> _findAndSetNextEventDateFrom(DateTime fromDate) async {
+    final uniqueDatesCurrent = events
+        .where((e) => selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId))
+        .map((e) => DateTime(e.start.year, e.start.month, e.start.day))
+        .toSet()
+        .toList()
+      ..sort();
+
+    for (final d in uniqueDatesCurrent) {
+      if (d.isAfter(DateTime(fromDate.year, fromDate.month, fromDate.day))) {
+        setState(() => currentDate = d);
+        _updateNavigationDates();
+        return true;
+      }
+    }
+
+    DateTime probe = DateTime(fromDate.year, fromDate.month + 1, 1);
+    for (int i = 0; i < 24; i++) {
+      final body = {
+        'month': probe.month,
+        'year': probe.year,
+        'calendarIds': selectedCalendarIds ?? [],
+      };
+      try {
+        final resp = await ApiService.post('/calendars/GetEventsByMonth', body: body);
+        final monthEvents = (resp as List)
+            .map((json) => Event.fromJson(json))
+            .where((e) => selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId))
+            .toList();
+        if (monthEvents.isNotEmpty) {
+          monthEvents.sort((a, b) => a.start.compareTo(b.start));
+          final earliest = DateTime(monthEvents.first.start.year, monthEvents.first.start.month, monthEvents.first.start.day);
+          setState(() => currentDate = earliest);
+          _updateNavigationDates();
+          return true;
+        }
+      } catch (e) {
+        debugPrint('Error probing month ${probe.month}/${probe.year}: $e');
+      }
+      probe = DateTime(probe.year, probe.month + 1, 1);
+    }
+
+    return false;
   }
 
   Future<void> _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
-      username = prefs.getString('username') ?? 'Guest';
+      username = prefs.getString('username') ?? AppLocalizations.of(context)!.guestUser;
       avatar = prefs.getString('avatar');
       email = prefs.getString('email');
     });

@@ -15,7 +15,12 @@ dependencies:
   shared_preferences: ^2.3.0
 
   flutter:
-    sdk: flutter  
+    sdk: flutter
+  flutter_localizations: 
+    sdk: flutter
+  intl: ^0.20.2 
+
+
 
 dev_dependencies:
   flutter_test:
@@ -42,6 +47,7 @@ flutter_launcher_icons:
   adaptive_icon_foreground: "assets/images/icon.png"
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - .env

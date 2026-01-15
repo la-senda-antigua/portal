@@ -1,0 +1,18 @@
+{
+  "usernameLabel": "Usuario",
+  "passwordLabel": "Contraseña",
+  "loginButton": "Iniciar Sesión",
+  "googleLoginButton": "Continuar con Google",
+  "loggingIn": "Iniciando sesión...",
+  "enterCredentials": "Por favor ingrese usuario y contraseña",
+  "loginError": "Usuario o contraseña incorrectos",
+  "loginCancelled": "Inicio de sesión cancelado",
+  "googleTokenError": "Error al obtener token de Google",
+  "welcomeMessage": "Bienvenido {name}!",
+  "connectionError": "Error de conexión. Por favor intente de nuevo.",
+  "serverConnectionError": "No se pudo conectar al servidor. Intente refrescar.",
+  "fetchEventsError": "Error al obtener eventos",
+  "guestUser": "Invitado",
+  "myCalendars": "Mis Calendarios",
+  "logout": "Cerrar Sesión"
+}

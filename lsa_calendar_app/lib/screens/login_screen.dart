@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
+import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/screens/calendars_home_screen.dart';
 import 'package:lsa_calendar_app/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleStandardLogin() async {
     if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
-      _showSnack('Por favor ingrese usuario y contraseña');
+      _showSnack(AppLocalizations.of(context)!.enterCredentials);
       return;
     }
 
@@ -133,7 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       debugPrint('Login error: $e');
-      _showSnack('Usuario o contraseña incorrectos');
+      if (mounted) {
+        _showSnack(AppLocalizations.of(context)!.loginError);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -149,8 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final account = await _googleSignIn.signIn();
 
       if (account == null) {
+        if (!mounted) return;
         setState(() => _isLoading = false);
-        _showSnack('Login cancelled');
+        _showSnack(AppLocalizations.of(context)!.loginCancelled);
         return;
       }
 
@@ -158,8 +162,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final String? accessToken = auth.accessToken;
 
       if (accessToken == null) {
+        if (!mounted) return;
         setState(() => _isLoading = false);
-        _showSnack('Failed to get Google access token');
+        _showSnack(AppLocalizations.of(context)!.googleTokenError);
         return;
       }
 
@@ -185,10 +190,12 @@ class _LoginScreenState extends State<LoginScreen> {
         (route) => false,
       );
 
-      _showSnack('Welcome ${account.displayName ?? 'User'}!');
+      _showSnack(AppLocalizations.of(context)!.welcomeMessage(account.displayName ?? 'User'));
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
-      _showSnack('Connection error. Please try again.');
+      if (mounted) {
+        _showSnack(AppLocalizations.of(context)!.connectionError);
+      }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -203,12 +210,12 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(42.0),
           child: _isLoading
-              ? const Column(
+              ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 16),
-                    Text('Iniciando sesión...', style: AppTextStyles.body),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(AppLocalizations.of(context)!.loggingIn, style: AppTextStyles.body),
                   ],
                 )
               : Column(
@@ -216,8 +223,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     TextField(
                       controller: _usernameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Usuario',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.usernameLabel,
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.person),
                       ),
@@ -227,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
-                        labelText: 'Contraseña',
+                        labelText: AppLocalizations.of(context)!.passwordLabel,
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
@@ -256,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Text('Iniciar Sesión', style: AppTextStyles.body),
+                        child: Text(AppLocalizations.of(context)!.loginButton, style: AppTextStyles.body),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -269,8 +276,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton.icon(
                         onPressed: _handleGoogleSignIn,
                         icon: const FaIcon(FontAwesomeIcons.google, size: 28),
-                        label: const Text(
-                          'Continuar con Google',
+                        label: Text(
+                          AppLocalizations.of(context)!.googleLoginButton,
                           style: AppTextStyles.body,
                         ),
                         style: ElevatedButton.styleFrom(
