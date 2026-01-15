@@ -17,6 +17,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UsersService } from '../../services/users.service';
 import { PortalUser } from '../../models/PortalUser';
+import { UserGroupsService } from '../../services/userGroups.service';
+import { UserGroup } from '../../models/UserGroup';
 import { map, Observable, startWith } from 'rxjs';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
@@ -47,8 +49,9 @@ import {
 export class AddPeopleFormComponent {
   selectedUsers: PortalUser[] = [];
   userCtrl = new FormControl('');
-  filteredUsers: Observable<PortalUser[]>;
+  filteredUsers: Observable<(PortalUser | UserGroup)[]>;
   allUsers: PortalUser[] = [];
+  allGroups: UserGroup[] = [];
   protected readonly getUserColor = getUserColor;
   protected readonly getInitial = getInitial;
   protected readonly getDisplayName = getDisplayName;
@@ -63,9 +66,13 @@ export class AddPeopleFormComponent {
       existingUsers?: PortalUser[];
     },
     private usersService: UsersService
+    ,private userGroupsService: UserGroupsService
   ) {
     this.usersService.getAll().subscribe((result) => {
       this.allUsers = result;
+    });
+    this.userGroupsService.getAll().subscribe((result) => {
+      this.allGroups = result;
     });
 
     this.filteredUsers = this.userCtrl.valueChanges.pipe(
@@ -74,22 +81,36 @@ export class AddPeopleFormComponent {
     );
   }
 
-  private _filter(value: string | PortalUser): PortalUser[] {
-    const filterValue =
-      typeof value === 'string'
-        ? value.toLowerCase()
-        : value.username.toLowerCase();
+  private _filter(value: string | PortalUser | UserGroup): (PortalUser | UserGroup)[] {
+    let filterValue = '';
+    if (typeof value === 'string') {
+      filterValue = value.toLowerCase();
+    } else if (this.isUser(value)) {
+      filterValue = value.username.toLowerCase();
+    } else {
+      filterValue = (value as UserGroup).groupName.toLowerCase();
+    }
 
     const existingUserIds = [
       ...this.selectedUsers,
       ...(this.data.existingUsers || []),
     ].map((user) => user.userId);
 
-    return this.allUsers.filter(
+    const users = this.allUsers.filter(
       (user) =>
         user.username.toLowerCase().includes(filterValue) &&
         !existingUserIds.includes(user.userId)
     );
+
+    const groups = this.allGroups.filter((group) =>
+      group.groupName.toLowerCase().includes(filterValue)
+    );
+
+    return [...users, ...groups];
+  }
+
+  isUser(value: any): value is PortalUser {
+    return (value as PortalUser).userId !== undefined;
   }
 
   remove(user: PortalUser): void {
@@ -100,15 +121,41 @@ export class AddPeopleFormComponent {
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {
-    const user = event.option.value as PortalUser;
-    if (!this.selectedUsers.find((u) => u.userId === user.userId)) {
-      this.selectedUsers.push(user);
-      this.userCtrl.setValue('');
+    const value = event.option.value;
+
+    if (this.isUser(value)) {
+      const user = value as PortalUser;
+      if (!this.selectedUsers.find((u) => u.userId === user.userId)) {
+        this.selectedUsers.push(user);
+      }
+    } else {
+      const group = value as UserGroup;
+      if (group.members) {
+        group.members.forEach((member) => {
+          const isSelected = this.selectedUsers.some((u) => u.userId === member.userId);
+          const isExisting = (this.data.existingUsers || []).some((u) => u.userId === member.userId);
+
+          if (!isSelected && !isExisting) {
+            this.selectedUsers.push({
+              userId: member.userId,
+              username: member.username,
+              name: member.name,
+              role: 'User',
+            });
+          }
+        });
+      }
     }
+    this.userCtrl.setValue('');
   }
 
-  displayFn(user: PortalUser): string {
-    return user ? `${user.name} (${user.username})` : '';
+  displayFn(value: PortalUser | UserGroup): string {
+    if (!value) return '';
+    if ((value as PortalUser).userId !== undefined) {
+      const user = value as PortalUser;
+      return `${user.name} (${user.username})`;
+    }
+    return `${(value as UserGroup).groupName} (Group)`;
   }
 
   save() {
