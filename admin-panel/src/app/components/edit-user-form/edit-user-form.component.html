@@ -5,10 +5,10 @@
   <mat-card-content class="form-group" [formGroup]="userForm">
     <!-- Username -->
     <mat-form-field appearance="outline">
-      <mat-label>Google Account</mat-label>
+      <mat-label>Email</mat-label>
       <input matInput [formControl]="userForm.controls.username" />
       <mat-error *ngIf="userForm.controls.username.hasError">
-        Google account is required
+        Add a valide email address
       </mat-error>
     </mat-form-field>
 
