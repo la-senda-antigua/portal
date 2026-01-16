@@ -2,6 +2,7 @@
   "usernameLabel": "Usuario",
   "passwordLabel": "Contraseña",
   "loginButton": "Iniciar Sesión",
+  "appleLoginButton": "Continuar con Apple",
   "googleLoginButton": "Continuar con Google",
   "loggingIn": "Iniciando sesión...",
   "enterCredentials": "Por favor ingrese usuario y contraseña",

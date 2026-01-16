@@ -126,8 +126,6 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         if (string.IsNullOrEmpty(request.IdentityToken)) return null;
 
         string email;
-        try
-        {
             var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
                 "https://appleid.apple.com/.well-known/openid-configuration",
                 new OpenIdConnectConfigurationRetriever());
@@ -148,18 +146,15 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
             var result = await handler.ValidateTokenAsync(request.IdentityToken, validationParameters);
 
             if (!result.IsValid)
-                return null;
+                throw new Exception($"Apple validation failed: {result.Exception?.Message ?? "Unknown error"}");
 
-            if (!result.Claims.TryGetValue("email", out var emailObj) || emailObj is not string emailStr)
-                return null;
+            var emailObj = result.Claims.FirstOrDefault(c => c.Key == "email" || c.Key == ClaimTypes.Email).Value;
 
-            email = emailStr;
-        }
-        catch
-        {
-            return null;
-        }
+            if (emailObj is not string emailFound)
+                throw new Exception($"Apple token missing email claim. Available claims: {string.Join(", ", result.Claims.Keys)}");
 
+            email = emailFound;
+                        
         return await LoginWithGoogleAsync(email);
     }
 

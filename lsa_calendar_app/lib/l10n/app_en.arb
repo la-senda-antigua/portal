@@ -2,6 +2,7 @@
   "usernameLabel": "Username",
   "passwordLabel": "Password",
   "loginButton": "Log In",
+  "appleLoginButton": "Continue with Apple",
   "googleLoginButton": "Continue with Google",
   "loggingIn": "Logging in...",
   "enterCredentials": "Please enter username and password",
