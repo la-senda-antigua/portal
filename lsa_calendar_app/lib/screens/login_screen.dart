@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -214,6 +215,11 @@ class _LoginScreenState extends State<LoginScreen> {
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
         ],
+        // Requerido para Android:
+        webAuthenticationOptions: WebAuthenticationOptions(
+          clientId: dotenv.env['APPLE_SERVICE_ID'] ?? 'com.tu.service.id',
+          redirectUri: Uri.parse(dotenv.env['APPLE_REDIRECT_URI'] ?? 'https://tu-backend.com/callbacks/sign_in_with_apple'),
+        ),
       );
 
       final response = await ApiService.post('/auth/apple-login', body: {
