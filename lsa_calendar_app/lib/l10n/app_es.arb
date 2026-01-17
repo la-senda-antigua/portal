@@ -15,5 +15,6 @@
   "fetchEventsError": "Error al obtener eventos",
   "guestUser": "Invitado",
   "myCalendars": "Mis Calendarios",
-  "logout": "Cerrar Sesión"
+  "logout": "Cerrar Sesión",
+  "selectCalendarMessage": "Seleccione un calendario del menú para mostrar sus eventos"
 }
