@@ -116,6 +116,12 @@ abstract class AppLocalizations {
   /// **'Log In'**
   String get loginButton;
 
+  /// No description provided for @appleLoginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get appleLoginButton;
+
   /// No description provided for @googleLoginButton.
   ///
   /// In en, this message translates to:

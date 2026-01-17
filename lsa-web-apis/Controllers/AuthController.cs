@@ -96,7 +96,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         try
         {
             GoogleUserInfo? googleUser = null;
-            
+
             if (!string.IsNullOrEmpty(request.IdToken))
             {
                 googleUser = await authService.VerifyGoogleToken(request.IdToken);
@@ -125,6 +125,31 @@ public class AuthController(IAuthService authService) : ControllerBase
             return StatusCode(500, $"Error: {ex.Message}");
         }
     }
+
+    [HttpPost("apple-login")]
+    public async Task<ActionResult<TokenResponseDto>> AppleLogin([FromBody] AppleLoginRequest request)
+    {
+        try
+        {
+            var response = await authService.LoginWithAppleAsync(request);
+            if (response is null)
+            {
+                return BadRequest("Apple authentication failed.");
+            }
+
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == "User not found.")
+            {
+                return Unauthorized("User not registered.");
+            }
+
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+
 
     [Authorize]
     [HttpPost("logout")]

@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
@@ -203,14 +205,70 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> _handleAppleSignIn() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ]
+      );
+
+      final response = await ApiService.post('/auth/apple-login', body: {
+        'identityToken': credential.identityToken,
+      });
+
+      final String token = response['accesToken'] ?? response['accessToken'];
+      final String? refreshToken = response['refreshToken'];
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', token);
+
+      String username = 'Apple User';
+      String? email = credential.email;
+      
+      try {
+        final userValidation = await ApiService.get('/auth/validate-token');
+        if (userValidation['valid'] == true && userValidation['user'] != null) {
+          email = userValidation['user']['email'] ?? email;
+          if (credential.givenName != null) {
+            username = '${credential.givenName} ${credential.familyName ?? ''}'.trim();
+          } else if (email != null) {
+             username = email.split('@')[0];
+          }
+        }
+      } catch (_) {}
+
+      await _saveData(token, refreshToken, username, email, null);
+
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
+        (route) => false,
+      );
+    } catch (e) {
+      debugPrint('Apple Sign-In error: $e');
+      if (mounted) {
+        _showSnack(AppLocalizations.of(context)!.connectionError);
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(42.0),
-          child: _isLoading
-              ? Column(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: _isLoading
+                ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(),
@@ -294,8 +352,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+                    if (Platform.isIOS) ...[
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: _handleAppleSignIn,
+                          icon: const FaIcon(FontAwesomeIcons.apple, size: 28),
+                          label: Text(
+                            AppLocalizations.of(context)!.appleLoginButton,
+                            style: AppTextStyles.body,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
+          ),
         ),
       ),
     );

@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Log In';
 
   @override
+  String get appleLoginButton => 'Continue with Apple';
+
+  @override
   String get googleLoginButton => 'Continue with Google';
 
   @override
