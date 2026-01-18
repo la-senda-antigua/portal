@@ -80,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
           final response = await ApiService.post('/auth/refresh-tokens', body: {
             'accessToken': token,
             'refreshToken': refreshToken,
+            'expirationDays': 40,
           });
 
           final newToken = response['accesToken'] ?? response['accessToken'];

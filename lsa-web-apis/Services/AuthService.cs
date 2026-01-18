@@ -74,13 +74,14 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return await CreateTokenResponse(user);
     }
 
-    public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequetDto request)
+    public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
     {
-        var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
-        if (user is null)
+        var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
+
+        if (user is null || user.RefreshTokenExpirationDate < DateTime.UtcNow)
             return null;
 
-        return await CreateTokenResponse(user);
+        return await CreateTokenResponse(user, request.ExpirationDays);
     }
 
     public async Task<TokenResponseDto?> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
@@ -158,12 +159,12 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return await LoginWithGoogleAsync(email);
     }
 
-    private async Task<TokenResponseDto> CreateTokenResponse(User user)
+    private async Task<TokenResponseDto> CreateTokenResponse(User user, int expirationDays = 7)
     {
         return new TokenResponseDto
         {
             AccesToken = CreateToken(user),
-            RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+            RefreshToken = await GenerateAndSaveRefreshTokenAsync(user, expirationDays)
         };
     }
 
@@ -189,24 +190,14 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return computedHash.SequenceEqual(passwordHash);
     }
 
-    private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
+    private async Task<string> GenerateAndSaveRefreshTokenAsync(User user, int expirationDays)
     {
         var refreshToken = GenerateRefreshToken();
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
+        user.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(expirationDays);
         context.PortalUsers.Update(user);
         await context.SaveChangesAsync();
         return refreshToken;
-    }
-
-    private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
-    {
-        var user = await context.PortalUsers.FindAsync(userId);
-        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpirationDate < DateTime.UtcNow)
-        {
-            return null;
-        }
-        return user;
     }
 
     private string CreateToken(User user)

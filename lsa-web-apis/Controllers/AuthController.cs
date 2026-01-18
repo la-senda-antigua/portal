@@ -46,7 +46,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("refresh-tokens")]
-    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequetDto request)
+    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequestDto request)
     {
         var response = await authService.RefreshTokensAsync(request);
         if (response is null)
@@ -153,7 +153,7 @@ public class AuthController(IAuthService authService) : ControllerBase
 
     [Authorize]
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequetDto request)
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto request)
     {
         var result = await authService.RevokeRefreshTokenAsync(request.RefreshToken);
         if (!result)

@@ -39,8 +39,11 @@ export class AuthService {
   }
 
   refreshToken(): Observable<boolean> {
+    const accessToken = localStorage.getItem('access-token');
+    const refreshToken = localStorage.getItem('refresh-token');
+
     return this.requestManager
-      .get('/Auth/refresh-token')
+      .post('/Auth/refresh-tokens', { accessToken, refreshToken })
       .pipe(
         map((response: any) => {
           localStorage.setItem('access-token', response.accesToken);
