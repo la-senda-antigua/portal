@@ -199,6 +199,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
+
+  /// No description provided for @selectCalendarMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a calendar from the menu to show its events'**
+  String get selectCalendarMessage;
 }
 
 class _AppLocalizationsDelegate

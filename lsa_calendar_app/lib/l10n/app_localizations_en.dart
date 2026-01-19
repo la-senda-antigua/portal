@@ -61,4 +61,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Logout';
+
+  @override
+  String get selectCalendarMessage =>
+      'Select a calendar from the menu to show its events';
 }
