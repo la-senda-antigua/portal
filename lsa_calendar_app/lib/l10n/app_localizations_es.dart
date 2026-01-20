@@ -66,4 +66,13 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get selectCalendarMessage =>
       'Seleccione un calendario del menú para mostrar sus eventos';
+
+  @override
+  String get viewEventsBy => 'Ver eventos por';
+
+  @override
+  String get day => 'Día';
+
+  @override
+  String get month => 'Mes';
 }

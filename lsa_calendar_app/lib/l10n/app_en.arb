@@ -16,5 +16,8 @@
   "guestUser": "Guest",
   "myCalendars": "My Calendars",
   "logout": "Logout",
-  "selectCalendarMessage": "Select a calendar from the menu to show its events"
+  "selectCalendarMessage": "Select a calendar from the menu to show its events",
+  "viewEventsBy": "View Events by",
+  "day": "Day",
+  "month": "Month"
 }

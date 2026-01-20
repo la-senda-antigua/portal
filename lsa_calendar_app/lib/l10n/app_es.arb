@@ -16,5 +16,8 @@
   "guestUser": "Invitado",
   "myCalendars": "Mis Calendarios",
   "logout": "Cerrar Sesión",
-  "selectCalendarMessage": "Seleccione un calendario del menú para mostrar sus eventos"
+  "selectCalendarMessage": "Seleccione un calendario del menú para mostrar sus eventos",
+  "viewEventsBy": "Ver eventos por",
+  "day": "Día",
+  "month": "Mes"  
 }
