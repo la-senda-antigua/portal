@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,8 +48,7 @@ class ApiService {
   }) async {
     try {
       final baseUrl = dotenv.env['API_BASE_URL']!;
-      final headers = await _getHeaders();
-      
+      final headers = await _getHeaders();      
       final response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
         headers: headers,

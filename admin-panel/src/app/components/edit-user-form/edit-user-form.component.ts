@@ -2,7 +2,6 @@ import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, effect, inject, signal } from '@angular/core';
 
 import {
-  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
@@ -80,16 +79,15 @@ export class EditUserFormComponent {
 
   readonly userForm: FormGroup<{
     username: FormControl<string | null>;
-    role: FormControl<string | null | undefined>;
+    role: FormControl<string | null>;
     calendarsAsManager: FormControl<CalendarDto[] | null>;
     calendarsAsMember: FormControl<CalendarDto[] | null>;
   }> = new FormGroup({
     username: new FormControl(this.formData.data.username, [
       Validators.required,
       Validators.email,
-      this.googleEmailValidator
     ]),
-    role: new FormControl(this.formData.data.role, Validators.required),
+    role: new FormControl(this.formData.data.role || 'User', Validators.required),
     calendarsAsManager: new FormControl(
       this.formData.data.calendarsAsManager || []
     ),
@@ -121,22 +119,6 @@ export class EditUserFormComponent {
         this.selectedMemberCalendars.set(memberCalendars);
       }
     });
-  }
-
-  googleEmailValidator(control: AbstractControl) {
-    if (!control.value) {
-      return null;
-    }
-
-    const email = control.value as string;
-    const googleDomains = ['gmail.com', 'googlemail.com', 'google.com'];
-    const domain = email.split('@')[1];
-
-    if (!domain || !googleDomains.includes(domain.toLowerCase())) {
-      return { googleEmail: true };
-    }
-
-    return null;
   }
 
   private findCalendarsByIds(

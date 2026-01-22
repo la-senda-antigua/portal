@@ -24,8 +24,29 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(user);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpPost("register-with-password")]
+    public async Task<ActionResult<User>> RegisterWithPassword([FromBody] RegisterWithPasswordDto request)
+    {
+        var user = await authService.RegisterWithPasswordAsync(request.Username, request.Password, request.Role, request.Name ?? "");
+        if (user is null)
+            return BadRequest("User name already in use.");
+
+        return Ok(user);
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<TokenResponseDto>> Login([FromBody] LoginDto request)
+    {
+        var response = await authService.LoginAsync(request.Username, request.Password);
+        if (response is null)
+            return BadRequest("Username or password incorrect.");
+
+        return Ok(response);
+    }
+
     [HttpPost("refresh-tokens")]
-    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequetDto request)
+    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequestDto request)
     {
         var response = await authService.RefreshTokensAsync(request);
         if (response is null)
@@ -75,7 +96,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         try
         {
             GoogleUserInfo? googleUser = null;
-            
+
             if (!string.IsNullOrEmpty(request.IdToken))
             {
                 googleUser = await authService.VerifyGoogleToken(request.IdToken);
@@ -105,9 +126,34 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
     }
 
+    [HttpPost("apple-login")]
+    public async Task<ActionResult<TokenResponseDto>> AppleLogin([FromBody] AppleLoginRequest request)
+    {
+        try
+        {
+            var response = await authService.LoginWithAppleAsync(request);
+            if (response is null)
+            {
+                return BadRequest("Apple authentication failed.");
+            }
+
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == "User not found.")
+            {
+                return Unauthorized("User not registered.");
+            }
+
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
+    }
+
+
     [Authorize]
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequetDto request)
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequestDto request)
     {
         var result = await authService.RevokeRefreshTokenAsync(request.RefreshToken);
         if (!result)

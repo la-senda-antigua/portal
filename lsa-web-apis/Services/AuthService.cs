@@ -3,6 +3,8 @@ using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -33,13 +35,53 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return user;
     }
 
-    public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequetDto request)
+    public async Task<User?> RegisterWithPasswordAsync(string username, string password, string role, string name)
     {
-        var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
-        if (user is null)
+        if (await context.PortalUsers.AnyAsync(u => u.Username == username))
+        {
             return null;
+        }
+
+        CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
+
+        var user = new User()
+        {
+            Username = username,
+            Name = name,
+            Role = role,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt
+        };
+        context.PortalUsers.Add(user);
+        await context.SaveChangesAsync();
+
+        return user;
+    }
+
+    public async Task<TokenResponseDto?> LoginAsync(string username, string password)
+    {
+        var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.Username == username);
+        if (user is null)
+        {
+            return null;
+        }
+
+        if (user.PasswordHash == null || user.PasswordSalt == null || !VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+        {
+            return null;
+        }
 
         return await CreateTokenResponse(user);
+    }
+
+    public async Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request)
+    {
+        var user = await context.PortalUsers.FirstOrDefaultAsync(u => u.RefreshToken == request.RefreshToken);
+
+        if (user is null || user.RefreshTokenExpirationDate < DateTime.UtcNow)
+            return null;
+
+        return await CreateTokenResponse(user, request.ExpirationDays);
     }
 
     public async Task<TokenResponseDto?> LoginWithGoogleAsync(ClaimsPrincipal? claimsPrincipal)
@@ -80,12 +122,49 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return await CreateTokenResponse(user);
     }
 
-    private async Task<TokenResponseDto> CreateTokenResponse(User user)
+    public async Task<TokenResponseDto?> LoginWithAppleAsync(AppleLoginRequest request)
+    {
+        if (string.IsNullOrEmpty(request.IdentityToken)) return null;
+
+        string email;
+            var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+                "https://appleid.apple.com/.well-known/openid-configuration",
+                new OpenIdConnectConfigurationRetriever());
+
+            var openIdConfig = await configurationManager.GetConfigurationAsync(CancellationToken.None);
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = "https://appleid.apple.com",
+                ValidateAudience = true,
+                ValidAudience = configuration["Authentication:Apple:ClientId"],
+                ValidateLifetime = true,
+                IssuerSigningKeys = openIdConfig.SigningKeys
+            };
+
+            var handler = new JwtSecurityTokenHandler();
+            var result = await handler.ValidateTokenAsync(request.IdentityToken, validationParameters);
+
+            if (!result.IsValid)
+                throw new Exception($"Apple validation failed: {result.Exception?.Message ?? "Unknown error"}");
+
+            var emailObj = result.Claims.FirstOrDefault(c => c.Key == "email" || c.Key == ClaimTypes.Email).Value;
+
+            if (emailObj is not string emailFound)
+                throw new Exception($"Apple token missing email claim. Available claims: {string.Join(", ", result.Claims.Keys)}");
+
+            email = emailFound;
+                        
+        return await LoginWithGoogleAsync(email);
+    }
+
+    private async Task<TokenResponseDto> CreateTokenResponse(User user, int expirationDays = 7)
     {
         return new TokenResponseDto
         {
             AccesToken = CreateToken(user),
-            RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+            RefreshToken = await GenerateAndSaveRefreshTokenAsync(user, expirationDays)
         };
     }
 
@@ -97,24 +176,28 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         return Convert.ToBase64String(randomNumber);
     }
 
-    private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
+    private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    {
+        using var hmac = new HMACSHA512();
+        passwordSalt = hmac.Key;
+        passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+    }
+
+    private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    {
+        using var hmac = new HMACSHA512(passwordSalt);
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return computedHash.SequenceEqual(passwordHash);
+    }
+
+    private async Task<string> GenerateAndSaveRefreshTokenAsync(User user, int expirationDays)
     {
         var refreshToken = GenerateRefreshToken();
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(7);
+        user.RefreshTokenExpirationDate = DateTime.UtcNow.AddDays(expirationDays);
         context.PortalUsers.Update(user);
         await context.SaveChangesAsync();
         return refreshToken;
-    }
-
-    private async Task<User?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
-    {
-        var user = await context.PortalUsers.FindAsync(userId);
-        if (user == null || user.RefreshToken != refreshToken || user.RefreshTokenExpirationDate < DateTime.UtcNow)
-        {
-            return null;
-        }
-        return user;
     }
 
     private string CreateToken(User user)

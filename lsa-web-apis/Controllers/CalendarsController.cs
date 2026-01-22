@@ -237,7 +237,7 @@ namespace lsa_web_apis.Controllers
     public record MobileEventRequest(int month, int year, List<Guid> calendarIds);
 
     [HttpPost("GetEventsByMonth")]
-    [Authorize(Roles = "Admin,CalendarManager")]
+    [Authorize]
     public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(MobileEventRequest request)
     {
       var monthStart = new DateTime(request.year, request.month, 1);
@@ -254,7 +254,7 @@ namespace lsa_web_apis.Controllers
 
         var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
         query = query.Where(
-          e => e.Calendar.Managers.Any(m => m.UserId == userId)
+          e => (e.Calendar.Managers.Any(m => m.UserId == userId) || e.Calendar.Members.Any(m => m.UserId == userId))
           && request.calendarIds.Contains(e.CalendarId)
         );
       }

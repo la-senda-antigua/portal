@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/core/calendar_colors.dart';
+import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,7 +56,7 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
           DrawerHeader(            
             child: Align(
               alignment: Alignment.bottomLeft,
-              child: Text('My Calendars', style: AppTextStyles.h1,),
+              child: Text(AppLocalizations.of(context)!.myCalendars, style: AppTextStyles.h1,),
             ),
           ),
           Expanded(

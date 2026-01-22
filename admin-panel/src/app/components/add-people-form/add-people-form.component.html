@@ -14,14 +14,23 @@
       [displayWith]="displayFn"
       (optionSelected)="selected($event)"
     >
-      <mat-option *ngFor="let user of filteredUsers | async" [value]="user">
-        <div class="user-option">
-          <div class="user-avatar" [style.background-color]="getUserColor(user.userId)">
-            {{ user.username.charAt(0).toUpperCase() }}
+      <mat-option *ngFor="let option of filteredUsers | async" [value]="option">
+        <div class="user-option" *ngIf="isUser(option)">
+          <div class="user-avatar" [style.background-color]="getUserColor($any(option).userId)">
+            {{ getInitial($any(option)) }}
           </div>
           <div class="user-info">
-            <div class="user-name">{{ user.name }}</div>
-            <div class="user-email">{{ user.username }}</div>
+            <div class="user-name">{{ getDisplayName($any(option)) }}</div>
+            <div class="user-email">{{ $any(option).username }}</div>
+          </div>
+        </div>
+        <div class="user-option" *ngIf="!isUser(option)">
+          <div class="user-avatar" style="background-color: #607d8b; display: flex; align-items: center; justify-content: center;">
+            {{ $any(option).groupName.charAt(0).toUpperCase() }}
+          </div>
+          <div class="user-info">
+            <div class="user-name">{{ $any(option).groupName }}</div>
+            <div class="user-email">Group</div>
           </div>
         </div>
       </mat-option>

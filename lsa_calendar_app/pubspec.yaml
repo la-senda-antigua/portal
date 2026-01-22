@@ -13,19 +13,45 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   http: ^0.13.5
   shared_preferences: ^2.3.0
+  sign_in_with_apple: ^6.1.0
 
   flutter:
-    sdk: flutter  
+    sdk: flutter
+  flutter_localizations: 
+    sdk: flutter
+  intl: ^0.20.2 
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_native_splash:  
+  color: "#ffffff"   
+  image: assets/images/splash.png    
+  # fullscreen: true
+  
+  android_12:
+    image: assets/images/splash.png
+    color: "#ffffff"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#c0b691"
+  adaptive_icon_foreground: "assets/images/icon.png"
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - .env
     - .env.testing
     - .env.production
+    - assets/images/

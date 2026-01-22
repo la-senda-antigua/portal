@@ -19,59 +19,41 @@ namespace lsa_web_apis.Controllers
         public async Task<ActionResult<PagedResult<UserDto>>> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
         {
             var usersQuery = context.PortalUsers
+                .AsNoTracking()
                 .Where(u => string.IsNullOrEmpty(searchTerm) ||
                            u.Username.Contains(searchTerm) ||
-                           u.Role.Contains(searchTerm));
-
-            var pagedUsers = await usersQuery.ToPagedResultAsync(page, pageSize);
-
-            var userDtos = new List<UserDto>();
-            foreach (var user in pagedUsers.Items)
-            {
-                // calendars as manager
-                var managerCalendars = await context.CalendarManagers
-                    .Where(cm => cm.UserId == user.Id)
-                    .Select(cm => new CalendarDto
-                    {
-                        Id = cm.Calendar.Id,
-                        Name = cm.Calendar.Name,
-                        Active = cm.Calendar.Active
-                    })
-                    .ToListAsync();
-
-                // calendars as member
-                var memberCalendars = await context.CalendarMembers
-                    .Where(cm => cm.UserId == user.Id)
-                    .Select(cm => new CalendarDto
-                    {
-                        Id = cm.Calendar.Id,
-                        Name = cm.Calendar.Name,
-                        Active = cm.Calendar.Active
-                    })
-                    .ToListAsync();
-
-                userDtos.Add(new UserDto
+                           u.Role.Contains(searchTerm))
+                .Select(u => new UserDto
                 {
-                    UserId = user.Id,
-                    Username = user.Username,
-                    Name = user.Name,
-                    Role = user.Role,
-                    CalendarsAsManager = managerCalendars,
-                    CalendarsAsMember = memberCalendars
+                    UserId = u.Id,
+                    Username = u.Username,
+                    Name = u.Name,
+                    Role = u.Role,
+                    CalendarsAsManager = context.CalendarManagers
+                        .Where(cm => cm.UserId == u.Id)
+                        .Select(cm => new CalendarDto
+                        {
+                            Id = cm.Calendar.Id,
+                            Name = cm.Calendar.Name,
+                            Active = cm.Calendar.Active
+                        }).ToList(),
+                    CalendarsAsMember = context.CalendarMembers
+                        .Where(cm => cm.UserId == u.Id)
+                        .Select(cm => new CalendarDto
+                        {
+                            Id = cm.Calendar.Id,
+                            Name = cm.Calendar.Name,
+                            Active = cm.Calendar.Active
+                        }).ToList()
                 });
-            }
 
-            var result = new PagedResult<UserDto>
-            {
-                Items = userDtos,
-                Page = pagedUsers.Page,
-                PageSize = pagedUsers.PageSize,
-                TotalItems = pagedUsers.TotalItems
-            };
+            var result = await usersQuery
+                .AsSplitQuery()
+                .ToPagedResultAsync(page, pageSize);
 
             return Ok(result);
         }
-        
+
         [HttpGet("GetAll")]
         public async Task<ActionResult<PagedResult<UserDto>>> GetAllUsers()
         {
@@ -82,7 +64,7 @@ namespace lsa_web_apis.Controllers
                 Name = u.Name,
                 Role = u.Role
             }).ToListAsync();
-            
+
             return Ok(users);
         }
 
@@ -100,15 +82,15 @@ namespace lsa_web_apis.Controllers
                     return BadRequest("User name already in use.");
 
                 List<CalendarMember> calendarsAsMember = new List<CalendarMember>();
-                foreach (var item in data.CalendarsAsMember)            
-                    calendarsAsMember.Add(new CalendarMember{CalendarId = item.Id,UserId = user.Id});
-            
+                foreach (var item in data.CalendarsAsMember)
+                    calendarsAsMember.Add(new CalendarMember { CalendarId = item.Id, UserId = user.Id });
+
                 context.CalendarMembers.AddRange(calendarsAsMember);
-            
+
                 List<CalendarManager> calendarsAsManager = new List<CalendarManager>();
                 foreach (var item in data.CalendarsAsManager)
-                    calendarsAsManager.Add(new CalendarManager { CalendarId = item.Id,UserId = user.Id});
-            
+                    calendarsAsManager.Add(new CalendarManager { CalendarId = item.Id, UserId = user.Id });
+
                 context.CalendarManagers.AddRange(calendarsAsManager);
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -117,7 +99,7 @@ namespace lsa_web_apis.Controllers
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();  
+                await transaction.RollbackAsync();
                 return StatusCode(500, $"An error occurred while creating the user. {ex.Message}");
             }
         }
@@ -140,11 +122,11 @@ namespace lsa_web_apis.Controllers
                 context.CalendarMembers.RemoveRange(existingCalendarsAsMember);
 
                 var newCalendarsAsManager = updateData.CalendarsAsManager
-                    .Select(calendar => new CalendarManager{CalendarId = calendar.Id,UserId = id})
+                    .Select(calendar => new CalendarManager { CalendarId = calendar.Id, UserId = id })
                     .ToList();
 
                 var newCalendarsAsMember = updateData.CalendarsAsMember
-                    .Select(calendar => new CalendarMember{CalendarId = calendar.Id,UserId = id})
+                    .Select(calendar => new CalendarMember { CalendarId = calendar.Id, UserId = id })
                     .ToList();
 
                 context.CalendarManagers.AddRange(newCalendarsAsManager);
