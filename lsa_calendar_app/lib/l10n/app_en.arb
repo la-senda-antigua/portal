@@ -19,5 +19,6 @@
   "selectCalendarMessage": "Select a calendar from the menu to show its events",
   "viewEventsBy": "View Events by",
   "day": "Day",
-  "month": "Month"
+  "month": "Month",
+  "allDay": "All Day"
 }

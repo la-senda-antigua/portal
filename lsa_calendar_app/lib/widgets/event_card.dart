@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/core/calendar_colors.dart';
+import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 
@@ -8,12 +9,14 @@ class EventCard extends StatefulWidget {
   final Event event;
   final List<Calendar> calendars;
   final VoidCallback? onTap;
+  final String? dateLabel;
 
   const EventCard({
     super.key,
     required this.event,
     required this.calendars,
     this.onTap,
+    this.dateLabel,
   });
 
   @override
@@ -37,6 +40,7 @@ class _EventCardState extends State<EventCard> {
     final calendarName = calendarIndex != -1 ? widget.calendars[calendarIndex].name : '';
 
     final hasDescription = widget.event.description != null && widget.event.description!.isNotEmpty;
+    final timeDesc = widget.event.getTimeDescription(AppLocalizations.of(context)!.allDay);
 
     return Card(
       color: color,
@@ -52,7 +56,9 @@ class _EventCardState extends State<EventCard> {
             ),
             subtitle: Text.rich(
               TextSpan(
-                text: '${widget.event.timeDescription} - ',
+                text: widget.dateLabel != null
+                    ? '${widget.dateLabel} - $timeDesc - '
+                    : '$timeDesc - ',
                 style: AppTextStyles.body.copyWith(color: textColor),
                 children: [
                   TextSpan(

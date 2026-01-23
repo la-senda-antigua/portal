@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 import 'package:lsa_calendar_app/widgets/event_card.dart';
@@ -10,6 +11,7 @@ class EventsList extends StatelessWidget {
   final String? error;
   final RefreshCallback onRefresh;
   final void Function(Event)? onEventTap;
+  final bool showDate;
 
   const EventsList({
     super.key,
@@ -19,6 +21,7 @@ class EventsList extends StatelessWidget {
     this.error,
     required this.onRefresh,
     this.onEventTap,
+    this.showDate = false,
   });
 
   @override
@@ -59,10 +62,25 @@ class EventsList extends StatelessWidget {
       itemCount: events.length,
       itemBuilder: (context, index) {
         final event = events[index];
+        
+        String? dateLabel;
+        if (showDate) {
+          final isFirst = index == 0;
+          final isNewDay = isFirst || 
+              events[index - 1].start.day != event.start.day || 
+              events[index - 1].start.month != event.start.month;
+
+          if (isNewDay) {
+            final dateStr = DateFormat('EEEE d', 'es').format(event.start);
+            dateLabel = '${dateStr[0].toUpperCase()}${dateStr.substring(1)}';
+          }
+        }
+
         return EventCard(
           event: event,
           calendars: calendars,
           onTap: onEventTap != null ? () => onEventTap!(event) : null,
+          dateLabel: dateLabel,
         );
       },
     );

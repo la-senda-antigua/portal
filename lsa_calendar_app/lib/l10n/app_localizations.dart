@@ -223,6 +223,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Month'**
   String get month;
+
+  /// No description provided for @allDay.
+  ///
+  /// In en, this message translates to:
+  /// **'All Day'**
+  String get allDay;
 }
 
 class _AppLocalizationsDelegate

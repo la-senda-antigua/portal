@@ -75,4 +75,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get month => 'Mes';
+
+  @override
+  String get allDay => 'Todo el día';
 }

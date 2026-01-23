@@ -10,12 +10,14 @@ class CalendarsDrawer extends StatefulWidget {
   final List<Calendar> calendars;
   final String viewMode;
   final ValueChanged<String> onViewModeChanged;
+  final ValueChanged<List<String>> onSelectedCalendarsChanged;
 
   const CalendarsDrawer({
     super.key,
     required this.calendars,
     required this.viewMode,
     required this.onViewModeChanged,
+    required this.onSelectedCalendarsChanged,
   });
 
   @override
@@ -53,6 +55,7 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
         _selectedIds.remove(id);
       }
     });
+    widget.onSelectedCalendarsChanged(_selectedIds.toList());
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('selected_calendars', _selectedIds.toList());
   }

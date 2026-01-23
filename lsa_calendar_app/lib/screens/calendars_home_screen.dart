@@ -293,13 +293,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       drawer: CalendarsDrawer(
         calendars: calendars,
         viewMode: viewMode,
+        onSelectedCalendarsChanged: (ids) => setState(() => selectedCalendarIds = ids),
         onViewModeChanged: (mode) => setState(() => viewMode = mode),
       ),
-      onDrawerChanged: (isOpened) {
-        if (!isOpened) {
-          _loadSelectedCalendars();
-        }
-      },
+      onDrawerChanged: (isOpened) {},
       body: Column(
         children: [
           MonthNavigator(
@@ -335,6 +332,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                     error: error,
                     onRefresh: () => _loadData(showLoading: false),
                     onEventTap: (event) {},
+                    showDate: viewMode == 'month',
                   ),
           ),
         ],
