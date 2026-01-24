@@ -24,8 +24,16 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
         modelBuilder.Entity<CalendarMember>()
             .HasKey(cm => new { cm.CalendarId, cm.UserId });
 
-        modelBuilder.Entity<UserGroupMember>()
-            .HasKey(ugm => new { ugm.UserGroupId, ugm.UserId });
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);    
+            entity.Property(e => e.RowId).IsRequired();
+        });
+
+        modelBuilder.Entity<UserGroupMember>(entity =>
+        {
+            entity.HasKey(e => new { e.UserId, e.UserGroupId });
+        });
     }
 
 }

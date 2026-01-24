@@ -25,8 +25,10 @@ namespace lsa_web_apis.Controllers
                            u.Name!.Contains(searchTerm) ||
                            u.LastName!.Contains(searchTerm) ||
                            u.Role.Contains(searchTerm))
+                .OrderByDescending(u => u.RowId)
                 .Select(u => new UserDto
                 {
+                    RowId = u.RowId,
                     UserId = u.Id,
                     Username = u.Username,
                     Name = u.Name,

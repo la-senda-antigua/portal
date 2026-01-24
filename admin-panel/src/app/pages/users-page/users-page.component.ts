@@ -29,8 +29,8 @@ export class UsersPageComponent extends PageBaseComponent {
   override createForm = EditUserFormComponent;
 
   override tableCols: TableViewColumn[] = [
-    { displayName: 'Id', datasourceName: 'username' },
-    { displayName: 'Name', datasourceName: 'name' },
+    { displayName: 'Email', datasourceName: 'username' },
+    { displayName: 'Name', datasourceName: 'displayName' },
     { displayName: 'Role', datasourceName: 'role' },
     {
       displayName: 'Manager of',
@@ -47,7 +47,7 @@ export class UsersPageComponent extends PageBaseComponent {
   ];
 
   override deleteFields: DeleteConfirmationData = {
-    id: 'userId',
+    id: 'id',
     matchingString: 'username',
     name: 'username',
   };
@@ -62,14 +62,18 @@ export class UsersPageComponent extends PageBaseComponent {
     this.isLoading.set(true);
     this.service.getPage(page, pageSize).subscribe({
       next: (response) => {
-        const users = response.items.map((u: PortalUser) => ({
-          id: u.userId,
-          username: u.username,
-          name: `${u.name??''} ${u.lastName??''}`,
-          role: u.role,
-          calendarsAsManager: u.calendarsAsManager,
-          calendarsAsMember: u.calendarsAsMember,
-        }));
+        const users = response.items
+          .filter((u: PortalUser) => u.userId) // Filtrar usuarios sin userId
+          .map((u: PortalUser) => ({
+            id: u.userId,
+            username: u.username,
+            name: u.name,
+            lastName: u.lastName,
+            displayName: `${u.name??''} ${u.lastName??''}`,
+            role: u.role,
+            calendarsAsManager: u.calendarsAsManager,
+            calendarsAsMember: u.calendarsAsMember,
+          }));
         this.dataSource.set({
           page: response.page,
           pageSize: response.pageSize,
@@ -105,14 +109,18 @@ export class UsersPageComponent extends PageBaseComponent {
     this.isLoading.set(true);
     this.service.search(searchTerm, page, pageSize).subscribe({
       next: (response) => {
-        const users = response.items.map((u: PortalUser) => ({
-          userId: u.userId,
-          username: u.username,
-          name: `${u.name??''} ${u.lastName??''}`,
-          role: u.role,
-          calendarsAsManager: u.calendarsAsManager,
-          calendarsAsMember: u.calendarsAsMember,
-        }));
+        const users = response.items
+          .filter((u: PortalUser) => u.userId) // Filtrar usuarios sin userId
+          .map((u: PortalUser) => ({
+            id: u.userId,
+            username: u.username,
+            name: u.name,
+            lastName: u.lastName,
+            displayName: `${u.name??''} ${u.lastName??''}`,
+            role: u.role,
+            calendarsAsManager: u.calendarsAsManager,
+            calendarsAsMember: u.calendarsAsMember,
+          }));
         this.dataSource.set({
           page: response.page,
           pageSize: response.pageSize,

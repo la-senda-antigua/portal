@@ -80,6 +80,7 @@ export class EditUserFormComponent {
   readonly selectedMemberCalendars = signal<CalendarDto[]>([]);
 
   readonly userForm: FormGroup<{
+    userId: FormControl<string | null>;
     username: FormControl<string | null>;
     name: FormControl<string | null>;
     lastName: FormControl<string | null>;
@@ -87,6 +88,7 @@ export class EditUserFormComponent {
     calendarsAsManager: FormControl<CalendarDto[] | null>;
     calendarsAsMember: FormControl<CalendarDto[] | null>;
   }> = new FormGroup({
+    userId: new FormControl(this.formData.data.id || null),
     username: new FormControl(this.formData.data.username, [
       Validators.required,
       Validators.email,
