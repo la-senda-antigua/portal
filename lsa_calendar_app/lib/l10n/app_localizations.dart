@@ -229,6 +229,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All Day'**
   String get allDay;
+
+  /// No description provided for @eventDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'From {startDate} to {endDate}'**
+  String eventDateRange(Object endDate, Object startDate);
+
+  /// No description provided for @dayXofY.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {current} of {total}'**
+  String dayXofY(Object current, Object total);
 }
 
 class _AppLocalizationsDelegate

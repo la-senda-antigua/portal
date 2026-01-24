@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/core/calendar_colors.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
@@ -10,6 +11,7 @@ class EventCard extends StatefulWidget {
   final List<Calendar> calendars;
   final VoidCallback? onTap;
   final String? dateLabel;
+  final bool isMonthView;
 
   const EventCard({
     super.key,
@@ -17,6 +19,7 @@ class EventCard extends StatefulWidget {
     required this.calendars,
     this.onTap,
     this.dateLabel,
+    this.isMonthView = false,
   });
 
   @override
@@ -25,6 +28,11 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   bool _isExpanded = false;
+
+  String _capitalize(String s) {
+    if (s.isEmpty) return s;
+    return '${s[0].toUpperCase()}${s.substring(1)}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +50,15 @@ class _EventCardState extends State<EventCard> {
     final hasDescription = widget.event.description != null && widget.event.description!.isNotEmpty;
     final timeDesc = widget.event.getTimeDescription(AppLocalizations.of(context)!.allDay);
 
+    String? dateRangeText;
+    if (widget.isMonthView && widget.event.totalDays > 1) {
+      final locale = Localizations.localeOf(context).languageCode;
+      final startStr = _capitalize(DateFormat('EEEE d', locale).format(widget.event.originalStart));
+      final endStr = _capitalize(DateFormat('EEEE d', locale).format(widget.event.originalEnd));
+      
+      dateRangeText = AppLocalizations.of(context)!.eventDateRange(startStr, endStr);
+    }
+
     return Card(
       color: color,
       elevation: 0,
@@ -56,9 +73,11 @@ class _EventCardState extends State<EventCard> {
             ),
             subtitle: Text.rich(
               TextSpan(
-                text: widget.dateLabel != null
-                    ? '${widget.dateLabel} - '
-                    : '$timeDesc - ',
+                text: dateRangeText != null
+                    ? '$dateRangeText - '
+                    : (widget.dateLabel != null
+                        ? '${widget.dateLabel} - '
+                        : '$timeDesc - '),
                 style: AppTextStyles.body.copyWith(color: textColor),
                 children: [
                   TextSpan(
@@ -68,9 +87,9 @@ class _EventCardState extends State<EventCard> {
                 ],
               ),
             ),
-            trailing: widget.event.totalDays > 1
+            trailing: widget.event.totalDays > 1 && !widget.isMonthView
                 ? Text(
-                    'Day ${widget.event.currentDay} of ${widget.event.totalDays}',
+                    AppLocalizations.of(context)!.dayXofY(widget.event.currentDay, widget.event.totalDays),
                     style: AppTextStyles.body.copyWith(
                       color: textColor,
                       fontSize: 12,

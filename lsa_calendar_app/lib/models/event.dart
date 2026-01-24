@@ -38,4 +38,14 @@ class Event {
     final endStr = "${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}";
     return '$startStr - $endStr';
   }
+
+  DateTime get originalStart {
+    if (currentDay <= 1) return start;
+    return start.subtract(Duration(days: currentDay - 1));
+  }
+
+  DateTime get originalEnd {
+    if (totalDays <= 1) return end;
+    return originalStart.add(Duration(days: totalDays - 1));
+  }
 }

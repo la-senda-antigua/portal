@@ -20,5 +20,7 @@
   "viewEventsBy": "View Events by",
   "day": "Day",
   "month": "Month",
-  "allDay": "All Day"
+  "allDay": "All Day",
+  "eventDateRange": "From {startDate} to {endDate}",
+  "dayXofY": "Day {current} of {total}"
 }

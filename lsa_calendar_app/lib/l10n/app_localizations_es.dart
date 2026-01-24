@@ -78,4 +78,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get allDay => 'Todo el día';
+
+  @override
+  String eventDateRange(Object endDate, Object startDate) {
+    return 'Del $startDate al $endDate';
+  }
+
+  @override
+  String dayXofY(Object current, Object total) {
+    return 'Día $current de $total';
+  }
 }

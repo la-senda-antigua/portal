@@ -20,5 +20,7 @@
   "viewEventsBy": "Ver eventos por",
   "day": "Día",
   "month": "Mes",
-  "allDay": "Todo el día"
+  "allDay": "Todo el día",
+  "eventDateRange": "Del {startDate} al {endDate}",
+  "dayXofY": "Día {current} de {total}"
 }

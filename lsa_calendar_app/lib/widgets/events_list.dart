@@ -57,18 +57,33 @@ class EventsList extends StatelessWidget {
       );
     }
 
+    // In month view (showDate=true), we want to show only one card for multi-day events
+    List<Event> displayEvents = events;
+    if (showDate) {
+      final seenMultiDayEvents = <String>{};
+      displayEvents = [];
+      for (var event in events) {
+        if (event.totalDays > 1) {
+          final key = '${event.calendarId}_${event.title}';
+          if (seenMultiDayEvents.contains(key)) continue;
+          seenMultiDayEvents.add(key);
+        }
+        displayEvents.add(event);
+      }
+    }
+
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: events.length,
+      itemCount: displayEvents.length,
       itemBuilder: (context, index) {
-        final event = events[index];
+        final event = displayEvents[index];
         
         String? dateLabel;
         if (showDate) {
           final isFirst = index == 0;
           final isNewDay = isFirst || 
-              events[index - 1].start.day != event.start.day || 
-              events[index - 1].start.month != event.start.month;
+              displayEvents[index - 1].start.day != event.start.day || 
+              displayEvents[index - 1].start.month != event.start.month;
 
           if (isNewDay) {
             final dateStr = DateFormat('EEEE d', 'es').format(event.start);
@@ -81,6 +96,7 @@ class EventsList extends StatelessWidget {
           calendars: calendars,
           onTap: onEventTap != null ? () => onEventTap!(event) : null,
           dateLabel: dateLabel,
+          isMonthView: showDate,
         );
       },
     );
