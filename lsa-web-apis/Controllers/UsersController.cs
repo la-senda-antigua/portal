@@ -22,6 +22,8 @@ namespace lsa_web_apis.Controllers
                 .AsNoTracking()
                 .Where(u => string.IsNullOrEmpty(searchTerm) ||
                            u.Username.Contains(searchTerm) ||
+                           u.Name!.Contains(searchTerm) ||
+                           u.LastName!.Contains(searchTerm) ||
                            u.Role.Contains(searchTerm))
                 .Select(u => new UserDto
                 {

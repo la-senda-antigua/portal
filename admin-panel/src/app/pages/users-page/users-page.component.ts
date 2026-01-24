@@ -47,7 +47,7 @@ export class UsersPageComponent extends PageBaseComponent {
   ];
 
   override deleteFields: DeleteConfirmationData = {
-    id: 'id',
+    id: 'userId',
     matchingString: 'username',
     name: 'username',
   };
