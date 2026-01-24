@@ -6,7 +6,7 @@ namespace lsa_web_apis.Services;
 
 public interface IAuthService
 {
-    Task<User?> RegisterAsync(string username, string role, string name);
+    Task<User?> RegisterAsync(string username, string role, string name, string lastName);
     Task<User?> RegisterWithPasswordAsync(string username, string password, string role, string name);
     Task<TokenResponseDto?> LoginAsync(string username, string password);
     Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto request);

@@ -15,9 +15,9 @@ public class AuthController(IAuthService authService) : ControllerBase
 {
     [Authorize(Roles = "Admin")]
     [HttpPost("register")]
-    public async Task<ActionResult<User>> Register(string username, string role, string? name)
+    public async Task<ActionResult<User>> Register(string username, string role, string name, string lastName)
     {
-        var user = await authService.RegisterAsync(username, role, name ?? "");
+        var user = await authService.RegisterAsync(username, role, name , lastName);
         if (user is null)
             return BadRequest("User name already in use.");
 

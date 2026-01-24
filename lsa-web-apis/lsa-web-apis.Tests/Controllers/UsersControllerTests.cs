@@ -72,13 +72,13 @@ public class UsersControllerTests
             Name = "Usuario Nuevo"
         };
 
-        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User", "Usuario Nuevo"))
+        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User", "Usuario Nuevo", "Apellido Prueba"))
             .ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-        new Claim(ClaimTypes.Role, "Admin")
-    }, "mock"));
+            new Claim(ClaimTypes.Role, "Admin")
+        }, "mock"));
         controller.ControllerContext = new ControllerContext()
         {
             HttpContext = new DefaultHttpContext() { User = user }
@@ -133,7 +133,8 @@ public class UsersControllerTests
         mockAuthService.Setup(x => x.RegisterAsync(
             "calendar_manager_name",
             "CalendarManager",
-            "Administrador de Calendario"
+            "Administrador de Calendario",
+            "Apellido Prueba"
         )).ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
