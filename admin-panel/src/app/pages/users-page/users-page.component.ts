@@ -30,6 +30,7 @@ export class UsersPageComponent extends PageBaseComponent {
 
   override tableCols: TableViewColumn[] = [
     { displayName: 'Id', datasourceName: 'username' },
+    { displayName: 'Name', datasourceName: 'name' },
     { displayName: 'Role', datasourceName: 'role' },
     {
       displayName: 'Manager of',
@@ -64,6 +65,7 @@ export class UsersPageComponent extends PageBaseComponent {
         const users = response.items.map((u: PortalUser) => ({
           id: u.userId,
           username: u.username,
+          name: `${u.name??''} ${u.lastName??''}`,
           role: u.role,
           calendarsAsManager: u.calendarsAsManager,
           calendarsAsMember: u.calendarsAsMember,
@@ -86,6 +88,8 @@ export class UsersPageComponent extends PageBaseComponent {
   override parseForm(form: UserFormData): PortalUser {
     let item = {
       username: form.data.username,
+      name: form.data.name,
+      lastName: form.data.lastName,
       role: form.data.role,
       calendarsAsManager: form.data.calendarsAsManager,
       calendarsAsMember: form.data.calendarsAsMember,
@@ -104,6 +108,7 @@ export class UsersPageComponent extends PageBaseComponent {
         const users = response.items.map((u: PortalUser) => ({
           userId: u.userId,
           username: u.username,
+          name: `${u.name??''} ${u.lastName??''}`,
           role: u.role,
           calendarsAsManager: u.calendarsAsManager,
           calendarsAsMember: u.calendarsAsMember,

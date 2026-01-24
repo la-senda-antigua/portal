@@ -10,5 +10,6 @@ public class Sermon: VideoRecording
     [JsonPropertyName("preacherId")]
     public int PreacherId { get; set; }
         
+    [JsonIgnore]
     public virtual Preacher? Preacher { get; set; }
 }

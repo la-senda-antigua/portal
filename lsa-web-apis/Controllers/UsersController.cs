@@ -27,7 +27,7 @@ namespace lsa_web_apis.Controllers
                 {
                     UserId = u.Id,
                     Username = u.Username,
-                    Name = u.Name,
+                    Name = $"{u.Name} {u.LastName}",
                     Role = u.Role,
                     CalendarsAsManager = context.CalendarManagers
                         .Where(cm => cm.UserId == u.Id)
@@ -61,7 +61,7 @@ namespace lsa_web_apis.Controllers
             {
                 UserId = u.Id,
                 Username = u.Username,
-                Name = u.Name,
+                Name = $"{u.Name} {u.LastName}",
                 Role = u.Role
             }).ToListAsync();
 
