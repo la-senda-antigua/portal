@@ -88,7 +88,8 @@ public class UsersControllerTests
         {
             Username = "newuser",
             Role = "User",
-            Name = "Usuario Nuevo"
+            Name = "Usuario Nuevo",
+            LastName = "Apellido Prueba"
         };
 
         var result = await controller.Register(userDto);
@@ -149,6 +150,7 @@ public class UsersControllerTests
             Username = "calendar_manager_name",
             Role = "CalendarManager",
             Name = "Administrador de Calendario",
+            LastName = "Apellido Prueba",
             CalendarsAsManager = new List<CalendarDto>
         {
             new CalendarDto { Id = calendarId1, Name = "Test Calendar", Active = true },
