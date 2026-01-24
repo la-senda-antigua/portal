@@ -57,7 +57,7 @@ class _EventCardState extends State<EventCard> {
             subtitle: Text.rich(
               TextSpan(
                 text: widget.dateLabel != null
-                    ? '${widget.dateLabel} - $timeDesc - '
+                    ? '${widget.dateLabel} - '
                     : '$timeDesc - ',
                 style: AppTextStyles.body.copyWith(color: textColor),
                 children: [
