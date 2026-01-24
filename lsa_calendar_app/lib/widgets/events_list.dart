@@ -86,7 +86,8 @@ class EventsList extends StatelessWidget {
               displayEvents[index - 1].start.month != event.start.month;
 
           if (isNewDay) {
-            final dateStr = DateFormat('EEEE d', 'es').format(event.start);
+            final locale = Localizations.localeOf(context).languageCode;
+            final dateStr = DateFormat('EEEE d', locale).format(event.start);
             dateLabel = '${dateStr[0].toUpperCase()}${dateStr.substring(1)}';
           }
         }

@@ -29,11 +29,6 @@ class EventCard extends StatefulWidget {
 class _EventCardState extends State<EventCard> {
   bool _isExpanded = false;
 
-  String _capitalize(String s) {
-    if (s.isEmpty) return s;
-    return '${s[0].toUpperCase()}${s.substring(1)}';
-  }
-
   @override
   Widget build(BuildContext context) {
     final calendarIndex = widget.calendars.indexWhere(
@@ -53,8 +48,8 @@ class _EventCardState extends State<EventCard> {
     String? dateRangeText;
     if (widget.isMonthView && widget.event.totalDays > 1) {
       final locale = Localizations.localeOf(context).languageCode;
-      final startStr = _capitalize(DateFormat('EEEE d', locale).format(widget.event.originalStart));
-      final endStr = _capitalize(DateFormat('EEEE d', locale).format(widget.event.originalEnd));
+      final startStr = DateFormat('EEEE d', locale).format(widget.event.originalStart);
+      final endStr = DateFormat('EEEE d', locale).format(widget.event.originalEnd);
       
       dateRangeText = AppLocalizations.of(context)!.eventDateRange(startStr, endStr);
     }
