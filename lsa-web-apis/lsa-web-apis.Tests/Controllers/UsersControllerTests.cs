@@ -72,13 +72,13 @@ public class UsersControllerTests
             Name = "Usuario Nuevo"
         };
 
-        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User", "Usuario Nuevo"))
+        mockAuthService.Setup(x => x.RegisterAsync("newuser", "User", "Usuario Nuevo", "Apellido Prueba"))
             .ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-        new Claim(ClaimTypes.Role, "Admin")
-    }, "mock"));
+            new Claim(ClaimTypes.Role, "Admin")
+        }, "mock"));
         controller.ControllerContext = new ControllerContext()
         {
             HttpContext = new DefaultHttpContext() { User = user }
@@ -88,7 +88,8 @@ public class UsersControllerTests
         {
             Username = "newuser",
             Role = "User",
-            Name = "Usuario Nuevo"
+            Name = "Usuario Nuevo",
+            LastName = "Apellido Prueba"
         };
 
         var result = await controller.Register(userDto);
@@ -133,7 +134,8 @@ public class UsersControllerTests
         mockAuthService.Setup(x => x.RegisterAsync(
             "calendar_manager_name",
             "CalendarManager",
-            "Administrador de Calendario"
+            "Administrador de Calendario",
+            "Apellido Prueba"
         )).ReturnsAsync(newUser);
 
         var controller = new UsersController(mockAuthService.Object, context);
@@ -148,6 +150,7 @@ public class UsersControllerTests
             Username = "calendar_manager_name",
             Role = "CalendarManager",
             Name = "Administrador de Calendario",
+            LastName = "Apellido Prueba",
             CalendarsAsManager = new List<CalendarDto>
         {
             new CalendarDto { Id = calendarId1, Name = "Test Calendar", Active = true },

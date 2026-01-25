@@ -17,7 +17,7 @@ namespace lsa_web_apis.Services;
 
 public class AuthService(UserDbContext context, IConfiguration configuration) : IAuthService
 {
-    public async Task<User?> RegisterAsync(string username, string role, string name)
+    public async Task<User?> RegisterAsync(string username, string role, string name, string lastName)
     {
         if (await context.PortalUsers.AnyAsync(u => u.Username == username))
         {
@@ -27,6 +27,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         {
             Username = username,
             Name = name,
+            LastName = lastName,
             Role = role,
         };
         context.PortalUsers.Add(user);

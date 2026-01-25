@@ -31,6 +31,8 @@ export interface UserFormData extends TableViewFormData {
   data: {
     id?: string;
     username: string;
+    name: string;
+    lastName: string;
     role?: string;
     calendarsAsManager?: CalendarDto[];
     calendarsAsMember?: CalendarDto[];
@@ -78,15 +80,21 @@ export class EditUserFormComponent {
   readonly selectedMemberCalendars = signal<CalendarDto[]>([]);
 
   readonly userForm: FormGroup<{
+    userId: FormControl<string | null>;
     username: FormControl<string | null>;
+    name: FormControl<string | null>;
+    lastName: FormControl<string | null>;
     role: FormControl<string | null>;
     calendarsAsManager: FormControl<CalendarDto[] | null>;
     calendarsAsMember: FormControl<CalendarDto[] | null>;
   }> = new FormGroup({
+    userId: new FormControl(this.formData.data.id || null),
     username: new FormControl(this.formData.data.username, [
       Validators.required,
       Validators.email,
     ]),
+    name: new FormControl(this.formData.data.name, [Validators.required,]),
+    lastName: new FormControl(this.formData.data.lastName, [Validators.required,]),
     role: new FormControl(this.formData.data.role || 'User', Validators.required),
     calendarsAsManager: new FormControl(
       this.formData.data.calendarsAsManager || []
@@ -152,6 +160,8 @@ export class EditUserFormComponent {
       data: {
         id: this.formData.data.id,
         username: this.userForm.controls.username.value!,
+        name: this.userForm.controls.name.value!,
+        lastName: this.userForm.controls.lastName.value!,
         role: this.userForm.controls.role.value!,
         calendarsAsManager:
           this.userForm.controls.calendarsAsManager.value || [],
