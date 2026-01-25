@@ -32,6 +32,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   DateTime currentDate = DateTime.now();
   String? previousDate;
   String? nextDate;
+  String viewMode = 'day';
 
   Future<void> fetchCalendars() async {
     try {
@@ -245,14 +246,27 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   Widget build(BuildContext context) {
     debugPrint('--- Build. CurrentDate: $currentDate. Events: ${events.length}');
     
-    final eventsOnDate = events.where((e) => 
-      e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day
-    ).toList();
+    final eventsToShow = viewMode == 'day'
+        ? events.where((e) =>
+            e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day
+          ).toList()
+        : events;
 
-    final visibleEvents = eventsOnDate.where((e) {
+    final visibleEvents = eventsToShow.where((e) {
       final matchesCalendar = selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId);
       return matchesCalendar;
     }).toList();
+
+    if (viewMode == 'month') {      
+      final calendarNames = {for (var c in calendars) c.id.toString(): c.name};
+      visibleEvents.sort((a, b) {
+        final nameA = calendarNames[a.calendarId] ?? '';
+        final nameB = calendarNames[b.calendarId] ?? '';
+        int cmp = nameA.compareTo(nameB);
+        if (cmp != 0) return cmp;
+        return a.start.compareTo(b.start);
+      });
+    }
 
     debugPrint('--- Visible events: ${visibleEvents.length}');
 
@@ -276,12 +290,13 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
           ),
         ],
       ),
-      drawer: CalendarsDrawer(calendars: calendars),
-      onDrawerChanged: (isOpened) {
-        if (!isOpened) {
-          _loadSelectedCalendars();
-        }
-      },
+      drawer: CalendarsDrawer(
+        calendars: calendars,
+        viewMode: viewMode,
+        onSelectedCalendarsChanged: (ids) => setState(() => selectedCalendarIds = ids),
+        onViewModeChanged: (mode) => setState(() => viewMode = mode),
+      ),
+      onDrawerChanged: (isOpened) {},
       body: Column(
         children: [
           MonthNavigator(
@@ -290,7 +305,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
           ),
           if (!isLoading &&
               !isLoadingEvents &&
-              events.isNotEmpty)
+              events.isNotEmpty &&
+              viewMode == 'day')
             DateNavigator(
               currentDate: currentDate,
               previousDate: previousDate,
@@ -298,7 +314,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
               onDateSelected: (dateStr) => _goToDate(dateStr),
             ),
           Expanded(
-            child: (visibleEvents.isEmpty && eventsOnDate.isNotEmpty)
+            child: (visibleEvents.isEmpty && eventsToShow.isNotEmpty)
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -316,6 +332,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                     error: error,
                     onRefresh: () => _loadData(showLoading: false),
                     onEventTap: (event) {},
+                    showDate: viewMode == 'month',
                   ),
           ),
         ],

@@ -66,4 +66,26 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get selectCalendarMessage =>
       'Seleccione un calendario del menú para mostrar sus eventos';
+
+  @override
+  String get viewEventsBy => 'Ver eventos por';
+
+  @override
+  String get day => 'Día';
+
+  @override
+  String get month => 'Mes';
+
+  @override
+  String get allDay => 'Todo el día';
+
+  @override
+  String eventDateRange(Object endDate, Object startDate) {
+    return 'Del $startDate al $endDate';
+  }
+
+  @override
+  String dayXofY(Object current, Object total) {
+    return 'Día $current de $total';
+  }
 }
