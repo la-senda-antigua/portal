@@ -328,6 +328,9 @@ export class CalendarsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) {return;}
 
+      this.isLoading.set(true);
+      const isCopy = result.trigger === 'copy';
+
       if (result.start && result.start.length === 5) {
         result.start = result.start + ':00';
       }
@@ -340,13 +343,16 @@ export class CalendarsComponent implements OnInit {
       }
 
       result.eventDate = result.date;
-      this.isLoading.set(true);
 
       if (result.id) {
         this.service.updateEvent(result).subscribe({
           next: () => {
             this.isLoading.set(false);
             this.getMonthEvents({ view: { currentStart: new Date() } });
+            if (isCopy) {
+              const copyData = this.prepareCopyData(result);
+              this.openAddEventDialog(copyData);
+            }
           },
           error: (err) => {
             this.isLoading.set(false);
@@ -358,6 +364,10 @@ export class CalendarsComponent implements OnInit {
           next: () => {
             this.isLoading.set(false);
             this.getMonthEvents({ view: { currentStart: new Date() } });
+            if (isCopy) {
+              const copyData = this.prepareCopyData(result);
+              this.openAddEventDialog(copyData);
+            }
           },
           error: (err) => {
             this.isLoading.set(false);
@@ -366,6 +376,19 @@ export class CalendarsComponent implements OnInit {
         });
       }
     });
+  }
+
+  private prepareCopyData(result: any): any {
+    return {
+      allDay: result.allDay,
+      calendarId: result.calendarId,
+      date: result.start.substring(0, 10),
+      description: result.description,
+      endDate: result.end ? result.end.substring(0, 10) : result.start.substring(0, 10),
+      title: `Copy of ${result.title}`,
+      start: result.start ? result.start.split('T')[1]?.substring(0, 5) || '' : '',
+      end: result.end ? result.end.split('T')[1]?.substring(0, 5) || '' : ''
+    };
   }
 
   selectEvent(item: any) {

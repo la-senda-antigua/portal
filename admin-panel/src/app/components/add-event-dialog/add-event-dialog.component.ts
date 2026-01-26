@@ -60,15 +60,33 @@ export class AddEventDialogComponent {
     let initialEndTime: string | null;
     let initialIsAllDay: boolean = false;
 
-    if (this.isEditMode()) {
-      const event = data.event;
-      const endDate = event.endDate || event.date;
-      initialStartTime = `${event.date}T${event.start}:00`;
-      initialEndTime = event.end ? `${endDate}T${event.end}:00` : '';
-      initialIsAllDay = !!event.allDay;
+    console.log('el dataevent', data.event)
+
+    if (data.event) {
+      // Si hay data.event, prellenar con sus valores si existen, defaults si no
+      if (data.event.start) {
+        initialStartTime = `${data.event.date}T${data.event.start}:00`;
+      } else {
+        const startDate = new Date(data.event.date);
+        startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
+        initialStartTime = this.convertToISOString(startDate);
+      }
+
+      if (data.event.end) {
+        const endDate = data.event.endDate || data.event.date;
+        initialEndTime = `${endDate}T${data.event.end}:00`;
+      } else {
+        const startDate = new Date(data.event.date);
+        startDate.setHours(10, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setHours(startDate.getHours() + 1); // Default a 1 hora de duración
+        initialEndTime = this.convertToISOString(endDate);
+      }
+
+      initialIsAllDay = !!data.event.allDay;
     } else {
-      // Para un evento nuevo, usamos la fecha clickeada o la actual.
-      const startDate = data.event?.date ? new Date(data.event.date) : new Date();
+      // Para un evento completamente nuevo, usar defaults
+      const startDate = new Date();
       startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
       initialStartTime = this.convertToISOString(startDate);
 
@@ -88,7 +106,7 @@ export class AddEventDialogComponent {
     });
   }
 
-  onSubmit(): void {
+  save(trigger: string): void {
     if (this.eventForm.valid) {
       const result = this.eventForm.value;
       const startTime = result.startTime;
@@ -102,6 +120,7 @@ export class AddEventDialogComponent {
         start: startTime,
         allDay: result.allDay,
         end: endTime ? endTime : null,
+        trigger: trigger
       };
 
       this.dialogRef.close(finalResult);
