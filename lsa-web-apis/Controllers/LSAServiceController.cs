@@ -8,7 +8,7 @@ namespace lsa_web_apis.Controllers
     [ApiController]
     public class LSAServiceController(ILiveService _liveService) : ControllerBase
     {
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, BroadcastManager")]
         [HttpPost("start")]
         public async Task<IActionResult> StartService([FromBody] string videoURL)
         {
@@ -16,7 +16,7 @@ namespace lsa_web_apis.Controllers
             return Ok(serviceState);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, BroadcastManager")]
         [HttpPost("end")]
         public async Task<IActionResult> EndService()
         {
@@ -24,7 +24,7 @@ namespace lsa_web_apis.Controllers
             return Ok();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, BroadcastManager")]
         [HttpPost("add30mins")]
         public IActionResult Add30Mins()
         {
