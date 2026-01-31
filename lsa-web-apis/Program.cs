@@ -62,7 +62,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ILiveService, LiveService>();
+// LiveService holds a Timer and must be a singleton so the same instance (and timer)
+// is used across requests. If it remains scoped, different requests get different
+// LiveService instances which causes timers to be out of sync.
+builder.Services.AddSingleton<ILiveService, LiveService>();
 builder.Services.AddScoped<IVideoRecordingService, VideoRecordingService>();
 var app = builder.Build();
 
