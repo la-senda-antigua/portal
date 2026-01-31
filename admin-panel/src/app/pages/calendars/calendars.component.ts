@@ -17,7 +17,7 @@ import {
   CalendarFormData,
   EditCalendarFormComponent,
 } from '../../components/edit-calendar-form/edit-calendar-form.component';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -47,6 +47,8 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 })
 export class CalendarsComponent implements OnInit {
   isLoading = signal(false);
+  isCalendarsLoading = signal(false);
+  fullcalendar = viewChild(FullCalendarComponent);
 
   calendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -87,14 +89,17 @@ export class CalendarsComponent implements OnInit {
 
   reload() {
     this.isLoading.set(true);
+    this.isCalendarsLoading.set(true);
     this.loadMyCaelndars().then(() => {
-      const now = new Date();
+      this.isCalendarsLoading.set(false);
+      const calendarApi = this.fullcalendar()?.getApi();
+      const currentStart = calendarApi?.view?.currentStart ?? new Date();
+
       this.getMonthEvents({
         view: {
-          currentStart: new Date(now.getFullYear(), now.getMonth()),
+          currentStart: currentStart,
         },
       });
-      this.isLoading.set(false);
     });
   }
 
@@ -154,9 +159,12 @@ export class CalendarsComponent implements OnInit {
           end = date.toISOString().split('T')[0];
         }
 
+        const color = this.service.getCalendarColor(e.calendarId);
+
         return {
           title: e.title,
-          backgroundColor: this.service.getCalendarColor(e.calendarId),
+          backgroundColor: color,
+          borderColor: color,
           start: e.start?.replace(' ', 'T'),
           end: end,
           allDay: e.allDay,
@@ -293,7 +301,7 @@ export class CalendarsComponent implements OnInit {
     });
   }
 
-  openModal() {
+  openAddCalendarModal() {
     const dialogRef = this.dialog.open(EditCalendarFormComponent, {
       data: {
         mode: 'add',
@@ -304,15 +312,22 @@ export class CalendarsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isCalendarsLoading.set(true);
         const { data } = result;
         this.service.add(data).subscribe({
-          next: () => {
-            const calendarWithColor = {
+          next: (response) => {
+            let calendarWithColor = {
               ...data,
-              color: this.service.getCalendarColor(data.id!),
+              color: this.service.getCalendarColor(response.id!),
             };
+            calendarWithColor.id = response.id;
             this.myCalendars.push(calendarWithColor);
-            this.selectedCalendars.push(data.id);
+            this.selectedCalendars.push(calendarWithColor.id!);
+            this.isCalendarsLoading.set(false);
+          },
+          error: (err) => {
+            console.error('Error adding calendar:', err);
+            this.isCalendarsLoading.set(false);
           },
         });
       }
@@ -348,7 +363,7 @@ export class CalendarsComponent implements OnInit {
         this.service.updateEvent(result).subscribe({
           next: () => {
             this.isLoading.set(false);
-            this.getMonthEvents({ view: { currentStart: new Date() } });
+            this.reload();
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
@@ -363,7 +378,7 @@ export class CalendarsComponent implements OnInit {
         this.service.addEvent(result).subscribe({
           next: () => {
             this.isLoading.set(false);
-            this.getMonthEvents({ view: { currentStart: new Date() } });
+            this.reload();
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
