@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiBaseUrl: 'https://testing-api.iglesialasendaantigua.com'
+  apiBaseUrl: 'http://localhost:5089'
 };
