@@ -4,10 +4,14 @@
 
     <div class="calendar-header">
       <span>My Calendars</span>
-      <button mat-icon-button class="add-button" (click)="openModal()">
+      <button mat-icon-button class="add-button" (click)="openAddCalendarModal()">
         <mat-icon>add</mat-icon>
       </button>
     </div>
+
+    @if(isCalendarsLoading()){
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
 
     <mat-selection-list class="calendars-scroll-container" (selectionChange)="onCalendarSelectionChange($event)">
       @for (item of myCalendars; track item.id) {

@@ -81,22 +81,29 @@ export class EditCalendarFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getDetails();
+    if (this.formData.mode != 'add') {
+      this.getDetails();
+    }
   }
 
   getDetails() {
     this.loadingUsers.set(true);
-    this.calendarsService.getById(this.formData.data.id!).subscribe((data) => {
-      const members = data.members!.map((member) => ({
-        ...(member as PortalUser),
-        role: 'User',
-      }));
-      const managers = data.managers!.map((manager) => ({
-        ...(manager as PortalUser),
-        role: 'Manager',
-      }));
-      this.selectedUsers = [...members, ...managers];
-      this.loadingUsers.set(false);
+    this.calendarsService.getById(this.formData.data.id!).subscribe({
+      next: (data) => {
+        const members = data.members!.map((member) => ({
+          ...(member as PortalUser),
+          role: 'User',
+        }));
+        const managers = data.managers!.map((manager) => ({
+          ...(manager as PortalUser),
+          role: 'Manager',
+        }));
+        this.selectedUsers = [...members, ...managers];
+        this.loadingUsers.set(false);
+      },
+      error: () => {
+        this.loadingUsers.set(false);
+      },
     });
   }
 
