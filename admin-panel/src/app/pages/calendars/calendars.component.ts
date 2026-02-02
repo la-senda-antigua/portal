@@ -17,7 +17,7 @@ import {
   CalendarFormData,
   EditCalendarFormComponent,
 } from '../../components/edit-calendar-form/edit-calendar-form.component';
-import { FullCalendarModule } from '@fullcalendar/angular';
+import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
@@ -47,6 +47,7 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 })
 export class CalendarsComponent implements OnInit {
   isLoading = signal(false);
+  fullcalendar = viewChild(FullCalendarComponent);
 
   calendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -77,7 +78,6 @@ export class CalendarsComponent implements OnInit {
 
   constructor(
     private service: CalendarsService,
-    private router: Router,
     public dialog: MatDialog
   ) {}
 
@@ -88,10 +88,12 @@ export class CalendarsComponent implements OnInit {
   reload() {
     this.isLoading.set(true);
     this.loadMyCaelndars().then(() => {
-      const now = new Date();
+      const calendarApi = this.fullcalendar()?.getApi();
+      const currentStart = calendarApi?.view?.currentStart ?? new Date();
+
       this.getMonthEvents({
         view: {
-          currentStart: new Date(now.getFullYear(), now.getMonth()),
+          currentStart: currentStart,
         },
       });
       this.isLoading.set(false);
@@ -350,7 +352,7 @@ export class CalendarsComponent implements OnInit {
         this.service.updateEvent(result).subscribe({
           next: () => {
             this.isLoading.set(false);
-            this.getMonthEvents({ view: { currentStart: new Date() } });
+            this.reload();
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
@@ -365,7 +367,7 @@ export class CalendarsComponent implements OnInit {
         this.service.addEvent(result).subscribe({
           next: () => {
             this.isLoading.set(false);
-            this.getMonthEvents({ view: { currentStart: new Date() } });
+            this.reload();
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
