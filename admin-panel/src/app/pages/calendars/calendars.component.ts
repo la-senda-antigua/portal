@@ -120,8 +120,17 @@ export class CalendarsComponent implements OnInit {
               }) as CalendarDto,
           );
 
+          const isInitialLoad = this.myCalendars.length === 0;
           this.myCalendars = items;
-          this.selectedCalendars = items.map((item) => item.id!);
+
+          if (isInitialLoad) {
+            this.selectedCalendars = items.map((item) => item.id!);
+          } else {
+            const availableIds = new Set(items.map((c) => c.id!));
+            this.selectedCalendars = this.selectedCalendars.filter((id) =>
+              availableIds.has(id),
+            );
+          }
           resolve();
         },
         error: (err) => {
