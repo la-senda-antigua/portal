@@ -161,6 +161,28 @@ namespace lsa_web_apis.Controllers
 
         }
 
+        [HttpDelete("events/{id}")]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        public async Task<IActionResult> DeleteEvent(Guid id)
+        {
+            try
+            {
+                var calendarEvent = await _context.CalendarEvents.FindAsync(id);
+                if (calendarEvent is null)
+                    return NotFound("Event not found.");
+
+                _context.CalendarEvents.Remove(calendarEvent);
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while deleting the event.");
+            }
+
+        }
+
         [HttpGet("myCalendars")]
         [Authorize]
         public async Task<ActionResult<List<CalendarDto>>> GetByUserId()

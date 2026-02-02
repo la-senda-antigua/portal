@@ -33,6 +33,7 @@ import { AddEventDialogComponent } from '../../components/add-event-dialog/add-e
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { EventOptionsComponent } from '../../components/event-options/event-options.component';
 import { CalendarEvent } from '../../models/CalendarEvent';
+import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -364,7 +365,8 @@ export class CalendarsComponent implements OnInit {
       this.eventOptionsDialogRef.close();
     }
 
-    const { allDay, startStr, endStr, extendedProps, title, backgroundColor } = item.event;
+    const { allDay, startStr, endStr, extendedProps, title, backgroundColor } =
+      item.event;
     const startDate = allDay ? startStr : startStr.split('T')[0];
     let endDate = startDate;
 
@@ -388,8 +390,10 @@ export class CalendarsComponent implements OnInit {
       end: allDay ? '23:59' : endStr?.split('T')[1]?.substring(0, 5) || '',
       allDay: allDay,
       calendarId: extendedProps.calendarId,
-      calendarName: this.myCalendars.find((c) => c.id === extendedProps.calendarId,)?.name,
-      color: backgroundColor
+      calendarName: this.myCalendars.find(
+        (c) => c.id === extendedProps.calendarId,
+      )?.name,
+      color: backgroundColor,
     };
 
     const dialogWidth = 400;
@@ -424,10 +428,27 @@ export class CalendarsComponent implements OnInit {
       if (result?.action === 'edit') {
         this.openAddEventDialog(result.event);
       } else if (result?.action === 'delete') {
-        // this.isLoading.set(true);
-        // this.service.deleteEvent(result.event.id).subscribe(() => this.reload());
+        const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
+          data: {
+            id: event.id,
+            matchingString: event.title,
+            name: event.title,
+          },
+        });
+
+        dialogDelete.afterClosed().subscribe((result) => {
+          if (result) {
+            this.isLoading.set(true);
+            this.service.deleteEvent(event.id).subscribe({
+              next: () => this.reload(),
+              error: (err) => {
+                this.isLoading.set(false);
+                console.error('Error deleting event:', err);
+              },
+            });
+          }
+        });
       }
     });
   }
-
 }
