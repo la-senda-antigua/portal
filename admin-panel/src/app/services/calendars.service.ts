@@ -78,12 +78,12 @@ export class CalendarsService extends GeneralServiceBase {
   }
 
   private colors = [
-    '#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5',
-    '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50',
-    '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800',
-    '#FF5722', '#795548', '#9E9E9E', '#607D8B', '#E65100',
-    '#880E4F', '#4A148C', '#311B92', '#1A237E', '#0D47A1',
-    '#01579B', '#006064', '#004D40', '#1B5E20', '#33691E'
+    '#7986CB', '#33B679', '#8E24AA', '#E67C73', '#F6BF26',
+    '#F4511E', '#039BE5', '#616161', '#3F51B5', '#0B8043',
+    '#D50000', '#009688', '#E91E63', '#9C27B0', '#673AB7',
+    '#2196F3', '#00BCD4', '#4CAF50', '#8BC34A', '#CDDC39',
+    '#FFEB3B', '#FFC107', '#FF9800', '#FF5722', '#795548',
+    '#9E9E9E', '#607D8B', '#5C6BC0', '#26A69A', '#EC407A'
   ];
 
   private calendarColors = new Map<string, string>();
