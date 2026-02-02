@@ -20,7 +20,14 @@
     </tr>
     <tr>
       <td></td>
-      <td class="pb-2">{{data.date | date:'MMMM dd, yyyy'}}</td>
+      <td class="pb-2">
+        {{data.date | date:'MMMM dd, yyyy'}} <br>
+        @if (data.allDay){
+          <span>All day</span>
+        } @else{
+          {{data.start}} - {{data.end}}
+        }
+      </td>
     </tr>
     @if(data.description){
       <tr>
