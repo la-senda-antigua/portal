@@ -370,5 +370,36 @@ namespace lsa_web_apis.Controllers
             return Ok();
         }
 
+    [HttpGet]
+    [Route("GetPublicEvents")]
+    public async Task<ActionResult> GetPublicEvents(DateTime? dateTime)
+    {
+      if (dateTime is null)
+        dateTime = DateTime.Now;
+      //buscar el calendario con nombre "Public Events" y obtener sus eventos
+      var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
+      if (calendar == null)
+      {
+        return NotFound("Calendar not found");
+      }
+
+      var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
+
+      var events = await _context.CalendarEvents
+        .Where(e => string.Compare(e.StartTime, dateString) > 0 && e.CalendarId == calendar.Id)
+        .OrderBy(e => e.StartTime)
+        .Select(e => new CalendarEventDto
+        {
+          Id = e.Id,
+          Title = e.Title,
+          Description = e.Description,
+          CalendarId = e.CalendarId,
+          Start = e.StartTime,
+          End = e.EndTime,
+          AllDay = e.AllDay
+        })
+        .ToListAsync();
+      return Ok(events);
     }
+  }
 }
