@@ -79,7 +79,6 @@ export class CalendarsComponent implements OnInit {
 
   constructor(
     private service: CalendarsService,
-    private router: Router,
     public dialog: MatDialog
   ) {}
 
@@ -335,6 +334,7 @@ export class CalendarsComponent implements OnInit {
   }
 
   openAddEventDialog(eventData?: any): void {
+    console.log('los datos del eventdata... ', eventData)
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
       width: '400px',
       data: { calendars: this.myCalendars, event: eventData },
@@ -343,6 +343,7 @@ export class CalendarsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (!result) {return;}
 
+      console.log('Result from dialog:', result);
       this.isLoading.set(true);
       const isCopy = result.trigger === 'copy';
 

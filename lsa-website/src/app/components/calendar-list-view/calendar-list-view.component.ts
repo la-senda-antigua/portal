@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { CalendarEventService } from 'src/app/services/calendar-events.service';
 import { CommonModule } from '@angular/common';
 import { DescriptionBlockComponent } from '../description-block/description-block.component';
-
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @Component({
   selector: 'lsa-calendar-list-view',
   imports: [
@@ -13,6 +13,7 @@ import { DescriptionBlockComponent } from '../description-block/description-bloc
     MatButtonModule,
     CommonModule,
     DescriptionBlockComponent,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './calendar-list-view.component.html',
   styleUrl: './calendar-list-view.component.scss',

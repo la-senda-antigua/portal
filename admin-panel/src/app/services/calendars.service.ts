@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GeneralServiceBase } from './general.service.base';
 import { CalendarDto } from '../models/CalendarDto';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { TableResult } from '../models/TableResult';
 import { CalendarEvent } from '../models/CalendarEvent';
 
