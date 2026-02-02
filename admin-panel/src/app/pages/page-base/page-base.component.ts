@@ -10,9 +10,6 @@ import { GeneralServiceBase } from '../../services/general.service.base';
 import { DatePipe } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PageEvent } from '@angular/material/paginator';
-import { VideoFormData } from '../../components/edit-video-form/edit-video-form.component';
-import { EditIdNameFormData } from '../../components/edit-id-name-form/edit-id-name-form.component';
-import { PublicEventFormData } from '../../components/edit-public-event-form/edit-public-event-form.component';
 import { DisableConfirmationData } from '../../components/disable-confirmation/disable-confirmation.component';
 
 @Component({
