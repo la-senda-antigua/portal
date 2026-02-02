@@ -37,7 +37,6 @@ export enum TableViewType {
   'preacher' = 'preacher',
   'playlist' = 'playlist',
   'calendar' = 'calendar',
-  'publicEvent' = 'publicEvent',
 }
 
 export enum TableViewAccessMode {

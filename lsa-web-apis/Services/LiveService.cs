@@ -9,6 +9,9 @@ public class LiveService : ILiveService
     private readonly System.Timers.Timer _timer = new(Constants.LSAServiceTimeout);
     private readonly ElapsedEventHandler _elapsedHandler;
     private readonly IHubContext<LiveServiceHub> _hubContext;
+    // Lock to guard timer operations to avoid races between the timer's Elapsed
+    // handler and incoming requests that modify the timer/state.
+    private readonly object _timerLock = new();
 
     public LiveService(IHubContext<LiveServiceHub> hubContext)
     {
@@ -18,14 +21,25 @@ public class LiveService : ILiveService
 
     public async Task<LiveServiceStateDto> StartService(string videoURL)
     {
-        if (_timer.Enabled)
-            _timer.Stop();
-        else
-            _timer.Elapsed += _elapsedHandler;
-
         var dateWhenElapsed = DateTime.Now.AddMilliseconds(Constants.LSAServiceTimeout);
-        LiveServiceHub.StartService(videoURL, dateWhenElapsed);
-        _timer.Start();
+
+        // Update hub state and timer under a lock so the timer cannot elapse
+        // while we're configuring it.
+        lock (_timerLock)
+        {
+            if (_timer.Enabled)
+                _timer.Stop();
+            else
+                _timer.Elapsed += _elapsedHandler;
+
+            LiveServiceHub.StartService(videoURL, dateWhenElapsed);
+
+            // Make the timer interval match the exact remaining time.
+            var ms = (dateWhenElapsed - DateTime.Now).TotalMilliseconds;
+            _timer.Interval = ms > 0 ? ms : 0.0;
+            _timer.Start();
+        }
+
         await _hubContext.Clients.All.SendAsync(Constants.LSAServiceStartedNotification, videoURL);
         return new LiveServiceStateDto
         {
@@ -37,12 +51,21 @@ public class LiveService : ILiveService
 
     public LiveServiceStateDto Add30Mins()
     {
-        _timer.Stop();
-        var serviceStatus = LiveServiceHub.Add30Mins();
-        if (serviceStatus.EndTime.HasValue && serviceStatus.EndTime.Value > DateTime.Now)
+        // Stop and update the timer atomically with hub state update.
+        LiveServiceStateDto serviceStatus;
+        lock (_timerLock)
         {
-            _timer.Interval = (serviceStatus.EndTime.Value - DateTime.Now).TotalMilliseconds;
-            _timer.Start();
+            if (_timer.Enabled)
+                _timer.Stop();
+
+            serviceStatus = LiveServiceHub.Add30Mins();
+
+            if (serviceStatus.EndTime.HasValue && serviceStatus.EndTime.Value > DateTime.Now)
+            {
+                var ms = (serviceStatus.EndTime.Value - DateTime.Now).TotalMilliseconds;
+                _timer.Interval = ms > 0 ? ms : 0.0;
+                _timer.Start();
+            }
         }
 
         return serviceStatus;
@@ -55,12 +78,17 @@ public class LiveService : ILiveService
 
     public Task EndService()
     {
-        LiveServiceHub.EndService();
-        if (_timer.Enabled)
+        // Update hub state and timer under a lock, then notify clients.
+        lock (_timerLock)
         {
-            _timer.Stop();
-            _timer.Elapsed -= _elapsedHandler;
+            LiveServiceHub.EndService();
+            if (_timer.Enabled)
+            {
+                _timer.Stop();
+                _timer.Elapsed -= _elapsedHandler;
+            }
         }
+
         return _hubContext.Clients.All.SendAsync(Constants.LSAServiceEndedNotification);
     }
 
