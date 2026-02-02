@@ -369,6 +369,11 @@ export class DateTimePickerComponent implements OnInit {
     if (!date || !this.startDateValue) {
       return true;
     }
-    return date.getTime() >= this.startDateValue.getTime();
+
+    return date.getTime() > this.startDateValue.getTime() ||
+      (date.getDate() === this.startDateValue.getDate() &&
+        date.getMonth() === this.startDateValue.getMonth() &&
+        date.getFullYear() === this.startDateValue.getFullYear());
+
   };
 }

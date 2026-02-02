@@ -1,4 +1,4 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, signal, OnInit, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -18,6 +18,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { CommonModule } from '@angular/common';
 import { CalendarDto } from '../../models/CalendarDto';
 import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
+import { Subscription } from 'rxjs';
+import { pairwise, startWith } from 'rxjs/operators';
 
 export interface DialogData {
   calendars: CalendarDto[];
@@ -42,11 +44,12 @@ export interface DialogData {
     DateTimePickerComponent,
   ],
 })
-export class AddEventDialogComponent {
+export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
   isEditMode = signal(false);
   isDateTimePickerValid: boolean = true;
+  private timeSubscription?: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -101,6 +104,36 @@ export class AddEventDialogComponent {
       allDay: [initialIsAllDay],
       calendarId: [data.event?.calendarId || '', Validators.required],
     });
+  }
+
+  ngOnInit(): void {
+    const startTimeControl = this.eventForm.get('startTime');
+    const endTimeControl = this.eventForm.get('endTime');
+
+    if (startTimeControl && endTimeControl) {
+      this.timeSubscription = startTimeControl.valueChanges
+        .pipe(
+          startWith(startTimeControl.value),
+          pairwise()
+        )
+        .subscribe(([prev, curr]) => {
+          if (prev && curr && endTimeControl.value) {
+            const prevDate = new Date(prev);
+            const currDate = new Date(curr);
+            const endDate = new Date(endTimeControl.value);
+
+            if (!isNaN(prevDate.getTime()) && !isNaN(currDate.getTime()) && !isNaN(endDate.getTime())) {
+              const diff = currDate.getTime() - prevDate.getTime();
+              const newEndDate = new Date(endDate.getTime() + diff);
+              endTimeControl.setValue(this.convertToISOString(newEndDate), { emitEvent: false });
+            }
+          }
+        });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.timeSubscription?.unsubscribe();
   }
 
   save(trigger: string): void {

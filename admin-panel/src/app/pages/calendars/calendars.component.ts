@@ -291,6 +291,7 @@ export class CalendarsComponent implements OnInit {
         return;
       }
 
+      console.log('Result from dialog:', result);
       this.isLoading.set(true);
       const isCopy = result.trigger === 'copy';
 
