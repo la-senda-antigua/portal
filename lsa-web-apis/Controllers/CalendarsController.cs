@@ -158,7 +158,6 @@ namespace lsa_web_apis.Controllers
             {
                 return StatusCode(500, "An error occurred while deleting the calendar.");
             }
-
         }
 
         [HttpDelete("events/{id}")]

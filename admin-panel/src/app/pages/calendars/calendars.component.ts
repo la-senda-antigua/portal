@@ -34,6 +34,7 @@ import { MatProgressBar } from '@angular/material/progress-bar';
 import { EventOptionsComponent } from '../../components/event-options/event-options.component';
 import { CalendarEvent } from '../../models/CalendarEvent';
 import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -83,6 +84,7 @@ export class CalendarsComponent implements OnInit {
   constructor(
     private service: CalendarsService,
     public dialog: MatDialog,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -143,7 +145,7 @@ export class CalendarsComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('error', err);
+        this.handleException(err, 'There was a problem when attempting to get the events.')
         this.isLoading.set(false);
       },
     });
@@ -206,7 +208,12 @@ export class CalendarsComponent implements OnInit {
       if (!result) return;
 
       const { data } = result;
-      const { name, id } = data;
+      const { name, id, action } = data;
+      if (action === 'delete') {
+        this.deleteCalendar(id, name);
+        return;
+      }
+
       const selectedUsers = data.selectedUsers as PortalUser[];
       const members: CalendarMemberDto[] = selectedUsers
         .filter((u) => u.role === 'User')
@@ -238,7 +245,7 @@ export class CalendarsComponent implements OnInit {
           this.reload();
         },
         error: (error) => {
-          console.error('Error updating calendar:', error);
+          this.handleException(error, 'There was a problem updating the calendar.');
         },
       });
     });
@@ -269,8 +276,8 @@ export class CalendarsComponent implements OnInit {
             this.isCalendarsLoading.set(false);
           },
           error: (err) => {
-            console.error('Error adding calendar:', err);
             this.isCalendarsLoading.set(false);
+            this.handleException(err, 'There was a problem when attempting to add the calendar.')
           },
         });
       }
@@ -292,7 +299,6 @@ export class CalendarsComponent implements OnInit {
         return;
       }
 
-      console.log('Result from dialog:', result);
       this.isLoading.set(true);
       const isCopy = result.trigger === 'copy';
 
@@ -321,7 +327,7 @@ export class CalendarsComponent implements OnInit {
           },
           error: (err) => {
             this.isLoading.set(false);
-            console.error('Error al actualizar el evento:', err);
+            this.handleException(err, 'There was a problem updating the event.');
           },
         });
       } else {
@@ -336,7 +342,7 @@ export class CalendarsComponent implements OnInit {
           },
           error: (err) => {
             this.isLoading.set(false);
-            console.error('Error al agregar el evento:', err);
+            this.handleException(err, 'There was a problem adding the event.');
           },
         });
       }
@@ -443,12 +449,43 @@ export class CalendarsComponent implements OnInit {
               next: () => this.reload(),
               error: (err) => {
                 this.isLoading.set(false);
-                console.error('Error deleting event:', err);
+                this.handleException(err, 'There was a problem when attempting to delete.')
               },
             });
           }
         });
       }
+    });
+  }
+
+  deleteCalendar(id: string, name: string) {
+    const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
+      data: {
+        id: id,
+        matchingString: name,
+        name: name,
+      },
+    });
+
+    dialogDelete.afterClosed().subscribe((result) => {
+      if (result) {
+        this.isLoading.set(true);
+        this.service.delete(id).subscribe({
+          next: () => this.reload(),
+          error: (err) => {
+            this.isLoading.set(false);
+            this.handleException(err, err.error);
+          },
+        });
+      }
+    });
+  }
+
+  handleException(e: Error, message: string) {
+    this.isLoading.set(false);
+    console.error(e);
+    this.snackBar.open(message, '', {
+      duration: 4000,
     });
   }
 }
