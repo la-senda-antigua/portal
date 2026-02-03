@@ -29,6 +29,8 @@ import { getDisplayName, getInitial, getUserColor } from '../../../utils/user.ut
 export class UserSelectorComponent implements OnInit {
   @Input() existingUsers: PortalUser[] = [];
   @Input() initialSelectedUsers: PortalUser[] = [];
+  @Input() label: string = 'Add Users';
+  @Input() hint: string = '';
   @Output() selectedUsersChange = new EventEmitter<PortalUser[]>();
 
   selectedUsers: PortalUser[] = [];

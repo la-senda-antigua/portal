@@ -1,28 +1,3 @@
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-button {
-  margin-left: 10px;
-}
-
-.option-button {
-  width: 268px;
-  margin: 0;
-  justify-content: left;
-}
-
-.red-color {
-  color: red;
-}
-
-.modal-content {
-  overflow: visible;
-  width: 100%;
-}
-
-.modal-dialog {
-  height: auto !important;
-  max-height: none !important;
+.modal-content{
+  padding-top: 10px;
 }

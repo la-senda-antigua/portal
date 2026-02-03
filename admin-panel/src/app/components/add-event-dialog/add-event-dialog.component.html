@@ -14,6 +14,13 @@
       <textarea matInput formControlName="description" rows="3"></textarea>
     </mat-form-field>
 
+    <app-user-selector
+      [label]="'Assignee'"
+      [initialSelectedUsers]="selectedUsers"
+      [hint]="'Assignees are used for checking availability from other calendars.'"
+      (selectedUsersChange)="onSelectedUsersChange($event)"
+    ></app-user-selector>
+
     <app-date-time-picker
       [initialStartDate]="eventForm.controls['startTime'].value ?? ''"
       [initialEndDate]="eventForm.controls['endTime'].value ?? ''"

@@ -18,6 +18,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { CommonModule } from '@angular/common';
 import { CalendarDto } from '../../models/CalendarDto';
 import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
+import { UserSelectorComponent } from '../user-selector/user-selector.component';
+import { PortalUser } from '../../models/PortalUser';
 import { Subscription } from 'rxjs';
 import { pairwise, startWith } from 'rxjs/operators';
 
@@ -42,12 +44,14 @@ export interface DialogData {
     MatButtonModule,
     MatDatepickerModule,
     DateTimePickerComponent,
+    UserSelectorComponent,
   ],
 })
 export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
   isEditMode = signal(false);
+  selectedUsers: PortalUser[] = [];
   isDateTimePickerValid: boolean = true;
   private timeSubscription?: Subscription;
 
@@ -58,6 +62,10 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   ) {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
+
+    if (data.event?.attendees) {
+      this.selectedUsers = data.event.attendees;
+    }
 
     let initialStartTime: string;
     let initialEndTime: string | null;
@@ -136,6 +144,10 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     this.timeSubscription?.unsubscribe();
   }
 
+  onSelectedUsersChange(users: PortalUser[]) {
+    this.selectedUsers = users;
+  }
+
   save(trigger: string): void {
     if (this.eventForm.valid) {
       const result = this.eventForm.value;
@@ -150,7 +162,8 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
         start: startTime,
         allDay: result.allDay,
         end: endTime ? endTime : null,
-        trigger: trigger
+        attendees: this.selectedUsers,
+        trigger: trigger,
       };
 
       this.dialogRef.close(finalResult);

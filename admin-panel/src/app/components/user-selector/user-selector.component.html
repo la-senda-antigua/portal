@@ -1,11 +1,13 @@
-<mat-form-field class="user-input w-full">
-  <mat-label>Add users</mat-label>
+<mat-form-field class="user-input w-full" appearance="outline" subscriptSizing="dynamic">
+  <mat-label>{{label}}</mat-label>
   <input
     type="text"
     matInput
     [formControl]="userCtrl"
     [matAutocomplete]="auto"
   />
+  <mat-hint *ngIf="hint">{{hint}}</mat-hint>
+
   <mat-autocomplete
     #auto="matAutocomplete"
     [displayWith]="displayFn"
