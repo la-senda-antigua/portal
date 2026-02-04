@@ -170,7 +170,6 @@ namespace lsa_web_apis.Controllers
             }
         }
 
-
         [HttpDelete("events/{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<IActionResult> DeleteEvent(Guid id)
