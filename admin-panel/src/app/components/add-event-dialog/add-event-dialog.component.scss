@@ -12,3 +12,18 @@ app-user-selector {
   display: block;
   margin-bottom: 16px;
 }
+
+.warning-conflicts-text{
+  width: 100%;
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.bottom-actions{
+  flex-wrap: wrap;
+  justify-content: flex-end
+}

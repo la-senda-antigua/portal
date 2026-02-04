@@ -32,7 +32,9 @@ namespace lsa_web_apis.Models
     public class CalendarMemberDto
     {
         public Guid UserId { get; set; } 
-        public string Username { get; set; } = string.Empty; 
+        public string Username { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? LastName { get; set; }
 
     }
 

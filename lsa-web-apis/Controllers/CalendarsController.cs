@@ -432,5 +432,41 @@ namespace lsa_web_apis.Controllers
               .ToListAsync();
             return Ok(events);
         }
+
+        public record UserAvailabilityRequest(string[] userIds, string startTime, string endTime);
+
+        [HttpPost]
+        [Route("UserAvailability")]
+        public async Task<ActionResult> UserAvailability(UserAvailabilityRequest request)
+        {
+            CalendarMemberDto member = new CalendarMemberDto()
+            {
+                UserId = new Guid("27571ed4-83b0-4e60-8f07-176f8cfeaa4f"),
+                Username = "hugo2555@gmail.com",
+                Name = "Hugo",
+                LastName = "Quiñonez"
+            };
+
+            var calendars = new List<CalendarDto>();
+            calendars.Add(new CalendarDto
+            {
+                Id = new Guid(),
+                Name = "Caelndar Test",
+            });
+            calendars.Add(new CalendarDto
+            {
+                Id = new Guid(),
+                Name = "Caelndar Test2",
+            });
+
+            var result = new List<dynamic>();
+            result.Add(new
+            {
+                user = member,
+                conflicts = calendars
+            });
+
+            return Ok(result);
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Component, Inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, signal, computed, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -22,6 +22,8 @@ import { UserSelectorComponent } from '../user-selector/user-selector.component'
 import { PortalUser } from '../../models/PortalUser';
 import { Subscription } from 'rxjs';
 import { pairwise, startWith } from 'rxjs/operators';
+import { CalendarsService } from '../../services/calendars.service';
+import { CalendarMemberConflict } from '../../models/CalendarMemberDto';
 
 export interface DialogData {
   calendars: CalendarDto[];
@@ -51,20 +53,36 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
   isEditMode = signal(false);
-  selectedUsers: PortalUser[] = [];
   isDateTimePickerValid: boolean = true;
   private timeSubscription?: Subscription;
+
+  assigneesConflicts = signal<CalendarMemberConflict[]>([]);
+  assignees: PortalUser[] = [];
+  conflictsMessage = computed(() => {
+    const conflicts = this.assigneesConflicts();
+    if (conflicts.length === 0) return '';
+
+    if (conflicts.length === 1) {
+      const c = conflicts[0];
+      const calendarNames = c.conflicts.map((cal: any) => cal.name).join(', ');
+      return `${c.user.name} ${c.user.lastName} has a conflict with other calendar (${calendarNames}) at this date and time. If you continue, a warning will be presented in the calendar app.`;
+    }
+
+    const names = conflicts.map((c) => `${c.user.name} ${c.user.lastName}`).join(', ');
+    return `The following users have conflicts with other calendars at this date and time. If you continue, a warning will be presented in the calendar app. ${names}`;
+  });
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AddEventDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private calendarsService: CalendarsService
   ) {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
 
     if (data.event?.attendees) {
-      this.selectedUsers = data.event.attendees;
+      this.assignees = data.event.attendees;
     }
 
     let initialStartTime: string;
@@ -144,8 +162,30 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     this.timeSubscription?.unsubscribe();
   }
 
-  onSelectedUsersChange(users: PortalUser[]) {
-    this.selectedUsers = users;
+  onAssigneesChange(users: PortalUser[]) {
+    this.assignees = users;
+    this.checkAssigneesAvailability();
+  }
+
+  checkAssigneesAvailability(): void {
+    const userIds = this.assignees.map(u=> u.userId)
+    if (userIds.length === 0 || !this.isDateTimePickerValid) {
+      this.assigneesConflicts.set([]);
+      return;
+    }
+
+    const startTime = this.eventForm.get('startTime')?.value;
+    const endTime = this.eventForm.get('endTime')?.value;
+
+    this.calendarsService.checkUserAvailability(userIds, startTime, endTime).subscribe({
+      next: (conflicts) => {
+        this.assigneesConflicts.set(conflicts);
+      },
+      error: (err) => {
+        console.error(err);
+        this.assigneesConflicts.set([]);
+      }
+    });
   }
 
   save(trigger: string): void {
@@ -162,7 +202,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
         start: startTime,
         allDay: result.allDay,
         end: endTime ? endTime : null,
-        attendees: this.selectedUsers,
+        attendees: this.assignees,
         trigger: trigger,
       };
 

@@ -16,9 +16,11 @@
 
     <app-user-selector
       [label]="'Assignee'"
-      [initialSelectedUsers]="selectedUsers"
-      [hint]="'Assignees are used for checking availability from other calendars.'"
-      (selectedUsersChange)="onSelectedUsersChange($event)"
+      [initialSelectedUsers]="assignees"
+      [hint]="
+        'Assignees are used for checking availability from other calendars.'
+      "
+      (selectedUsersChange)="onAssigneesChange($event)"
     ></app-user-selector>
 
     <app-date-time-picker
@@ -41,11 +43,15 @@
     </mat-form-field>
   </mat-dialog-content>
 
-  <mat-dialog-actions>
+  <mat-dialog-actions class="bottom-actions">
+    @if(assigneesConflicts().length > 0){
+      <p class="warning-conflicts-text" style="width: 100%">
+        {{conflictsMessage()}}
+      </p>
+    }
     <button mat-button type="button" (click)="onCancel()">Cancel</button>
     <button
       mat-flat-button
-
       type="button"
       (click)="save('copy')"
       [disabled]="eventForm.invalid || !isDateTimePickerValid"
