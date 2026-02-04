@@ -140,7 +140,10 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await using var transaction = _context.Database.CurrentTransaction ?? await _context.Database.BeginTransactionAsync();
+            var useTransaction = !_context.Database.IsInMemory();
+            if (useTransaction)
+                await _context.Database.BeginTransactionAsync();
+
             try
             {
                 var calendar = await _context.Calendars
@@ -153,20 +156,18 @@ namespace lsa_web_apis.Controllers
                 _context.Calendars.Remove(calendar);
                 await _context.SaveChangesAsync();
 
-                if (transaction != null)
-                    await transaction.CommitAsync();
+                if (useTransaction)
+                    await _context.Database.CommitTransactionAsync();
 
                 return NoContent();
             }
             catch
             {
-                if (transaction != null)
-                    await transaction.RollbackAsync();
-
+                if (useTransaction)
+                    await _context.Database.RollbackTransactionAsync();
                 return StatusCode(500, "An error occurred while deleting the calendar.");
             }
         }
-
 
         [HttpDelete("events/{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
