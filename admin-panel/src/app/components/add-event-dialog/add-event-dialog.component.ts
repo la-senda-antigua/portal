@@ -81,8 +81,8 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
 
-    if (data.event?.attendees) {
-      this.assignees = data.event.attendees;
+    if (data.event?.assignees) {
+      this.assignees = data.event.assignees;
     }
 
     let initialStartTime: string;
@@ -202,7 +202,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
         start: startTime,
         allDay: result.allDay,
         end: endTime ? endTime : null,
-        attendees: this.assignees,
+        assignees: this.assignees,
         trigger: trigger,
       };
 

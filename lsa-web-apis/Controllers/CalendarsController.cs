@@ -250,7 +250,7 @@ namespace lsa_web_apis.Controllers
         {
             var yearMonth = $"{year:D4}-{month:D2}";
 
-            var query = _context.CalendarEvents
+            var query = _context.CalendarEvents                
                 .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth);
 
             if (!User.IsInRole("Admin"))
@@ -268,7 +268,8 @@ namespace lsa_web_apis.Controllers
                     CalendarId = e.CalendarId,
                     Start = e.StartTime,
                     End = e.EndTime,
-                    AllDay = e.AllDay
+                    AllDay = e.AllDay,
+                    //Assignees = e.Assignees.Select(a => a.UserId).ToArray()
                 })
                 .OrderByDescending(e => e.Start)
                 .AsNoTracking()
@@ -352,28 +353,58 @@ namespace lsa_web_apis.Controllers
         [Route("addEvent")]
         public async Task<ActionResult> AddEvent(CalendarEventDto request)
         {
-            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
-            if (calendar is null) return NotFound("Calendar not found.");
+            var useTransaction = !_context.Database.IsInMemory();
+            if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
 
-            var calendarEvent = new CalendarEvent
+            try
             {
-                Title = request.Title,
-                Description = request.Description,
-                CalendarId = request.CalendarId,
-                StartTime = request.Start!.Replace("T", " "),
-                AllDay = request.AllDay,
-            };
+                var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+                if (calendar is null) return NotFound("Calendar not found.");
 
-            if (!string.IsNullOrEmpty(request.End))
-            {
-                calendarEvent.EndTime = request.End.Replace("T", " ");
+                var calendarEvent = new CalendarEvent
+                {
+                    Title = request.Title,
+                    Description = request.Description,
+                    CalendarId = request.CalendarId,
+                    StartTime = request.Start!.Replace("T", " "),
+                    AllDay = request.AllDay,
+                };
+
+                if (!string.IsNullOrEmpty(request.End))
+                {
+                    calendarEvent.EndTime = request.End.Replace("T", " ");
+                }
+
+                List<CalendarEventAssignee> assignees = new List<CalendarEventAssignee>();
+                if (request.Assignees?.Length > 0)
+                {
+                    foreach (var assignee in request.Assignees)
+                        assignees.Add(new CalendarEventAssignee() { UserId = assignee });
+                }
+
+                _context.CalendarEvents.Add(calendarEvent);
+                if (assignees.Count > 0)
+                {
+                    foreach (var assignee in assignees)
+                        assignee.CalendarEventId = calendarEvent.Id;
+                    _context.CalendarEventAssignees.AddRange(assignees);
+                }
+
+                await _context.SaveChangesAsync();
+
+                if (useTransaction)
+                    await _context.Database.CommitTransactionAsync();
+
+                return Ok();
             }
-
-            _context.CalendarEvents.Add(calendarEvent);
-            await _context.SaveChangesAsync();
-
-            return Ok();
+            catch (Exception)
+            {
+                if (useTransaction)
+                    await _context.Database.RollbackTransactionAsync();
+                return StatusCode(500, "An error occurred while creating the event.");
+            }
         }
+
 
         [HttpPut]
         [Authorize(Roles = "Admin,CalendarManager")]
@@ -386,19 +417,48 @@ namespace lsa_web_apis.Controllers
             var calendar = await _context.Calendars.FindAsync(request.CalendarId);
             if (calendar is null) return NotFound("Calendar not found.");
 
-            existingEvent.Id = request.Id!.Value;
-            existingEvent.Title = request.Title;
-            existingEvent.Description = request.Description;
-            existingEvent.CalendarId = request.CalendarId;
-            existingEvent.StartTime = request.Start!.Replace("T", " ");
-            existingEvent.AllDay = request.AllDay;
-            if (!string.IsNullOrEmpty(request.End))
-            {
-                existingEvent.EndTime = request.End.Replace("T", " ");
-            }
+            var useTransaction = !_context.Database.IsInMemory();
+            if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
 
-            await _context.SaveChangesAsync();
-            return Ok();
+            try
+            {
+                _context.CalendarEventAssignees.RemoveRange(
+                    _context.CalendarEventAssignees.Where(a => a.CalendarEventId == request.Id)
+                );
+
+
+                existingEvent.Title = request.Title;
+                existingEvent.Description = request.Description;
+                existingEvent.CalendarId = request.CalendarId;
+                existingEvent.StartTime = request.Start!.Replace("T", " ");
+                existingEvent.AllDay = request.AllDay;
+                existingEvent.EndTime = string.IsNullOrEmpty(request.End) ? null : request.End.Replace("T", " ");
+
+                if (request.Assignees?.Length > 0)
+                {
+                    var assignees = request.Assignees.Select(assignee => new CalendarEventAssignee
+                    {
+                        UserId = assignee,
+                        CalendarEventId = request.Id!.Value
+                    }).ToList();
+
+                    _context.CalendarEventAssignees.AddRange(assignees);
+                }
+
+                await _context.SaveChangesAsync();
+
+                if (useTransaction)
+                    await _context.Database.CommitTransactionAsync();
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+                if (useTransaction)
+                    await _context.Database.RollbackTransactionAsync();
+
+                return StatusCode(500, "An error occurred while updating the event.");
+            }
         }
 
         [HttpGet]

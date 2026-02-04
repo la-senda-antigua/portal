@@ -308,7 +308,7 @@ export class CalendarsComponent implements OnInit {
         return;
       }
 
-      this.isLoading.set(true);
+      // this.isLoading.set(true);
       const isCopy = result.trigger === 'copy';
 
       if (result.start && result.start.length === 5) {
@@ -323,6 +323,7 @@ export class CalendarsComponent implements OnInit {
       }
 
       result.eventDate = result.date;
+      result.assignees = result.assignees.map((u: PortalUser) => u.userId);
 
       if (result.id) {
         this.service.updateEvent(result).subscribe({

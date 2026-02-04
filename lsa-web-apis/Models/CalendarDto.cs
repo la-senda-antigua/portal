@@ -20,6 +20,13 @@ namespace lsa_web_apis.Models
         public string? Start { get; set; }
         public string? End { get; set; }
         public bool AllDay { get; set; } = false;
+        public Guid[]? Assignees { get; set; }  
+    }
+
+    public class CalendarEventAssigneeDto
+    {
+        public Guid CalendarEventId { get; set; }
+        public Guid UserId { get; set; }
     }
 
     public class CalendarManagerDto
