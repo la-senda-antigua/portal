@@ -140,25 +140,33 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            await using var transaction = _context.Database.CurrentTransaction ?? await _context.Database.BeginTransactionAsync();
             try
             {
-                var calendar = await _context.Calendars.FindAsync(id);
+                var calendar = await _context.Calendars
+                    .Include(c => c.Events)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+
                 if (calendar is null)
                     return NotFound("Calendar not found.");
 
                 _context.Calendars.Remove(calendar);
                 await _context.SaveChangesAsync();
 
+                if (transaction != null)
+                    await transaction.CommitAsync();
+
                 return NoContent();
             }
-            catch (DbUpdateException ex) when (ex.InnerException is MySqlException sqlEx && sqlEx.Number == 1451)
+            catch
             {
-                return Conflict("The calendar cannot be deleted because it has related events.");                
-            }catch (Exception ex)
-            {
+                if (transaction != null)
+                    await transaction.RollbackAsync();
+
                 return StatusCode(500, "An error occurred while deleting the calendar.");
             }
         }
+
 
         [HttpDelete("events/{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
@@ -391,36 +399,36 @@ namespace lsa_web_apis.Controllers
             return Ok();
         }
 
-    [HttpGet]
-    [Route("GetPublicEvents")]
-    public async Task<ActionResult> GetPublicEvents(DateTime? dateTime)
-    {
-      if (dateTime is null)
-        dateTime = DateTime.Now;
-      //buscar el calendario con nombre "Public Events" y obtener sus eventos
-      var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
-      if (calendar == null)
-      {
-        return NotFound("Calendar not found");
-      }
-
-      var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
-
-      var events = await _context.CalendarEvents
-        .Where(e => string.Compare(e.StartTime, dateString) > 0 && e.CalendarId == calendar.Id)
-        .OrderBy(e => e.StartTime)
-        .Select(e => new CalendarEventDto
+        [HttpGet]
+        [Route("GetPublicEvents")]
+        public async Task<ActionResult> GetPublicEvents(DateTime? dateTime)
         {
-          Id = e.Id,
-          Title = e.Title,
-          Description = e.Description,
-          CalendarId = e.CalendarId,
-          Start = e.StartTime,
-          End = e.EndTime,
-          AllDay = e.AllDay
-        })
-        .ToListAsync();
-      return Ok(events);
+            if (dateTime is null)
+                dateTime = DateTime.Now;
+            //buscar el calendario con nombre "Public Events" y obtener sus eventos
+            var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
+            if (calendar == null)
+            {
+                return NotFound("Calendar not found");
+            }
+
+            var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
+
+            var events = await _context.CalendarEvents
+              .Where(e => string.Compare(e.StartTime, dateString) > 0 && e.CalendarId == calendar.Id)
+              .OrderBy(e => e.StartTime)
+              .Select(e => new CalendarEventDto
+              {
+                  Id = e.Id,
+                  Title = e.Title,
+                  Description = e.Description,
+                  CalendarId = e.CalendarId,
+                  Start = e.StartTime,
+                  End = e.EndTime,
+                  AllDay = e.AllDay
+              })
+              .ToListAsync();
+            return Ok(events);
+        }
     }
-  }
 }
