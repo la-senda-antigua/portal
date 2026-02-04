@@ -70,6 +70,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
         const startDate = new Date(data.event.date);
         startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
         initialStartTime = this.convertToISOString(startDate);
+        data.event.allDay = false;
       }
 
       if (data.event.end) {
