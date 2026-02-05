@@ -1,4 +1,4 @@
-.add-event-button{
+.add-event-button {
   margin-top: 16px;
 }
 
@@ -33,8 +33,7 @@
   height: 40px;
 }
 
-
-.fc-event-title{
+.fc-event-title {
   font-weight: 500 !important;
 }
 
@@ -64,14 +63,13 @@
   min-height: 0;
 }
 
-
 full-calendar {
   flex: 1;
   overflow: auto;
   margin: 16px;
 }
 
-.add-button{
+.add-button {
   position: absolute;
   right: 4px;
   border-radius: 50%;
@@ -80,7 +78,7 @@ full-calendar {
   cursor: pointer;
 }
 
-.add-button:hover{
+.add-button:hover {
   background-color: #e0e0e0;
 }
 
@@ -92,10 +90,26 @@ full-calendar {
 .mat-mdc-list-option {
   .mdc-checkbox {
     .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
-    .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background,
-    .mdc-checkbox__native-control[data-indeterminate="true"]:enabled ~ .mdc-checkbox__background {
+    .mdc-checkbox__native-control:enabled:indeterminate
+      ~ .mdc-checkbox__background,
+    .mdc-checkbox__native-control[data-indeterminate="true"]:enabled
+      ~ .mdc-checkbox__background {
       border-color: var(--checkbox-color) !important;
       background-color: var(--checkbox-color) !important;
     }
   }
+}
+
+.calendar-view {
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  display: flex;
+  full-calendar {
+    flex: 1;
+  }
+}
+
+.invisible {
+  opacity: 0;
 }

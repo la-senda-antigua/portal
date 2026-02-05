@@ -1,5 +1,7 @@
 import {
   Component,
+  computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -35,6 +37,8 @@ import { EventOptionsComponent } from '../../components/event-options/event-opti
 import { CalendarEvent } from '../../models/CalendarEvent';
 import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -52,17 +56,21 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   providers: [DatePipe],
 })
 export class CalendarsComponent implements OnInit {
-  isLoading = signal(false);
-  isCalendarsLoading = signal(false);
-  fullcalendar = viewChild(FullCalendarComponent);
+  readonly calendarEventsLoading = signal(false);
+  readonly calendarListLoading = signal(false);
+  readonly fullCalendarComponent = viewChild(FullCalendarComponent);
+  readonly fullCalendarApi = computed(() =>
+    this.fullCalendarComponent()?.getApi(),
+  );
+  readonly destroyRef = inject(DestroyRef);
 
-  calendarOptions = {
+  readonly calendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
     editable: true,
     selectable: true,
     events: [] as EventInput,
-    datesSet: (dateInfo: any) => this.getMonthEvents(dateInfo),
+    datesSet: () => this.handleLoadCalendarEvents(),
     displayEventTime: true,
     eventTimeFormat: {
       hour: '2-digit' as const,
@@ -71,9 +79,7 @@ export class CalendarsComponent implements OnInit {
     },
     eventClick: (info: any) => this.showEventOptions(info),
     dateClick: (inf: any) => this.openAddEventDialog(inf),
-    loading: (isLoading: boolean) => {
-      this.isLoading.set(isLoading);
-    },
+    
   };
 
   myCalendars: CalendarDto[] = [];
@@ -88,76 +94,60 @@ export class CalendarsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.reload();
+    this.loadCalendarsAndEvents();
   }
 
-  reload() {
-    this.isLoading.set(true);
-    this.isCalendarsLoading.set(true);
-    this.loadMyCaelndars().then(() => {
-      this.isCalendarsLoading.set(false);
-      const calendarApi = this.fullcalendar()?.getApi();
-      const currentStart = calendarApi?.view?.currentStart ?? new Date();
-
-      this.getMonthEvents({
-        view: {
-          currentStart: currentStart,
-        },
+  loadCalendarsAndEvents(reload = false) {
+    this.loadCalendarList()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        tap(() => this.handleLoadCalendarEvents()),
+      )
+      .subscribe((calendars) => {
+        this.calendarListLoading.set(false);
+        this.myCalendars = calendars;
+        if (!reload) {
+          this.selectedCalendars = calendars.map((item) => item.id!);
+        }
       });
+  }
+
+  handleLoadCalendarEvents() {
+    this.loadCalendarEvents().subscribe((events) => {
+      this.allEvents = events;
+      this.filterEvents();
+      this.calendarEventsLoading.set(false);
     });
   }
 
-  async loadMyCaelndars(): Promise<void> {
-    return new Promise((resolve) => {
-      this.service.getMyCalendars().subscribe({
-        next: (response) => {
-          const items = response.map(
-            (c: CalendarDto) =>
-              ({
-                id: c.id,
-                name: c.name,
-                color: this.service.getCalendarColor(c.id!),
-              }) as CalendarDto,
-          );
+  loadCalendarList(): Observable<CalendarDto[]> {
+    this.calendarListLoading.set(true);
 
-          const isInitialLoad = this.myCalendars.length === 0;
-          this.myCalendars = items;
-
-          if (isInitialLoad) {
-            this.selectedCalendars = items.map((item) => item.id!);
-          } else {
-            const availableIds = new Set(items.map((c) => c.id!));
-            this.selectedCalendars = this.selectedCalendars.filter((id) =>
-              availableIds.has(id),
-            );
-          }
-          resolve();
-        },
-        error: (err) => {
-          this.myCalendars = [];
-          this.selectedCalendars = [];
-          resolve();
-        },
-      });
-    });
+    return this.service.getMyCalendars().pipe(
+      map((calendarDtos) => {
+        return calendarDtos.map(
+          (c: CalendarDto) =>
+            ({
+              id: c.id,
+              name: c.name,
+              color: this.service.getCalendarColor(c.id!),
+            }) as CalendarDto,
+        );
+      }),
+      catchError(() => of([])),
+    );
   }
 
-  getMonthEvents(dateInfo: any) {
-    this.isLoading.set(true);
-    const month = dateInfo.view.currentStart.getMonth() + 1;
-    const year = dateInfo.view.currentStart.getFullYear();
+  loadCalendarEvents(): Observable<CalendarEvent[]> {
+    this.calendarEventsLoading.set(true);
+    const currentStart =
+      this.fullCalendarApi()?.view.currentStart ?? new Date();
+    const month = currentStart.getMonth() + 1;
+    const year = currentStart.getFullYear();
 
-    this.service.getMonthEvents(month, year).subscribe({
-      next: (response) => {
-        this.allEvents = response;
-        this.filterEvents();
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.handleException(err, 'There was a problem when attempting to get the events.')
-        this.isLoading.set(false);
-      },
-    });
+    return this.service
+      .getMonthEvents(month, year)
+      .pipe(catchError(() => of([])));
   }
 
   private filterEvents() {
@@ -213,51 +203,53 @@ export class CalendarsComponent implements OnInit {
       } as CalendarFormData,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result) return;
+    dialogRef
+      .afterClosed()
+      .pipe(
+        switchMap((dialogCloseResult) => {
+          if (!dialogCloseResult) return of(null);
 
-      const { data } = result;
-      const { name, id, action } = data;
-      if (action === 'delete') {
-        this.deleteCalendar(id, name);
-        return;
-      }
+          const { data } = dialogCloseResult;
+          const { name, id, action } = data;
+          if (action === 'delete') {
+            this.deleteCalendar(id, name);
+            return of(null);
+          }
 
-      const selectedUsers = data.selectedUsers as PortalUser[];
-      const members: CalendarMemberDto[] = selectedUsers
-        .filter((u) => u.role === 'User')
-        .map((u) => ({
-          calendarId: id,
-          userId: u.userId,
-          username: u.username,
-          role: u.role,
-        }));
+          const selectedUsers = data.selectedUsers as PortalUser[];
+          const members: CalendarMemberDto[] = selectedUsers
+            .filter((u) => u.role === 'User')
+            .map((u) => ({
+              calendarId: id,
+              userId: u.userId,
+              username: u.username,
+              role: u.role,
+            }));
 
-      const managers: CalendarMemberDto[] = selectedUsers
-        .filter((u) => u.role === 'Manager')
-        .map((u) => ({
-          calendarId: id,
-          userId: u.userId,
-          username: u.username,
-          role: u.role,
-        }));
+          const managers: CalendarMemberDto[] = selectedUsers
+            .filter((u) => u.role === 'Manager')
+            .map((u) => ({
+              calendarId: id,
+              userId: u.userId,
+              username: u.username,
+              role: u.role,
+            }));
 
-      const calendar: CalendarDto = {
-        id,
-        name,
-        members,
-        managers,
-      };
-
-      this.service.edit(calendar).subscribe({
-        next: () => {
-          this.reload();
-        },
-        error: (error) => {
-          this.handleException(error, 'There was a problem updating the calendar.');
-        },
+          const calendar: CalendarDto = {
+            id,
+            name,
+            members,
+            managers,
+          };
+          return this.service.edit(calendar);
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe((result) => {
+        if (result != null) {
+          this.loadCalendarsAndEvents(true);
+        }
       });
-    });
   }
 
   openAddCalendarModal() {
@@ -271,7 +263,7 @@ export class CalendarsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.isCalendarsLoading.set(true);
+        this.calendarListLoading.set(true);
         const { data } = result;
         this.service.add(data).subscribe({
           next: (response) => {
@@ -282,11 +274,14 @@ export class CalendarsComponent implements OnInit {
             calendarWithColor.id = response.id;
             this.myCalendars.push(calendarWithColor);
             this.selectedCalendars.push(calendarWithColor.id!);
-            this.isCalendarsLoading.set(false);
+            this.calendarListLoading.set(false);
           },
           error: (err) => {
-            this.isCalendarsLoading.set(false);
-            this.handleException(err, 'There was a problem when attempting to add the calendar.')
+            this.calendarListLoading.set(false);
+            this.handleException(
+              err,
+              'There was a problem when attempting to add the calendar.',
+            );
           },
         });
       }
@@ -308,7 +303,7 @@ export class CalendarsComponent implements OnInit {
         return;
       }
 
-      this.isLoading.set(true);
+      this.calendarEventsLoading.set(true);
       const isCopy = result.trigger === 'copy';
 
       if (result.start && result.start.length === 5) {
@@ -327,30 +322,33 @@ export class CalendarsComponent implements OnInit {
       if (result.id) {
         this.service.updateEvent(result).subscribe({
           next: () => {
-            this.isLoading.set(false);
-            this.reload();
+            this.calendarEventsLoading.set(false);
+            this.loadCalendarsAndEvents(true);
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
             }
           },
           error: (err) => {
-            this.isLoading.set(false);
-            this.handleException(err, 'There was a problem updating the event.');
+            this.calendarEventsLoading.set(false);
+            this.handleException(
+              err,
+              'There was a problem updating the event.',
+            );
           },
         });
       } else {
         this.service.addEvent(result).subscribe({
           next: () => {
-            this.isLoading.set(false);
-            this.reload();
+            this.calendarEventsLoading.set(false);
+            this.loadCalendarsAndEvents(true);
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
             }
           },
           error: (err) => {
-            this.isLoading.set(false);
+            this.calendarEventsLoading.set(false);
             this.handleException(err, 'There was a problem adding the event.');
           },
         });
@@ -453,12 +451,15 @@ export class CalendarsComponent implements OnInit {
 
         dialogDelete.afterClosed().subscribe((result) => {
           if (result) {
-            this.isLoading.set(true);
+            this.calendarEventsLoading.set(true);
             this.service.deleteEvent(event.id).subscribe({
-              next: () => this.reload(),
+              next: () => this.loadCalendarsAndEvents(true),
               error: (err) => {
-                this.isLoading.set(false);
-                this.handleException(err, 'There was a problem when attempting to delete.')
+                this.calendarEventsLoading.set(false);
+                this.handleException(
+                  err,
+                  'There was a problem when attempting to delete.',
+                );
               },
             });
           }
@@ -478,11 +479,11 @@ export class CalendarsComponent implements OnInit {
 
     dialogDelete.afterClosed().subscribe((result) => {
       if (result) {
-        this.isLoading.set(true);
+        this.calendarEventsLoading.set(true);
         this.service.delete(id).subscribe({
-          next: () => this.reload(),
+          next: () => this.loadCalendarsAndEvents(true),
           error: (err) => {
-            this.isLoading.set(false);
+            this.calendarEventsLoading.set(false);
             this.handleException(err, err.error);
           },
         });
@@ -491,7 +492,7 @@ export class CalendarsComponent implements OnInit {
   }
 
   handleException(e: Error, message: string) {
-    this.isLoading.set(false);
+    this.calendarEventsLoading.set(false);
     console.error(e);
     this.snackBar.open(message, '', {
       duration: 4000,
