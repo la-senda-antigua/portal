@@ -1,5 +1,7 @@
 import {
   Component,
+  computed,
+  DestroyRef,
   inject,
   OnInit,
   signal,
@@ -8,27 +10,35 @@ import {
 } from '@angular/core';
 import { MatListModule, MatSelectionListChange } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-
 import { CalendarsService } from '../../services/calendars.service';
 import { CalendarDto } from '../../models/CalendarDto';
 import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+
 import {
   CalendarFormData,
   EditCalendarFormComponent,
 } from '../../components/edit-calendar-form/edit-calendar-form.component';
-import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
+import {
+  FullCalendarModule,
+  FullCalendarComponent,
+} from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { EventInput } from '@fullcalendar/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
 import { MatProgressBar } from '@angular/material/progress-bar';
+import { EventOptionsComponent } from '../../components/event-options/event-options.component';
+import { CalendarEvent } from '../../models/CalendarEvent';
+import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -46,104 +56,98 @@ import { MatProgressBar } from '@angular/material/progress-bar';
   providers: [DatePipe],
 })
 export class CalendarsComponent implements OnInit {
-  isLoading = signal(false);
-  isCalendarsLoading = signal(false);
-  fullcalendar = viewChild(FullCalendarComponent);
+  readonly calendarEventsLoading = signal(false);
+  readonly calendarListLoading = signal(false);
+  readonly fullCalendarComponent = viewChild(FullCalendarComponent);
+  readonly fullCalendarApi = computed(() =>
+    this.fullCalendarComponent()?.getApi(),
+  );
+  readonly destroyRef = inject(DestroyRef);
 
-  calendarOptions = {
+  readonly calendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
     editable: true,
     selectable: true,
     events: [] as EventInput,
-    datesSet: (dateInfo: any) => this.getMonthEvents(dateInfo),
+    datesSet: () => this.handleLoadCalendarEvents(),
     displayEventTime: true,
     eventTimeFormat: {
       hour: '2-digit' as const,
       minute: '2-digit' as const,
       hour12: false,
     },
-    eventMouseEnter: (info: any) => {
-      this.showToolTip(info);
-    },
-    eventClick: (info: any) => this.selectEvent(info),
+    eventClick: (info: any) => this.showEventOptions(info),
     dateClick: (inf: any) => this.openAddEventDialog(inf),
-    loading: (isLoading: boolean) => {
-      this.isLoading.set(isLoading);
-    },
+    
   };
 
   myCalendars: CalendarDto[] = [];
   selectedCalendars: string[] = [];
   private allEvents: any[] = [];
+  eventOptionsDialogRef?: MatDialogRef<EventOptionsComponent>;
 
   constructor(
     private service: CalendarsService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
-    this.reload();
+    this.loadCalendarsAndEvents();
   }
 
-  reload() {
-    this.isLoading.set(true);
-    this.isCalendarsLoading.set(true);
-    this.loadMyCaelndars().then(() => {
-      this.isCalendarsLoading.set(false);
-      const calendarApi = this.fullcalendar()?.getApi();
-      const currentStart = calendarApi?.view?.currentStart ?? new Date();
-
-      this.getMonthEvents({
-        view: {
-          currentStart: currentStart,
-        },
+  loadCalendarsAndEvents(reload = false) {
+    this.loadCalendarList()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        tap(() => this.handleLoadCalendarEvents()),
+      )
+      .subscribe((calendars) => {
+        this.calendarListLoading.set(false);
+        this.myCalendars = calendars;
+        if (!reload) {
+          this.selectedCalendars = calendars.map((item) => item.id!);
+        }
       });
+  }
+
+  handleLoadCalendarEvents() {
+    this.loadCalendarEvents().subscribe((events) => {
+      this.allEvents = events;
+      this.filterEvents();
+      this.calendarEventsLoading.set(false);
     });
   }
 
-  async loadMyCaelndars(): Promise<void> {
-    return new Promise((resolve) => {
-      this.service.getMyCalendars().subscribe({
-        next: (response) => {
-          const items = response.map(
-            (c: CalendarDto) =>
-              ({
-                id: c.id,
-                name: c.name,
-                color: this.service.getCalendarColor(c.id!),
-              } as CalendarDto)
-          );
+  loadCalendarList(): Observable<CalendarDto[]> {
+    this.calendarListLoading.set(true);
 
-          this.myCalendars = items;
-          this.selectedCalendars = items.map((item) => item.id!);
-          resolve();
-        },
-        error: (err) => {
-          this.myCalendars = [];
-          this.selectedCalendars = [];
-          resolve();
-        },
-      });
-    });
+    return this.service.getMyCalendars().pipe(
+      map((calendarDtos) => {
+        return calendarDtos.map(
+          (c: CalendarDto) =>
+            ({
+              id: c.id,
+              name: c.name,
+              color: this.service.getCalendarColor(c.id!),
+            }) as CalendarDto,
+        );
+      }),
+      catchError(() => of([])),
+    );
   }
 
-  getMonthEvents(dateInfo: any) {
-    this.isLoading.set(true);
-    const month = dateInfo.view.currentStart.getMonth() + 1;
-    const year = dateInfo.view.currentStart.getFullYear();
+  loadCalendarEvents(): Observable<CalendarEvent[]> {
+    this.calendarEventsLoading.set(true);
+    const currentStart =
+      this.fullCalendarApi()?.view.currentStart ?? new Date();
+    const month = currentStart.getMonth() + 1;
+    const year = currentStart.getFullYear();
 
-    this.service.getMonthEvents(month, year).subscribe({
-      next: (response) => {
-        this.allEvents = response;
-        this.filterEvents();
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('error', err);
-        this.isLoading.set(false);
-      },
-    });
+    return this.service
+      .getMonthEvents(month, year)
+      .pipe(catchError(() => of([])));
   }
 
   private filterEvents() {
@@ -178,67 +182,9 @@ export class CalendarsComponent implements OnInit {
 
   onCalendarSelectionChange(event: MatSelectionListChange) {
     this.selectedCalendars = event.source.selectedOptions.selected.map(
-      (option) => option.value
+      (option) => option.value,
     );
     this.filterEvents();
-  }
-
-  showToolTip(info: any) {
-    const tooltip = document.createElement('div');
-    tooltip.className = 'fc-tooltip';
-
-    const startTime = info.event.start?.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-
-    const endTime = info.event.end?.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    });
-
-    const date = info.event.start?.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-
-    tooltip.innerHTML = `
-    <strong>${info.event.title}</strong><br>
-    <small>
-    ${date} <br>
-    ${startTime ? `Start: ${startTime}` : ''}${
-      startTime && endTime ? ' | ' : ''
-    }${endTime ? `End: ${endTime}` : ''}
-    </small>
-    <p>${info.event.extendedProps.description || ''}<p>
-  `;
-
-    tooltip.style.position = 'absolute';
-    let left = info.jsEvent.pageX + 10;
-    let top = info.jsEvent.pageY + 10;
-    if (left + 200 > window.innerWidth) {
-      left = info.jsEvent.pageX - 210;
-    }
-    if (top + 200 > window.innerHeight) {
-      top = info.jsEvent.pageY - 110;
-    }
-
-    tooltip.style.top = top + 'px';
-    tooltip.style.left = left + 'px';
-    tooltip.style.backgroundColor = 'white';
-    tooltip.style.border = '1px solid #ccc';
-    tooltip.style.padding = '5px';
-    tooltip.style.borderRadius = '3px';
-    tooltip.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-    tooltip.style.zIndex = '9';
-    document.body.appendChild(tooltip);
-
-    info.el.addEventListener('mouseleave', () => {
-      tooltip.remove();
-    });
   }
 
   showCalendarOptions(event: MouseEvent, calendar: CalendarDto) {
@@ -257,47 +203,53 @@ export class CalendarsComponent implements OnInit {
       } as CalendarFormData,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(
+        switchMap((dialogCloseResult) => {
+          if (!dialogCloseResult) return of(null);
 
-      if (!result) return;
+          const { data } = dialogCloseResult;
+          const { name, id, action } = data;
+          if (action === 'delete') {
+            this.deleteCalendar(id, name);
+            return of(null);
+          }
 
-      const { data } = result;
-      const { name, id } = data;
-      const selectedUsers = data.selectedUsers as PortalUser[];
-      const members: CalendarMemberDto[] = selectedUsers
-        .filter((u) => u.role === 'User')
-        .map((u) => ({
-          calendarId: id,
-          userId: u.userId,
-          username: u.username,
-          role: u.role,
-        }));
+          const selectedUsers = data.selectedUsers as PortalUser[];
+          const members: CalendarMemberDto[] = selectedUsers
+            .filter((u) => u.role === 'User')
+            .map((u) => ({
+              calendarId: id,
+              userId: u.userId,
+              username: u.username,
+              role: u.role,
+            }));
 
-      const managers: CalendarMemberDto[] = selectedUsers
-        .filter((u) => u.role === 'Manager')
-        .map((u) => ({
-          calendarId: id,
-          userId: u.userId,
-          username: u.username,
-          role: u.role,
-        }));
+          const managers: CalendarMemberDto[] = selectedUsers
+            .filter((u) => u.role === 'Manager')
+            .map((u) => ({
+              calendarId: id,
+              userId: u.userId,
+              username: u.username,
+              role: u.role,
+            }));
 
-      const calendar: CalendarDto = {
-        id,
-        name,
-        members,
-        managers,
-      };
-
-      this.service.edit(calendar).subscribe({
-        next: () => {
-          this.reload();
-        },
-        error: (error) => {
-          console.error('Error updating calendar:', error);
-        },
+          const calendar: CalendarDto = {
+            id,
+            name,
+            members,
+            managers,
+          };
+          return this.service.edit(calendar);
+        }),
+        catchError(() => of(null)),
+      )
+      .subscribe((result) => {
+        if (result != null) {
+          this.loadCalendarsAndEvents(true);
+        }
       });
-    });
   }
 
   openAddCalendarModal() {
@@ -311,7 +263,7 @@ export class CalendarsComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.isCalendarsLoading.set(true);
+        this.calendarListLoading.set(true);
         const { data } = result;
         this.service.add(data).subscribe({
           next: (response) => {
@@ -322,11 +274,14 @@ export class CalendarsComponent implements OnInit {
             calendarWithColor.id = response.id;
             this.myCalendars.push(calendarWithColor);
             this.selectedCalendars.push(calendarWithColor.id!);
-            this.isCalendarsLoading.set(false);
+            this.calendarListLoading.set(false);
           },
           error: (err) => {
-            console.error('Error adding calendar:', err);
-            this.isCalendarsLoading.set(false);
+            this.calendarListLoading.set(false);
+            this.handleException(
+              err,
+              'There was a problem when attempting to add the calendar.',
+            );
           },
         });
       }
@@ -334,23 +289,27 @@ export class CalendarsComponent implements OnInit {
   }
 
   openAddEventDialog(eventData?: any): void {
-    console.log('los datos del eventdata... ', eventData)
+    if (this.eventOptionsDialogRef) {
+      this.eventOptionsDialogRef.close();
+    }
+
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
       width: '400px',
       data: { calendars: this.myCalendars, event: eventData },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (!result) {return;}
+      if (!result) {
+        return;
+      }
 
-      console.log('Result from dialog:', result);
-      this.isLoading.set(true);
+      this.calendarEventsLoading.set(true);
       const isCopy = result.trigger === 'copy';
 
       if (result.start && result.start.length === 5) {
         result.start = result.start + ':00';
       }
-      if (result.end){
+      if (result.end) {
         if (result.end.length === 5) {
           result.end = result.end + ':00';
         }
@@ -363,31 +322,34 @@ export class CalendarsComponent implements OnInit {
       if (result.id) {
         this.service.updateEvent(result).subscribe({
           next: () => {
-            this.isLoading.set(false);
-            this.reload();
+            this.calendarEventsLoading.set(false);
+            this.loadCalendarsAndEvents(true);
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
             }
           },
           error: (err) => {
-            this.isLoading.set(false);
-            console.error('Error al actualizar el evento:', err);
+            this.calendarEventsLoading.set(false);
+            this.handleException(
+              err,
+              'There was a problem updating the event.',
+            );
           },
         });
       } else {
         this.service.addEvent(result).subscribe({
           next: () => {
-            this.isLoading.set(false);
-            this.reload();
+            this.calendarEventsLoading.set(false);
+            this.loadCalendarsAndEvents(true);
             if (isCopy) {
               const copyData = this.prepareCopyData(result);
               this.openAddEventDialog(copyData);
             }
           },
           error: (err) => {
-            this.isLoading.set(false);
-            console.error('Error al agregar el evento:', err);
+            this.calendarEventsLoading.set(false);
+            this.handleException(err, 'There was a problem adding the event.');
           },
         });
       }
@@ -400,15 +362,24 @@ export class CalendarsComponent implements OnInit {
       calendarId: result.calendarId,
       date: result.start.substring(0, 10),
       description: result.description,
-      endDate: result.end ? result.end.substring(0, 10) : result.start.substring(0, 10),
+      endDate: result.end
+        ? result.end.substring(0, 10)
+        : result.start.substring(0, 10),
       title: `Copy of ${result.title}`,
-      start: result.start ? result.start.split('T')[1]?.substring(0, 5) || '' : '',
-      end: result.end ? result.end.split('T')[1]?.substring(0, 5) || '' : ''
+      start: result.start
+        ? result.start.split('T')[1]?.substring(0, 5) || ''
+        : '',
+      end: result.end ? result.end.split('T')[1]?.substring(0, 5) || '' : '',
     };
   }
 
-  selectEvent(item: any) {
-    const { allDay, startStr, endStr, extendedProps, title } = item.event;
+  showEventOptions(item: any) {
+    if (this.eventOptionsDialogRef) {
+      this.eventOptionsDialogRef.close();
+    }
+
+    const { allDay, startStr, endStr, extendedProps, title, backgroundColor } =
+      item.event;
     const startDate = allDay ? startStr : startStr.split('T')[0];
     let endDate = startDate;
 
@@ -428,11 +399,103 @@ export class CalendarsComponent implements OnInit {
       description: extendedProps.description,
       date: startDate,
       endDate: endDate,
-      start: allDay ? '00:00' : (startStr.split('T')[1]?.substring(0, 5) || ''),
-      end: allDay ? '23:59' : (endStr?.split('T')[1]?.substring(0, 5) || ''),
+      start: allDay ? '00:00' : startStr.split('T')[1]?.substring(0, 5) || '',
+      end: allDay ? '23:59' : endStr?.split('T')[1]?.substring(0, 5) || '',
       allDay: allDay,
       calendarId: extendedProps.calendarId,
+      calendarName: this.myCalendars.find(
+        (c) => c.id === extendedProps.calendarId,
+      )?.name,
+      color: backgroundColor,
     };
-    this.openAddEventDialog(event);
+
+    const dialogWidth = 400;
+    const dialogHeight = 300;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    let top = item.jsEvent.clientY;
+    let left = item.jsEvent.clientX;
+
+    if (left + dialogWidth > screenWidth) {
+      left = screenWidth - dialogWidth - 20;
+    }
+
+    if (top + dialogHeight > screenHeight) {
+      top = screenHeight - dialogHeight - 20;
+    }
+
+    const dialogRef = this.dialog.open(EventOptionsComponent, {
+      data: event,
+      width: `${dialogWidth}px`,
+      hasBackdrop: false,
+      panelClass: 'event-options-panel',
+      position: {
+        top: `${top}px`,
+        left: `${left}px`,
+      },
+    });
+    this.eventOptionsDialogRef = dialogRef;
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.action === 'edit') {
+        this.openAddEventDialog(result.event);
+      } else if (result?.action === 'delete') {
+        const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
+          data: {
+            id: event.id,
+            matchingString: event.title,
+            name: event.title,
+          },
+        });
+
+        dialogDelete.afterClosed().subscribe((result) => {
+          if (result) {
+            this.calendarEventsLoading.set(true);
+            this.service.deleteEvent(event.id).subscribe({
+              next: () => this.loadCalendarsAndEvents(true),
+              error: (err) => {
+                this.calendarEventsLoading.set(false);
+                this.handleException(
+                  err,
+                  'There was a problem when attempting to delete.',
+                );
+              },
+            });
+          }
+        });
+      }
+    });
+  }
+
+  deleteCalendar(id: string, name: string) {
+    const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
+      data: {
+        id: id,
+        matchingString: name,
+        name: name,
+      },
+    });
+
+    dialogDelete.afterClosed().subscribe((result) => {
+      if (result) {
+        this.calendarEventsLoading.set(true);
+        this.service.delete(id).subscribe({
+          next: () => this.loadCalendarsAndEvents(true),
+          error: (err) => {
+            this.calendarEventsLoading.set(false);
+            this.handleException(err, err.error);
+          },
+        });
+      }
+    });
+  }
+
+  handleException(e: Error, message: string) {
+    this.calendarEventsLoading.set(false);
+    console.error(e);
+    this.snackBar.open(message, '', {
+      duration: 4000,
+    });
   }
 }

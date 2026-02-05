@@ -37,8 +37,13 @@ export class CalendarsService extends GeneralServiceBase {
     return this.requestManager.put<CalendarDto>(url, item);
   }
 
-  override delete(id: number): Observable<void> {
+  override delete(id: string): Observable<void> {
     const url = `${this.apiUrl}/${id}`;
+    return this.requestManager.delete<void>(url);
+  }
+
+  deleteEvent(id: number): Observable<void> {
+    const url = `${this.apiUrl}/events/${id}`;
     return this.requestManager.delete<void>(url);
   }
 

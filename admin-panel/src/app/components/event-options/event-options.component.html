@@ -1,0 +1,44 @@
+<div class="header">
+  <button mat-icon-button (click)="edit()">
+    <mat-icon>edit</mat-icon>
+  </button>
+  <button mat-icon-button (click)="delete()">
+    <mat-icon>delete</mat-icon>
+  </button>
+  <button mat-icon-button (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div class="info-container">
+  <table>
+    <tr>
+      <td class="column-icons">
+        <div [style.background-color]="data.color" class="color-icon"></div>
+      </td>
+      <td class="title">{{data.title}}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="pb-2">
+        {{data.date | date:'MMMM dd, yyyy'}} <br>
+        @if (data.allDay){
+          <span>All day</span>
+        } @else{
+          {{data.start}} - {{data.end}}
+        }
+      </td>
+    </tr>
+    @if(data.description){
+      <tr>
+        <td> <mat-icon>notes</mat-icon> </td>
+        <td class="pb-2">{{data.description}}</td>
+      </tr>
+    }
+    <tr>
+      <td ><mat-icon>calendar_today</mat-icon></td>
+      <td class="pb-2">{{data.calendarName}}</td>
+    </tr>
+  </table>
+
+</div>

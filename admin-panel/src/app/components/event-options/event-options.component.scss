@@ -1,0 +1,37 @@
+app-event-options {
+  .header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 8px 0 8px;
+  }
+
+  .info-container{
+    padding: 4px 16px 16px 16px;
+  }
+
+  .title{
+    font-size: 22px;
+  }
+
+  .color-icon{
+    width: 16px;
+    height: 16px;
+    border-radius: 25%;
+  }
+
+  .column-icons{
+    width: 32px;
+    text-align: left;
+  }
+
+  .pb-2 {
+    padding-bottom: 16px;
+  }
+}
+
+.event-options-panel {
+  .mat-mdc-dialog-container, .mat-dialog-container {
+    border-radius: 28px;
+    border: solid 1px #ddd;
+  }
+}
