@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/core/calendar_colors.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
@@ -7,8 +8,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CalendarsDrawer extends StatefulWidget {
   final List<Calendar> calendars;
+  final String viewMode;
+  final ValueChanged<String> onViewModeChanged;
+  final ValueChanged<List<String>> onSelectedCalendarsChanged;
 
-  const CalendarsDrawer({super.key, required this.calendars});
+  const CalendarsDrawer({
+    super.key,
+    required this.calendars,
+    required this.viewMode,
+    required this.onViewModeChanged,
+    required this.onSelectedCalendarsChanged,
+  });
 
   @override
   State<CalendarsDrawer> createState() => _CalendarsDrawerState();
@@ -29,6 +39,7 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
     final savedIds = prefs.getStringList('selected_calendars');
     
     if (savedIds != null) {
+      if (!mounted) return;
       setState(() {
         final currentIds = widget.calendars.map((c) => c.id.toString()).toSet();
         _selectedIds = savedIds.where((id) => currentIds.contains(id)).toSet();
@@ -44,6 +55,7 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
         _selectedIds.remove(id);
       }
     });
+    widget.onSelectedCalendarsChanged(_selectedIds.toList());
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('selected_calendars', _selectedIds.toList());
   }
@@ -52,11 +64,52 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
   Widget build(BuildContext context) {
     return Drawer(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DrawerHeader(            
-            child: Align(
-              alignment: Alignment.bottomLeft,
-              child: Text(AppLocalizations.of(context)!.myCalendars, style: AppTextStyles.h1,),
+          const SizedBox(height: 60),
+          const Divider(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Text(AppLocalizations.of(context)!.viewEventsBy, style: AppTextStyles.subtitle),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: ElevatedButton.icon(
+                  onPressed: () => widget.onViewModeChanged('day'),
+                  icon: const Icon(Icons.calendar_view_day),
+                  label: Text(AppLocalizations.of(context)!.day),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: widget.viewMode == 'day' ? AppColors.accent : AppColors.secondary,
+                    foregroundColor: widget.viewMode == 'day' ?  AppColors.secondary : AppColors.accent ,
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: ElevatedButton.icon(
+                  onPressed: () => widget.onViewModeChanged('month'),
+                  icon: const Icon(Icons.calendar_month),
+                  label: Text(AppLocalizations.of(context)!.month),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: widget.viewMode == 'month' ? AppColors.accent :  AppColors.secondary,
+                    foregroundColor: widget.viewMode == 'month' ?  AppColors.secondary : AppColors.accent,
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Text(
+              AppLocalizations.of(context)!.myCalendars,
+              style: AppTextStyles.subtitle,
+              textAlign: TextAlign.left,
             ),
           ),
           Expanded(

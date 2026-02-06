@@ -1,4 +1,4 @@
-import { Component, Inject, signal } from '@angular/core';
+import { Component, Inject, signal, OnInit, OnDestroy } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -18,6 +18,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { CommonModule } from '@angular/common';
 import { CalendarDto } from '../../models/CalendarDto';
 import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
+import { Subscription } from 'rxjs';
+import { pairwise, startWith } from 'rxjs/operators';
 
 export interface DialogData {
   calendars: CalendarDto[];
@@ -42,11 +44,12 @@ export interface DialogData {
     DateTimePickerComponent,
   ],
 })
-export class AddEventDialogComponent {
+export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
   isEditMode = signal(false);
   isDateTimePickerValid: boolean = true;
+  private timeSubscription?: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -60,15 +63,30 @@ export class AddEventDialogComponent {
     let initialEndTime: string | null;
     let initialIsAllDay: boolean = false;
 
-    if (this.isEditMode()) {
-      const event = data.event;
-      const endDate = event.endDate || event.date;
-      initialStartTime = `${event.date}T${event.start}:00`;
-      initialEndTime = event.end ? `${endDate}T${event.end}:00` : '';
-      initialIsAllDay = !!event.allDay;
+    if (data.event) {
+      if (data.event.start) {
+        initialStartTime = `${data.event.date}T${data.event.start}:00`;
+      } else {
+        const startDate = new Date(data.event.date);
+        startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
+        initialStartTime = this.convertToISOString(startDate);
+        data.event.allDay = false;
+      }
+
+      if (data.event.end) {
+        const endDate = data.event.endDate || data.event.date;
+        initialEndTime = `${endDate}T${data.event.end}:00`;
+      } else {
+        const startDate = new Date(data.event.date);
+        startDate.setHours(10, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setHours(startDate.getHours() + 1); // Default a 1 hora de duración
+        initialEndTime = this.convertToISOString(endDate);
+      }
+
+      initialIsAllDay = !!data.event.allDay;
     } else {
-      // Para un evento nuevo, usamos la fecha clickeada o la actual.
-      const startDate = data.event?.date ? new Date(data.event.date) : new Date();
+      const startDate = new Date();
       startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
       initialStartTime = this.convertToISOString(startDate);
 
@@ -88,7 +106,37 @@ export class AddEventDialogComponent {
     });
   }
 
-  onSubmit(): void {
+  ngOnInit(): void {
+    const startTimeControl = this.eventForm.get('startTime');
+    const endTimeControl = this.eventForm.get('endTime');
+
+    if (startTimeControl && endTimeControl) {
+      this.timeSubscription = startTimeControl.valueChanges
+        .pipe(
+          startWith(startTimeControl.value),
+          pairwise()
+        )
+        .subscribe(([prev, curr]) => {
+          if (prev && curr && endTimeControl.value) {
+            const prevDate = new Date(prev);
+            const currDate = new Date(curr);
+            const endDate = new Date(endTimeControl.value);
+
+            if (!isNaN(prevDate.getTime()) && !isNaN(currDate.getTime()) && !isNaN(endDate.getTime())) {
+              const diff = currDate.getTime() - prevDate.getTime();
+              const newEndDate = new Date(endDate.getTime() + diff);
+              endTimeControl.setValue(this.convertToISOString(newEndDate), { emitEvent: false });
+            }
+          }
+        });
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.timeSubscription?.unsubscribe();
+  }
+
+  save(trigger: string): void {
     if (this.eventForm.valid) {
       const result = this.eventForm.value;
       const startTime = result.startTime;
@@ -102,6 +150,7 @@ export class AddEventDialogComponent {
         start: startTime,
         allDay: result.allDay,
         end: endTime ? endTime : null,
+        trigger: trigger
       };
 
       this.dialogRef.close(finalResult);

@@ -26,7 +26,12 @@ import { AddPeopleFormComponent } from '../add-people-form/add-people-form.compo
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarsService } from '../../services/calendars.service';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { getInitial, getUserColor, getDisplayName } from '../../../utils/user.utils';
+import {
+  getInitial,
+  getUserColor,
+  getDisplayName,
+} from '../../../utils/user.utils';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
@@ -52,6 +57,7 @@ export interface CalendarFormData extends TableViewFormData {
     MatProgressSpinnerModule,
     TitleCasePipe,
     MatProgressBar,
+    MatTooltipModule,
   ],
   templateUrl: './edit-calendar-form.component.html',
   styleUrl: './edit-calendar-form.component.scss',
@@ -81,22 +87,29 @@ export class EditCalendarFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getDetails();
+    if (this.formData.mode != 'add') {
+      this.getDetails();
+    }
   }
 
   getDetails() {
     this.loadingUsers.set(true);
-    this.calendarsService.getById(this.formData.data.id!).subscribe((data) => {
-      const members = data.members!.map((member) => ({
-        ...(member as PortalUser),
-        role: 'User',
-      }));
-      const managers = data.managers!.map((manager) => ({
-        ...(manager as PortalUser),
-        role: 'Manager',
-      }));
-      this.selectedUsers = [...members, ...managers];
-      this.loadingUsers.set(false);
+    this.calendarsService.getById(this.formData.data.id!).subscribe({
+      next: (data) => {
+        const members = data.members!.map((member) => ({
+          ...(member as PortalUser),
+          role: 'User',
+        }));
+        const managers = data.managers!.map((manager) => ({
+          ...(manager as PortalUser),
+          role: 'Manager',
+        }));
+        this.selectedUsers = [...members, ...managers];
+        this.loadingUsers.set(false);
+      },
+      error: () => {
+        this.loadingUsers.set(false);
+      },
     });
   }
 
@@ -138,9 +151,12 @@ export class EditCalendarFormComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((selectedUsers) => {
       if (selectedUsers) {
-        const existingUsers = this.selectedUsers
-        .filter((existing) => !selectedUsers
-        .some((selected: PortalUser) => selected.userId === existing.userId));
+        const existingUsers = this.selectedUsers.filter(
+          (existing) =>
+            !selectedUsers.some(
+              (selected: PortalUser) => selected.userId === existing.userId,
+            ),
+        );
 
         this.selectedUsers = [...existingUsers, ...selectedUsers];
       }
@@ -152,5 +168,15 @@ export class EditCalendarFormComponent implements OnInit {
     if (index >= 0) {
       this.selectedUsers.splice(index, 1);
     }
+  }
+
+  deleteCalendar() {
+    this.dialogRef.close({
+      data: {
+        action: 'delete',
+        id: this.formData.data.id,
+        name: this.formData.data.name,
+      },
+    });
   }
 }

@@ -10,4 +10,5 @@ export interface UserGroupMember{
   userId: string;
   username: string;
   name: string;
+  lastName: string;
 }

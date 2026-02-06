@@ -12,6 +12,24 @@
       </mat-error>
     </mat-form-field>
 
+    <!-- Name -->
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput [formControl]="userForm.controls.name" />
+      <mat-error *ngIf="userForm.controls.name.hasError">
+        Name is required
+      </mat-error>
+    </mat-form-field>
+
+    <!-- LastName -->
+    <mat-form-field appearance="outline">
+      <mat-label>Last Name</mat-label>
+      <input matInput [formControl]="userForm.controls.lastName" />
+      <mat-error *ngIf="userForm.controls.lastName.hasError">
+        Last Name is required
+      </mat-error>
+    </mat-form-field>
+
     <!-- Role Dropdown -->
     <mat-form-field appearance="outline">
       <mat-label>Role</mat-label>

@@ -205,6 +205,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select a calendar from the menu to show its events'**
   String get selectCalendarMessage;
+
+  /// No description provided for @viewEventsBy.
+  ///
+  /// In en, this message translates to:
+  /// **'View Events by'**
+  String get viewEventsBy;
+
+  /// No description provided for @day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get day;
+
+  /// No description provided for @month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get month;
+
+  /// No description provided for @allDay.
+  ///
+  /// In en, this message translates to:
+  /// **'All Day'**
+  String get allDay;
+
+  /// No description provided for @eventDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'From {startDate} to {endDate}'**
+  String eventDateRange(Object endDate, Object startDate);
+
+  /// No description provided for @dayXofY.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {current} of {total}'**
+  String dayXofY(Object current, Object total);
 }
 
 class _AppLocalizationsDelegate

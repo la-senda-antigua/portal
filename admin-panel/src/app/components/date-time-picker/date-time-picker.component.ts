@@ -60,6 +60,8 @@ export class DateTimePickerComponent implements OnInit {
 
   allDay: boolean = this.initialIsAllDay;
   private updatingForm: boolean = false;
+  private lastStartTime: string = '00:00:00';
+  private lastEndTime: string = '23:59:59';
 
   // Start time properties
   startDateValue: Date = new Date(this.initialStartDate);
@@ -137,6 +139,15 @@ export class DateTimePickerComponent implements OnInit {
     }
 
     this.allDay = this.initialIsAllDay;
+
+    if (!this.initialIsAllDay) {
+      if (this.initialStartDate) {
+        this.lastStartTime = this.getTimePart(this.startTimeString);
+      }
+      if (this.initialEndDate) {
+        this.lastEndTime = this.getTimePart(this.endTimeString);
+      }
+    }
 
     // Update validators based on inputs
     this.dateTimeForm
@@ -227,6 +238,22 @@ export class DateTimePickerComponent implements OnInit {
       const seconds = String(event.getSeconds()).padStart(2, '0');
       const existingDate = this.getDatePart(this.startTimeString, this.startDateValue);
       this.startTimeString = `${existingDate}T${hours}:${minutes}:${seconds}`;
+      if (!this.allDay) {
+        this.lastStartTime = `${hours}:${minutes}:${seconds}`;
+      }
+      if (this.dateTimeForm.get('endDateTime')?.pristine) {
+        const start = new Date(this.startTimeString);
+        const end = new Date(start);
+        end.setHours(start.getHours() + 1);
+        this.endTimeString = this.formatAsLocalString(end);
+        this.endTimeValue = end;
+        this.endDateValue = end;
+        if (!this.allDay) {
+          this.lastEndTime = this.getTimePart(this.endTimeString);
+        }
+        this.endTimeChange.emit(this.endTimeString);
+        this.endDateChange.emit(this.endTimeString);
+      }
       this.updateFormValues();
       this.startTimeChange.emit(this.startTimeString);
       // Also emit as a date change so parent forms listening to startDateChange
@@ -240,6 +267,7 @@ export class DateTimePickerComponent implements OnInit {
     if (this.updatingForm) return;
 
     if (event) {
+      this.dateTimeForm.get('endDateTime')?.markAsDirty();
       const year = event.getFullYear();
       const month = String(event.getMonth() + 1).padStart(2, '0');
       const day = String(event.getDate()).padStart(2, '0');
@@ -270,11 +298,15 @@ export class DateTimePickerComponent implements OnInit {
     if (this.updatingForm) return;
 
     if (event) {
+      this.dateTimeForm.get('endDateTime')?.markAsDirty();
       const hours = String(event.getHours()).padStart(2, '0');
       const minutes = String(event.getMinutes()).padStart(2, '0');
       const seconds = String(event.getSeconds()).padStart(2, '0');
       const existingDate = this.getDatePart(this.endTimeString, this.endDateValue);
       this.endTimeString = `${existingDate}T${hours}:${minutes}:${seconds}`;
+      if (!this.allDay) {
+        this.lastEndTime = `${hours}:${minutes}:${seconds}`;
+      }
       this.updateFormValues();
       this.allDayChange.emit(this.allDay);
       // Also emit end date change so parent forms listening to endDateChange
@@ -288,6 +320,9 @@ export class DateTimePickerComponent implements OnInit {
     if (this.updatingForm) return;
 
     if (this.allDay) {
+      this.lastStartTime = this.getTimePart(this.startTimeString);
+      this.lastEndTime = this.getTimePart(this.endTimeString);
+
       const startDate = this.getDatePart(this.startTimeString, this.startDateValue);
       const endDate = this.getDatePart(this.endTimeString, this.endDateValue);
 
@@ -302,8 +337,8 @@ export class DateTimePickerComponent implements OnInit {
       const startDate = this.getDatePart(this.startTimeString, this.startDateValue);
       const endDate = this.getDatePart(this.endTimeString, this.endDateValue);
 
-      this.startTimeString = `${startDate}T09:00:00`;
-      this.endTimeString = `${endDate}T18:00:00`;
+      this.startTimeString = `${startDate}T${this.lastStartTime}`;
+      this.endTimeString = `${endDate}T${this.lastEndTime}`;
 
       this.startDateValue = new Date(this.startTimeString);
       this.endDateValue = new Date(this.endTimeString);
@@ -333,6 +368,11 @@ export class DateTimePickerComponent implements OnInit {
     if (!date || !this.startDateValue) {
       return true;
     }
-    return date.getTime() >= this.startDateValue.getTime();
+
+    return date.getTime() > this.startDateValue.getTime() ||
+      (date.getDate() === this.startDateValue.getDate() &&
+        date.getMonth() === this.startDateValue.getMonth() &&
+        date.getFullYear() === this.startDateValue.getFullYear());
+
   };
 }

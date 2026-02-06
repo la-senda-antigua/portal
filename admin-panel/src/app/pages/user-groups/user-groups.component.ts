@@ -17,7 +17,11 @@ import { DatePipe } from '@angular/common';
 import { PortalUser } from '../../models/PortalUser';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatMenuModule } from '@angular/material/menu';
-import { getInitial, getUserColor, getDisplayName } from '../../../utils/user.utils';
+import {
+  getInitial,
+  getUserColor,
+  getDisplayName,
+} from '../../../utils/user.utils';
 
 @Component({
   selector: 'app-user-groups',
@@ -55,42 +59,29 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
 
   remove(user: UserGroupMember, userGroup: UserGroup): void {
     const { userId, username, name } = user;
-    const confirmationData = {
-      id: userId,
-      matchingString: username,
-      name,
-    } as DeleteConfirmationData;
-    const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
-      data: confirmationData,
-    });
 
-    dialogRef.afterClosed().subscribe((confirmationId) => {
-      if (!confirmationId) {
-        return;
-      }
+    const index = userGroup.members!.findIndex(
+      (m: UserGroupMember) => m.userId === userId,
+    );
+    if (index < 0) {
+      return;
+    }
 
-      const index = userGroup.members!.findIndex(
-        (m: UserGroupMember) => m.userId === userId
-      );
-      if (index < 0) {
-        return;
-      }
+    userGroup.members!.splice(index, 1);
 
-      userGroup.members!.splice(index, 1);
-      (this.service as UserGroupsService)
-        .removeMember(userId, userGroup.id!)
-        .subscribe({
-          next: () => {
-            this.reload();
-          },
-          error: (err) => {
-            this.handleException(
-              err,
-              'There was a problem removing the user from the group.'
-            );
-          },
-        });
-    });
+    (this.service as UserGroupsService)
+      .removeMember(userId, userGroup.id!)
+      .subscribe({
+        next: () => {
+          this.reload();
+        },
+        error: (err) => {
+          this.handleException(
+            err,
+            'There was a problem removing the user from the group.',
+          );
+        },
+      });
   }
 
   openCreateForm() {
@@ -116,7 +107,7 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
           error: (err) => {
             this.handleException(
               err,
-              'There was a problem adding the user group.'
+              'There was a problem adding the user group.',
             );
           },
         });
@@ -159,7 +150,7 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
             name: u.name,
             username: u.username,
           } as UserGroupMember;
-        }
+        },
       );
 
       const existingMembers = group.members || [];
@@ -168,7 +159,7 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
         ...newMembersFromModal,
       ].filter(
         (member, index, self) =>
-          index === self.findIndex((m) => m.userId === member.userId)
+          index === self.findIndex((m) => m.userId === member.userId),
       );
 
       this.groups.update((currentGroups) => {
@@ -191,7 +182,7 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
         error: (err) => {
           this.handleException(
             err,
-            'There was a problem updating the group members.'
+            'There was a problem updating the group members.',
           );
           this.isLoading.set(false);
         },
@@ -218,24 +209,29 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
       },
     });
     dialogRef.afterClosed().subscribe((form) => {
-      if (!form) {return}
+      if (!form) {
+        return;
+      }
 
-      this.isLoading.set(true)
-      const {data} = form
+      this.isLoading.set(true);
+      const { data } = form;
       const updatedGroup: UserGroup = {
         id: data.id,
         groupName: data.name,
-      }
+      };
 
       this.service.edit(updatedGroup).subscribe({
         next: () => {
           this.reload();
         },
         error: (err) => {
-          this.handleException(err,'There was a problem editing the user group.');
-          this.isLoading.set(false)
+          this.handleException(
+            err,
+            'There was a problem editing the user group.',
+          );
+          this.isLoading.set(false);
         },
-      })
+      });
     });
   }
 

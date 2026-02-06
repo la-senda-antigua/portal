@@ -1,44 +1,66 @@
 <div class="main-container">
   <div class="calendar-list">
-    <button mat-raised-button color="primary" (click)="openAddEventDialog()" class="full-width add-event-button">
-      Add Event
-      <mat-icon>add</mat-icon>
-    </button>
+    <a href="/" mat-stroked-button class="full-width"
+      ><mat-icon>arrow_back</mat-icon>back</a
+    >
 
     <div class="calendar-header">
       <span>My Calendars</span>
-      <button mat-icon-button class="add-button" (click)="openModal()">
+      <button
+        mat-icon-button
+        class="add-button"
+        (click)="openAddCalendarModal()"
+      >
         <mat-icon>add</mat-icon>
       </button>
     </div>
 
-    <mat-selection-list (selectionChange)="onCalendarSelectionChange($event)">
+    @if (calendarListLoading()) {
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    }
+
+    <mat-selection-list
+      class="calendars-scroll-container"
+      (selectionChange)="onCalendarSelectionChange($event)"
+    >
       @for (item of myCalendars; track item.id) {
-      <div class="calendar-item">
-        <mat-list-option
-          [value]="item.id"
-          [selected]="selectedCalendars.includes(item.id!)"
-          togglePosition="before"
-          [style.--checkbox-color]="item.color"
-        >
-          {{ item.name }}
-        </mat-list-option>
-        <button
-          mat-icon-button
-          class="more-options"
-          (click)="showCalendarOptions($event, item)"
-        >
-          <mat-icon>more_vert</mat-icon>
-        </button>
-      </div>
+        <div class="calendar-item">
+          <mat-list-option
+            [value]="item.id"
+            [selected]="selectedCalendars.includes(item.id!)"
+            togglePosition="before"
+            [style.--checkbox-color]="item.color"
+          >
+            {{ item.name }}
+          </mat-list-option>
+          <button
+            mat-icon-button
+            class="more-options"
+            (click)="showCalendarOptions($event, item)"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </div>
       }
     </mat-selection-list>
+
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="openAddEventDialog()"
+      class="full-width add-event-button"
+    >
+      Add Event
+      <mat-icon>add</mat-icon>
+    </button>
   </div>
+  <div class="calendar-view">
+    <mat-progress-bar
+      mode="indeterminate"
+      class="progress-bar"
+      [class.invisible]="!calendarEventsLoading()"
+    ></mat-progress-bar>
 
-
-    @if(isLoading()){
-    <mat-progress-bar mode="indeterminate" class="progress-bar"></mat-progress-bar>
-    }
     <full-calendar [options]="calendarOptions"></full-calendar>
-
+  </div>
 </div>

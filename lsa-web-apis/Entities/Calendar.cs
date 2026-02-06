@@ -1,4 +1,6 @@
-﻿namespace lsa_web_apis.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace lsa_web_apis.Entities
 {
     public class Calendar
     {
@@ -17,6 +19,7 @@
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public Guid CalendarId { get; set; }
+        [JsonIgnore]
         public Calendar Calendar { get; set; } = null!;
         public string? StartTime { get; set; }
         public string? EndTime { get; set; }
@@ -26,9 +29,11 @@
     public class CalendarManager
     {
         public Guid CalendarId { get; set; }
+        [JsonIgnore]
         public Calendar Calendar { get; set; } = null!;
 
         public Guid UserId { get; set; }
+        [JsonIgnore]
         public User User { get; set; } = null!;
     }
 
@@ -44,18 +49,22 @@
     public class UserGroupMember
     {
         public Guid UserGroupId { get; set; }
+        [JsonIgnore]
         public UserGroup UserGroup { get; set; } = null!;
 
         public Guid UserId { get; set; }
+        [JsonIgnore]
         public User User { get; set; } = null!;
     }
 
     public class CalendarMember
     {
         public Guid CalendarId { get; set; }
+        [JsonIgnore]
         public Calendar Calendar { get; set; } = null!;
 
         public Guid UserId { get; set; }
+        [JsonIgnore]
         public User User { get; set; } = null!;
     }
 }

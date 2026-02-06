@@ -32,10 +32,20 @@ class Event {
     );
   }
 
-  String get timeDescription {
-    if (allDay) return 'All Day';
+  String getTimeDescription(String allDayText) {
+    if (allDay) return allDayText;
     final startStr = "${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}";
     final endStr = "${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}";
     return '$startStr - $endStr';
+  }
+
+  DateTime get originalStart {
+    if (currentDay <= 1) return start;
+    return start.subtract(Duration(days: currentDay - 1));
+  }
+
+  DateTime get originalEnd {
+    if (totalDays <= 1) return end;
+    return originalStart.add(Duration(days: totalDays - 1));
   }
 }

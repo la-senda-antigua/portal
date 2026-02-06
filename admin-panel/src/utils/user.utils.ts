@@ -32,8 +32,8 @@ export function getInitial(user: PortalUser | UserGroupMember): string {
 }
 
 export function getDisplayName(user: PortalUser | UserGroupMember): string {
-  if (user.name) {
-    return user.name.split(' ')[0];
+  if (user.name || user.lastName) {
+    return `${user.name ?? ''} ${user.lastName ?? ''}`.trim();
   }
   return user.username.split('@')[0];
 }

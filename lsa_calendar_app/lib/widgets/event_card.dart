@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/core/calendar_colors.dart';
+import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 
@@ -8,12 +10,16 @@ class EventCard extends StatefulWidget {
   final Event event;
   final List<Calendar> calendars;
   final VoidCallback? onTap;
+  final String? dateLabel;
+  final bool isMonthView;
 
   const EventCard({
     super.key,
     required this.event,
     required this.calendars,
     this.onTap,
+    this.dateLabel,
+    this.isMonthView = false,
   });
 
   @override
@@ -37,6 +43,16 @@ class _EventCardState extends State<EventCard> {
     final calendarName = calendarIndex != -1 ? widget.calendars[calendarIndex].name : '';
 
     final hasDescription = widget.event.description != null && widget.event.description!.isNotEmpty;
+    final timeDesc = widget.event.getTimeDescription(AppLocalizations.of(context)!.allDay);
+
+    String? dateRangeText;
+    if (widget.isMonthView && widget.event.totalDays > 1) {
+      final locale = Localizations.localeOf(context).languageCode;
+      final startStr = DateFormat('EEEE d', locale).format(widget.event.originalStart);
+      final endStr = DateFormat('EEEE d', locale).format(widget.event.originalEnd);
+      
+      dateRangeText = AppLocalizations.of(context)!.eventDateRange(startStr, endStr);
+    }
 
     return Card(
       color: color,
@@ -52,7 +68,11 @@ class _EventCardState extends State<EventCard> {
             ),
             subtitle: Text.rich(
               TextSpan(
-                text: '${widget.event.timeDescription} - ',
+                text: dateRangeText != null
+                    ? '$dateRangeText - '
+                    : (widget.dateLabel != null
+                        ? '${widget.dateLabel} - '
+                        : '$timeDesc - '),
                 style: AppTextStyles.body.copyWith(color: textColor),
                 children: [
                   TextSpan(
@@ -62,9 +82,9 @@ class _EventCardState extends State<EventCard> {
                 ],
               ),
             ),
-            trailing: widget.event.totalDays > 1
+            trailing: widget.event.totalDays > 1 && !widget.isMonthView
                 ? Text(
-                    'Day ${widget.event.currentDay} of ${widget.event.totalDays}',
+                    AppLocalizations.of(context)!.dayXofY(widget.event.currentDay, widget.event.totalDays),
                     style: AppTextStyles.body.copyWith(
                       color: textColor,
                       fontSize: 12,
