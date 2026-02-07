@@ -79,7 +79,7 @@ export class CalendarsComponent implements OnInit {
     },
     eventClick: (info: any) => this.showEventOptions(info),
     dateClick: (inf: any) => this.openAddEventDialog(inf),
-    
+
   };
 
   myCalendars: CalendarDto[] = [];
@@ -157,9 +157,7 @@ export class CalendarsComponent implements OnInit {
         let end = e.end?.replace(' ', 'T');
 
         if (e.allDay && e.end) {
-          const date = new Date(e.end.substring(0, 10));
-          date.setUTCDate(date.getUTCDate() + 1);
-          end = date.toISOString().split('T')[0];
+          end = this.adjustDateByDays(e.end, 1);
         }
 
         const color = this.service.getCalendarColor(e.calendarId);
@@ -385,9 +383,7 @@ export class CalendarsComponent implements OnInit {
 
     if (endStr) {
       if (allDay) {
-        const date = new Date(endStr);
-        date.setUTCDate(date.getUTCDate() - 1);
-        endDate = date.toISOString().split('T')[0];
+        endDate = this.adjustDateByDays(endStr, -1);
       } else {
         endDate = endStr.split('T')[0];
       }
@@ -497,5 +493,12 @@ export class CalendarsComponent implements OnInit {
     this.snackBar.open(message, '', {
       duration: 4000,
     });
+  }
+
+  private adjustDateByDays(dateString: string, days: number): string {
+    const datePart = dateString.substring(0, 10);
+    const date = new Date(`${datePart}T00:00:00Z`);
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().split('T')[0];
   }
 }
