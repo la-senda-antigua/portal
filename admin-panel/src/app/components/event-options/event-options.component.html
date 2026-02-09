@@ -16,7 +16,9 @@
       <td class="column-icons">
         <div [style.background-color]="data.color" class="color-icon"></div>
       </td>
-      <td class="title">{{data.title}}</td>
+      <td class="title">
+        {{data.title}}
+      </td>
     </tr>
     <tr>
       <td></td>
@@ -29,6 +31,16 @@
         }
       </td>
     </tr>
+    @if (data.assignees.length > 0){
+      <tr>
+        <td> <mat-icon>people</mat-icon> </td>
+        <td class="pb-2">
+          @for(assignee of data.assignees; track assignee.userId){
+            <span class="chip"> {{assignee.name}} {{assignee.lastName}} </span>
+          }
+        </td>
+      </tr>
+    }
     @if(data.description){
       <tr>
         <td> <mat-icon>notes</mat-icon> </td>

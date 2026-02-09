@@ -382,8 +382,7 @@ export class CalendarsComponent implements OnInit {
       this.eventOptionsDialogRef.close();
     }
 
-    const { allDay, startStr, endStr, extendedProps, title, backgroundColor } =
-      item.event;
+    const { allDay, startStr, endStr, extendedProps, title, backgroundColor } = item.event;
     const startDate = allDay ? startStr : startStr.split('T')[0];
     let endDate = startDate;
 
@@ -396,6 +395,8 @@ export class CalendarsComponent implements OnInit {
         endDate = endStr.split('T')[0];
       }
     }
+
+    const assignees: PortalUser[] = this.allEvents.find(e=> e.id === extendedProps.id)?.assignees || [];
 
     const event = {
       id: extendedProps.id,
@@ -411,6 +412,7 @@ export class CalendarsComponent implements OnInit {
         (c) => c.id === extendedProps.calendarId,
       )?.name,
       color: backgroundColor,
+      assignees
     };
 
     const dialogWidth = 400;
@@ -432,7 +434,6 @@ export class CalendarsComponent implements OnInit {
     const dialogRef = this.dialog.open(EventOptionsComponent, {
       data: event,
       width: `${dialogWidth}px`,
-      hasBackdrop: false,
       panelClass: 'event-options-panel',
       position: {
         top: `${top}px`,

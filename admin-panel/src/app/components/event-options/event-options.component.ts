@@ -18,6 +18,7 @@ export class EventOptionsComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<EventOptionsComponent>
   ) {
+    console.log('recivied... ', data)
   }
 
   close() {
