@@ -313,7 +313,28 @@ namespace lsa_web_apis.Controllers
                 (e.EndTime == null || e.EndTime.CompareTo(monthStartStr) >= 0)
             );
 
-            var rawEvents = await query.AsNoTracking().ToListAsync();
+            var rawEvents = await query
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Title,
+                    e.Description,
+                    e.CalendarId,
+                    e.StartTime,
+                    e.EndTime,
+                    e.AllDay,
+                    Assignees = e.Assignees.Select(a => new UserDto
+                    {
+                        UserId = a.User.Id,
+                        Username = a.User.Username,
+                        Name = a.User.Name,
+                        LastName = a.User.LastName,
+                        Role = a.User.Role
+                    }).ToArray()
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
             var result = new List<dynamic>();
 
             foreach (var e in rawEvents)
@@ -343,7 +364,8 @@ namespace lsa_web_apis.Controllers
                         End = e.EndTime,
                         e.AllDay,
                         CurrentDay = currentDay,
-                        TotalDays = totalDays
+                        TotalDays = totalDays,
+                        e.Assignees
                     });
                 }
             }
@@ -494,7 +516,7 @@ namespace lsa_web_apis.Controllers
         {
             if (dateTime is null)
                 dateTime = DateTime.Now;
-            //buscar el calendario con nombre "Public Events" y obtener sus eventos
+
             var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
             if (calendar == null)
             {
