@@ -80,7 +80,6 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   ) {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
-
     if (data.event?.assignees) {
       this.assignees = data.event.assignees;
     }

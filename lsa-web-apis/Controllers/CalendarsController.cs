@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using lsa_web_apis.Data;
+﻿using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
@@ -9,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Ocsp;
+using System;
+using System.Security.Claims;
 
 namespace lsa_web_apis.Controllers
 {
@@ -248,18 +249,13 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetEventsByMonth(int month, int year)
         {
-            var yearMonth = $"{year:D4}-{month:D2}";
+            var yearMonth = $"{year:D4}-{month:D2}";           
 
-            var query = _context.CalendarEvents
-                .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth);
-
-            if (!User.IsInRole("Admin"))
-            {
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                query = query.Where(e => e.Calendar.Managers.Any(m => m.UserId == userId));
-            }
-
-            var result = await query
+            var result = await _context.CalendarEvents
+                .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth)
+                .Where(e => User.IsInRole("Admin") ||
+                    e.Calendar.Managers.Any(m =>
+                        m.UserId == Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value)))
                 .Select(e => new CalendarEventDto
                 {
                     Id = e.Id,
@@ -269,7 +265,14 @@ namespace lsa_web_apis.Controllers
                     Start = e.StartTime,
                     End = e.EndTime,
                     AllDay = e.AllDay,
-                    //Assignees = e.Assignees.Select(a => a.UserId).ToArray()
+                    Assignees = e.Assignees.Select(a => new UserDto
+                    {
+                        UserId = a.User.Id,
+                        Username = a.User.Username,
+                        Name = a.User.Name,
+                        LastName = a.User.LastName,
+                        Role = a.User.Role
+                    }).ToArray()
                 })
                 .OrderByDescending(e => e.Start)
                 .AsNoTracking()
@@ -382,16 +385,16 @@ namespace lsa_web_apis.Controllers
                     calendarEvent.EndTime = request.End.Replace("T", " ");
                 }
 
-                _context.CalendarEvents.Add(calendarEvent);                
+                _context.CalendarEvents.Add(calendarEvent);
                 await _context.SaveChangesAsync();
-                
+
                 if (request.Assignees?.Length > 0)
                 {
-                    var assignees = request.Assignees.Select(userId =>
+                    var assignees = request.Assignees.Select(user =>
                         new CalendarEventAssignee
                         {
                             CalendarEventId = calendarEvent.Id,
-                            UserId = userId
+                            UserId = user.UserId!.Value
                         }
                     ).ToList();
 
@@ -454,7 +457,7 @@ namespace lsa_web_apis.Controllers
                 {
                     var newAssignees = request.Assignees.Select(assignee => new CalendarEventAssignee
                     {
-                        UserId = assignee,
+                        UserId = assignee.UserId!.Value,
                         CalendarEventId = request.Id!.Value
                     }).ToList();
 

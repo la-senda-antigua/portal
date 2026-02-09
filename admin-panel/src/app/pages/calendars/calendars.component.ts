@@ -293,6 +293,9 @@ export class CalendarsComponent implements OnInit {
       this.eventOptionsDialogRef.close();
     }
 
+    const assignees: PortalUser[] = this.allEvents.find(e=> e.id === eventData.id)?.assignees || [];
+    eventData.assignees = assignees;
+
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
       width: '400px',
       data: { calendars: this.myCalendars, event: eventData },
@@ -318,7 +321,7 @@ export class CalendarsComponent implements OnInit {
       }
 
       result.eventDate = result.date;
-      result.assignees = result.assignees.map((u: PortalUser) => u.userId);
+      result.assignees = result.assignees || [];
 
       if (result.id) {
         this.service.updateEvent(result).subscribe({
