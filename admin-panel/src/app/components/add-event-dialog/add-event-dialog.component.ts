@@ -24,6 +24,7 @@ import { Subscription } from 'rxjs';
 import { pairwise, startWith } from 'rxjs/operators';
 import { CalendarsService } from '../../services/calendars.service';
 import { CalendarMemberConflict } from '../../models/CalendarMemberDto';
+import { MatProgressBar } from "@angular/material/progress-bar";
 
 export interface DialogData {
   calendars: CalendarDto[];
@@ -47,12 +48,14 @@ export interface DialogData {
     MatDatepickerModule,
     DateTimePickerComponent,
     UserSelectorComponent,
-  ],
+    MatProgressBar
+],
 })
 export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
   isEditMode = signal(false);
+  isCheckingAvailability = signal(false);
   isDateTimePickerValid: boolean = true;
   private timeSubscription?: Subscription;
 
@@ -182,9 +185,12 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   }
 
   checkAssigneesAvailability(): void {
+    this.isCheckingAvailability.set(true);
+
     const userIds = this.assignees.map(u=> u.userId)
     if (userIds.length === 0 || !this.isDateTimePickerValid) {
       this.assigneesConflicts.set([]);
+      this.isCheckingAvailability.set(false);
       return;
     }
 
@@ -194,9 +200,11 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     this.calendarsService.checkUserAvailability(userIds, startTime, endTime).subscribe({
       next: (conflicts) => {
         this.assigneesConflicts.set(conflicts);
+        this.isCheckingAvailability.set(false);
       },
       error: (err) => {
         console.error(err);
+        this.isCheckingAvailability.set(false);
         this.assigneesConflicts.set([]);
       }
     });

@@ -249,7 +249,7 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetEventsByMonth(int month, int year)
         {
-            var yearMonth = $"{year:D4}-{month:D2}";           
+            var yearMonth = $"{year:D4}-{month:D2}";
 
             var result = await _context.CalendarEvents
                 .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth)
@@ -264,7 +264,7 @@ namespace lsa_web_apis.Controllers
                     CalendarId = e.CalendarId,
                     Start = e.StartTime,
                     End = e.EndTime,
-                    AllDay = e.AllDay,                    
+                    AllDay = e.AllDay,
                     Assignees = e.Assignees.Select(a => new UserDto
                     {
                         UserId = a.User.Id,
@@ -373,7 +373,7 @@ namespace lsa_web_apis.Controllers
                         CurrentDay = currentDay,
                         TotalDays = totalDays,
                         e.Assignees,
-                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? 
+                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ?
                                         e.Title : string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
                     });
                 }
@@ -557,34 +557,54 @@ namespace lsa_web_apis.Controllers
         [Route("UserAvailability")]
         public async Task<ActionResult> UserAvailability(UserAvailabilityRequest request)
         {
-            CalendarMemberDto member = new CalendarMemberDto()
-            {
-                UserId = new Guid("27571ed4-83b0-4e60-8f07-176f8cfeaa4f"),
-                Username = "hugo2555@gmail.com",
-                Name = "Hugo",
-                LastName = "Quiñonez"
-            };
+            var userGuids = request.userIds
+                .Select(Guid.Parse)
+                .ToArray();
 
-            var calendars = new List<CalendarDto>();
-            calendars.Add(new CalendarDto
-            {
-                Id = new Guid(),
-                Name = "Caelndar Test",
-            });
-            calendars.Add(new CalendarDto
-            {
-                Id = new Guid(),
-                Name = "Caelndar Test2",
-            });
+            var conflictingEvents = await _context.CalendarEvents
+                .Where(e =>
+                    e.StartTime != null &&
+                    e.EndTime != null &&
+                    // 👉 LÓGICA DE TRASLAPE EN BD (ISO strings)
+                    string.Compare(e.StartTime, request.endTime) < 0 &&
+                    string.Compare(e.EndTime, request.startTime) > 0 &&
+                    e.Assignees.Any(a => userGuids.Contains(a.UserId))
+                )
+                .Include(e => e.Calendar)
+                .Include(e => e.Assignees)
+                    .ThenInclude(a => a.User)
+                .AsNoTracking()
+                .ToListAsync();
 
-            var result = new List<dynamic>();
-            result.Add(new
-            {
-                user = member,
-                conflicts = calendars
-            });
+            var result = conflictingEvents
+                .SelectMany(e => e.Assignees.Select(a => new
+                {
+                    a.User,
+                    e.Calendar
+                }))
+                .GroupBy(x => x.User.Id)
+                .Select(g => new
+                {
+                    user = new CalendarMemberDto
+                    {
+                        UserId = g.First().User.Id,
+                        Username = g.First().User.Username,
+                        Name = g.First().User.Name,
+                        LastName = g.First().User.LastName
+                    },
+                    conflicts = g
+                        .Select(x => new CalendarDto
+                        {
+                            Id = x.Calendar.Id,
+                            Name = x.Calendar.Name
+                        })
+                        .DistinctBy(c => c.Id)
+                        .ToList()
+                })
+                .ToList();
 
             return Ok(result);
         }
+
     }
 }

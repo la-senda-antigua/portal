@@ -14,7 +14,6 @@ app-user-selector {
 }
 
 .warning-conflicts-text{
-  width: 100%;
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
@@ -26,4 +25,12 @@ app-user-selector {
 .bottom-actions{
   flex-wrap: wrap;
   justify-content: flex-end
+}
+
+.mt-2{
+  margin-top: 16px;
+}
+
+.mb-2{
+  margin-bottom: 16px;
 }
