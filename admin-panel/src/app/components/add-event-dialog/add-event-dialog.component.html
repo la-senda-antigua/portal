@@ -4,25 +4,37 @@
 
 <form [formGroup]="eventForm">
   <mat-dialog-content>
+    <!-- CALENDAR DROPDOWN -->
     <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Event Title</mat-label>
-      <input matInput formControlName="title" required />
+      <mat-label>Calendar</mat-label>
+      <mat-select formControlName="calendarId">
+        <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
+          {{ calendar.name }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
 
+     <!-- ASSIGNEES -->
+    <app-user-selector
+      [label]="'Assignee'"
+      [initialSelectedUsers]="assignees"
+      [hint]="'Assignees are used for checking availability from other calendars.'"
+      (selectedUsersChange)="onAssigneesChange($event)"
+    ></app-user-selector>
+
+    <!-- TITLE -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Event Title</mat-label>
+      <input matInput formControlName="title" />
+    </mat-form-field>
+
+    <!-- DESCRIPTION -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Description</mat-label>
       <textarea matInput formControlName="description" rows="3"></textarea>
     </mat-form-field>
 
-    <app-user-selector
-      [label]="'Assignee'"
-      [initialSelectedUsers]="assignees"
-      [hint]="
-        'Assignees are used for checking availability from other calendars.'
-      "
-      (selectedUsersChange)="onAssigneesChange($event)"
-    ></app-user-selector>
-
+    <!-- DATES -->
     <app-date-time-picker
       [initialStartDate]="eventForm.controls['startTime'].value ?? ''"
       [initialEndDate]="eventForm.controls['endTime'].value ?? ''"
@@ -33,14 +45,7 @@
       (isValid)="onDateTimePickerValidityChange($event)"
     ></app-date-time-picker>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Calendar</mat-label>
-      <mat-select formControlName="calendarId">
-        <mat-option *ngFor="let calendar of calendars" [value]="calendar.id">
-          {{ calendar.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+
   </mat-dialog-content>
 
   <mat-dialog-actions class="bottom-actions">

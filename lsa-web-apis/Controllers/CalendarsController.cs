@@ -264,7 +264,7 @@ namespace lsa_web_apis.Controllers
                     CalendarId = e.CalendarId,
                     Start = e.StartTime,
                     End = e.EndTime,
-                    AllDay = e.AllDay,
+                    AllDay = e.AllDay,                    
                     Assignees = e.Assignees.Select(a => new UserDto
                     {
                         UserId = a.User.Id,
@@ -277,6 +277,13 @@ namespace lsa_web_apis.Controllers
                 .OrderByDescending(e => e.Start)
                 .AsNoTracking()
                 .ToListAsync();
+
+            foreach (var e in result)
+            {
+                e.DisplayTitle = !string.IsNullOrWhiteSpace(e.Title)
+                    ? e.Title
+                    : string.Join(", ", e.Assignees!.Select(a => $"{a.Name} {a.LastName}"));
+            }
 
             return Ok(result);
         }
@@ -365,7 +372,9 @@ namespace lsa_web_apis.Controllers
                         e.AllDay,
                         CurrentDay = currentDay,
                         TotalDays = totalDays,
-                        e.Assignees
+                        e.Assignees,
+                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? 
+                                        e.Title : string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
                     });
                 }
             }

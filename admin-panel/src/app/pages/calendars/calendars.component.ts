@@ -85,7 +85,6 @@ export class CalendarsComponent implements OnInit {
   myCalendars: CalendarDto[] = [];
   selectedCalendars: string[] = [];
   private allEvents: any[] = [];
-  eventOptionsDialogRef?: MatDialogRef<EventOptionsComponent>;
 
   constructor(
     private service: CalendarsService,
@@ -140,8 +139,7 @@ export class CalendarsComponent implements OnInit {
 
   loadCalendarEvents(): Observable<CalendarEvent[]> {
     this.calendarEventsLoading.set(true);
-    const currentStart =
-      this.fullCalendarApi()?.view.currentStart ?? new Date();
+    const currentStart = this.fullCalendarApi()?.view.currentStart ?? new Date();
     const month = currentStart.getMonth() + 1;
     const year = currentStart.getFullYear();
 
@@ -165,7 +163,7 @@ export class CalendarsComponent implements OnInit {
         const color = this.service.getCalendarColor(e.calendarId);
 
         return {
-          title: e.title,
+          title: e.displayTitle ?? e.title,
           backgroundColor: color,
           borderColor: color,
           start: e.start?.replace(' ', 'T'),
@@ -175,6 +173,8 @@ export class CalendarsComponent implements OnInit {
             calendarId: e.calendarId,
             description: e.description,
             id: e.id,
+            originalTitle: e.title,
+            displayTitle: e.displayTitle,
           },
         } as EventInput;
       });
@@ -289,10 +289,6 @@ export class CalendarsComponent implements OnInit {
   }
 
   openAddEventDialog(eventData?: any): void {
-    if (this.eventOptionsDialogRef) {
-      this.eventOptionsDialogRef.close();
-    }
-
     const assignees: PortalUser[] = this.allEvents.find(e=> e.id === eventData.id)?.assignees || [];
     eventData.assignees = assignees;
 
@@ -378,11 +374,7 @@ export class CalendarsComponent implements OnInit {
   }
 
   showEventOptions(item: any) {
-    if (this.eventOptionsDialogRef) {
-      this.eventOptionsDialogRef.close();
-    }
-
-    const { allDay, startStr, endStr, extendedProps, title, backgroundColor } = item.event;
+    const { allDay, startStr, endStr, extendedProps, title: displayTitle, backgroundColor } = item.event;
     const startDate = allDay ? startStr : startStr.split('T')[0];
     let endDate = startDate;
 
@@ -397,10 +389,12 @@ export class CalendarsComponent implements OnInit {
     }
 
     const assignees: PortalUser[] = this.allEvents.find(e=> e.id === extendedProps.id)?.assignees || [];
+    const originalTitle = this.allEvents.find(e => e.id === extendedProps.id)?.title;
 
     const event = {
       id: extendedProps.id,
-      title: title,
+      title: originalTitle,
+      displayTitle: displayTitle,
       description: extendedProps.description,
       date: startDate,
       endDate: endDate,
@@ -440,7 +434,6 @@ export class CalendarsComponent implements OnInit {
         left: `${left}px`,
       },
     });
-    this.eventOptionsDialogRef = dialogRef;
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.action === 'edit') {

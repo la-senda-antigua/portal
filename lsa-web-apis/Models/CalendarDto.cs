@@ -20,6 +20,7 @@ namespace lsa_web_apis.Models
         public string? Start { get; set; }
         public string? End { get; set; }
         public bool AllDay { get; set; } = false;
+        public string? DisplayTitle { get; set; }
         public UserDto[]? Assignees { get; set; }  
     }
 
