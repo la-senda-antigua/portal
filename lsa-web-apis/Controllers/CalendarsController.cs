@@ -565,7 +565,6 @@ namespace lsa_web_apis.Controllers
                 .Where(e =>
                     e.StartTime != null &&
                     e.EndTime != null &&
-                    // 👉 LÓGICA DE TRASLAPE EN BD (ISO strings)
                     string.Compare(e.StartTime, request.endTime) < 0 &&
                     string.Compare(e.EndTime, request.startTime) > 0 &&
                     e.Assignees.Any(a => userGuids.Contains(a.UserId))
