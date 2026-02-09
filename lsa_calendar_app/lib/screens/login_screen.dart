@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:lsa_calendar_app/models/apiException.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
@@ -44,10 +45,17 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _saveData(String token, String? refreshToken, String? username, String? email, String? avatar) async {
+  Future<void> _saveData(
+    String token,
+    String? refreshToken,
+    String? username,
+    String? email,
+    String? avatar,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
-    if (refreshToken != null) await prefs.setString('refresh_token', refreshToken);
+    if (refreshToken != null)
+      await prefs.setString('refresh_token', refreshToken);
     await prefs.setString('username', username ?? 'Guest');
     if (email != null) await prefs.setString('email', email);
     if (avatar != null) await prefs.setString('avatar', avatar);
@@ -57,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
     try {
       final token = prefs.getString('access_token');
-      
+
       if (token != null && token.isNotEmpty) {
         await ApiService.get('/auth/validate-token');
 
@@ -70,26 +78,35 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       debugPrint('Sesión inválida o expirada: $e. Intentando refresh...');
-      
+
       final token = prefs.getString('access_token');
       final refreshToken = prefs.getString('refresh_token');
 
       if (token != null && refreshToken != null) {
         try {
           // Intentamos refrescar los tokens
-          final response = await ApiService.post('/auth/refresh-tokens', body: {
-            'accessToken': token,
-            'refreshToken': refreshToken,
-            'expirationDays': 40,
-          });
+          final response = await ApiService.post(
+            '/auth/refresh-tokens',
+            body: {
+              'accessToken': token,
+              'refreshToken': refreshToken,
+              'expirationDays': 40,
+            },
+          );
 
           final newToken = response['accesToken'] ?? response['accessToken'];
           final newRefreshToken = response['refreshToken'];
 
           if (newToken != null) {
             // Guardamos los nuevos tokens y mantenemos los datos de usuario
-            await _saveData(newToken, newRefreshToken, prefs.getString('username'), prefs.getString('email'), prefs.getString('avatar'));
-            
+            await _saveData(
+              newToken,
+              newRefreshToken,
+              prefs.getString('username'),
+              prefs.getString('email'),
+              prefs.getString('avatar'),
+            );
+
             if (!mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const CalendarsHomeScreen()),
@@ -120,15 +137,24 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await ApiService.post('/auth/login', body: {
-        'username': _usernameController.text,
-        'password': _passwordController.text,
-      });
+      final response = await ApiService.post(
+        '/auth/login',
+        body: {
+          'username': _usernameController.text,
+          'password': _passwordController.text,
+        },
+      );
 
       final String token = response['accesToken'] ?? response['accessToken'];
       final String? refreshToken = response['refreshToken'];
 
-      await _saveData(token, refreshToken, _usernameController.text, null, null);
+      await _saveData(
+        token,
+        refreshToken,
+        _usernameController.text,
+        null,
+        null,
+      );
 
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
@@ -171,20 +197,28 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      final response = await ApiService.post('/auth/google-mobile', 
-        body: {'accessToken': accessToken}
+      final response = await ApiService.post(
+        '/auth/google-mobile',
+        body: {'accessToken': accessToken},
       );
 
       final tokenData = response['token'];
       final userData = response['user'];
 
-      final String token = tokenData['accesToken'] ?? 
-                          tokenData['accessToken'] ?? 
-                          tokenData['token'];
+      final String token =
+          tokenData['accesToken'] ??
+          tokenData['accessToken'] ??
+          tokenData['token'];
       final String? refreshToken = tokenData['refreshToken'];
 
       // Guardamos token y datos del usuario (nombre, email, avatar)
-      await _saveData(token, refreshToken, userData['name'], userData['email'], userData['avatar']);
+      await _saveData(
+        token,
+        refreshToken,
+        userData['name'],
+        userData['email'],
+        userData['avatar'],
+      );
 
       if (!mounted) return;
 
@@ -193,11 +227,19 @@ class _LoginScreenState extends State<LoginScreen> {
         (route) => false,
       );
 
-      _showSnack(AppLocalizations.of(context)!.welcomeMessage(account.displayName ?? 'User'));
+      _showSnack(
+        AppLocalizations.of(
+          context,
+        )!.welcomeMessage(account.displayName ?? 'User'),
+      );
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
       if (mounted) {
-        _showSnack(AppLocalizations.of(context)!.connectionError);
+        if (e is ApiException && e.statusCode == 403) {
+          _showSnack(AppLocalizations.of(context)!.noPermission);
+        } else {
+          _showSnack(AppLocalizations.of(context)!.connectionError);
+        }
       }
     } finally {
       if (mounted) {
@@ -215,12 +257,13 @@ class _LoginScreenState extends State<LoginScreen> {
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
-        ]
+        ],
       );
 
-      final response = await ApiService.post('/auth/apple-login', body: {
-        'identityToken': credential.identityToken,
-      });
+      final response = await ApiService.post(
+        '/auth/apple-login',
+        body: {'identityToken': credential.identityToken},
+      );
 
       final String token = response['accesToken'] ?? response['accessToken'];
       final String? refreshToken = response['refreshToken'];
@@ -230,15 +273,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       String username = 'Apple User';
       String? email = credential.email;
-      
+
       try {
         final userValidation = await ApiService.get('/auth/validate-token');
         if (userValidation['valid'] == true && userValidation['user'] != null) {
           email = userValidation['user']['email'] ?? email;
           if (credential.givenName != null) {
-            username = '${credential.givenName} ${credential.familyName ?? ''}'.trim();
+            username = '${credential.givenName} ${credential.familyName ?? ''}'
+                .trim();
           } else if (email != null) {
-             username = email.split('@')[0];
+            username = email.split('@')[0];
           }
         }
       } catch (_) {}
@@ -253,7 +297,11 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       debugPrint('Apple Sign-In error: $e');
       if (mounted) {
-        _showSnack(AppLocalizations.of(context)!.connectionError);
+        if (e is ApiException && e.statusCode == 403) {
+          _showSnack(AppLocalizations.of(context)!.noPermission);
+        } else {
+          _showSnack(AppLocalizations.of(context)!.connectionError);
+        }
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -270,116 +318,127 @@ class _LoginScreenState extends State<LoginScreen> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: _isLoading
                 ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 16),
-                    Text(AppLocalizations.of(context)!.loggingIn, style: AppTextStyles.body),
-                  ],
-                )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextField(
-                      controller: _usernameController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.usernameLabel,
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.passwordLabel,
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(_obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _handleStandardLogin,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: AppColors.accent,
-                          foregroundColor: AppColors.light,
-                          fixedSize: const Size.fromHeight(60),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(AppLocalizations.of(context)!.loginButton, style: AppTextStyles.body),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Row(children: [
-                      Expanded(child: Divider()),                      
-                    ]),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _handleGoogleSignIn,
-                        icon: const FaIcon(FontAwesomeIcons.google, size: 28),
-                        label: Text(
-                          AppLocalizations.of(context)!.googleLoginButton,
-                          style: AppTextStyles.body,
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.light,
-                          foregroundColor: AppColors.dark,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            side: const BorderSide(color: AppColors.secondary),
-                          ),
-                          elevation: 0,
-                        ),
-                      ),
-                    ),
-                    if (Platform.isIOS) ...[
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CircularProgressIndicator(),
                       const SizedBox(height: 16),
+                      Text(
+                        AppLocalizations.of(context)!.loggingIn,
+                        style: AppTextStyles.body,
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(
+                            context,
+                          )!.usernameLabel,
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.person),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(
+                            context,
+                          )!.passwordLabel,
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _handleStandardLogin,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: AppColors.accent,
+                            foregroundColor: AppColors.light,
+                            fixedSize: const Size.fromHeight(60),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)!.loginButton,
+                            style: AppTextStyles.body,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Row(children: [Expanded(child: Divider())]),
+                      const SizedBox(height: 24),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: _handleAppleSignIn,
-                          icon: const FaIcon(FontAwesomeIcons.apple, size: 28),
+                          onPressed: _handleGoogleSignIn,
+                          icon: const FaIcon(FontAwesomeIcons.google, size: 28),
                           label: Text(
-                            AppLocalizations.of(context)!.appleLoginButton,
+                            AppLocalizations.of(context)!.googleLoginButton,
                             style: AppTextStyles.body,
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                            ),
+                            backgroundColor: AppColors.light,
+                            foregroundColor: AppColors.dark,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
+                              side: const BorderSide(
+                                color: AppColors.secondary,
+                              ),
                             ),
                             elevation: 0,
                           ),
                         ),
                       ),
+                      if (Platform.isIOS) ...[
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _handleAppleSignIn,
+                            icon: const FaIcon(
+                              FontAwesomeIcons.apple,
+                              size: 28,
+                            ),
+                            label: Text(
+                              AppLocalizations.of(context)!.appleLoginButton,
+                              style: AppTextStyles.body,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
-                ),
+                  ),
           ),
         ),
       ),
