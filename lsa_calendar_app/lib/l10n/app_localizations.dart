@@ -179,7 +179,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPermission.
   ///
   /// In en, this message translates to:
-  /// **'User not registred, please contact the admin.'**
+  /// **'User not registered, please contact your administrator.'**
   String get noPermission;
 
   /// No description provided for @fetchEventsError.

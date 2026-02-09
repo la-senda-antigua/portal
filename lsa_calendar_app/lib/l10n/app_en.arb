@@ -12,7 +12,7 @@
   "welcomeMessage": "Welcome {name}!",
   "connectionError": "Connection error. Please try again.",
   "serverConnectionError": "Could not connect to server. Try refreshing.",
-  "noPermission": "User not registred, please contact the admin.",
+  "noPermission": "User not registered, please contact your administrator.",
   "fetchEventsError": "Error fetching events",
   "guestUser": "Guest",
   "myCalendars": "My Calendars",
