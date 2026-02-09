@@ -93,7 +93,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
         initialStartTime = `${data.event.date}T${data.event.start}:00`;
       } else {
         const startDate = new Date(data.event.date);
-        startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
+        startDate.setHours(10, 0, 0, 0);
         initialStartTime = this.convertToISOString(startDate);
         data.event.allDay = false;
       }
@@ -105,18 +105,18 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
         const startDate = new Date(data.event.date);
         startDate.setHours(10, 0, 0, 0);
         const endDate = new Date(startDate);
-        endDate.setHours(startDate.getHours() + 1); // Default a 1 hora de duración
+        endDate.setHours(startDate.getHours() + 1);
         initialEndTime = this.convertToISOString(endDate);
       }
 
       initialIsAllDay = !!data.event.allDay;
     } else {
       const startDate = new Date();
-      startDate.setHours(10, 0, 0, 0); // Default a las 10:00 AM
+      startDate.setHours(10, 0, 0, 0);
       initialStartTime = this.convertToISOString(startDate);
 
       const endDate = new Date(startDate);
-      endDate.setHours(startDate.getHours() + 1); // Default a 1 hora de duración
+      endDate.setHours(startDate.getHours() + 1);
       initialEndTime = this.convertToISOString(endDate);
     }
 
@@ -129,6 +129,20 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
       allDay: [initialIsAllDay],
       calendarId: [data.event?.calendarId || '', Validators.required],
     });
+
+    this.updateTitleValidator();
+  }
+
+  updateTitleValidator() {
+    const titleControl = this.eventForm.get('title');
+
+    if (!this.assignees || this.assignees.length === 0) {
+      titleControl?.setValidators([Validators.required]);
+    } else {
+      titleControl?.clearValidators();
+    }
+
+    titleControl?.updateValueAndValidity();
   }
 
   ngOnInit(): void {
@@ -163,6 +177,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   onAssigneesChange(users: PortalUser[]) {
     this.assignees = users;
+    this.updateTitleValidator();
     this.checkAssigneesAvailability();
   }
 
