@@ -250,7 +250,7 @@ namespace lsa_web_apis.Controllers
         {
             var yearMonth = $"{year:D4}-{month:D2}";
 
-            var query = _context.CalendarEvents                
+            var query = _context.CalendarEvents
                 .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth);
 
             if (!User.IsInRole("Admin"))
@@ -359,7 +359,14 @@ namespace lsa_web_apis.Controllers
             try
             {
                 var calendar = await _context.Calendars.FindAsync(request.CalendarId);
-                if (calendar is null) return NotFound("Calendar not found.");
+                if (calendar is null)
+                {
+                    if (useTransaction)
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                    }
+                    return NotFound("Calendar not found.");
+                }
 
                 var calendarEvent = new CalendarEvent
                 {
@@ -375,43 +382,49 @@ namespace lsa_web_apis.Controllers
                     calendarEvent.EndTime = request.End.Replace("T", " ");
                 }
 
-                List<CalendarEventAssignee> assignees = new List<CalendarEventAssignee>();
+                _context.CalendarEvents.Add(calendarEvent);                
+                await _context.SaveChangesAsync();
+                
                 if (request.Assignees?.Length > 0)
                 {
-                    foreach (var assignee in request.Assignees)
-                        assignees.Add(new CalendarEventAssignee() { UserId = assignee });
-                }
+                    var assignees = request.Assignees.Select(userId =>
+                        new CalendarEventAssignee
+                        {
+                            CalendarEventId = calendarEvent.Id,
+                            UserId = userId
+                        }
+                    ).ToList();
 
-                _context.CalendarEvents.Add(calendarEvent);
-                if (assignees.Count > 0)
-                {
-                    foreach (var assignee in assignees)
-                        assignee.CalendarEventId = calendarEvent.Id;
                     _context.CalendarEventAssignees.AddRange(assignees);
+                    await _context.SaveChangesAsync();
                 }
-
-                await _context.SaveChangesAsync();
 
                 if (useTransaction)
+                {
                     await _context.Database.CommitTransactionAsync();
+                }
 
                 return Ok();
             }
             catch (Exception)
             {
                 if (useTransaction)
+                {
                     await _context.Database.RollbackTransactionAsync();
-                return StatusCode(500, "An error occurred while creating the event.");
+                }
+                return StatusCode(500, "An error occurred while creating the event. All changes have been rolled back.");
             }
         }
-
 
         [HttpPut]
         [Authorize(Roles = "Admin,CalendarManager")]
         [Route("updateEvent")]
         public async Task<ActionResult> UpdateEvent(CalendarEventDto request)
         {
-            var existingEvent = await _context.CalendarEvents.FindAsync(request.Id);
+            var existingEvent = await _context.CalendarEvents
+                .Include(e => e.Assignees)
+                .FirstOrDefaultAsync(e => e.Id == request.Id);
+
             if (existingEvent is null) return NotFound("Event not found.");
 
             var calendar = await _context.Calendars.FindAsync(request.CalendarId);
@@ -422,10 +435,13 @@ namespace lsa_web_apis.Controllers
 
             try
             {
-                _context.CalendarEventAssignees.RemoveRange(
-                    _context.CalendarEventAssignees.Where(a => a.CalendarEventId == request.Id)
-                );
+                _context.Entry(existingEvent).Collection(e => e.Assignees).Load();
+                var existingAssignees = existingEvent.Assignees.ToList();
 
+                foreach (var assignee in existingAssignees)
+                {
+                    existingEvent.Assignees.Remove(assignee);
+                }
 
                 existingEvent.Title = request.Title;
                 existingEvent.Description = request.Description;
@@ -436,30 +452,38 @@ namespace lsa_web_apis.Controllers
 
                 if (request.Assignees?.Length > 0)
                 {
-                    var assignees = request.Assignees.Select(assignee => new CalendarEventAssignee
+                    var newAssignees = request.Assignees.Select(assignee => new CalendarEventAssignee
                     {
                         UserId = assignee,
                         CalendarEventId = request.Id!.Value
                     }).ToList();
 
-                    _context.CalendarEventAssignees.AddRange(assignees);
+                    foreach (var assignee in newAssignees)
+                    {
+                        existingEvent.Assignees.Add(assignee);
+                    }
                 }
 
+                _context.Entry(existingEvent).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 if (useTransaction)
+                {
                     await _context.Database.CommitTransactionAsync();
+                }
 
                 return Ok();
             }
             catch (Exception)
             {
                 if (useTransaction)
+                {
                     await _context.Database.RollbackTransactionAsync();
-
-                return StatusCode(500, "An error occurred while updating the event.");
+                }
+                return StatusCode(500, "An error occurred while updating the event. All changes have been rolled back.");
             }
         }
+
 
         [HttpGet]
         [Route("GetPublicEvents")]

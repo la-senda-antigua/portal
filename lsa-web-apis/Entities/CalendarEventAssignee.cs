@@ -7,9 +7,8 @@ namespace lsa_web_apis.Entities
     {
         public Guid CalendarEventId { get; set; }
         public Guid UserId { get; set; }
-        
-        public CalendarEvent CalendarEvent { get; set; } = new CalendarEvent();
-        public User User { get; set; } = new User();
 
+        public CalendarEvent CalendarEvent { get; set; } = null!;
+        public User User { get; set; } = null!;
     }
 }
