@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:lsa_calendar_app/models/apiException.dart';
@@ -48,13 +49,15 @@ class ApiService {
     T Function(dynamic)? fromJson,
   }) async {
     try {
-      final baseUrl = dotenv.env['API_BASE_URL']!;
+      final baseUrl = dotenv.env['API_BASE_URL']!;      
       final headers = await _getHeaders();      
       final response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
         headers: headers,
         body: body != null ? json.encode(body) : null,
       );
+
+      debugPrint('post request response code: ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = json.decode(response.body);

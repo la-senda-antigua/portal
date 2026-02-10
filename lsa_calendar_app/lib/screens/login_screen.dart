@@ -54,8 +54,9 @@ class _LoginScreenState extends State<LoginScreen> {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
-    if (refreshToken != null)
+    if (refreshToken != null){
       await prefs.setString('refresh_token', refreshToken);
+    }
     await prefs.setString('username', username ?? 'Guest');
     if (email != null) await prefs.setString('email', email);
     if (avatar != null) await prefs.setString('avatar', avatar);
@@ -77,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
     } catch (e) {
-      debugPrint('Sesión inválida o expirada: $e. Intentando refresh...');
+      debugPrint('expired session: $e. trying to refresh...');
 
       final token = prefs.getString('access_token');
       final refreshToken = prefs.getString('refresh_token');
@@ -115,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
             return;
           }
         } catch (refreshError) {
-          debugPrint('Error al refrescar token: $refreshError');
+          debugPrint('error on refresh token: $refreshError');
         }
       }
 
@@ -234,6 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
+      
       if (mounted) {
         if (e is ApiException && e.statusCode == 403) {
           _showSnack(AppLocalizations.of(context)!.noPermission);
