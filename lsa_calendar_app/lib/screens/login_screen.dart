@@ -234,6 +234,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
+      _showSnack('Google Sign-In error: $e');
+      
       if (mounted) {
         if (e is ApiException && e.statusCode == 403) {
           _showSnack(AppLocalizations.of(context)!.noPermission);
