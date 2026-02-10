@@ -46,8 +46,8 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("refresh-tokens")]
-    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequestDto request)
-    {
+    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens([FromBody] RefreshTokenRequestDto request)
+    {        
         var response = await authService.RefreshTokensAsync(request);
         if (response is null)
             return Unauthorized("Invalid refresh token.");
@@ -94,7 +94,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<IActionResult> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
     {
         try
-        {
+        {            
             GoogleUserInfo? googleUser = null;
 
             if (!string.IsNullOrEmpty(request.IdToken))
@@ -118,7 +118,7 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
         catch (InvalidOperationException ex) when (ex.Message == "User not found.")
         {
-            return Unauthorized("User not registered.");
+            return Forbid("User not registered.");
         }
         catch (Exception ex)
         {
