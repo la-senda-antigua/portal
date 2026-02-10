@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
     } catch (e) {
-      debugPrint('Sesión inválida o expirada: $e. Intentando refresh...');
+      debugPrint('expired session: $e. trying to refresh...');
 
       final token = prefs.getString('access_token');
       final refreshToken = prefs.getString('refresh_token');
@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
             return;
           }
         } catch (refreshError) {
-          debugPrint('Error al refrescar token: $refreshError');
+          debugPrint('error on refresh token: $refreshError');
         }
       }
 
