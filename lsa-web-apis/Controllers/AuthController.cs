@@ -131,31 +131,24 @@ public class AuthController(IAuthService authService) : ControllerBase
         }
     }
 
-
     [HttpPost("apple-login")]
-    public async Task<ActionResult<TokenResponseDto>> AppleLogin([FromBody] AppleLoginRequest request)
+    public async Task<IActionResult> AppleLogin([FromBody] AppleLoginRequest request)
     {
         try
         {
-            var response = await authService.LoginWithAppleAsync(request);
-            if (response is null)
+            var response = await authService.LoginWithAppleAsync(request);            
+            if (response == null)
             {
-                return BadRequest("Apple authentication failed.");
+                return Unauthorized("Invalid Apple credentials.");
             }
-
+            
             return Ok(response);
         }
-        catch (InvalidOperationException ex)
-        {
-            if (ex.Message == "User not found.")
-            {
-                return Unauthorized("User not registered.");
-            }
-
-            return StatusCode(500, $"Error: {ex.Message}");
+        catch (InvalidOperationException ex) when (ex.Message == "User not found.")
+        {            
+            return Forbid();
         }
     }
-
 
     [Authorize]
     [HttpPost("logout")]
