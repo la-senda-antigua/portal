@@ -54,8 +54,9 @@ class _LoginScreenState extends State<LoginScreen> {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
-    if (refreshToken != null)
+    if (refreshToken != null){
       await prefs.setString('refresh_token', refreshToken);
+    }
     await prefs.setString('username', username ?? 'Guest');
     if (email != null) await prefs.setString('email', email);
     if (avatar != null) await prefs.setString('avatar', avatar);
@@ -234,7 +235,6 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
-      _showSnack('Google Sign-In error: $e');
       
       if (mounted) {
         if (e is ApiException && e.statusCode == 403) {

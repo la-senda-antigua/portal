@@ -93,10 +93,10 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("google-mobile")]
     public async Task<IActionResult> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
     {
-        try
-        {            
-            GoogleUserInfo? googleUser = null;
+        GoogleUserInfo? googleUser = null;
 
+        try
+        {
             if (!string.IsNullOrEmpty(request.IdToken))
             {
                 googleUser = await authService.VerifyGoogleToken(request.IdToken);
@@ -106,25 +106,31 @@ public class AuthController(IAuthService authService) : ControllerBase
                 googleUser = await authService.VerifyGoogleAccessToken(request.AccessToken);
             }
 
+            // Google login failed
             if (googleUser == null || string.IsNullOrEmpty(googleUser.Email))
-                return Unauthorized("Invalid token");
-
+            {
+                return Unauthorized("Invalid Google token.");
+            }
+            
             var tokenResponse = await authService.LoginWithGoogleAsync(googleUser.Email);
+
             return Ok(new
             {
                 Token = tokenResponse,
-                User = new { googleUser.Name, googleUser.Email, Avatar = googleUser.Picture }
+                User = new
+                {
+                    googleUser.Name,
+                    googleUser.Email,
+                    Avatar = googleUser.Picture
+                }
             });
         }
         catch (InvalidOperationException ex) when (ex.Message == "User not found.")
-        {
-            return Forbid("User not registered.");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error: {ex.Message}");
+        {            
+            return Forbid();
         }
     }
+
 
     [HttpPost("apple-login")]
     public async Task<ActionResult<TokenResponseDto>> AppleLogin([FromBody] AppleLoginRequest request)

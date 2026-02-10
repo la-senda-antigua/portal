@@ -26,6 +26,7 @@ class ApiService {
     try {
       final baseUrl = dotenv.env['API_BASE_URL']!;
       final headers = await _getHeaders();
+      debugPrint('Making GET request to: $baseUrl$endpoint with headers: $headers');
       
       final response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
@@ -50,6 +51,7 @@ class ApiService {
   }) async {
     try {
       final baseUrl = dotenv.env['API_BASE_URL']!;
+      debugPrint('Making POST request to: $baseUrl$endpoint with body: $body');
       final headers = await _getHeaders();      
       final response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
