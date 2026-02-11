@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
-    if (refreshToken != null){
+    if (refreshToken != null) {
       await prefs.setString('refresh_token', refreshToken);
     }
     await prefs.setString('username', username ?? 'Guest');
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
-      
+
       if (mounted) {
         if (e is ApiException && e.statusCode == 403) {
           _showSnack(AppLocalizations.of(context)!.noPermission);
@@ -299,6 +299,14 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       debugPrint('Apple Sign-In error: $e');
       if (mounted) {
+        // 1. Verificar si el usuario canceló manualmente
+        if (e is SignInWithAppleAuthorizationException &&
+            e.code == AuthorizationErrorCode.canceled) {
+          // No hacemos nada, el usuario solo cerró la ventana
+          return;
+        }
+
+        // 2. Manejar errores reales
         if (e is ApiException && e.statusCode == 403) {
           _showSnack(AppLocalizations.of(context)!.noPermission);
         } else {
