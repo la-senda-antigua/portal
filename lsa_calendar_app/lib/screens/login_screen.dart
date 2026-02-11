@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('access_token', token);
-    if (refreshToken != null){
+    if (refreshToken != null) {
       await prefs.setString('refresh_token', refreshToken);
     }
     await prefs.setString('username', username ?? 'Guest');
@@ -85,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (token != null && refreshToken != null) {
         try {
-          // Intentamos refrescar los tokens
           final response = await ApiService.post(
             '/auth/refresh-tokens',
             body: {
@@ -99,7 +98,6 @@ class _LoginScreenState extends State<LoginScreen> {
           final newRefreshToken = response['refreshToken'];
 
           if (newToken != null) {
-            // Guardamos los nuevos tokens y mantenemos los datos de usuario
             await _saveData(
               newToken,
               newRefreshToken,
@@ -120,12 +118,10 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
 
-      // Si falló el refresh o no había tokens, limpiamos todo
       await prefs.remove('access_token');
       await prefs.remove('refresh_token');
     }
 
-    // Si no hay token o hubo error, quitamos la carga para mostrar el botón de login
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -173,18 +169,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    debugPrint('Starting Google Sign-In##');
     if (_isLoading) return;
-
     setState(() => _isLoading = true);
+    await _googleSignIn.signOut();
 
     try {
       final account = await _googleSignIn.signIn();
 
       if (account == null) {
-        if (!mounted) return;
-        setState(() => _isLoading = false);
-        _showSnack(AppLocalizations.of(context)!.loginCancelled);
+        if (mounted) setState(() => _isLoading = false);
         return;
       }
 
@@ -192,9 +185,11 @@ class _LoginScreenState extends State<LoginScreen> {
       final String? accessToken = auth.accessToken;
 
       if (accessToken == null) {
-        if (!mounted) return;
-        setState(() => _isLoading = false);
-        _showSnack(AppLocalizations.of(context)!.googleTokenError);
+        await _googleSignIn.signOut();
+        if (mounted) {
+          setState(() => _isLoading = false);
+          _showSnack(AppLocalizations.of(context)!.googleTokenError);
+        }
         return;
       }
 
@@ -212,7 +207,6 @@ class _LoginScreenState extends State<LoginScreen> {
           tokenData['token'];
       final String? refreshToken = tokenData['refreshToken'];
 
-      // Guardamos token y datos del usuario (nombre, email, avatar)
       await _saveData(
         token,
         refreshToken,
@@ -235,7 +229,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       debugPrint('Google Sign-In error: $e');
-      
+      await _googleSignIn.signOut();
+
       if (mounted) {
         if (e is ApiException && e.statusCode == 403) {
           _showSnack(AppLocalizations.of(context)!.noPermission);
@@ -244,9 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -269,9 +262,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final String token = response['accesToken'] ?? response['accessToken'];
       final String? refreshToken = response['refreshToken'];
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('access_token', token);
 
       String username = 'Apple User';
       String? email = credential.email;
@@ -299,6 +289,11 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       debugPrint('Apple Sign-In error: $e');
       if (mounted) {
+        if (e is SignInWithAppleAuthorizationException &&
+            e.code == AuthorizationErrorCode.canceled) {
+          return;
+        }
+
         if (e is ApiException && e.statusCode == 403) {
           _showSnack(AppLocalizations.of(context)!.noPermission);
         } else {
