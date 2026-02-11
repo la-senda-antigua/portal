@@ -84,8 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final refreshToken = prefs.getString('refresh_token');
 
       if (token != null && refreshToken != null) {
-        try {
-          // Intentamos refrescar los tokens
+        try {          
           final response = await ApiService.post(
             '/auth/refresh-tokens',
             body: {
@@ -98,8 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
           final newToken = response['accesToken'] ?? response['accessToken'];
           final newRefreshToken = response['refreshToken'];
 
-          if (newToken != null) {
-            // Guardamos los nuevos tokens y mantenemos los datos de usuario
+          if (newToken != null) {            
             await _saveData(
               newToken,
               newRefreshToken,
@@ -119,13 +117,11 @@ class _LoginScreenState extends State<LoginScreen> {
           debugPrint('error on refresh token: $refreshError');
         }
       }
-
-      // Si falló el refresh o no había tokens, limpiamos todo
+      
       await prefs.remove('access_token');
       await prefs.remove('refresh_token');
     }
 
-    // Si no hay token o hubo error, quitamos la carga para mostrar el botón de login
     if (mounted) setState(() => _isLoading = false);
   }
 
@@ -212,7 +208,6 @@ class _LoginScreenState extends State<LoginScreen> {
           tokenData['token'];
       final String? refreshToken = tokenData['refreshToken'];
 
-      // Guardamos token y datos del usuario (nombre, email, avatar)
       await _saveData(
         token,
         refreshToken,
@@ -299,10 +294,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       debugPrint('Apple Sign-In error: $e');
       if (mounted) {
-        // 1. Verificar si el usuario canceló manualmente
         if (e is SignInWithAppleAuthorizationException &&
             e.code == AuthorizationErrorCode.canceled) {
-          // No hacemos nada, el usuario solo cerró la ventana
           return;
         }
 
