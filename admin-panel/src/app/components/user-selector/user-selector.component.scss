@@ -1,0 +1,94 @@
+.user-input {
+  width: 100%;
+}
+
+.user-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-email {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.chip-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  background-color: #e0e0e0;
+  border-radius: 16px;
+  padding: 4px 8px 4px 4px;
+  font-size: 14px;
+}
+
+.chip-content {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.chip-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: rgba(0, 0, 0, 0.54);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: rgba(0, 0, 0, 0.87);
+  }
+}

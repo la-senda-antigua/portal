@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using lsa_web_apis.Data;
+﻿using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
@@ -9,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Ocsp;
+using System;
+using System.Security.Claims;
 
 namespace lsa_web_apis.Controllers
 {
@@ -165,6 +166,7 @@ namespace lsa_web_apis.Controllers
             {
                 if (useTransaction)
                     await _context.Database.RollbackTransactionAsync();
+
                 return StatusCode(500, "An error occurred while deleting the calendar.");
             }
         }
@@ -249,16 +251,11 @@ namespace lsa_web_apis.Controllers
         {
             var yearMonth = $"{year:D4}-{month:D2}";
 
-            var query = _context.CalendarEvents
-                .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth);
-
-            if (!User.IsInRole("Admin"))
-            {
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                query = query.Where(e => e.Calendar.Managers.Any(m => m.UserId == userId));
-            }
-
-            var result = await query
+            var result = await _context.CalendarEvents
+                .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth)
+                .Where(e => User.IsInRole("Admin") ||
+                    e.Calendar.Managers.Any(m =>
+                        m.UserId == Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value)))
                 .Select(e => new CalendarEventDto
                 {
                     Id = e.Id,
@@ -267,11 +264,26 @@ namespace lsa_web_apis.Controllers
                     CalendarId = e.CalendarId,
                     Start = e.StartTime,
                     End = e.EndTime,
-                    AllDay = e.AllDay
+                    AllDay = e.AllDay,
+                    Assignees = e.Assignees.Select(a => new UserDto
+                    {
+                        UserId = a.User.Id,
+                        Username = a.User.Username,
+                        Name = a.User.Name,
+                        LastName = a.User.LastName,
+                        Role = a.User.Role
+                    }).ToArray()
                 })
                 .OrderByDescending(e => e.Start)
                 .AsNoTracking()
                 .ToListAsync();
+
+            foreach (var e in result)
+            {
+                e.DisplayTitle = !string.IsNullOrWhiteSpace(e.Title)
+                    ? e.Title
+                    : string.Join(", ", e.Assignees!.Select(a => $"{a.Name} {a.LastName}"));
+            }
 
             return Ok(result);
         }
@@ -308,7 +320,28 @@ namespace lsa_web_apis.Controllers
                 (e.EndTime == null || e.EndTime.CompareTo(monthStartStr) >= 0)
             );
 
-            var rawEvents = await query.AsNoTracking().ToListAsync();
+            var rawEvents = await query
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Title,
+                    e.Description,
+                    e.CalendarId,
+                    e.StartTime,
+                    e.EndTime,
+                    e.AllDay,
+                    Assignees = e.Assignees.Select(a => new UserDto
+                    {
+                        UserId = a.User.Id,
+                        Username = a.User.Username,
+                        Name = a.User.Name,
+                        LastName = a.User.LastName,
+                        Role = a.User.Role
+                    }).ToArray()
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
             var result = new List<dynamic>();
 
             foreach (var e in rawEvents)
@@ -338,7 +371,10 @@ namespace lsa_web_apis.Controllers
                         End = e.EndTime,
                         e.AllDay,
                         CurrentDay = currentDay,
-                        TotalDays = totalDays
+                        TotalDays = totalDays,
+                        e.Assignees,
+                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ?
+                                        e.Title : string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
                     });
                 }
             }
@@ -351,27 +387,67 @@ namespace lsa_web_apis.Controllers
         [Route("addEvent")]
         public async Task<ActionResult> AddEvent(CalendarEventDto request)
         {
-            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
-            if (calendar is null) return NotFound("Calendar not found.");
+            var useTransaction = !_context.Database.IsInMemory();
+            if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
 
-            var calendarEvent = new CalendarEvent
+            try
             {
-                Title = request.Title,
-                Description = request.Description,
-                CalendarId = request.CalendarId,
-                StartTime = request.Start!.Replace("T", " "),
-                AllDay = request.AllDay,
-            };
+                var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+                if (calendar is null)
+                {
+                    if (useTransaction)
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                    }
+                    return NotFound("Calendar not found.");
+                }
 
-            if (!string.IsNullOrEmpty(request.End))
-            {
-                calendarEvent.EndTime = request.End.Replace("T", " ");
+                var calendarEvent = new CalendarEvent
+                {
+                    Title = request.Title,
+                    Description = request.Description,
+                    CalendarId = request.CalendarId,
+                    StartTime = request.Start!.Replace("T", " "),
+                    AllDay = request.AllDay,
+                };
+
+                if (!string.IsNullOrEmpty(request.End))
+                {
+                    calendarEvent.EndTime = request.End.Replace("T", " ");
+                }
+
+                _context.CalendarEvents.Add(calendarEvent);
+                await _context.SaveChangesAsync();
+
+                if (request.Assignees?.Length > 0)
+                {
+                    var assignees = request.Assignees.Select(user =>
+                        new CalendarEventAssignee
+                        {
+                            CalendarEventId = calendarEvent.Id,
+                            UserId = user.UserId!.Value
+                        }
+                    ).ToList();
+
+                    _context.CalendarEventAssignees.AddRange(assignees);
+                    await _context.SaveChangesAsync();
+                }
+
+                if (useTransaction)
+                {
+                    await _context.Database.CommitTransactionAsync();
+                }
+
+                return Ok();
             }
-
-            _context.CalendarEvents.Add(calendarEvent);
-            await _context.SaveChangesAsync();
-
-            return Ok();
+            catch (Exception)
+            {
+                if (useTransaction)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                }
+                return StatusCode(500, "An error occurred while creating the event. All changes have been rolled back.");
+            }
         }
 
         [HttpPut]
@@ -379,26 +455,69 @@ namespace lsa_web_apis.Controllers
         [Route("updateEvent")]
         public async Task<ActionResult> UpdateEvent(CalendarEventDto request)
         {
-            var existingEvent = await _context.CalendarEvents.FindAsync(request.Id);
+            var existingEvent = await _context.CalendarEvents
+                .Include(e => e.Assignees)
+                .FirstOrDefaultAsync(e => e.Id == request.Id);
+
             if (existingEvent is null) return NotFound("Event not found.");
 
             var calendar = await _context.Calendars.FindAsync(request.CalendarId);
             if (calendar is null) return NotFound("Calendar not found.");
 
-            existingEvent.Id = request.Id!.Value;
-            existingEvent.Title = request.Title;
-            existingEvent.Description = request.Description;
-            existingEvent.CalendarId = request.CalendarId;
-            existingEvent.StartTime = request.Start!.Replace("T", " ");
-            existingEvent.AllDay = request.AllDay;
-            if (!string.IsNullOrEmpty(request.End))
-            {
-                existingEvent.EndTime = request.End.Replace("T", " ");
-            }
+            var useTransaction = !_context.Database.IsInMemory();
+            if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
 
-            await _context.SaveChangesAsync();
-            return Ok();
+            try
+            {
+                _context.Entry(existingEvent).Collection(e => e.Assignees).Load();
+                var existingAssignees = existingEvent.Assignees.ToList();
+
+                foreach (var assignee in existingAssignees)
+                {
+                    existingEvent.Assignees.Remove(assignee);
+                }
+
+                existingEvent.Title = request.Title;
+                existingEvent.Description = request.Description;
+                existingEvent.CalendarId = request.CalendarId;
+                existingEvent.StartTime = request.Start!.Replace("T", " ");
+                existingEvent.AllDay = request.AllDay;
+                existingEvent.EndTime = string.IsNullOrEmpty(request.End) ? null : request.End.Replace("T", " ");
+
+                if (request.Assignees?.Length > 0)
+                {
+                    var newAssignees = request.Assignees.Select(assignee => new CalendarEventAssignee
+                    {
+                        UserId = assignee.UserId!.Value,
+                        CalendarEventId = request.Id!.Value
+                    }).ToList();
+
+                    foreach (var assignee in newAssignees)
+                    {
+                        existingEvent.Assignees.Add(assignee);
+                    }
+                }
+
+                _context.Entry(existingEvent).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                if (useTransaction)
+                {
+                    await _context.Database.CommitTransactionAsync();
+                }
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+                if (useTransaction)
+                {
+                    await _context.Database.RollbackTransactionAsync();
+                }
+                return StatusCode(500, "An error occurred while updating the event. All changes have been rolled back.");
+            }
         }
+
 
         [HttpGet]
         [Route("GetPublicEvents")]
@@ -406,7 +525,7 @@ namespace lsa_web_apis.Controllers
         {
             if (dateTime is null)
                 dateTime = DateTime.Now;
-            //buscar el calendario con nombre "Public Events" y obtener sus eventos
+
             var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
             if (calendar == null)
             {
@@ -431,5 +550,60 @@ namespace lsa_web_apis.Controllers
               .ToListAsync();
             return Ok(events);
         }
+
+        public record UserAvailabilityRequest(string[] userIds, string startTime, string endTime);
+
+        [HttpPost]
+        [Route("UserAvailability")]
+        public async Task<ActionResult> UserAvailability(UserAvailabilityRequest request)
+        {
+            var userGuids = request.userIds
+                .Select(Guid.Parse)
+                .ToArray();
+
+            var conflictingEvents = await _context.CalendarEvents
+                .Where(e =>
+                    e.StartTime != null &&
+                    e.EndTime != null &&
+                    string.Compare(e.StartTime, request.endTime) < 0 &&
+                    string.Compare(e.EndTime, request.startTime) > 0 &&
+                    e.Assignees.Any(a => userGuids.Contains(a.UserId))
+                )
+                .Include(e => e.Calendar)
+                .Include(e => e.Assignees)
+                    .ThenInclude(a => a.User)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var result = conflictingEvents
+                .SelectMany(e => e.Assignees.Select(a => new
+                {
+                    a.User,
+                    e.Calendar
+                }))
+                .GroupBy(x => x.User.Id)
+                .Select(g => new
+                {
+                    user = new CalendarMemberDto
+                    {
+                        UserId = g.First().User.Id,
+                        Username = g.First().User.Username,
+                        Name = g.First().User.Name,
+                        LastName = g.First().User.LastName
+                    },
+                    conflicts = g
+                        .Select(x => new CalendarDto
+                        {
+                            Id = x.Calendar.Id,
+                            Name = x.Calendar.Name
+                        })
+                        .DistinctBy(c => c.Id)
+                        .ToList()
+                })
+                .ToList();
+
+            return Ok(result);
+        }
+
     }
 }
