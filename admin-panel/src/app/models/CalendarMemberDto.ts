@@ -1,6 +1,8 @@
+import { UserRole } from "./PortalUser";
+
 export interface CalendarMemberDto {
   userId: string;
   calendarId: string;
   username?: string;
-  role?: string;
+  roles?: UserRole[];
 }

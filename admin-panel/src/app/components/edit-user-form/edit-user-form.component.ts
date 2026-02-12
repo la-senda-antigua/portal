@@ -26,6 +26,7 @@ import { TableViewFormData } from '../table-view/table-view.component';
 import { CalendarDto } from '../../models/CalendarDto';
 import { CalendarsService } from '../../services/calendars.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { UserRole } from '../../models/PortalUser';
 
 export interface UserFormData extends TableViewFormData {
   data: {
@@ -33,7 +34,7 @@ export interface UserFormData extends TableViewFormData {
     username: string;
     name: string;
     lastName: string;
-    role?: string;
+    roles?: UserRole[];
     calendarsAsManager?: CalendarDto[];
     calendarsAsMember?: CalendarDto[];
   };
@@ -68,23 +69,19 @@ export class EditUserFormComponent {
 
   readonly calendarsService = inject(CalendarsService);
 
-  readonly roles = [
-    'Admin',
-    'CalendarManager',
-    'MediaManager',
-    'BroadcastManager',
-    'User',
-  ];
+  readonly rolesEnum = UserRole;
+  readonly roles = Object.values(UserRole) as string[];
   readonly calendarList = toSignal(this.calendarsService.getAll());
   readonly selectedManagerCalendars = signal<CalendarDto[]>([]);
   readonly selectedMemberCalendars = signal<CalendarDto[]>([]);
+  readonly isAdmin = signal(false);
 
   readonly userForm: FormGroup<{
     userId: FormControl<string | null>;
     username: FormControl<string | null>;
     name: FormControl<string | null>;
     lastName: FormControl<string | null>;
-    role: FormControl<string | null>;
+    roles: FormControl<UserRole[] | null>;
     calendarsAsManager: FormControl<CalendarDto[] | null>;
     calendarsAsMember: FormControl<CalendarDto[] | null>;
   }> = new FormGroup({
@@ -93,14 +90,16 @@ export class EditUserFormComponent {
       Validators.required,
       Validators.email,
     ]),
-    name: new FormControl(this.formData.data.name, [Validators.required,]),
-    lastName: new FormControl(this.formData.data.lastName, [Validators.required,]),
-    role: new FormControl(this.formData.data.role || 'User', Validators.required),
+    name: new FormControl(this.formData.data.name, [Validators.required]),
+    lastName: new FormControl(this.formData.data.lastName, [
+      Validators.required,
+    ]),
+    roles: new FormControl([] as UserRole[], Validators.required),
     calendarsAsManager: new FormControl(
-      this.formData.data.calendarsAsManager || []
+      this.formData.data.calendarsAsManager || [],
     ),
     calendarsAsMember: new FormControl(
-      this.formData.data.calendarsAsMember || []
+      this.formData.data.calendarsAsMember || [],
     ),
   });
 
@@ -112,7 +111,7 @@ export class EditUserFormComponent {
       if (calendars && formData.calendarsAsManager) {
         const managerCalendars = this.findCalendarsByIds(
           calendars,
-          formData.calendarsAsManager
+          formData.calendarsAsManager,
         );
         this.userForm.controls.calendarsAsManager.setValue(managerCalendars);
         this.selectedManagerCalendars.set(managerCalendars);
@@ -121,7 +120,7 @@ export class EditUserFormComponent {
       if (calendars && formData.calendarsAsMember) {
         const memberCalendars = this.findCalendarsByIds(
           calendars,
-          formData.calendarsAsMember
+          formData.calendarsAsMember,
         );
         this.userForm.controls.calendarsAsMember.setValue(memberCalendars);
         this.selectedMemberCalendars.set(memberCalendars);
@@ -129,17 +128,35 @@ export class EditUserFormComponent {
     });
   }
 
+  ngOnInit() {
+    this.userForm.controls.roles.valueChanges.subscribe((selectedRoles) => {
+      if (selectedRoles?.includes(UserRole.Admin)) {
+        this.userForm.controls.roles.setValue([UserRole.Admin], {
+          emitEvent: false,
+        });
+        this.isAdmin.set(true);
+      } else {
+        this.isAdmin.set(false);
+      }
+    });
+    this.userForm.controls.roles.setValue(this.formData.data.roles ?? []);
+  }
+
   private findCalendarsByIds(
     allCalendars: CalendarDto[],
-    selectedCalendars: CalendarDto[]
+    selectedCalendars: CalendarDto[],
   ): CalendarDto[] {
     return allCalendars.filter((calendar) =>
-      selectedCalendars.some((selected) => selected.id === calendar.id)
+      selectedCalendars.some((selected) => selected.id === calendar.id),
     );
   }
 
   compareCalendars(calendar1: CalendarDto, calendar2: CalendarDto): boolean {
     return calendar1?.id === calendar2?.id;
+  }
+
+  compareRoles(role1: UserRole, role2: UserRole): boolean {
+    return role1 === role2;
   }
 
   save() {
@@ -162,7 +179,7 @@ export class EditUserFormComponent {
         username: this.userForm.controls.username.value!,
         name: this.userForm.controls.name.value!,
         lastName: this.userForm.controls.lastName.value!,
-        role: this.userForm.controls.role.value!,
+        roles: this.userForm.controls.roles.value || [],
         calendarsAsManager:
           this.userForm.controls.calendarsAsManager.value || [],
         calendarsAsMember: this.userForm.controls.calendarsAsMember.value || [],

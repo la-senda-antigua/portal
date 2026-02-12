@@ -23,7 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { TableViewFormData } from '../table-view/table-view.component';
 import { AddPeopleFormComponent } from '../add-people-form/add-people-form.component';
-import { PortalUser } from '../../models/PortalUser';
+import { PortalUser, UserRole } from '../../models/PortalUser';
 import { CalendarsService } from '../../services/calendars.service';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import {
@@ -95,21 +95,21 @@ export class EditCalendarFormComponent implements OnInit {
   getDetails() {
     this.loadingUsers.set(true);
     this.calendarsService.getById(this.formData.data.id!).subscribe({
-      next: (data) => {
-        const members = data.members!.map((member) => ({
-          ...(member as PortalUser),
-          role: 'User',
-        }));
-        const managers = data.managers!.map((manager) => ({
-          ...(manager as PortalUser),
-          role: 'Manager',
-        }));
-        this.selectedUsers = [...members, ...managers];
-        this.loadingUsers.set(false);
-      },
-      error: () => {
-        this.loadingUsers.set(false);
-      },
+      // next: (data) => {
+      //   const members = data.members!.map((member) => ({
+      //     ...(member as PortalUser),
+      //     role: [UserRole.User],
+      //   }));
+      //   const managers = data.managers!.map((manager) => ({
+      //     ...(manager as PortalUser),
+      //     roles: [UserRole.CalendarManager],
+      //   }));
+      //   this.selectedUsers = [...members, ...managers];
+      //   this.loadingUsers.set(false);
+      // },
+      // error: () => {
+      //   this.loadingUsers.set(false);
+      // },
     });
   }
 
