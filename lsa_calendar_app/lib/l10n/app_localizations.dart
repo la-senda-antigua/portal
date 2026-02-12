@@ -176,6 +176,12 @@ abstract class AppLocalizations {
   /// **'Could not connect to server. Try refreshing.'**
   String get serverConnectionError;
 
+  /// No description provided for @noPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'User not registered, please contact your administrator.'**
+  String get noPermission;
+
   /// No description provided for @fetchEventsError.
   ///
   /// In en, this message translates to:
