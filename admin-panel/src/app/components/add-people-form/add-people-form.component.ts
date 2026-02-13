@@ -9,6 +9,17 @@ import {
 } from '@angular/material/dialog';
 import { PortalUser, UserRole } from '../../models/PortalUser';
 import { UserSelectorComponent } from '../user-selector/user-selector.component';
+import { UsersService } from '../../services/users.service';
+import { UserGroupsService } from '../../services/userGroups.service';
+import { FormControl } from '@angular/forms';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { Observable, startWith, map } from 'rxjs';
+import {
+  getUserColor,
+  getInitial,
+  getDisplayName,
+} from '../../../utils/user.utils';
+import { UserGroup } from '../../models/UserGroup';
 
 @Component({
   selector: 'app-add-people-form',
@@ -24,6 +35,13 @@ import { UserSelectorComponent } from '../user-selector/user-selector.component'
 })
 export class AddPeopleFormComponent {
   selectedUsers: PortalUser[] = [];
+  userCtrl = new FormControl('');
+  filteredUsers: Observable<(PortalUser | UserGroup)[]>;
+  allUsers: PortalUser[] = [];
+  allGroups: UserGroup[] = [];
+  protected readonly getUserColor = getUserColor;
+  protected readonly getInitial = getInitial;
+  protected readonly getDisplayName = getDisplayName;
 
   constructor(
     public dialogRef: MatDialogRef<AddPeopleFormComponent>,
@@ -34,14 +52,9 @@ export class AddPeopleFormComponent {
       groupId?: string;
       existingUsers?: PortalUser[];
     },
-    private usersService: UsersService
-    ,private userGroupsService: UserGroupsService
+    private usersService: UsersService,
+    private userGroupsService: UserGroupsService,
   ) {
-
-  onSelectedUsersChange(users: PortalUser[]) {
-    this.selectedUsers = users;
-  }
-
     this.usersService.getAll().subscribe((result) => {
       this.allUsers = result;
     });
@@ -51,11 +64,17 @@ export class AddPeopleFormComponent {
 
     this.filteredUsers = this.userCtrl.valueChanges.pipe(
       startWith(''),
-      map((value) => this._filter(value || ''))
+      map((value) => this._filter(value || '')),
     );
   }
 
-  private _filter(value: string | PortalUser | UserGroup): (PortalUser | UserGroup)[] {
+  onSelectedUsersChange(users: PortalUser[]) {
+    this.selectedUsers = users;
+  }
+
+  private _filter(
+    value: string | PortalUser | UserGroup,
+  ): (PortalUser | UserGroup)[] {
     let filterValue = '';
     if (typeof value === 'string') {
       filterValue = value.toLowerCase();
@@ -73,11 +92,11 @@ export class AddPeopleFormComponent {
     const users = this.allUsers.filter(
       (user) =>
         user.username.toLowerCase().includes(filterValue) &&
-        !existingUserIds.includes(user.userId)
+        !existingUserIds.includes(user.userId),
     );
 
     const groups = this.allGroups.filter((group) =>
-      group.groupName.toLowerCase().includes(filterValue)
+      group.groupName.toLowerCase().includes(filterValue),
     );
 
     return [...users, ...groups];
@@ -106,8 +125,12 @@ export class AddPeopleFormComponent {
       const group = value as UserGroup;
       if (group.members) {
         group.members.forEach((member) => {
-          const isSelected = this.selectedUsers.some((u) => u.userId === member.userId);
-          const isExisting = (this.data.existingUsers || []).some((u) => u.userId === member.userId);
+          const isSelected = this.selectedUsers.some(
+            (u) => u.userId === member.userId,
+          );
+          const isExisting = (this.data.existingUsers || []).some(
+            (u) => u.userId === member.userId,
+          );
 
           if (!isSelected && !isExisting) {
             this.selectedUsers.push({
