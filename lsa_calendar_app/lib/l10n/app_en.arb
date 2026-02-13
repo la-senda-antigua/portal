@@ -23,5 +23,7 @@
   "month": "Month",
   "allDay": "All Day",
   "eventDateRange": "From {startDate} to {endDate}",
-  "dayXofY": "Day {current} of {total}"
+  "dayXofY": "Day {current} of {total}",
+  "singleUserConflict": "{userName} has conflicts with other calendar(s): {calendars}",
+  "multipleUsersConflict": "The following users have conflicts with other calendars: {userNames}"
 }

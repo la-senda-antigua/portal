@@ -91,4 +91,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String dayXofY(Object current, Object total) {
     return 'Day $current of $total';
   }
+
+  @override
+  String singleUserConflict(Object calendars, Object userName) {
+    return '$userName has conflicts with other calendar(s): $calendars';
+  }
+
+  @override
+  String multipleUsersConflict(Object userNames) {
+    return 'The following users have conflicts with other calendars: $userNames';
+  }
 }

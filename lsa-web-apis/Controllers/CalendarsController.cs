@@ -260,6 +260,7 @@ namespace lsa_web_apis.Controllers
                 {
                     Id = e.Id,
                     Title = e.Title,
+                    DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? e.Title : string.Join(", ", e.Assignees.Select(a => $"{a.User.Name} {a.User.LastName}")),
                     Description = e.Description,
                     CalendarId = e.CalendarId,
                     Start = e.StartTime,
@@ -277,6 +278,69 @@ namespace lsa_web_apis.Controllers
                 .OrderByDescending(e => e.Start)
                 .AsNoTracking()
                 .ToListAsync();
+
+            // getting conflits
+            var assigneeIds = result
+                .SelectMany(e => e.Assignees ?? Array.Empty<UserDto>())
+                .Select(u => u.UserId)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .Distinct()
+                .ToList();
+
+            if (assigneeIds.Any())
+            {
+                var startOfMonth = $"{year:D4}-{month:D2}-01 00:00:00";
+                var endOfMonth = $"{year:D4}-{month:D2}-{DateTime.DaysInMonth(year, month):D2} 23:59:59";
+
+                var potentialConflicts = await _context.CalendarEvents
+                    .Where(e => e.StartTime != null && e.EndTime != null &&
+                                string.Compare(e.StartTime, endOfMonth) <= 0 &&
+                                string.Compare(e.EndTime, startOfMonth) >= 0 &&
+                                e.Assignees.Any(a => assigneeIds.Contains(a.UserId)))
+                    .Select(e => new
+                    {
+                        e.Id,
+                        e.StartTime,
+                        e.EndTime,
+                        CalendarName = e.Calendar.Name,
+                        AssigneeIds = e.Assignees.Select(a => a.UserId).ToList()
+                    })
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                foreach (var evt in result)
+                {
+                    if (evt.Assignees == null || !evt.Assignees.Any() || evt.Start == null || evt.End == null) continue;
+
+                    foreach (var assignee in evt.Assignees)
+                    {
+                        if (assignee.UserId == null) continue;
+
+                        var conflicts = potentialConflicts
+                            .Where(pc => pc.Id != evt.Id &&
+                                         pc.AssigneeIds.Contains(assignee.UserId.Value) &&
+                                         string.Compare(pc.StartTime, evt.End) < 0 &&
+                                         string.Compare(pc.EndTime, evt.Start) > 0)
+                            .ToList();
+
+                        foreach (var conflict in conflicts)
+                        {
+                            if (!evt.Conflicts.Any(c => c.UserId == assignee.UserId && c.CalendarName == conflict.CalendarName))
+                            {
+                                evt.Conflicts.Add(new EventConflictDto
+                                {
+                                    UserId = assignee.UserId.Value,
+                                    Username = assignee.Username,
+                                    Name = assignee.Name ?? "",
+                                    LastName = assignee.LastName ?? "",
+                                    CalendarName = conflict.CalendarName ?? ""
+                                });
+                            }
+                        }
+                    }
+                }
+            }
 
             foreach (var e in result)
             {
