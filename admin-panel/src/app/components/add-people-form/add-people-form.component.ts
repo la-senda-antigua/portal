@@ -9,6 +9,17 @@ import {
 } from '@angular/material/dialog';
 import { PortalUser } from '../../models/PortalUser';
 import { UserSelectorComponent } from '../user-selector/user-selector.component';
+import { UsersService } from '../../services/users.service';
+import { UserGroupsService } from '../../services/userGroups.service';
+import { FormControl } from '@angular/forms';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+import { Observable, startWith, map } from 'rxjs';
+import {
+  getUserColor,
+  getInitial,
+  getDisplayName,
+} from '../../../utils/user.utils';
+import { UserGroup } from '../../models/UserGroup';
 
 @Component({
   selector: 'app-add-people-form',
@@ -24,6 +35,13 @@ import { UserSelectorComponent } from '../user-selector/user-selector.component'
 })
 export class AddPeopleFormComponent {
   selectedUsers: PortalUser[] = [];
+  userCtrl = new FormControl('');
+  filteredUsers: Observable<(PortalUser | UserGroup)[]>;
+  allUsers: PortalUser[] = [];
+  allGroups: UserGroup[] = [];
+  protected readonly getUserColor = getUserColor;
+  protected readonly getInitial = getInitial;
+  protected readonly getDisplayName = getDisplayName;
 
   constructor(
     public dialogRef: MatDialogRef<AddPeopleFormComponent>,
