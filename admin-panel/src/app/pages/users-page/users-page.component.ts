@@ -31,7 +31,7 @@ export class UsersPageComponent extends PageBaseComponent {
   override tableCols: TableViewColumn[] = [
     { displayName: 'Email', datasourceName: 'username' },
     { displayName: 'Name', datasourceName: 'displayName' },
-    { displayName: 'Role', datasourceName: 'role' },
+    { displayName: 'Roles', datasourceName: 'roles', isArray: true },
     {
       displayName: 'Manager of',
       datasourceName: 'calendarsAsManager',

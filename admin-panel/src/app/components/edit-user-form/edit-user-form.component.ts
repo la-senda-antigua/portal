@@ -137,9 +137,15 @@ export class EditUserFormComponent {
         this.isAdmin.set(true);
       } else {
         this.isAdmin.set(false);
+        if(!(selectedRoles?.includes(UserRole.User))) {
+          selectedRoles?.push(UserRole.User);
+          this.userForm.controls.roles.setValue(selectedRoles, {
+            emitEvent: false,
+          });
+        }
       }
     });
-    this.userForm.controls.roles.setValue(this.formData.data.roles ?? []);
+    this.userForm.controls.roles.setValue(this.formData.data.roles ?? [UserRole.User]);
   }
 
   private findCalendarsByIds(
@@ -153,10 +159,6 @@ export class EditUserFormComponent {
 
   compareCalendars(calendar1: CalendarDto, calendar2: CalendarDto): boolean {
     return calendar1?.id === calendar2?.id;
-  }
-
-  compareRoles(role1: UserRole, role2: UserRole): boolean {
-    return role1 === role2;
   }
 
   save() {

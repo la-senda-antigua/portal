@@ -33,30 +33,37 @@
     <!-- Role Dropdown -->
     <mat-form-field appearance="outline">
       <mat-label>Role</mat-label>
-      <mat-select
-        [formControl]="userForm.controls.roles"
-        multiple
-        [compareWith]="compareRoles"
-      >
-        <mat-option *ngFor="let role of roles" [value]="role" [disabled]="role !== rolesEnum.Admin && isAdmin()">
+      <mat-select [formControl]="userForm.controls.roles" multiple>
+        <mat-option
+          *ngFor="let role of roles"
+          [value]="role"
+          [disabled]="
+            role === rolesEnum.User || (role !== rolesEnum.Admin && isAdmin())
+          "
+        >
           {{ role }}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <!-- Manager of -->
-    <mat-form-field appearance="outline">
-      <mat-label>Manager of</mat-label>
-      <mat-select
-        [formControl]="userForm.controls.calendarsAsManager"
-        multiple
-        [compareWith]="compareCalendars"
-      >
-        <mat-option *ngFor="let calendar of calendarList()" [value]="calendar">
-          {{ calendar.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
+    @if (userForm.controls.roles.value?.includes(rolesEnum.CalendarManager)) {
+      <mat-form-field appearance="outline">
+        <mat-label>Manager of</mat-label>
+        <mat-select
+          [formControl]="userForm.controls.calendarsAsManager"
+          multiple
+          [compareWith]="compareCalendars"
+        >
+          <mat-option
+            *ngFor="let calendar of calendarList()"
+            [value]="calendar"
+          >
+            {{ calendar.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    }
 
     <!-- Member of -->
     <mat-form-field appearance="outline">

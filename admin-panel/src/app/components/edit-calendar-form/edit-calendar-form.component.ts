@@ -32,13 +32,16 @@ import {
   getDisplayName,
 } from '../../../utils/user.utils';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  CalendarMemberDto,
+} from '../../models/CalendarMemberDto';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
     id?: string;
     name: string;
     description?: string | null;
-    selectedUsers?: PortalUser[];
+    selectedUsers?: CalendarMemberDto[];
   };
 }
 
@@ -73,7 +76,7 @@ export class EditCalendarFormComponent implements OnInit {
   readonly calendarForm: FormGroup<{
     name: FormControl<string | null>;
   }>;
-  selectedUsers: PortalUser[] = [];
+  selectedUsers: CalendarMemberDto[] = [];
   loadingUsers = signal(true);
 
   protected readonly getUserColor = getUserColor;
@@ -95,21 +98,17 @@ export class EditCalendarFormComponent implements OnInit {
   getDetails() {
     this.loadingUsers.set(true);
     this.calendarsService.getById(this.formData.data.id!).subscribe({
-      // next: (data) => {
-      //   const members = data.members!.map((member) => ({
-      //     ...(member as PortalUser),
-      //     role: [UserRole.User],
-      //   }));
-      //   const managers = data.managers!.map((manager) => ({
-      //     ...(manager as PortalUser),
-      //     roles: [UserRole.CalendarManager],
-      //   }));
-      //   this.selectedUsers = [...members, ...managers];
-      //   this.loadingUsers.set(false);
-      // },
-      // error: () => {
-      //   this.loadingUsers.set(false);
-      // },
+      next: (data) => {
+        const members =
+          data.members?.map((u) => ({ ...u, role: 'User' } as CalendarMemberDto)) ?? [];
+        const managers =
+          data.managers?.map((u) => ({ ...u, role: 'Manager' } as CalendarMemberDto)) ?? [];
+        this.selectedUsers = [...members, ...managers];
+        this.loadingUsers.set(false);
+      },
+      error: () => {
+        this.loadingUsers.set(false);
+      },
     });
   }
 
@@ -125,7 +124,7 @@ export class EditCalendarFormComponent implements OnInit {
     if (this.calendarForm.invalid) {
       return this.formData;
     }
-
+    
     return {
       mode: this.formData.mode,
       type: this.formData.type,
@@ -163,7 +162,7 @@ export class EditCalendarFormComponent implements OnInit {
     });
   }
 
-  remove(user: PortalUser): void {
+  remove(user: CalendarMemberDto): void {
     const index = this.selectedUsers.indexOf(user);
     if (index >= 0) {
       this.selectedUsers.splice(index, 1);

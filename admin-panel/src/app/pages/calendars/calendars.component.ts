@@ -214,24 +214,12 @@ export class CalendarsComponent implements OnInit {
             return of(null);
           }
 
-          const selectedUsers = data.selectedUsers as PortalUser[];
+          const selectedUsers = data.selectedUsers as CalendarMemberDto[];
           const members: CalendarMemberDto[] = selectedUsers
-            .filter((u) => u.role.includes(UserRole.User))
-            .map((u) => ({
-              calendarId: id,
-              userId: u.userId,
-              username: u.username,
-              roles: parseUserRoles(u.role),
-            }));
+            .filter((u) => u.role === 'User');
 
           const managers: CalendarMemberDto[] = selectedUsers
-            .filter((u) => u.role.includes(UserRole.CalendarManager))
-            .map((u) => ({
-              calendarId: id,
-              userId: u.userId,
-              username: u.username,
-              roles: parseUserRoles(u.role),
-            }));
+            .filter((u) => u.role === 'Manager');
 
           const calendar: CalendarDto = {
             id,
