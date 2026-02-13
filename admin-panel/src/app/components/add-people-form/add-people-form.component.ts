@@ -37,6 +37,11 @@ export class AddPeopleFormComponent {
     private usersService: UsersService
     ,private userGroupsService: UserGroupsService
   ) {
+
+  onSelectedUsersChange(users: PortalUser[]) {
+    this.selectedUsers = users;
+  }
+
     this.usersService.getAll().subscribe((result) => {
       this.allUsers = result;
     });
@@ -109,7 +114,7 @@ export class AddPeopleFormComponent {
               userId: member.userId,
               username: member.username,
               name: member.name,
-              role: 'User',
+              role: [UserRole.User].toString(),
             });
           }
         });
