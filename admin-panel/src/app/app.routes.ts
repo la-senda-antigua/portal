@@ -14,6 +14,7 @@ import { RoleGuard } from './role.guard';
 import { UsersPageComponent } from './pages/users-page/users-page.component';
 import { CalendarsComponent } from './pages/calendars/calendars.component';
 import { UserGroupsComponent } from './pages/user-groups/user-groups.component';
+import { UserRole } from './models/PortalUser';
 
 export const routes: Routes = [
   {
@@ -29,67 +30,67 @@ export const routes: Routes = [
     path: 'services',
     component: ChurchServicesComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'MediaManager'] }
+    data: { roles: [UserRole.Admin, UserRole.MediaManager] }
   },
   {
     path: 'preachers',
     component: PreachersComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'MediaManager'] }
+    data: { roles: [UserRole.Admin, UserRole.MediaManager] }
   },
   {
     path: 'courses',
     component: BibleCoursesComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'MediaManager'] }
+    data: { roles: [UserRole.Admin, UserRole.MediaManager] }
   },
   {
     path: 'gallery',
     component: GalleryVideosComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'MediaManager'] }
+    data: { roles: [UserRole.Admin, UserRole.MediaManager] }
   },
   {
     path: 'playlists',
     component: PlaylistsViewComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'MediaManager'] }
+    data: { roles: [UserRole.Admin, UserRole.MediaManager] }
   },
   {
     path: 'stream',
     component: StreamComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'BroadcastManager'] }
+    data: { roles: [UserRole.Admin, UserRole.BroadcastManager] }
   },
   {
     path: 'broadcast',
     component: BroadcastComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'BroadcastManager'] }
+    data: { roles: [UserRole.Admin, UserRole.BroadcastManager] }
   },
   {
     path: 'media',
     component: MediaMenuComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'MediaManager'] }
+    data: { roles: [UserRole.Admin, UserRole.MediaManager] }
   },
   {
     path: 'calendars',
     component: CalendarsComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'CalendarManager'] }
+    data: { roles: [UserRole.Admin, UserRole.CalendarManager] }
   },
   {
     path: 'userGroups',
     component: UserGroupsComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin', 'CalendarManager'] }
+    data: { roles: [UserRole.Admin] }
   },
   {
     path: 'users',
     component: UsersPageComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['Admin'] }
+    data: { roles: [UserRole.Admin] }
   },
 
 ];
