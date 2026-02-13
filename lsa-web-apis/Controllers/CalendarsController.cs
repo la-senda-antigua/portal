@@ -583,12 +583,15 @@ namespace lsa_web_apis.Controllers
                 .Select(Guid.Parse)
                 .ToArray();
 
+            var reqStartTime = request.startTime.Replace("T", " ");
+            var reqEndTime = request.endTime.Replace("T", " ");
+
             var conflictingEvents = await _context.CalendarEvents
                 .Where(e =>
                     e.StartTime != null &&
                     e.EndTime != null &&
-                    string.Compare(e.StartTime, request.endTime) < 0 &&
-                    string.Compare(e.EndTime, request.startTime) > 0 &&
+                    string.Compare(e.StartTime, reqEndTime) < 0 &&
+                    string.Compare(e.EndTime, reqStartTime) > 0 &&
                     e.Assignees.Any(a => userGuids.Contains(a.UserId))
                 )
                 .Include(e => e.Calendar)
