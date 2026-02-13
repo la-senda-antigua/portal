@@ -292,28 +292,26 @@ namespace lsa_web_apis.Controllers
 
         [HttpPost("GetEventsByMonth")]
         [Authorize]
-        public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(MobileEventRequest request)
+        public async Task<ActionResult<List<dynamic>>> GetEventsByMonth(MobileEventRequest request)
         {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var monthStart = new DateTime(request.year, request.month, 1);
             var monthEnd = monthStart.AddMonths(1).AddDays(-1);
             var monthStartStr = monthStart.ToString("yyyy-MM-dd");
             var monthEndStr = monthEnd.ToString("yyyy-MM-dd") + " 23:59:59";
 
             var query = _context.CalendarEvents.AsQueryable();
-
             if (!User.IsInRole("Admin"))
             {
                 if (request.calendarIds == null || !request.calendarIds.Any())
-                    return new List<CalendarEventDto>();
+                    return new List<dynamic>();
 
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-                query = query.Where(
-                  e => (e.Calendar.Managers.Any(m => m.UserId == userId) || e.Calendar.Members.Any(m => m.UserId == userId))
-                  && request.calendarIds.Contains(e.CalendarId)
+                query = query.Where(e =>
+                    (e.Calendar.Managers.Any(m => m.UserId == userId) || e.Calendar.Members.Any(m => m.UserId == userId))
+                    && request.calendarIds.Contains(e.CalendarId)
                 );
             }
 
-            // Filter overlapping events
             query = query.Where(e =>
                 e.StartTime != null &&
                 e.StartTime.CompareTo(monthEndStr) <= 0 &&
@@ -330,6 +328,7 @@ namespace lsa_web_apis.Controllers
                     e.StartTime,
                     e.EndTime,
                     e.AllDay,
+                    CalendarName = e.Calendar.Name,
                     Assignees = e.Assignees.Select(a => new UserDto
                     {
                         UserId = a.User.Id,
@@ -339,6 +338,22 @@ namespace lsa_web_apis.Controllers
                         Role = a.User.Role
                     }).ToArray()
                 })
+                .AsNoTracking().ToListAsync();
+
+            var allUserEvents = await _context.CalendarEvents
+                .Where(e => e.Assignees.Any(a => a.UserId == userId) &&
+                            e.StartTime != null && 
+                            e.EndTime != null && 
+                            e.StartTime.CompareTo(monthEndStr) <= 0 &&
+                            e.EndTime.CompareTo(monthStartStr) >= 0)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.Title,
+                    e.StartTime,
+                    e.EndTime,
+                    CalendarName = e.Calendar.Name
+                })
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -347,20 +362,27 @@ namespace lsa_web_apis.Controllers
             foreach (var e in rawEvents)
             {
                 if (!DateTime.TryParse(e.StartTime, out var start)) continue;
+                DateTime end = string.IsNullOrEmpty(e.EndTime) || !DateTime.TryParse(e.EndTime, out var eEnd) ? start : eEnd;
 
-                DateTime end = start;
-                bool hasEnd = !string.IsNullOrEmpty(e.EndTime) && DateTime.TryParse(e.EndTime, out end);
-                if (!hasEnd) end = start;
-
-                int totalDays = (int)(end.Date - start.Date).TotalDays + 1;
+                var conflicts = allUserEvents
+                    .Where(ue => ue.Id != e.Id &&
+                                 string.Compare(ue.StartTime, e.EndTime) < 0 &&
+                                 string.Compare(ue.EndTime, e.StartTime) > 0)
+                    .Select(ue => new
+                    {
+                        ue.Id,
+                        ue.Title,
+                        ue.CalendarName,
+                        ue.StartTime,
+                        ue.EndTime
+                    })
+                    .ToList();
 
                 var intersectionStart = start.Date < monthStart.Date ? monthStart.Date : start.Date;
                 var intersectionEnd = end.Date > monthEnd.Date ? monthEnd.Date : end.Date;
 
                 for (var date = intersectionStart; date <= intersectionEnd; date = date.AddDays(1))
                 {
-                    int currentDay = (int)(date - start.Date).TotalDays + 1;
-
                     result.Add(new
                     {
                         e.Id,
@@ -370,17 +392,17 @@ namespace lsa_web_apis.Controllers
                         Start = date == start.Date ? e.StartTime : date.ToString("yyyy-MM-dd HH:mm:ss"),
                         End = e.EndTime,
                         e.AllDay,
-                        CurrentDay = currentDay,
-                        TotalDays = totalDays,
+                        Conflicts = conflicts,
                         e.Assignees,
-                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ?
-                                        e.Title : string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
+                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? e.Title :
+                                       string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
                     });
                 }
             }
 
             return Ok(result.OrderBy(e => e.Start).ToList());
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
