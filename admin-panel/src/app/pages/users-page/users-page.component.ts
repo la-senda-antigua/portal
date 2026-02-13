@@ -31,7 +31,7 @@ export class UsersPageComponent extends PageBaseComponent {
   override tableCols: TableViewColumn[] = [
     { displayName: 'Email', datasourceName: 'username' },
     { displayName: 'Name', datasourceName: 'displayName' },
-    { displayName: 'Role', datasourceName: 'role' },
+    { displayName: 'Roles', datasourceName: 'roles', isArray: true },
     {
       displayName: 'Manager of',
       datasourceName: 'calendarsAsManager',
@@ -70,7 +70,7 @@ export class UsersPageComponent extends PageBaseComponent {
             name: u.name,
             lastName: u.lastName,
             displayName: `${u.name??''} ${u.lastName??''}`,
-            role: u.role,
+            roles: u.role?.split(',') || [],
             calendarsAsManager: u.calendarsAsManager,
             calendarsAsMember: u.calendarsAsMember,
           }));
@@ -94,7 +94,7 @@ export class UsersPageComponent extends PageBaseComponent {
       username: form.data.username,
       name: form.data.name,
       lastName: form.data.lastName,
-      role: form.data.role,
+      role: form.data.roles?.join(',') || '',
       calendarsAsManager: form.data.calendarsAsManager,
       calendarsAsMember: form.data.calendarsAsMember,
     } as PortalUser;
@@ -117,7 +117,7 @@ export class UsersPageComponent extends PageBaseComponent {
             name: u.name,
             lastName: u.lastName,
             displayName: `${u.name??''} ${u.lastName??''}`,
-            role: u.role,
+            roles: u.role?.split(',') || [],
             calendarsAsManager: u.calendarsAsManager,
             calendarsAsMember: u.calendarsAsMember,
           }));

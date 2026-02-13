@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { LogoutComponent } from '../../components/logout/logout.component';
 import { AuthService } from '../../services/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
+import { UserRole } from '../../models/PortalUser';
 
 @Component({
   selector: 'app-home',
@@ -19,5 +20,6 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent {
+  userRoles = UserRole;
   constructor(public authService: AuthService) {}
 }

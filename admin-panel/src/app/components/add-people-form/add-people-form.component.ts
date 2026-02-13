@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UsersService } from '../../services/users.service';
-import { PortalUser } from '../../models/PortalUser';
+import { PortalUser, UserRole } from '../../models/PortalUser';
 import { UserGroupsService } from '../../services/userGroups.service';
 import { UserGroup } from '../../models/UserGroup';
 import { map, Observable, startWith } from 'rxjs';
@@ -140,7 +140,7 @@ export class AddPeopleFormComponent {
               userId: member.userId,
               username: member.username,
               name: member.name,
-              role: 'User',
+              role: [UserRole.User].toString(),
             });
           }
         });
@@ -160,7 +160,7 @@ export class AddPeopleFormComponent {
 
   save() {
     this.selectedUsers.forEach((element) => {
-      element.role = 'User';
+      element.role = [UserRole.User].toString();
     });
     this.dialogRef.close(this.selectedUsers);
   }
