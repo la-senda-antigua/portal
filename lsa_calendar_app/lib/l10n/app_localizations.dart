@@ -247,6 +247,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Day {current} of {total}'**
   String dayXofY(Object current, Object total);
+
+  /// No description provided for @singleUserConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'{userName} has conflicts with other calendar(s): {calendars}'**
+  String singleUserConflict(Object calendars, Object userName);
+
+  /// No description provided for @multipleUsersConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The following users have conflicts with other calendars: {userNames}'**
+  String multipleUsersConflict(Object userNames);
 }
 
 class _AppLocalizationsDelegate

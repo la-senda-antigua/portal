@@ -1,5 +1,7 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/core/calendar_colors.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
@@ -28,6 +30,42 @@ class EventCard extends StatefulWidget {
 
 class _EventCardState extends State<EventCard> {
   bool _isExpanded = false;
+
+  void _showConflictToast() {
+    final conflicts = widget.event.conflicts;
+    debugPrint('Event has ${conflicts.length} conflict(s)');
+    
+
+    if (conflicts.isEmpty) return;
+
+    final Map<String, Set<String>> conflictsByUser = {};
+    for (var c in conflicts) {
+      String displayName = c.username;
+      if (c.name.isNotEmpty || c.lastName.isNotEmpty) {
+        displayName = '${c.name} ${c.lastName}'.trim();
+      }
+      
+      conflictsByUser.putIfAbsent(displayName, () => <String>{});
+      if (c.calendarName.isNotEmpty) {
+        conflictsByUser[displayName]!.add(c.calendarName);
+      }
+    }
+
+    String message;
+
+    if (conflictsByUser.length == 1) {
+      final userName = conflictsByUser.keys.first;
+      final calendars = conflictsByUser.values.first.join(', ');
+      message = AppLocalizations.of(context)!.singleUserConflict(userName, calendars);
+    } else {
+      final userNames = conflictsByUser.keys.join(', ');
+      message = AppLocalizations.of(context)!.multipleUsersConflict(userNames);
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 5)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +96,14 @@ class _EventCardState extends State<EventCard> {
       color: color,
       elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
+      child: Stack(
+        children: [
+          Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
             title: Text(
-              widget.event.title,
+              widget.event.displayTitle ?? widget.event.title,
               style: AppTextStyles.title.copyWith(color: textColor),
             ),
             subtitle: Text.rich(
@@ -121,6 +161,45 @@ class _EventCardState extends State<EventCard> {
                   : CrossFadeState.showFirst,
               duration: const Duration(milliseconds: 300),
               alignment: Alignment.topCenter,
+            ),
+        ],
+      ),
+          if (widget.event.conflicts.isNotEmpty)
+            Positioned(
+              bottom: 4,
+              right: 4,
+              child: GestureDetector(
+                onTap: _showConflictToast,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  color: Colors.transparent,
+                  child: Stack(
+                    children: [
+                      Text(
+                        String.fromCharCode(Icons.warning.codePoint),
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontFamily: Icons.warning.fontFamily,
+                          package: Icons.warning.fontPackage,
+                          foreground: ui.Paint()
+                            ..style = ui.PaintingStyle.stroke
+                            ..strokeWidth = 4
+                            ..color = AppColors.dark,
+                        ),
+                      ),
+                      Text(
+                        String.fromCharCode(Icons.warning.codePoint),
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontFamily: Icons.warning.fontFamily,
+                          package: Icons.warning.fontPackage,
+                          color: AppColors.warning,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
         ],
       ),
