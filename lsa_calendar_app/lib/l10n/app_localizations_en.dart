@@ -94,7 +94,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String singleUserConflict(Object calendars, Object userName) {
-    return '$userName has conflicts with other calendar(s): $calendars';
+    return '$userName has conflicts with other calendars: $calendars';
   }
 
   @override

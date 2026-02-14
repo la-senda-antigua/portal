@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @singleUserConflict.
   ///
   /// In en, this message translates to:
-  /// **'{userName} has conflicts with other calendar(s): {calendars}'**
+  /// **'{userName} has conflicts with other calendars: {calendars}'**
   String singleUserConflict(Object calendars, Object userName);
 
   /// No description provided for @multipleUsersConflict.
