@@ -80,16 +80,9 @@ class EventsList extends StatelessWidget {
         
         String? dateLabel;
         if (showDate) {
-          final isFirst = index == 0;
-          final isNewDay = isFirst || 
-              displayEvents[index - 1].start.day != event.start.day || 
-              displayEvents[index - 1].start.month != event.start.month;
-
-          if (isNewDay) {
-            final locale = Localizations.localeOf(context).languageCode;
-            final dateStr = DateFormat('EEEE d', locale).format(event.start);
-            dateLabel = '${dateStr[0].toUpperCase()}${dateStr.substring(1)}';
-          }
+          final locale = Localizations.localeOf(context).languageCode;
+          final dateStr = DateFormat('EEEE d', locale).format(event.start);
+          dateLabel = '${dateStr[0].toUpperCase()}${dateStr.substring(1)}';
         }
 
         return EventCard(
