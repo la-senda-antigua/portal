@@ -352,7 +352,7 @@ export class CalendarsComponent implements OnInit {
       endDate: result.end
         ? result.end.substring(0, 10)
         : result.start.substring(0, 10),
-      title: `Copy of ${result.title}`,
+      title: `${result.title}`,
       start: result.start
         ? result.start.split('T')[1]?.substring(0, 5) || ''
         : '',
