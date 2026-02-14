@@ -37,9 +37,8 @@ class Event {
       totalDays: json['totalDays'] ?? 0,
       currentDay: json['currentDay'] ?? 0,
       conflicts: json['conflicts'] != null
-          ? (json['conflicts'] as List)
-              .map((i) => EventConflict.fromJson(i))
-              .toList()
+          ? List<EventConflict>.from((json['conflicts'] as List)
+              .map((i) => EventConflict.fromJson(i)))
           : [],
     );
   }
@@ -61,4 +60,3 @@ class Event {
     return originalStart.add(Duration(days: totalDays - 1));
   }
 }
-
