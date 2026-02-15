@@ -1,5 +1,8 @@
+import 'package:lsa_calendar_app/models/eventConflict.dart';
+
 class Event {
   final String title;
+  final String? displayTitle;
   final String? description;
   final DateTime start;
   final DateTime end;
@@ -7,9 +10,11 @@ class Event {
   final String calendarId;
   final int totalDays;
   final int currentDay;
+  final List<EventConflict> conflicts;
 
   Event({
     required this.title,
+    this.displayTitle,
     this.description,
     required this.start,
     required this.end,
@@ -17,11 +22,13 @@ class Event {
     required this.calendarId,
     this.totalDays = 0,
     this.currentDay = 0,
+    this.conflicts = const [],
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
       title: json['title'] ?? '- -',
+      displayTitle: json['displayTitle'],
       description: json['description'],
       start: DateTime.parse(json['start']),
       end: json['end'] != null ? DateTime.parse(json['end']) : DateTime.parse(json['start']),
@@ -29,6 +36,10 @@ class Event {
       calendarId: json['calendarId'].toString(),
       totalDays: json['totalDays'] ?? 0,
       currentDay: json['currentDay'] ?? 0,
+      conflicts: json['conflicts'] != null
+          ? List<EventConflict>.from((json['conflicts'] as List)
+              .map((i) => EventConflict.fromJson(i)))
+          : [],
     );
   }
 
