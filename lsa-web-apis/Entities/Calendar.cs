@@ -23,7 +23,9 @@ namespace lsa_web_apis.Entities
         public Calendar Calendar { get; set; } = null!;
         public string? StartTime { get; set; }
         public string? EndTime { get; set; }
-        public bool AllDay { get; set; } = false;        
+        public bool AllDay { get; set; } = false;
+
+        public ICollection<CalendarEventAssignee> Assignees { get; set; } = new List<CalendarEventAssignee>();
     }
 
     public class CalendarManager

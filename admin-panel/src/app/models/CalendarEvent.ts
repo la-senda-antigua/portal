@@ -7,4 +7,5 @@ export interface CalendarEvent {
   end?: string | null;
   backgroundColor?: string;
   calendarId: string;
+  displayTitle?: string;
 }
