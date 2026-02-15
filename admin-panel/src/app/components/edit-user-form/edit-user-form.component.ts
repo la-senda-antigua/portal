@@ -147,21 +147,8 @@ export class EditUserFormComponent {
 
   ngOnInit() {
     this.userForm.controls.roles.valueChanges.subscribe((selectedRoles) => {
-      if (selectedRoles?.includes(UserRole.Admin)) {
-        this.userForm.controls.roles.setValue([UserRole.Admin], {
-          emitEvent: false,
-        });
-        this.isAdmin.set(true);
-      } else {
-        this.isAdmin.set(false);
-        if (!selectedRoles?.includes(UserRole.User)) {
-          selectedRoles?.push(UserRole.User);
-          this.userForm.controls.roles.setValue(selectedRoles, {
-            emitEvent: false,
-          });
-        }
-      }
-      if(selectedRoles?.includes(UserRole.CalendarManager)) {
+      this.handleIsAdminChange(selectedRoles || []);
+      if (selectedRoles?.includes(UserRole.CalendarManager)) {
         this.userForm.controls.calendarsAsManager.enable();
       } else {
         this.userForm.controls.calendarsAsManager.disable();
@@ -171,14 +158,11 @@ export class EditUserFormComponent {
     this.userForm.controls.roles.setValue(
       this.formData().data.roles ?? [UserRole.User],
     );
-    this.userForm.controls.calendarsAsManager.valueChanges.subscribe((selectedManagerCalendars) => {
-      this.selectedManagerCalendars.set(selectedManagerCalendars || []);
-      const selectedCalendarsAsMember = this.userForm.controls.calendarsAsMember.value || [];
-      const updatedManagerCalendars = selectedManagerCalendars?.filter(managerCalendar => 
-        !selectedCalendarsAsMember.some(memberCalendar => memberCalendar.id === managerCalendar.id)
-      );
-      this.selectedManagerCalendars.set(updatedManagerCalendars ?? []);
-    });
+    this.userForm.controls.calendarsAsManager.valueChanges.subscribe(
+      (selectedManagerCalendars) => {
+        this.selectedManagerCalendars.set(selectedManagerCalendars || []);
+      },
+    );
   }
 
   private findCalendarsByIds(
@@ -200,6 +184,37 @@ export class EditUserFormComponent {
 
   close() {
     this.dialogRef.close();
+  }
+
+  /**
+   * If Admin is selected:
+    - set roles to only Admin
+    - disable calendars dropdown (manager of, is disabled when role is not CalendarManager)
+    - remove all calendars from both manager and member lists
+    If Admin is not selected:
+    - if User role is not selected, select it (all user types have User role except Admin)
+    - enable calendars dropdown
+   * @param selectedRoles the roles selcted in the dropdown
+   */
+  private handleIsAdminChange(selectedRoles: UserRole[]) {
+    if (selectedRoles?.includes(UserRole.Admin)) {
+      this.userForm.controls.roles.setValue([UserRole.Admin], {
+        emitEvent: false,
+      });
+      this.isAdmin.set(true);
+      this.userForm.controls.calendarsAsMember.disable();
+      this.userForm.controls.calendarsAsMember.setValue([]);
+      this.userForm.controls.calendarsAsManager.setValue([]);
+    } else {
+      this.isAdmin.set(false);
+      if (!selectedRoles?.includes(UserRole.User)) {
+        selectedRoles?.push(UserRole.User);
+        this.userForm.controls.roles.setValue(selectedRoles, {
+          emitEvent: false,
+        });
+      }
+      this.userForm.controls.calendarsAsMember.enable();
+    }
   }
 
   private toUserFormData(): UserFormData {
