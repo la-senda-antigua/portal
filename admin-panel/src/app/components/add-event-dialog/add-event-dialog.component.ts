@@ -149,6 +149,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.checkAssigneesAvailability();
     const startTimeControl = this.eventForm.get('startTime');
     const endTimeControl = this.eventForm.get('endTime');
 
