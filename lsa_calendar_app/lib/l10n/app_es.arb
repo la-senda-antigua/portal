@@ -12,6 +12,7 @@
   "welcomeMessage": "Bienvenido {name}!",
   "connectionError": "Error de conexión. Por favor intente de nuevo.",
   "serverConnectionError": "No se pudo conectar al servidor. Intente refrescar.",
+  "noPermission": "Usuario no registrado, por favor contacte al administrador.",
   "fetchEventsError": "Error al obtener eventos",
   "guestUser": "Invitado",
   "myCalendars": "Mis Calendarios",

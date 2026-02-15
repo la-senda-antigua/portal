@@ -46,8 +46,8 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     [HttpPost("refresh-tokens")]
-    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens(RefreshTokenRequestDto request)
-    {
+    public async Task<ActionResult<TokenResponseDto?>> RefreshTokens([FromBody] RefreshTokenRequestDto request)
+    {        
         var response = await authService.RefreshTokensAsync(request);
         if (response is null)
             return Unauthorized("Invalid refresh token.");
@@ -93,10 +93,10 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("google-mobile")]
     public async Task<IActionResult> GoogleMobileLogin([FromBody] GoogleMobileLoginRequest request)
     {
+        GoogleUserInfo? googleUser = null;
+
         try
         {
-            GoogleUserInfo? googleUser = null;
-
             if (!string.IsNullOrEmpty(request.IdToken))
             {
                 googleUser = await authService.VerifyGoogleToken(request.IdToken);
@@ -106,50 +106,49 @@ public class AuthController(IAuthService authService) : ControllerBase
                 googleUser = await authService.VerifyGoogleAccessToken(request.AccessToken);
             }
 
+            // Google login failed
             if (googleUser == null || string.IsNullOrEmpty(googleUser.Email))
-                return Unauthorized("Invalid token");
-
+            {
+                return Unauthorized("Invalid Google token.");
+            }
+            
             var tokenResponse = await authService.LoginWithGoogleAsync(googleUser.Email);
+
             return Ok(new
             {
                 Token = tokenResponse,
-                User = new { googleUser.Name, googleUser.Email, Avatar = googleUser.Picture }
+                User = new
+                {
+                    googleUser.Name,
+                    googleUser.Email,
+                    Avatar = googleUser.Picture
+                }
             });
         }
         catch (InvalidOperationException ex) when (ex.Message == "User not found.")
-        {
-            return Unauthorized("User not registered.");
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error: {ex.Message}");
+        {            
+            return Forbid();
         }
     }
 
     [HttpPost("apple-login")]
-    public async Task<ActionResult<TokenResponseDto>> AppleLogin([FromBody] AppleLoginRequest request)
+    public async Task<IActionResult> AppleLogin([FromBody] AppleLoginRequest request)
     {
         try
         {
-            var response = await authService.LoginWithAppleAsync(request);
-            if (response is null)
+            var response = await authService.LoginWithAppleAsync(request);            
+            if (response == null)
             {
-                return BadRequest("Apple authentication failed.");
+                return Unauthorized("Invalid Apple credentials.");
             }
-
+            
             return Ok(response);
         }
-        catch (InvalidOperationException ex)
-        {
-            if (ex.Message == "User not found.")
-            {
-                return Unauthorized("User not registered.");
-            }
-
-            return StatusCode(500, $"Error: {ex.Message}");
+        catch (InvalidOperationException ex) when (ex.Message == "User not found.")
+        {            
+            return Forbid();
         }
     }
-
 
     [Authorize]
     [HttpPost("logout")]

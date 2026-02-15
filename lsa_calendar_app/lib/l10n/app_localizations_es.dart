@@ -52,6 +52,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se pudo conectar al servidor. Intente refrescar.';
 
   @override
+  String get noPermission =>
+      'Usuario no registrado, por favor contacte al administrador.';
+
+  @override
   String get fetchEventsError => 'Error al obtener eventos';
 
   @override

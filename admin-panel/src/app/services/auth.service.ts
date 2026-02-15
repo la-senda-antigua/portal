@@ -3,6 +3,7 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestManagerService } from './request-manager.service';
 import { Router } from '@angular/router';
+import { parseUserRoles, UserRole } from '../models/PortalUser';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,9 +28,19 @@ export class AuthService {
       );
   }
 
-  hasRole(...roles: string[]): boolean {
-    const userRoles = JSON.parse(localStorage.getItem('user-roles') || '[]') as string[];
-    return roles.some(r => userRoles.includes(r));
+  hasRole(role: UserRole): boolean {
+    let userRoles = [] as UserRole[];
+    try {
+      const userRolesString = localStorage.getItem('user-roles');
+      if (userRolesString) {
+        const jsonString = JSON.parse(userRolesString)[0];
+        userRoles = parseUserRoles(jsonString);
+      }
+    } catch (error) {
+      console.error('Error parsing user roles:', error);
+    }
+    
+    return userRoles.includes(role);
   }
 
   startGoogleLoginRedirect() {

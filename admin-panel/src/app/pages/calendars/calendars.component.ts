@@ -29,7 +29,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { EventInput } from '@fullcalendar/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { PortalUser } from '../../models/PortalUser';
+import { parseUserRoles, PortalUser, UserRole } from '../../models/PortalUser';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -214,24 +214,12 @@ export class CalendarsComponent implements OnInit {
             return of(null);
           }
 
-          const selectedUsers = data.selectedUsers as PortalUser[];
+          const selectedUsers = data.selectedUsers as CalendarMemberDto[];
           const members: CalendarMemberDto[] = selectedUsers
-            .filter((u) => u.role === 'User')
-            .map((u) => ({
-              calendarId: id,
-              userId: u.userId,
-              username: u.username,
-              role: u.role,
-            }));
+            .filter((u) => u.role === 'User');
 
           const managers: CalendarMemberDto[] = selectedUsers
-            .filter((u) => u.role === 'Manager')
-            .map((u) => ({
-              calendarId: id,
-              userId: u.userId,
-              username: u.username,
-              role: u.role,
-            }));
+            .filter((u) => u.role === 'Manager');
 
           const calendar: CalendarDto = {
             id,

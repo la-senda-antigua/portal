@@ -51,6 +51,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not connect to server. Try refreshing.';
 
   @override
+  String get noPermission =>
+      'User not registered, please contact your administrator.';
+
+  @override
   String get fetchEventsError => 'Error fetching events';
 
   @override

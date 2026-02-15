@@ -51,19 +51,15 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   Future<void> fetchEvents({bool snapToFirst = false}) async {
-    debugPrint('--- fetchEvents called. Month: ${currentDate.month}, Year: ${currentDate.year}, snapToFirst: $snapToFirst');
     setState(() => isLoadingEvents = true);
-
     try {
       final body = {
         'month': currentDate.month,
         'year': currentDate.year,
         'calendarIds': calendars.map((c) => c.id.toString()).toList(),
       };
-      debugPrint('--- Sending body: $body');
 
-      final response = await ApiService.post('/calendars/GetEventsByMonth',body: body);
-      debugPrint('--- API Response items: ${(response as List).length}');
+      final response = await ApiService.post('/calendars/GetEventsByMonth',body: body);     
 
       setState(() {
         events = [];
@@ -75,17 +71,15 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
             debugPrint('### REASON: $e');
           }
         }
-        debugPrint('### Fetched ${events.length} events for ${currentDate.month}/${currentDate.year}');
+
         if (snapToFirst) {
           final uniqueDates = events
               .map((e) => "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}")
               .toSet()
               .toList()
             ..sort();
-          debugPrint('--- Unique dates: $uniqueDates');
           final currentStr = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
-          if (uniqueDates.isNotEmpty && !uniqueDates.contains(currentStr)) {
-            debugPrint('--- Snapping to first date: ${uniqueDates.first}');
+          if (uniqueDates.isNotEmpty && !uniqueDates.contains(currentStr)) {            
             currentDate = DateTime.parse(uniqueDates.first);
           }
         }

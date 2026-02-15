@@ -6,7 +6,7 @@ export interface CalendarMemberDto {
   lastName?: string;
   calendarId: string;
   username?: string;
-  role?: string;
+  role?: 'Manager' | 'User';
 }
 
 export interface CalendarMemberConflict{
