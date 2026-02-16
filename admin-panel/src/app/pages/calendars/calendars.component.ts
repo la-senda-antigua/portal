@@ -29,7 +29,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { EventInput } from '@fullcalendar/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { parseUserRoles, PortalUser, UserRole } from '../../models/PortalUser';
+import { PortalUser, UserRole } from '../../models/PortalUser';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -275,8 +275,11 @@ export class CalendarsComponent implements OnInit {
   }
 
   openAddEventDialog(eventData?: any): void {
-    const assignees: PortalUser[] = this.allEvents.find(e=> e.id === eventData.id)?.assignees || [];
-    eventData.assignees = assignees;
+    let assignees: PortalUser[] = [];
+    if (eventData?.id){
+      assignees = this.allEvents.find(e=> e.id === eventData.id)?.assignees || [];
+      eventData.assignees = assignees;
+    }
 
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
       width: '400px',
@@ -346,6 +349,7 @@ export class CalendarsComponent implements OnInit {
   private prepareCopyData(result: any): any {
     return {
       allDay: result.allDay,
+      assignees: result.assignees,
       calendarId: result.calendarId,
       date: result.start.substring(0, 10),
       description: result.description,
