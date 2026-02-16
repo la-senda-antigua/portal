@@ -39,7 +39,7 @@ export class UsersPageComponent extends PageBaseComponent {
       isArray: true,
     },
     {
-      displayName: 'Member of',
+      displayName: 'Calendars',
       datasourceName: 'calendarsAsMember',
       displayProperty: 'name',
       isArray: true,

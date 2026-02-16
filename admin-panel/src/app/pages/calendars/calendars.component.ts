@@ -29,7 +29,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { EventInput } from '@fullcalendar/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { parseUserRoles, PortalUser, UserRole } from '../../models/PortalUser';
+import { PortalUser, UserRole } from '../../models/PortalUser';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
 import { MatProgressBar } from '@angular/material/progress-bar';
