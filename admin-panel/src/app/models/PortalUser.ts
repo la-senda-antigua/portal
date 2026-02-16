@@ -15,7 +15,3 @@ export enum UserRole {
   BroadcastManager = 'BroadcastManager',
   User = 'User',
 }
-
-export function parseUserRoles(roleString: string): UserRole[] {
-  return roleString.split(',').map(role => role.trim() as UserRole);
-}
