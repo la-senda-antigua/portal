@@ -282,7 +282,7 @@ export class CalendarsComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
-      width: '400px',
+      width: '500px',
       maxHeight: '95vh',
       data: { calendars: this.myCalendars, event: eventData },
     });
