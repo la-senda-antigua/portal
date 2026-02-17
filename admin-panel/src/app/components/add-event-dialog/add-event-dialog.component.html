@@ -20,6 +20,7 @@
      [initialSelectedUsers]="assignees"
      [hint]="'Assignees are used for checking availability from other calendars.'"
      (selectedUsersChange)="onAssigneesChange($event)"
+     [disabled]="!eventForm.controls['calendarId'].value"
      ></app-user-selector>
      @if (isCheckingAvailability()){
        <mat-progress-bar mode="indeterminate" class="mb-2"></mat-progress-bar>
@@ -46,6 +47,7 @@
       (endDateChange)="eventForm.controls['endTime'].setValue($event); checkAssigneesAvailability()"
       (allDayChange)="eventForm.controls['allDay'].setValue($event)"
       (isValid)="onDateTimePickerValidityChange($event)"
+      [disabled]="!eventForm.controls['calendarId'].value"
     ></app-date-time-picker>
   </mat-dialog-content>
 

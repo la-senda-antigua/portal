@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
@@ -26,11 +26,12 @@ import { getDisplayName, getInitial, getUserColor } from '../../../utils/user.ut
   templateUrl: './user-selector.component.html',
   styleUrls: ['./user-selector.component.scss']
 })
-export class UserSelectorComponent implements OnInit {
+export class UserSelectorComponent implements OnInit, OnChanges {
   @Input() existingUsers: PortalUser[] = [];
   @Input() initialSelectedUsers: PortalUser[] = [];
   @Input() label: string = 'Add Users';
   @Input() hint: string = '';
+  @Input() disabled: boolean = false;
   @Output() selectedUsersChange = new EventEmitter<PortalUser[]>();
 
   selectedUsers: PortalUser[] = [];
@@ -56,6 +57,10 @@ export class UserSelectorComponent implements OnInit {
   ngOnInit(): void {
     this.selectedUsers = [...this.initialSelectedUsers];
 
+    if (this.disabled) {
+      this.userCtrl.disable();
+    }
+
     this.usersService.getAll().subscribe((result) => {
       this.allUsers = result;
       this.userCtrl.setValue(this.userCtrl.value);
@@ -65,6 +70,17 @@ export class UserSelectorComponent implements OnInit {
       this.allGroups = result;
       this.userCtrl.setValue(this.userCtrl.value);
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['disabled'] && this.userCtrl) {
+      const isDisabled = changes['disabled'].currentValue;
+      if (isDisabled) {
+        this.userCtrl.disable();
+      } else {
+        this.userCtrl.enable();
+      }
+    }
   }
 
   private _filter(value: string | PortalUser | UserGroup): (PortalUser | UserGroup)[] {
@@ -100,6 +116,9 @@ export class UserSelectorComponent implements OnInit {
   }
 
   remove(user: PortalUser): void {
+    if (this.disabled) {
+      return;
+    }
     const index = this.selectedUsers.indexOf(user);
     if (index >= 0) {
       this.selectedUsers.splice(index, 1);

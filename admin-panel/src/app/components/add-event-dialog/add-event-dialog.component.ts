@@ -58,6 +58,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   isCheckingAvailability = signal(false);
   isDateTimePickerValid: boolean = true;
   private timeSubscription?: Subscription;
+  private calendarSubscription?: Subscription;
 
   assigneesConflicts = signal<CalendarMemberConflict[]>([]);
   assignees: PortalUser[] = [];
@@ -150,6 +151,18 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkAssigneesAvailability();
+
+    const calendarControl = this.eventForm.get('calendarId');
+    if (calendarControl) {
+      this.calendarSubscription = calendarControl.valueChanges
+        .pipe(startWith(calendarControl.value))
+        .subscribe((value) => {
+          const status = value ? 'enable' : 'disable';
+          this.eventForm.get('title')?.[status]();
+          this.eventForm.get('description')?.[status]();
+        });
+    }
+
     const startTimeControl = this.eventForm.get('startTime');
     const endTimeControl = this.eventForm.get('endTime');
 
@@ -177,6 +190,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.timeSubscription?.unsubscribe();
+    this.calendarSubscription?.unsubscribe();
   }
 
   onAssigneesChange(users: PortalUser[]) {
