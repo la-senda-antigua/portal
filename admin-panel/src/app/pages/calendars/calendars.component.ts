@@ -130,6 +130,8 @@ export class CalendarsComponent implements OnInit {
               id: c.id,
               name: c.name,
               color: this.service.getCalendarColor(c.id!),
+              members: c.members,
+              managers: c.managers,
             }) as CalendarDto,
         );
       }),
@@ -282,7 +284,7 @@ export class CalendarsComponent implements OnInit {
     }
 
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
-      width: '400px',
+      width: '500px',
       maxHeight: '95vh',
       data: { calendars: this.myCalendars, event: eventData },
     });

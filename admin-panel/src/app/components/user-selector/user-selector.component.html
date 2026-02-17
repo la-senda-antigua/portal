@@ -5,6 +5,7 @@
     matInput
     [formControl]="userCtrl"
     [matAutocomplete]="auto"
+    (blur)="onInputBlur()"
   />
   <mat-hint *ngIf="hint">{{hint}}</mat-hint>
 
