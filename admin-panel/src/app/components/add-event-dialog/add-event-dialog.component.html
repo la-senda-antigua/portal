@@ -21,6 +21,7 @@
      [hint]="'Assignees are used for checking availability from other calendars.'"
      (selectedUsersChange)="onAssigneesChange($event)"
      [disabled]="!eventForm.controls['calendarId'].value"
+     [allowedUserIds]="allowedUserIds"
      ></app-user-selector>
      @if (isCheckingAvailability()){
        <mat-progress-bar mode="indeterminate" class="mb-2"></mat-progress-bar>

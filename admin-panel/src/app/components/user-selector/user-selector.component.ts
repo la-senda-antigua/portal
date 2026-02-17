@@ -32,6 +32,7 @@ export class UserSelectorComponent implements OnInit, OnChanges {
   @Input() label: string = 'Add Users';
   @Input() hint: string = '';
   @Input() disabled: boolean = false;
+  @Input() allowedUserIds?: string[];
   @Output() selectedUsersChange = new EventEmitter<PortalUser[]>();
 
   selectedUsers: PortalUser[] = [];
@@ -39,6 +40,8 @@ export class UserSelectorComponent implements OnInit, OnChanges {
   filteredUsers: Observable<(PortalUser | UserGroup)[]>;
   allUsers: PortalUser[] = [];
   allGroups: UserGroup[] = [];
+  private rawUsers: PortalUser[] = [];
+  private rawGroups: UserGroup[] = [];
 
   protected readonly getUserColor = getUserColor;
   protected readonly getInitial = getInitial;
@@ -62,13 +65,13 @@ export class UserSelectorComponent implements OnInit, OnChanges {
     }
 
     this.usersService.getAll().subscribe((result) => {
-      this.allUsers = result;
-      this.userCtrl.setValue(this.userCtrl.value);
+      this.rawUsers = result;
+      this.filterAvailableData();
     });
 
     this.userGroupsService.getAll().subscribe((result) => {
-      this.allGroups = result;
-      this.userCtrl.setValue(this.userCtrl.value);
+      this.rawGroups = result;
+      this.filterAvailableData();
     });
   }
 
@@ -81,6 +84,28 @@ export class UserSelectorComponent implements OnInit, OnChanges {
         this.userCtrl.enable();
       }
     }
+    if (changes['allowedUserIds']) {
+      this.filterAvailableData();
+    }
+  }
+
+  private filterAvailableData() {
+    if (this.allowedUserIds && this.allowedUserIds.length > 0) {
+      this.allUsers = this.rawUsers.filter((u) =>
+        this.allowedUserIds!.includes(u.userId)
+      );
+      this.allGroups = this.rawGroups.filter((g) =>g.members && g.members.every((m) => this.allowedUserIds!.includes(m.userId)));
+
+      const validSelectedUsers = this.selectedUsers.filter((u) =>this.allowedUserIds!.includes(u.userId));
+      if (validSelectedUsers.length !== this.selectedUsers.length) {
+        this.selectedUsers = validSelectedUsers;
+        setTimeout(() => {this.selectedUsersChange.emit(this.selectedUsers);});
+      }
+    } else {
+      this.allUsers = [...this.rawUsers];
+      this.allGroups = [...this.rawGroups];
+    }
+    this.userCtrl.setValue(this.userCtrl.value);
   }
 
   private _filter(value: string | PortalUser | UserGroup): (PortalUser | UserGroup)[] {
@@ -100,8 +125,12 @@ export class UserSelectorComponent implements OnInit, OnChanges {
 
     const users = this.allUsers.filter(
       (user) =>
-        user.username.toLowerCase().includes(filterValue) &&
-        !existingUserIds.includes(user.userId)
+        (
+          user.username.toLowerCase().includes(filterValue)
+          || user.name?.toLowerCase().includes(filterValue)
+          || user.lastName?.toLowerCase().includes(filterValue)
+        )
+        && !existingUserIds.includes(user.userId)
     );
 
     const groups = this.allGroups.filter((group) =>
@@ -124,6 +153,14 @@ export class UserSelectorComponent implements OnInit, OnChanges {
       this.selectedUsers.splice(index, 1);
       this.selectedUsersChange.emit(this.selectedUsers);
     }
+  }
+
+  onInputBlur(): void {
+    setTimeout(() => {
+      if (this.userCtrl.value) {
+        this.userCtrl.setValue('');
+      }
+    }, 200);
   }
 
   selected(event: MatAutocompleteSelectedEvent): void {

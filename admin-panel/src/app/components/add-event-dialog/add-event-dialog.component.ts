@@ -62,6 +62,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   assigneesConflicts = signal<CalendarMemberConflict[]>([]);
   assignees: PortalUser[] = [];
+  allowedUserIds: any[] = [];
   conflictsMessage = computed(() => {
     const conflicts = this.assigneesConflicts();
     if (conflicts.length === 0) return '';
@@ -160,6 +161,17 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
           const status = value ? 'enable' : 'disable';
           this.eventForm.get('title')?.[status]();
           this.eventForm.get('description')?.[status]();
+
+          if (value) {
+            const calendar = this.calendars.find((c) => c.id === value);
+            if (calendar) {
+              const members = calendar.members || [];
+              const managers = calendar.managers || [];
+              this.allowedUserIds = [...members, ...managers].map((m: any) => m.userId);
+            }
+          } else {
+            this.allowedUserIds = [];
+          }
         });
     }
 

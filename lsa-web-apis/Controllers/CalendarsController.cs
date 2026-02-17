@@ -209,6 +209,20 @@ namespace lsa_web_apis.Controllers
                     Id = c.Id,
                     Name = c.Name!,
                     Active = c.Active,
+                    Managers = c.Managers.Select(m => new CalendarManagerDto
+                    {
+                        UserId = m.UserId,
+                        Username = m.User.Username,
+                        Name = m.User.Name,
+                        LastName = m.User.LastName                        
+                    }).ToList(),
+                    Members = c.Members.Select(m => new CalendarMemberDto
+                    {
+                        UserId = m.UserId,
+                        Username = m.User.Username,
+                        Name = m.User.Name,
+                        LastName = m.User.LastName                        
+                    }).ToList()
                 }).ToListAsync();
 
             return Ok(paged);

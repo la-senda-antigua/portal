@@ -130,6 +130,8 @@ export class CalendarsComponent implements OnInit {
               id: c.id,
               name: c.name,
               color: this.service.getCalendarColor(c.id!),
+              members: c.members,
+              managers: c.managers,
             }) as CalendarDto,
         );
       }),
