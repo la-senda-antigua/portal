@@ -11,5 +11,12 @@ export interface CalendarMemberDto {
 
 export interface CalendarMemberConflict{
   user: CalendarMemberDto;
-  conflicts: CalendarDto[]
+  conflicts: CalendarConflicts[]
 }
+
+export interface CalendarConflicts{
+  id?: string;
+  name: string;
+  eventId?: string;
+}
+
