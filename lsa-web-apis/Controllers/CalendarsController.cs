@@ -672,7 +672,8 @@ namespace lsa_web_apis.Controllers
                 .SelectMany(e => e.Assignees.Select(a => new
                 {
                     a.User,
-                    e.Calendar
+                    e.Calendar,
+                    EventId = e.Id,
                 }))
                 .GroupBy(x => x.User.Id)
                 .Select(g => new
@@ -685,10 +686,11 @@ namespace lsa_web_apis.Controllers
                         LastName = g.First().User.LastName
                     },
                     conflicts = g
-                        .Select(x => new CalendarDto
+                        .Select(x => new 
                         {
-                            Id = x.Calendar.Id,
-                            Name = x.Calendar.Name
+                            x.Calendar.Id,
+                            x.Calendar.Name,
+                            x.EventId,
                         })
                         .DistinctBy(c => c.Id)
                         .ToList()
