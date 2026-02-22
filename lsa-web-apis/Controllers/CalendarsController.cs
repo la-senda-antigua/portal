@@ -669,18 +669,20 @@ namespace lsa_web_apis.Controllers
                 .ToListAsync();
 
             var result = conflictingEvents
-                .SelectMany(e => e.Assignees.Select(a => new
-                {
-                    a.User,
-                    e.Calendar,
-                    EventId = e.Id,
-                }))
+                .SelectMany(e => e.Assignees
+                    .Where(a => userGuids.Contains(a.UserId))
+                    .Select(a => new
+                    {
+                        a.User,
+                        e.Calendar,
+                        EventId = e.Id,
+                    }))
                 .GroupBy(x => x.User.Id)
                 .Select(g => new
                 {
                     user = new CalendarMemberDto
                     {
-                        UserId = g.First().User.Id,
+                        UserId = g.Key,
                         Username = g.First().User.Username,
                         Name = g.First().User.Name,
                         LastName = g.First().User.LastName
