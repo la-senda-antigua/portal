@@ -28,7 +28,7 @@
      }
 
 
-    @if(assignees.length > 0 && userSelectionChanged()){
+    @if(assignees.length > 0 || userSelectionChanged()){
       <p class="warning-conflicts-text mb-2" >Only members of this calendar are displayed</p>
     }
 

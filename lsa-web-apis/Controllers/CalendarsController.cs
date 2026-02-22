@@ -264,12 +264,12 @@ namespace lsa_web_apis.Controllers
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetEventsByMonth(int month, int year)
         {
             var yearMonth = $"{year:D4}-{month:D2}";
-
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var result = await _context.CalendarEvents
                 .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth)
                 .Where(e => User.IsInRole("Admin") ||
                     e.Calendar.Managers.Any(m =>
-                        m.UserId == Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value)))
+                        m.UserId == userId))
                 .Select(e => new CalendarEventDto
                 {
                     Id = e.Id,
