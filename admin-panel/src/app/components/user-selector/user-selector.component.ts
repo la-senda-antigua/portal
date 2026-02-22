@@ -41,7 +41,6 @@ export class UserSelectorComponent implements OnInit, OnChanges {
   allUsers: PortalUser[] = [];
   allGroups: UserGroup[] = [];
   private rawUsers: PortalUser[] = [];
-  private rawGroups: UserGroup[] = [];
 
   protected readonly getUserColor = getUserColor;
   protected readonly getInitial = getInitial;
@@ -70,7 +69,7 @@ export class UserSelectorComponent implements OnInit, OnChanges {
     });
 
     this.userGroupsService.getAll().subscribe((result) => {
-      this.rawGroups = result;
+      this.allGroups = result;
       this.filterAvailableData();
     });
   }
@@ -94,8 +93,8 @@ export class UserSelectorComponent implements OnInit, OnChanges {
       this.allUsers = this.rawUsers.filter((u) =>
         this.allowedUserIds!.includes(u.userId)
       );
-      this.allGroups = this.rawGroups.filter((g) =>g.members && g.members.every((m) => this.allowedUserIds!.includes(m.userId)));
 
+      // Filter selected users if the allowedUserIds input has changed and some selected users are no longer allowed (calendarChange for example)
       const validSelectedUsers = this.selectedUsers.filter((u) =>this.allowedUserIds!.includes(u.userId));
       if (validSelectedUsers.length !== this.selectedUsers.length) {
         this.selectedUsers = validSelectedUsers;
@@ -103,7 +102,6 @@ export class UserSelectorComponent implements OnInit, OnChanges {
       }
     } else {
       this.allUsers = [...this.rawUsers];
-      this.allGroups = [...this.rawGroups];
     }
     this.userCtrl.setValue(this.userCtrl.value);
   }
@@ -111,11 +109,11 @@ export class UserSelectorComponent implements OnInit, OnChanges {
   private _filter(value: string | PortalUser | UserGroup): (PortalUser | UserGroup)[] {
     let filterValue = '';
     if (typeof value === 'string') {
-      filterValue = value.toLowerCase();
+      filterValue = this.normalizeString(value);
     } else if (this.isUser(value)) {
-      filterValue = value.username.toLowerCase();
+      filterValue = this.normalizeString(value.username);
     } else {
-      filterValue = (value as UserGroup).groupName.toLowerCase();
+      filterValue = this.normalizeString((value as UserGroup).groupName);
     }
 
     const existingUserIds = [
@@ -126,18 +124,22 @@ export class UserSelectorComponent implements OnInit, OnChanges {
     const users = this.allUsers.filter(
       (user) =>
         (
-          user.username.toLowerCase().includes(filterValue)
-          || user.name?.toLowerCase().includes(filterValue)
-          || user.lastName?.toLowerCase().includes(filterValue)
+          this.normalizeString(user.username || '').includes(filterValue)
+          || this.normalizeString(user.name || '').includes(filterValue)
+          || this.normalizeString(user.lastName || '').includes(filterValue)
         )
         && !existingUserIds.includes(user.userId)
     );
 
     const groups = this.allGroups.filter((group) =>
-      group.groupName.toLowerCase().includes(filterValue)
+      this.normalizeString(group.groupName).includes(filterValue)
     );
 
     return [...users, ...groups];
+  }
+
+  private normalizeString(str: string): string {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   }
 
   isUser(value: any): value is PortalUser {
@@ -175,6 +177,10 @@ export class UserSelectorComponent implements OnInit, OnChanges {
       const group = value as UserGroup;
       if (group.members) {
         group.members.forEach((member) => {
+          const isAllowed = this.allUsers.some((u) => u.userId === member.userId);
+          if (!isAllowed) {
+            return;
+          }
           const isSelected = this.selectedUsers.some((u) => u.userId === member.userId);
           const isExisting = this.existingUsers.some((u) => u.userId === member.userId);
 

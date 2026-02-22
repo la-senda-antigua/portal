@@ -27,6 +27,11 @@
        <mat-progress-bar mode="indeterminate" class="mb-2"></mat-progress-bar>
      }
 
+
+    @if(assignees.length > 0 && userSelectionChanged()){
+      <p class="warning-conflicts-text mb-2" >Only members of this calendar are displayed</p>
+    }
+
     <!-- TITLE -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Event Title</mat-label>

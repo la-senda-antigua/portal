@@ -54,15 +54,18 @@ export interface DialogData {
 export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
-  isEditMode = signal(false);
-  isCheckingAvailability = signal(false);
   isDateTimePickerValid: boolean = true;
+  assignees: PortalUser[] = [];
+  allowedUserIds: any[] = [];
+
   private timeSubscription?: Subscription;
   private calendarSubscription?: Subscription;
 
+  isEditMode = signal(false);
+  isCheckingAvailability = signal(false);
+  userSelectionChanged = signal(false);
   assigneesConflicts = signal<CalendarMemberConflict[]>([]);
-  assignees: PortalUser[] = [];
-  allowedUserIds: any[] = [];
+
   conflictsMessage = computed(() => {
     const conflicts = this.assigneesConflicts();
     if (conflicts.length === 0) return '';
@@ -207,6 +210,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   onAssigneesChange(users: PortalUser[]) {
     this.assignees = users;
+    this.userSelectionChanged.set(true);
     this.updateTitleValidator();
     this.checkAssigneesAvailability();
   }
