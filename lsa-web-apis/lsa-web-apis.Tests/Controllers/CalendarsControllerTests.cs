@@ -143,7 +143,7 @@ public class CalendarsControllerTests
     }
 
     [Fact]
-    public async Task GetByUserId_ReturnsUserCalendars()
+    public async Task GetByUsername_ReturnsUserCalendars()
     {
         var options = new DbContextOptionsBuilder<UserDbContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase_GetByUser")
@@ -151,11 +151,13 @@ public class CalendarsControllerTests
 
         using var context = new UserDbContext(options);
 
-        var userId = Guid.NewGuid();
+        var userOne = new User { Username = "testuser@test.com", Name = "Test", LastName = "User", Role = "User", Id = Guid.NewGuid() };
+        var userTwo = new User { Username = "testuser2@test.com", Name = "Test2", LastName = "User2", Role = "User", Id = Guid.NewGuid() };
+
         var calendar1Id = Guid.NewGuid();
         var calendar2Id = Guid.NewGuid();
-        var calendar1 = new Calendar { Id = calendar1Id, Name = "User Calendar 1", Active = true };
-        var calendar2 = new Calendar { Id = calendar2Id, Name = "User Calendar 2", Active = true };
+        var calendar1 = new Calendar { Id = calendar1Id, Name = "Calendar 1", Active = true };
+        var calendar2 = new Calendar { Id = calendar2Id, Name = "Calendar 2", Active = true };
 
         context.Calendars.AddRange(calendar1, calendar2);
         await context.SaveChangesAsync();
@@ -163,29 +165,32 @@ public class CalendarsControllerTests
         context.CalendarManagers.Add(new CalendarManager
         {
             CalendarId = calendar1Id,
-            UserId = userId
+            UserId = userOne.Id,
+            User = userOne,
         });
         context.CalendarMembers.Add(new CalendarMember
         {
             CalendarId = calendar2Id,
-            UserId = userId
+            UserId = userTwo.Id,
+            User = userTwo,
         });
         await context.SaveChangesAsync();
 
         var controller = new CalendarsController(context);
 
-        var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+        var requestUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-        new Claim(ClaimTypes.Role, "Admin")
+        new(ClaimTypes.NameIdentifier, userOne.Id.ToString()),
+        new(ClaimTypes.Role, "Admin"),
+        new(ClaimTypes.Name, userOne.Username)
         }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
         {
-            HttpContext = new DefaultHttpContext() { User = user }
+            HttpContext = new DefaultHttpContext() { User = requestUser }
         };
 
-        var result = await controller.GetByUserId();
+        var result = await controller.GetByUsername();
         var actionResult = Assert.IsType<ActionResult<List<CalendarDto>>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
         var calendars = Assert.IsType<List<CalendarDto>>(okResult.Value);
