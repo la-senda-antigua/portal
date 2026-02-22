@@ -195,12 +195,12 @@ namespace lsa_web_apis.Controllers
 
         [HttpGet("myCalendars")]
         [Authorize]
-        public async Task<ActionResult<List<CalendarDto>>> GetByUserId()
+        public async Task<ActionResult<List<CalendarDto>>> GetByUsername()
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
                 ? _context.Calendars
-                : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId) || c.Members.Any(m => m.UserId == userId));
+                : _context.Calendars.Where(c => c.Managers.Any(m => m.User.Username == userName) || c.Members.Any(m => m.User.Username == userName));
 
             var paged = await baseQuery
                 .OrderBy(c => c.Name)
@@ -269,7 +269,7 @@ namespace lsa_web_apis.Controllers
                 .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth)
                 .Where(e => User.IsInRole("Admin") ||
                     e.Calendar.Managers.Any(m =>
-                        m.UserId == Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value)))
+                        m.User.Username == User.FindFirst(ClaimTypes.Name)!.Value))
                 .Select(e => new CalendarEventDto
                 {
                     Id = e.Id,
@@ -320,9 +320,9 @@ namespace lsa_web_apis.Controllers
                 if (request.calendarIds == null || !request.calendarIds.Any())
                     return new List<CalendarEventDto>();
 
-                var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
                 query = query.Where(
-                  e => (e.Calendar.Managers.Any(m => m.UserId == userId) || e.Calendar.Members.Any(m => m.UserId == userId))
+                  e => (e.Calendar.Managers.Any(m => m.User.Username == userName) || e.Calendar.Members.Any(m => m.User.Username == userName))
                   && request.calendarIds.Contains(e.CalendarId)
                 );
             }
