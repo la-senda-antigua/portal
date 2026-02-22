@@ -8,7 +8,6 @@ export interface CalendarMemberDto {
   username?: string;
   role?: 'Manager' | 'User';
 }
-
 export interface CalendarMemberConflict{
   user: CalendarMemberDto;
   conflicts: CalendarConflicts[]
