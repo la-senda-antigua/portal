@@ -10,10 +10,11 @@
               matInput
               [matDatepicker]="startdatepicker"
               [value]="startDateValue"
+              [disabled]="disabled"
               (dateChange)="onStartDateChange($event.value)"
             />
             <mat-datepicker #startdatepicker />
-            <mat-datepicker-toggle [for]="startdatepicker" matSuffix />
+            <mat-datepicker-toggle [for]="startdatepicker" matSuffix [disabled]="disabled" />
           </mat-form-field>
 
           @if (!allDay) {
@@ -24,10 +25,11 @@
               [matTimepicker]="starttimepicker"
               [(ngModel)]="startTimeValue"
               (ngModelChange)="onStartTimeChange($event)"
+              [disabled]="disabled"
               [ngModelOptions]="{ standalone: true }"
             />
             <mat-timepicker #starttimepicker />
-            <mat-timepicker-toggle [for]="starttimepicker" matSuffix />
+            <mat-timepicker-toggle [for]="starttimepicker" matSuffix [disabled]="disabled" />
           </mat-form-field>
           }
         </div>
@@ -41,10 +43,11 @@
               [matDatepicker]="enddatepicker"
               [matDatepickerFilter]="dateFilter"
               [value]="endDateValue"
+              [disabled]="disabled"
               (dateChange)="onEndDateChange($event.value)"
             />
             <mat-datepicker #enddatepicker />
-            <mat-datepicker-toggle [for]="enddatepicker" matSuffix />
+            <mat-datepicker-toggle [for]="enddatepicker" matSuffix [disabled]="disabled" />
           </mat-form-field>
 
           @if (!allDay) {
@@ -55,10 +58,11 @@
               [matTimepicker]="endtimepicker"
               [(ngModel)]="endTimeValue"
               (ngModelChange)="onEndTimeChange($event)"
+              [disabled]="disabled"
               [ngModelOptions]="{ standalone: true }"
             />
             <mat-timepicker #endtimepicker />
-            <mat-timepicker-toggle [for]="endtimepicker" matSuffix />
+            <mat-timepicker-toggle [for]="endtimepicker" matSuffix [disabled]="disabled" />
           </mat-form-field>
           }
         </div>
@@ -68,6 +72,7 @@
         [(ngModel)]="allDay"
         (ngModelChange)="onAllDayChange()"
         [ngModelOptions]="{ standalone: true }"
+        [disabled]="disabled"
       >
         All day
       </mat-checkbox>

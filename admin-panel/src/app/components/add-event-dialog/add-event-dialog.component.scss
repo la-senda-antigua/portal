@@ -7,3 +7,25 @@
     flex: 1;
   }
 }
+
+app-user-selector {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.bottom-actions{
+  flex-wrap: wrap;
+  justify-content: flex-end
+}
+
+.mt-2{
+  margin-top: 16px;
+}
+
+.mb-2{
+  margin-bottom: 16px;
+}
+
+.warning-conflicts-text{
+  margin-bottom: 16px;
+}

@@ -20,19 +20,31 @@ namespace lsa_web_apis.Models
         public string? Start { get; set; }
         public string? End { get; set; }
         public bool AllDay { get; set; } = false;
+        public string? DisplayTitle { get; set; }
+        public UserDto[]? Assignees { get; set; }  
+    }
+
+    public class CalendarEventAssigneeDto
+    {
+        public Guid CalendarEventId { get; set; }
+        public Guid UserId { get; set; }
     }
 
     public class CalendarManagerDto
     {
         public Guid CalendarId { get; set; }
-        public string Username { get; set; } = string.Empty;
         public Guid UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? LastName { get; set; }
     }
 
     public class CalendarMemberDto
     {
         public Guid UserId { get; set; } 
-        public string Username { get; set; } = string.Empty; 
+        public string Username { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? LastName { get; set; }
 
     }
 

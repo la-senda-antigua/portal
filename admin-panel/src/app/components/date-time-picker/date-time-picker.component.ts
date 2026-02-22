@@ -3,8 +3,10 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnInit,
   Output,
+  SimpleChanges,
 } from '@angular/core';
 import {
   FormsModule,
@@ -14,7 +16,6 @@ import {
   Validators,
   AbstractControl,
   ValidationErrors,
-  ValidatorFn,
 } from '@angular/forms';
 import { MatTimepickerModule } from '@angular/material/timepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -44,12 +45,13 @@ import { CommonModule } from '@angular/common';
   templateUrl: './date-time-picker.component.html',
   styleUrl: './date-time-picker.component.scss',
 })
-export class DateTimePickerComponent implements OnInit {
+export class DateTimePickerComponent implements OnInit, OnChanges {
   @Input() initialStartDate: string = '';
   @Input() initialEndDate: string = '';
   @Input() initialIsAllDay: boolean = false;
   @Input() startDateRequired: boolean = true;
   @Input() endDateRequired: boolean = false;
+  @Input() disabled: boolean = false;
 
   @Output() startDateChange = new EventEmitter<string>();
   @Output() endDateChange = new EventEmitter<string>();
@@ -164,6 +166,21 @@ export class DateTimePickerComponent implements OnInit {
       ?.updateValueAndValidity({ emitEvent: false });
 
     this.updateFormValues();
+    if (this.disabled) {
+      this.dateTimeForm.disable();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['disabled'] && this.dateTimeForm) {
+      const isDisabled = changes['disabled'].currentValue;
+      if (isDisabled) {
+        this.dateTimeForm.disable();
+      } else {
+        this.dateTimeForm.enable();
+      }
+      this.isValid.emit(this.dateTimeForm.valid);
+    }
   }
 
   private formatAsLocalString(input?: string | Date): string {
