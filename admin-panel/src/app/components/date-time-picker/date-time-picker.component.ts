@@ -179,6 +179,7 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
       } else {
         this.dateTimeForm.enable();
       }
+      this.isValid.emit(this.dateTimeForm.valid);
     }
   }
 
