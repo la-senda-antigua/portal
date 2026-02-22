@@ -195,7 +195,7 @@ namespace lsa_web_apis.Controllers
 
         [HttpGet("myCalendars")]
         [Authorize]
-        public async Task<ActionResult<List<CalendarDto>>> GetByUserId()
+        public async Task<ActionResult<List<CalendarDto>>> GetByUsername()
         {
             var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
