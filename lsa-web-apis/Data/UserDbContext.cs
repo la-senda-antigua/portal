@@ -13,6 +13,7 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
     public DbSet<CalendarMember> CalendarMembers { get; set; } = null!;
     public DbSet<UserGroup> UserGroups { get; set; } = null!;
     public DbSet<UserGroupMember> UserGroupMembers { get; set; } = null!;
+    public DbSet<CalendarEventAssignee> CalendarEventAssignees { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,6 +35,8 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
         {
             entity.HasKey(e => new { e.UserId, e.UserGroupId });
         });
+
+        modelBuilder.Entity<CalendarEventAssignee>().HasKey(e => new { e.CalendarEventId, e.UserId });
     }
 
 }

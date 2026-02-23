@@ -113,3 +113,7 @@ full-calendar {
 .invisible {
   opacity: 0;
 }
+
+.cdk-overlay-backdrop {
+  background: rgba($color: #000000, $alpha: 0.1);
+}
