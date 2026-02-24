@@ -92,4 +92,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String dayXofY(Object current, Object total) {
     return 'Día $current de $total';
   }
+
+  @override
+  String singleUserConflict(Object calendars, Object userName) {
+    return '$userName tiene conflictos con otro(s) calendarios: $calendars';
+  }
+
+  @override
+  String multipleUsersConflict(Object userNames) {
+    return 'Los siguientes usuarios tienen conflictos con otros calendarios: $userNames';
+  }
+
+  @override
+  String get assignees => 'Asignados';
 }
