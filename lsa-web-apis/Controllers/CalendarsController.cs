@@ -300,16 +300,6 @@ namespace lsa_web_apis.Controllers
             if (request.calendarIds == null || !request.calendarIds.Any())
                 return new List<CalendarEventDto>();
 
-            // If user is admin show all events in the specified calendars, otherwise filter by public and permissions
-            if (!User.IsInRole("Admin"))
-            {
-                var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
-                query = query.Where(
-                  e => e.Calendar.IsPublic || (e.Calendar.Managers.Any(m => m.User.Username == userName) || e.Calendar.Members.Any(m => m.User.Username == userName))
-                  && request.calendarIds.Contains(e.CalendarId)
-                );
-            }
-
             query = query.Where(e =>
                 e.StartTime != null &&
                 e.StartTime.CompareTo(endString) <= 0 &&
