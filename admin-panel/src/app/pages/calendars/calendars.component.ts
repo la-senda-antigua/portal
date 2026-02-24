@@ -79,7 +79,6 @@ export class CalendarsComponent implements OnInit {
     },
     eventClick: (info: any) => this.showEventOptions(info),
     dateClick: (inf: any) => this.openAddEventDialog(inf),
-
   };
 
   myCalendars: CalendarDto[] = [];
@@ -100,11 +99,13 @@ export class CalendarsComponent implements OnInit {
     this.loadCalendarList()
       .pipe(
         takeUntilDestroyed(this.destroyRef),
-        tap(() => this.handleLoadCalendarEvents()),
+        tap((calendars) => {
+          this.myCalendars = calendars;
+          this.handleLoadCalendarEvents();
+        }),
       )
       .subscribe((calendars) => {
         this.calendarListLoading.set(false);
-        this.myCalendars = calendars;
         if (!reload) {
           this.selectedCalendars = calendars.map((item) => item.id!);
         }
@@ -130,6 +131,7 @@ export class CalendarsComponent implements OnInit {
               id: c.id,
               name: c.name,
               color: this.service.getCalendarColor(c.id!),
+              isPublic: c.isPublic,
               members: c.members,
               managers: c.managers,
             }) as CalendarDto,
@@ -141,12 +143,17 @@ export class CalendarsComponent implements OnInit {
 
   loadCalendarEvents(): Observable<CalendarEvent[]> {
     this.calendarEventsLoading.set(true);
-    const currentStart = this.fullCalendarApi()?.view.currentStart ?? new Date();
+    const currentStart =
+      this.fullCalendarApi()?.view.currentStart ?? new Date();
     const month = currentStart.getMonth() + 1;
     const year = currentStart.getFullYear();
 
     return this.service
-      .getMonthEvents(month, year)
+      .getMonthEvents(
+        month,
+        year,
+        this.myCalendars.map((c) => c.id!),
+      )
       .pipe(catchError(() => of([])));
   }
 
@@ -196,10 +203,7 @@ export class CalendarsComponent implements OnInit {
       data: {
         mode: 'edit',
         type: 'calendar',
-        data: {
-          id: calendar.id,
-          name: calendar.name,
-        },
+        data: { ...calendar },
       } as CalendarFormData,
     });
 
@@ -210,22 +214,22 @@ export class CalendarsComponent implements OnInit {
           if (!dialogCloseResult) return of(null);
 
           const { data } = dialogCloseResult;
-          const { name, id, action } = data;
-          if (action === 'delete') {
-            this.deleteCalendar(id, name);
+          if (data.action === 'delete') {
+            this.deleteCalendar(data.id, data.name);
             return of(null);
           }
 
           const selectedUsers = data.selectedUsers as CalendarMemberDto[];
-          const members: CalendarMemberDto[] = selectedUsers
-            .filter((u) => u.role === 'User');
+          const members: CalendarMemberDto[] = selectedUsers.filter(
+            (u) => u.role === 'User',
+          );
 
-          const managers: CalendarMemberDto[] = selectedUsers
-            .filter((u) => u.role === 'Manager');
+          const managers: CalendarMemberDto[] = selectedUsers.filter(
+            (u) => u.role === 'Manager',
+          );
 
           const calendar: CalendarDto = {
-            id,
-            name,
+            ...data,
             members,
             managers,
           };
@@ -252,11 +256,10 @@ export class CalendarsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.calendarListLoading.set(true);
-        const { data } = result;
-        this.service.add(data).subscribe({
+        this.service.add(result.data).subscribe({
           next: (response) => {
             let calendarWithColor = {
-              ...data,
+              ...result.data,
               color: this.service.getCalendarColor(response.id!),
             };
             calendarWithColor.id = response.id;
@@ -278,8 +281,9 @@ export class CalendarsComponent implements OnInit {
 
   openAddEventDialog(eventData?: any): void {
     let assignees: PortalUser[] = [];
-    if (eventData?.id){
-      assignees = this.allEvents.find(e=> e.id === eventData.id)?.assignees || [];
+    if (eventData?.id) {
+      assignees =
+        this.allEvents.find((e) => e.id === eventData.id)?.assignees || [];
       eventData.assignees = assignees;
     }
 
@@ -367,7 +371,14 @@ export class CalendarsComponent implements OnInit {
   }
 
   showEventOptions(item: any) {
-    const { allDay, startStr, endStr, extendedProps, title: displayTitle, backgroundColor } = item.event;
+    const {
+      allDay,
+      startStr,
+      endStr,
+      extendedProps,
+      title: displayTitle,
+      backgroundColor,
+    } = item.event;
     const startDate = allDay ? startStr : startStr.split('T')[0];
     let endDate = startDate;
 
@@ -379,8 +390,11 @@ export class CalendarsComponent implements OnInit {
       }
     }
 
-    const assignees: PortalUser[] = this.allEvents.find(e=> e.id === extendedProps.id)?.assignees || [];
-    const originalTitle = this.allEvents.find(e => e.id === extendedProps.id)?.title;
+    const assignees: PortalUser[] =
+      this.allEvents.find((e) => e.id === extendedProps.id)?.assignees || [];
+    const originalTitle = this.allEvents.find(
+      (e) => e.id === extendedProps.id,
+    )?.title;
 
     const event = {
       id: extendedProps.id,
@@ -397,7 +411,7 @@ export class CalendarsComponent implements OnInit {
         (c) => c.id === extendedProps.calendarId,
       )?.name,
       color: backgroundColor,
-      assignees
+      assignees,
     };
 
     const dialogWidth = 400;

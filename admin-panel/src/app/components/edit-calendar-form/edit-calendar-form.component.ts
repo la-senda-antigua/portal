@@ -23,7 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { TableViewFormData } from '../table-view/table-view.component';
 import { AddPeopleFormComponent } from '../add-people-form/add-people-form.component';
-import { PortalUser, UserRole } from '../../models/PortalUser';
+import { PortalUser } from '../../models/PortalUser';
 import { CalendarsService } from '../../services/calendars.service';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import {
@@ -35,11 +35,14 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   CalendarMemberDto,
 } from '../../models/CalendarMemberDto';
+import { MatTableModule } from '@angular/material/table';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
     id?: string;
     name: string;
+    isPublic?: boolean;
     description?: string | null;
     selectedUsers?: CalendarMemberDto[];
   };
@@ -61,6 +64,8 @@ export interface CalendarFormData extends TableViewFormData {
     TitleCasePipe,
     MatProgressBar,
     MatTooltipModule,
+    MatTableModule,
+    MatCheckboxModule
   ],
   templateUrl: './edit-calendar-form.component.html',
   styleUrl: './edit-calendar-form.component.scss',
@@ -75,6 +80,7 @@ export class EditCalendarFormComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   readonly calendarForm: FormGroup<{
     name: FormControl<string | null>;
+    isPublic: FormControl<boolean | null>;
   }>;
   selectedUsers: CalendarMemberDto[] = [];
   loadingUsers = signal(true);
@@ -86,6 +92,7 @@ export class EditCalendarFormComponent implements OnInit {
   constructor() {
     this.calendarForm = new FormGroup({
       name: new FormControl(this.formData.data.name, Validators.required),
+      isPublic: new FormControl(this.formData.data.isPublic ?? false),
     });
   }
 
@@ -93,6 +100,11 @@ export class EditCalendarFormComponent implements OnInit {
     if (this.formData.mode != 'add') {
       this.getDetails();
     }
+    this.calendarForm.controls.isPublic.valueChanges.subscribe((isPublic) => {
+      if (isPublic) {
+        this.selectedUsers = this.selectedUsers.filter((user) => user.role === 'Manager');
+      }
+    });
   }
 
   getDetails() {
@@ -131,6 +143,7 @@ export class EditCalendarFormComponent implements OnInit {
       data: {
         id: this.formData.data.id,
         name: this.calendarForm.controls.name.value!,
+        isPublic: this.calendarForm.controls.isPublic.value!,
         selectedUsers: this.selectedUsers,
       },
     };
@@ -148,14 +161,18 @@ export class EditCalendarFormComponent implements OnInit {
       maxWidth: '90vw',
     });
 
-    dialogRef.afterClosed().subscribe((selectedUsers) => {
+    dialogRef.afterClosed().subscribe((selectedUsers: CalendarMemberDto[]) => {
       if (selectedUsers) {
         const existingUsers = this.selectedUsers.filter(
           (existing) =>
             !selectedUsers.some(
-              (selected: PortalUser) => selected.userId === existing.userId,
+              (selected: CalendarMemberDto) => selected.userId === existing.userId,
             ),
         );
+
+        if(this.calendarForm.controls.isPublic.value) {
+          selectedUsers = selectedUsers.map(u => ({...u, role: 'Manager'}));
+        }
 
         this.selectedUsers = [...existingUsers, ...selectedUsers];
       }

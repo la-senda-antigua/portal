@@ -55,7 +55,8 @@ namespace lsa_web_apis.Controllers
             {
                 Id = Guid.NewGuid(),
                 Name = dto.Name,
-                Active = dto.Active
+                Active = dto.Active,
+                IsPublic = dto.IsPublic
             };
 
             _context.Calendars.Add(calendar);
@@ -81,6 +82,7 @@ namespace lsa_web_apis.Controllers
 
                 calendar.Name = dto.Name;
                 calendar.Active = dto.Active;
+                calendar.IsPublic = dto.IsPublic;
 
                 var managerIds = new HashSet<Guid>(dto.Managers?.Select(m => m.UserId) ?? new List<Guid>());
 
@@ -200,7 +202,7 @@ namespace lsa_web_apis.Controllers
             var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
                 ? _context.Calendars
-                : _context.Calendars.Where(c => c.Managers.Any(m => m.User.Username == userName) || c.Members.Any(m => m.User.Username == userName));
+                : _context.Calendars.Where(c => c.IsPublic || c.Managers.Any(m => m.User.Username == userName) || c.Members.Any(m => m.User.Username == userName));
 
             var paged = await baseQuery
                 .OrderBy(c => c.Name)
@@ -209,19 +211,20 @@ namespace lsa_web_apis.Controllers
                     Id = c.Id,
                     Name = c.Name!,
                     Active = c.Active,
+                    IsPublic = c.IsPublic,
                     Managers = c.Managers.Select(m => new CalendarManagerDto
                     {
                         UserId = m.UserId,
                         Username = m.User.Username,
                         Name = m.User.Name,
-                        LastName = m.User.LastName                        
+                        LastName = m.User.LastName
                     }).ToList(),
                     Members = c.Members.Select(m => new CalendarMemberDto
                     {
                         UserId = m.UserId,
                         Username = m.User.Username,
                         Name = m.User.Name,
-                        LastName = m.User.LastName                        
+                        LastName = m.User.LastName
                     }).ToList()
                 }).ToListAsync();
 
@@ -239,6 +242,7 @@ namespace lsa_web_apis.Controllers
                     Id = c.Id,
                     Name = c.Name!,
                     Active = c.Active,
+                    IsPublic = c.IsPublic,
                     Managers = c.Managers.Select(m => new CalendarManagerDto
                     {
                         CalendarId = m.CalendarId,
@@ -259,79 +263,36 @@ namespace lsa_web_apis.Controllers
             return Ok(calendar);
         }
 
-        [HttpGet("events")]
-        [Authorize(Roles = "Admin,CalendarManager")]
-        public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetEventsByMonth(int month, int year)
-        {
-            var yearMonth = $"{year:D4}-{month:D2}";
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var result = await _context.CalendarEvents
-                .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth)
-                .Where(e => User.IsInRole("Admin") ||
-                    e.Calendar.Managers.Any(m =>
-                        m.User.Username == User.FindFirst(ClaimTypes.Name)!.Value))
-                .Select(e => new CalendarEventDto
-                {
-                    Id = e.Id,
-                    Title = e.Title,
-                    Description = e.Description,
-                    CalendarId = e.CalendarId,
-                    Start = e.StartTime,
-                    End = e.EndTime,
-                    AllDay = e.AllDay,
-                    Assignees = e.Assignees.Select(a => new UserDto
-                    {
-                        UserId = a.User.Id,
-                        Username = a.User.Username,
-                        Name = a.User.Name,
-                        LastName = a.User.LastName,
-                        Role = a.User.Role
-                    }).ToArray()
-                })
-                .OrderByDescending(e => e.Start)
-                .AsNoTracking()
-                .ToListAsync();
-
-            foreach (var e in result)
-            {
-                e.DisplayTitle = !string.IsNullOrWhiteSpace(e.Title)
-                    ? e.Title
-                    : string.Join(", ", e.Assignees!.Select(a => $"{a.Name} {a.LastName}"));
-            }
-
-            return Ok(result);
-        }
-
-        public record MobileEventRequest(int month, int year, List<Guid> calendarIds);
+        public record GetEventsRequest(int month, int year, List<Guid> calendarIds);
 
         [HttpPost("GetEventsByMonth")]
         [Authorize]
-        public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(MobileEventRequest request)
+        public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(GetEventsRequest request)
         {
-            var monthStart = new DateTime(request.year, request.month, 1);
-            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-            var monthStartStr = monthStart.ToString("yyyy-MM-dd");
-            var monthEndStr = monthEnd.ToString("yyyy-MM-dd") + " 23:59:59";
+            var startDate = new DateTime(request.year, request.month - 1, 21);
+            var endDate = new DateTime(request.year, request.month + 1, 7);
+            var startString = startDate.ToString("yyyy-MM-dd");
+            var endString = endDate.ToString("yyyy-MM-dd") + " 23:59:59";
 
             var query = _context.CalendarEvents.AsQueryable();
 
+            if (request.calendarIds == null || !request.calendarIds.Any())
+                return new List<CalendarEventDto>();
+
+            // If user is admin show all events in the specified calendars, otherwise filter by public and permissions
             if (!User.IsInRole("Admin"))
             {
-                if (request.calendarIds == null || !request.calendarIds.Any())
-                    return new List<CalendarEventDto>();
-
                 var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
                 query = query.Where(
-                  e => (e.Calendar.Managers.Any(m => m.User.Username == userName) || e.Calendar.Members.Any(m => m.User.Username == userName))
+                  e => e.Calendar.IsPublic || (e.Calendar.Managers.Any(m => m.User.Username == userName) || e.Calendar.Members.Any(m => m.User.Username == userName))
                   && request.calendarIds.Contains(e.CalendarId)
                 );
             }
 
-            // Filter overlapping events
             query = query.Where(e =>
                 e.StartTime != null &&
-                e.StartTime.CompareTo(monthEndStr) <= 0 &&
-                (e.EndTime == null || e.EndTime.CompareTo(monthStartStr) >= 0)
+                e.StartTime.CompareTo(endString) <= 0 &&
+                (e.EndTime == null || e.EndTime.CompareTo(startString) >= 0)
             );
 
             var rawEvents = await query
@@ -356,7 +317,7 @@ namespace lsa_web_apis.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
-            var result = new List<dynamic>();
+            var result = new List<CalendarEventDto>();
 
             foreach (var e in rawEvents)
             {
@@ -368,25 +329,25 @@ namespace lsa_web_apis.Controllers
 
                 int totalDays = (int)(end.Date - start.Date).TotalDays + 1;
 
-                var intersectionStart = start.Date < monthStart.Date ? monthStart.Date : start.Date;
-                var intersectionEnd = end.Date > monthEnd.Date ? monthEnd.Date : end.Date;
+                var intersectionStart = start.Date < startDate.Date ? startDate.Date : start.Date;
+                var intersectionEnd = end.Date > endDate.Date ? endDate.Date : end.Date;
 
                 for (var date = intersectionStart; date <= intersectionEnd; date = date.AddDays(1))
                 {
                     int currentDay = (int)(date - start.Date).TotalDays + 1;
 
-                    result.Add(new
+                    result.Add(new CalendarEventDto
                     {
-                        e.Id,
-                        e.Title,
-                        e.Description,
-                        e.CalendarId,
+                        Id = e.Id,
+                        Title = e.Title,
+                        Description = e.Description,
+                        CalendarId = e.CalendarId,
                         Start = date == start.Date ? e.StartTime : date.ToString("yyyy-MM-dd HH:mm:ss"),
                         End = e.EndTime,
-                        e.AllDay,
+                        AllDay = e.AllDay,
                         CurrentDay = currentDay,
                         TotalDays = totalDays,
-                        e.Assignees,
+                        Assignees = e.Assignees,
                         DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ?
                                         e.Title : string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
                     });
@@ -477,6 +438,9 @@ namespace lsa_web_apis.Controllers
 
             var calendar = await _context.Calendars.FindAsync(request.CalendarId);
             if (calendar is null) return NotFound("Calendar not found.");
+            var hasPermission = User.IsInRole("Admin") || calendar.Managers.FirstOrDefault(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value) != null;
+            if (!hasPermission)
+                return Forbid("You do not have permission to edit events in this calendar.");
 
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
@@ -531,7 +495,6 @@ namespace lsa_web_apis.Controllers
                 return StatusCode(500, "An error occurred while updating the event. All changes have been rolled back.");
             }
         }
-
 
         [HttpGet]
         [Route("GetPublicEvents")]
@@ -612,7 +575,7 @@ namespace lsa_web_apis.Controllers
                         LastName = g.First().User.LastName
                     },
                     conflicts = g
-                        .Select(x => new 
+                        .Select(x => new
                         {
                             x.Calendar.Id,
                             x.Calendar.Name,

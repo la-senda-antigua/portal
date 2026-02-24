@@ -7,10 +7,6 @@ mat-form-field {
   width: 100%;
 }
 
-button {
-  margin-left: 10px;
-}
-
 .option-button {
   width: 268px;
   margin: 0;
@@ -21,29 +17,26 @@ button {
   color: red;
 }
 
-.delete-button{
-  color:#bd0000;
+.delete-button {
+  color: #bd0000;
 }
 .users-list {
-  margin-top: 16px;
   display: flex;
   flex-direction: column;
   max-height: 40vh;
-  overflow-y: auto;
-  padding-right: 12px;
+  overflow-x: hidden;
 }
 
 .user-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding-right: 40px;
-  position: relative;
+  margin: 8px 0;
 
   .user-info {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 1;
 
     .avatar {
       width: 40px;
@@ -55,20 +48,19 @@ button {
       color: white;
       font-weight: bold;
     }
-      .username {
-        font-size: 12px;
-        color: rgba(0, 0, 0, 0.6);
-      }
-
+    .username {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.6);
+    }
   }
   .role-select {
     width: 120px;
   }
+}
+.add-member-button {
+  width: fit-content;
+}
 
-
-  .remove-btn {
-    position: absolute;
-    top:0;
-    right: 0;
-  }
+.dialog-actions {
+  gap: 8px;
 }
