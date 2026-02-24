@@ -54,7 +54,9 @@ class _EventCardState extends State<EventCard> {
     if (conflictsByUser.length == 1) {
       final userName = conflictsByUser.keys.first;
       final calendars = conflictsByUser.values.first.join(', ');
-      message = AppLocalizations.of(context,)!.singleUserConflict(calendars, userName);
+      message = AppLocalizations.of(
+        context,
+      )!.singleUserConflict(calendars, userName);
     } else {
       final userNames = conflictsByUser.keys.join(', ');
       message = AppLocalizations.of(context)!.multipleUsersConflict(userNames);
@@ -81,12 +83,17 @@ class _EventCardState extends State<EventCard> {
         widget.event.description!.isNotEmpty;
     final rawTitle = widget.event.displayTitle ?? widget.event.title;
     final normalizedTitle = rawTitle.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final displayTitle = normalizedTitle.isNotEmpty
+        ? '${normalizedTitle[0].toUpperCase()}${normalizedTitle.substring(1)}'
+        : normalizedTitle;
     final assigneeNames = widget.event.assignees
         .map((a) => a.displayName)
         .where((name) => name.isNotEmpty)
         .toList();
-    final showAssignees = widget.event.title.trim().isNotEmpty && assigneeNames.isNotEmpty;
-    final canExpand = hasDescription || showAssignees || normalizedTitle.isNotEmpty;
+    final showAssignees =
+        widget.event.title.trim().isNotEmpty && assigneeNames.isNotEmpty;
+    final canExpand =
+        hasDescription || showAssignees || normalizedTitle.isNotEmpty;
     final assigneesLabel = AppLocalizations.of(context)!.assignees;
     final timeDesc = widget.event.getTimeDescription(
       AppLocalizations.of(context)!.allDay,
@@ -95,9 +102,17 @@ class _EventCardState extends State<EventCard> {
     String? dateRangeText;
     if (widget.isMonthView && widget.event.totalDays > 1) {
       final locale = Localizations.localeOf(context).languageCode;
-      final startStr = DateFormat('EEEE d',locale,).format(widget.event.originalStart);
-      final endStr = DateFormat('EEEE d',locale,).format(widget.event.originalEnd);
-      dateRangeText = AppLocalizations.of(context,)!.eventDateRange(startStr, endStr);
+      final startStr = DateFormat(
+        'EEEE d',
+        locale,
+      ).format(widget.event.originalStart);
+      final endStr = DateFormat(
+        'EEEE d',
+        locale,
+      ).format(widget.event.originalEnd);
+      dateRangeText = AppLocalizations.of(
+        context,
+      )!.eventDateRange(startStr, endStr);
     }
 
     return Card(
@@ -109,54 +124,58 @@ class _EventCardState extends State<EventCard> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                title: Text(
-                  normalizedTitle,
-                  style: AppTextStyles.title.copyWith(color: textColor),
-                  maxLines: _isExpanded ? null : 1,
-                  overflow: _isExpanded
-                      ? TextOverflow.visible
-                      : TextOverflow.ellipsis,
-                  softWrap: _isExpanded,
-                ),
-                subtitle: Text.rich(
-                  TextSpan(
-                    text: dateRangeText != null
-                        ? '$dateRangeText - '
-                        : (widget.dateLabel != null
-                              ? '${widget.dateLabel} - '
-                              : '$timeDesc - '),
-                    style: AppTextStyles.body.copyWith(color: textColor),
-                    children: [
-                      TextSpan(
-                        text: calendarName,
-                        style: AppTextStyles.bodyItalic.copyWith(
-                          color: textColor,
-                        ),
-                      ),
-                    ],
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: ListTile(
+                  title: Text(
+                    displayTitle,
+                    style: AppTextStyles.title.copyWith(color: textColor),
+                    maxLines: _isExpanded ? null : 1,
+                    overflow: _isExpanded
+                        ? TextOverflow.visible
+                        : TextOverflow.ellipsis,
+                    softWrap: _isExpanded,
                   ),
+                  subtitle: Text.rich(
+                    TextSpan(
+                      text: dateRangeText != null
+                          ? '$dateRangeText - '
+                          : (widget.dateLabel != null
+                                ? '${widget.dateLabel} - '
+                                : '$timeDesc - '),
+                      style: AppTextStyles.body.copyWith(color: textColor),
+                      children: [
+                        TextSpan(
+                          text: calendarName,
+                          style: AppTextStyles.bodyItalic.copyWith(
+                            color: textColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  trailing: widget.event.totalDays > 1 && !widget.isMonthView
+                      ? Text(
+                          AppLocalizations.of(context)!.dayXofY(
+                            widget.event.currentDay,
+                            widget.event.totalDays,
+                          ),
+                          style: AppTextStyles.body.copyWith(
+                            color: textColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : null,
+                  onTap: canExpand
+                      ? () {
+                          setState(() {
+                            _isExpanded = !_isExpanded;
+                          });
+                        }
+                      : widget.onTap,
                 ),
-                trailing: widget.event.totalDays > 1 && !widget.isMonthView
-                    ? Text(
-                        AppLocalizations.of(context)!.dayXofY(
-                          widget.event.currentDay,
-                          widget.event.totalDays,
-                        ),
-                        style: AppTextStyles.body.copyWith(
-                          color: textColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )
-                    : null,
-                onTap: canExpand
-                    ? () {
-                        setState(() {
-                          _isExpanded = !_isExpanded;
-                        });
-                      }
-                    : widget.onTap,
               ),
               if (hasDescription || showAssignees)
                 AnimatedCrossFade(

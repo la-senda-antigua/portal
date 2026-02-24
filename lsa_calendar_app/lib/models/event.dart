@@ -7,16 +7,26 @@ class EventAssignee {
 
   EventAssignee({required this.username, this.name, this.lastName});
 
+  static String _normalizeSpaces(String value) {
+    return value.replaceAll(RegExp(r'\s+'), ' ').trim();
+  }
+
+  static String? _normalizeNullable(dynamic value) {
+    if (value == null) return null;
+    final normalized = _normalizeSpaces(value.toString());
+    return normalized.isEmpty ? null : normalized;
+  }
+
   factory EventAssignee.fromJson(Map<String, dynamic> json) {
     return EventAssignee(
-      username: json['username'] ?? '',
-      name: json['name'],
-      lastName: json['lastName'],
+      username: _normalizeSpaces((json['username'] ?? '').toString()),
+      name: _normalizeNullable(json['name']),
+      lastName: _normalizeNullable(json['lastName']),
     );
   }
 
   String get displayName {
-    final fullName = '${name ?? ''} ${lastName ?? ''}'.trim();
+    final fullName = _normalizeSpaces('${name ?? ''} ${lastName ?? ''}');
     if (fullName.isNotEmpty) return fullName;
     return username;
   }
@@ -55,13 +65,17 @@ class Event {
       displayTitle: json['displayTitle'],
       description: json['description'],
       start: DateTime.parse(json['start']),
-      end: json['end'] != null ? DateTime.parse(json['end']) : DateTime.parse(json['start']),
+      end: json['end'] != null
+          ? DateTime.parse(json['end'])
+          : DateTime.parse(json['start']),
       allDay: json['allDay'] ?? false,
       calendarId: json['calendarId'].toString(),
       totalDays: json['totalDays'] ?? 0,
       currentDay: json['currentDay'] ?? 0,
       conflicts: json['conflicts'] != null
-          ? List<EventConflict>.from((json['conflicts'] as List).map((i) => EventConflict.fromJson(i)),)
+          ? List<EventConflict>.from(
+              (json['conflicts'] as List).map((i) => EventConflict.fromJson(i)),
+            )
           : [],
       assignees: json['assignees'] != null
           ? List<EventAssignee>.from(
@@ -73,8 +87,10 @@ class Event {
 
   String getTimeDescription(String allDayText) {
     if (allDay) return allDayText;
-    final startStr = "${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}";
-    final endStr = "${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}";
+    final startStr =
+        "${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}";
+    final endStr =
+        "${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}";
     return '$startStr - $endStr';
   }
 
