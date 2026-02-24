@@ -259,6 +259,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The following users have conflicts with other calendars: {userNames}'**
   String multipleUsersConflict(Object userNames);
+
+  /// No description provided for @assignees.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignees'**
+  String get assignees;
 }
 
 class _AppLocalizationsDelegate
