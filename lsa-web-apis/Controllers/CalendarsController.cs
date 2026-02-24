@@ -195,12 +195,12 @@ namespace lsa_web_apis.Controllers
 
         [HttpGet("myCalendars")]
         [Authorize]
-        public async Task<ActionResult<List<CalendarDto>>> GetByUserId()
+        public async Task<ActionResult<List<CalendarDto>>> GetByUsername()
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
                 ? _context.Calendars
-                : _context.Calendars.Where(c => c.Managers.Any(m => m.UserId == userId) || c.Members.Any(m => m.UserId == userId));
+                : _context.Calendars.Where(c => c.Managers.Any(m => m.User.Username == userName) || c.Members.Any(m => m.User.Username == userName));
 
             var paged = await baseQuery
                 .OrderBy(c => c.Name)
@@ -264,13 +264,12 @@ namespace lsa_web_apis.Controllers
         public async Task<ActionResult<PagedResult<CalendarEventDto>>> GetEventsByMonth(int month, int year)
         {
             var yearMonth = $"{year:D4}-{month:D2}";
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var result = await _context.CalendarEvents
                 .Where(e => e.StartTime != null && e.StartTime.Substring(0, 7) == yearMonth)
                 .Where(e => User.IsInRole("Admin") ||
-                    e.Calendar.Managers.Any(m => m.UserId == userId) ||
-                    e.Calendar.Members.Any(m => m.UserId == userId))
+                    e.Calendar.Managers.Any(m =>
+                        m.User.Username == User.FindFirst(ClaimTypes.Name)!.Value))
                 .Select(e => new CalendarEventDto
                 {
                     Id = e.Id,
@@ -366,9 +365,10 @@ namespace lsa_web_apis.Controllers
                 if (request.calendarIds == null || !request.calendarIds.Any())
                     return new List<dynamic>();
 
-                query = query.Where(e =>
-                    (e.Calendar.Managers.Any(m => m.UserId == userId) || e.Calendar.Members.Any(m => m.UserId == userId))
-                    && request.calendarIds.Contains(e.CalendarId)
+                var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
+                query = query.Where(
+                  e => (e.Calendar.Managers.Any(m => m.User.Username == userName) || e.Calendar.Members.Any(m => m.User.Username == userName))
+                  && request.calendarIds.Contains(e.CalendarId)
                 );
             }
 
@@ -669,26 +669,30 @@ namespace lsa_web_apis.Controllers
                 .ToListAsync();
 
             var result = conflictingEvents
-                .SelectMany(e => e.Assignees.Select(a => new
-                {
-                    a.User,
-                    e.Calendar
-                }))
+                .SelectMany(e => e.Assignees
+                    .Where(a => userGuids.Contains(a.UserId))
+                    .Select(a => new
+                    {
+                        a.User,
+                        e.Calendar,
+                        EventId = e.Id,
+                    }))
                 .GroupBy(x => x.User.Id)
                 .Select(g => new
                 {
                     user = new CalendarMemberDto
                     {
-                        UserId = g.First().User.Id,
+                        UserId = g.Key,
                         Username = g.First().User.Username,
                         Name = g.First().User.Name,
                         LastName = g.First().User.LastName
                     },
                     conflicts = g
-                        .Select(x => new CalendarDto
+                        .Select(x => new 
                         {
-                            Id = x.Calendar.Id,
-                            Name = x.Calendar.Name
+                            x.Calendar.Id,
+                            x.Calendar.Name,
+                            x.EventId,
                         })
                         .DistinctBy(c => c.Id)
                         .ToList()

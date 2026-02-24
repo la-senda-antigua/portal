@@ -49,20 +49,23 @@ export interface DialogData {
     DateTimePickerComponent,
     UserSelectorComponent,
     MatProgressBar
-],
+  ],
 })
 export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
-  isEditMode = signal(false);
-  isCheckingAvailability = signal(false);
   isDateTimePickerValid: boolean = true;
+  assignees: PortalUser[] = [];
+  allowedUserIds: any[] = [];
+
   private timeSubscription?: Subscription;
   private calendarSubscription?: Subscription;
 
+  isEditMode = signal(false);
+  isCheckingAvailability = signal(false);
+  userSelectionChanged = signal(false);
   assigneesConflicts = signal<CalendarMemberConflict[]>([]);
-  assignees: PortalUser[] = [];
-  allowedUserIds: any[] = [];
+
   conflictsMessage = computed(() => {
     const conflicts = this.assigneesConflicts();
     if (conflicts.length === 0) return '';
@@ -207,6 +210,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   onAssigneesChange(users: PortalUser[]) {
     this.assignees = users;
+    this.userSelectionChanged.set(true);
     this.updateTitleValidator();
     this.checkAssigneesAvailability();
   }
@@ -214,7 +218,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   checkAssigneesAvailability(): void {
     this.isCheckingAvailability.set(true);
 
-    const userIds = this.assignees.map(u=> u.userId)
+    const userIds = this.assignees.map(u => u.userId)
     if (userIds.length === 0 || !this.isDateTimePickerValid) {
       this.assigneesConflicts.set([]);
       this.isCheckingAvailability.set(false);
@@ -225,8 +229,22 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     const endTime = this.eventForm.get('endTime')?.value;
 
     this.calendarsService.checkUserAvailability(userIds, startTime, endTime).subscribe({
-      next: (conflicts) => {
-        this.assigneesConflicts.set(conflicts);
+      next: (assigneeConflicts) => {
+        const currentEventId = this.eventForm.value['id'] || null
+        if (currentEventId) {
+          assigneeConflicts = assigneeConflicts.map(assigneeConflict => ({
+            ...assigneeConflict,
+            conflicts: assigneeConflict.conflicts.filter(conflict =>
+              conflict.eventId !== currentEventId
+            )
+          }));
+          assigneeConflicts = assigneeConflicts.filter(assigneeConflict =>
+            assigneeConflict.conflicts.length > 0
+          );
+
+        }
+
+        this.assigneesConflicts.set(assigneeConflicts);
         this.isCheckingAvailability.set(false);
       },
       error: (err) => {
