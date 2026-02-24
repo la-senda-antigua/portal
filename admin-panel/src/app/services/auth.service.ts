@@ -23,6 +23,7 @@ export class AuthService {
       map((res: any) => {
         const roles = res?.user?.roles || [];
         localStorage.setItem('user-roles', JSON.stringify(roles));
+        localStorage.setItem('user-info', JSON.stringify(res?.user || {}));
         return true;
       }),
       catchError(() => of(false)),
@@ -64,4 +65,20 @@ export class AuthService {
         catchError(() => of(false)),
       );
   }
+
+  get currentUserId(): string | null {
+    const userInfoString = localStorage.getItem('user-info');
+    if (!userInfoString) {
+      return null;
+    }
+
+    try {
+      const userInfo = JSON.parse(userInfoString);
+      return userInfo?.id || null;
+    } catch (error) {
+      console.error('Error decoding user info:', error);
+      return null;
+    }
+  }
+
 }

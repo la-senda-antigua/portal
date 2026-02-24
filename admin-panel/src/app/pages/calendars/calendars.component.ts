@@ -39,6 +39,12 @@ import { DeleteConfirmationComponent } from '../../components/delete-confirmatio
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AuthService } from '../../services/auth.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
+interface ExtendedCalendar extends CalendarDto {
+  iAmManager: boolean;
+}
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -50,6 +56,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatIconModule,
     MatButtonModule,
     MatProgressBar,
+    MatTooltipModule
   ],
   templateUrl: './calendars.component.html',
   styleUrl: './calendars.component.scss',
@@ -63,6 +70,8 @@ export class CalendarsComponent implements OnInit {
     this.fullCalendarComponent()?.getApi(),
   );
   readonly destroyRef = inject(DestroyRef);
+  readonly authService = signal(inject(AuthService));
+  readonly currentUserId = computed(() => this.authService().currentUserId);
 
   readonly calendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -81,7 +90,7 @@ export class CalendarsComponent implements OnInit {
     dateClick: (inf: any) => this.openAddEventDialog(inf),
   };
 
-  myCalendars: CalendarDto[] = [];
+  myCalendars: ExtendedCalendar[] = [];
   selectedCalendars: string[] = [];
   private allEvents: any[] = [];
 
@@ -100,15 +109,24 @@ export class CalendarsComponent implements OnInit {
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         tap((calendars) => {
-          this.myCalendars = calendars;
+          if (!reload) {
+            this.selectedCalendars = calendars.map((item) => item.id!);
+          }
+          this.myCalendars = calendars.map((c) => ({
+            ...c,
+            iAmManager:
+              this.authService().hasRole(UserRole.Admin) ||
+              (c.managers?.some((m) => m.userId === this.currentUserId()) ??
+                false),
+          }));
+        }),
+        switchMap(() => this.loadCalendarEvents()),
+        tap(() => {
           this.handleLoadCalendarEvents();
         }),
       )
-      .subscribe((calendars) => {
+      .subscribe(() => {
         this.calendarListLoading.set(false);
-        if (!reload) {
-          this.selectedCalendars = calendars.map((item) => item.id!);
-        }
       });
   }
 
@@ -290,7 +308,7 @@ export class CalendarsComponent implements OnInit {
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
       width: '500px',
       maxHeight: '95vh',
-      data: { calendars: this.myCalendars, event: eventData },
+      data: { calendars: this.myCalendars.filter(c => c.iAmManager), event: eventData },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
