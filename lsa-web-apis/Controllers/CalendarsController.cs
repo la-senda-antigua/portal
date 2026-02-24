@@ -78,7 +78,20 @@ namespace lsa_web_apis.Controllers
             {
                 var calendar = await _context.Calendars.FindAsync(id);
                 if (calendar is null)
+                {
+                    if (useTransaction)
+                        await _context.Database.RollbackTransactionAsync();
                     return NotFound("Calendar not found.");
+                }
+
+                var hasPermission = User.IsInRole("Admin") || calendar.Managers.FirstOrDefault(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value) != null;
+
+                if (!hasPermission)
+                {
+                    if (useTransaction)
+                        await _context.Database.RollbackTransactionAsync();
+                    return Forbid("You do not have permission to edit this calendar.");
+                }
 
                 calendar.Name = dto.Name;
                 calendar.Active = dto.Active;
@@ -156,6 +169,10 @@ namespace lsa_web_apis.Controllers
                 if (calendar is null)
                     return NotFound("Calendar not found.");
 
+                var hasPermission = User.IsInRole("Admin") || calendar.Managers.Any(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                if (!hasPermission)
+                    return Forbid();
+
                 _context.Calendars.Remove(calendar);
                 await _context.SaveChangesAsync();
 
@@ -182,6 +199,10 @@ namespace lsa_web_apis.Controllers
                 var calendarEvent = await _context.CalendarEvents.FindAsync(id);
                 if (calendarEvent is null)
                     return NotFound("Event not found.");
+
+                var hasPermission = User.IsInRole("Admin") || calendarEvent.Calendar.Managers.Any(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+                if (!hasPermission)
+                    return Forbid();
 
                 _context.CalendarEvents.Remove(calendarEvent);
                 await _context.SaveChangesAsync();
@@ -270,7 +291,7 @@ namespace lsa_web_apis.Controllers
         public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(GetEventsRequest request)
         {
             var startDate = new DateTime(request.year, request.month - 1, 21);
-            var endDate = new DateTime(request.year, request.month + 1, 7);
+            var endDate = new DateTime(request.year, request.month + 1, 14);
             var startString = startDate.ToString("yyyy-MM-dd");
             var endString = endDate.ToString("yyyy-MM-dd") + " 23:59:59";
 
@@ -375,6 +396,16 @@ namespace lsa_web_apis.Controllers
                         await _context.Database.RollbackTransactionAsync();
                     }
                     return NotFound("Calendar not found.");
+                }
+
+                var hasPermission = User.IsInRole("Admin") || calendar.Managers.FirstOrDefault(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value) != null;
+                if (!hasPermission)
+                {
+                    if (useTransaction)
+                    {
+                        await _context.Database.RollbackTransactionAsync();
+                    }
+                    return Forbid("You do not have permission to add events to this calendar.");
                 }
 
                 var calendarEvent = new CalendarEvent
