@@ -19,10 +19,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
 {
     public async Task<User?> RegisterAsync(string username, string role, string name, string lastName)
     {
-        if (await context.PortalUsers.AnyAsync(u => u.Username == username))
-        {
-            return null;
-        }
+        // Username (ussually, email) is not unique, because some of our users share email addresses.
         var user = new User()
         {
             Username = username,
