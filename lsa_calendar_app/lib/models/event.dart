@@ -1,5 +1,27 @@
 import 'package:lsa_calendar_app/models/eventConflict.dart';
 
+class EventAssignee {
+  final String username;
+  final String? name;
+  final String? lastName;
+
+  EventAssignee({required this.username, this.name, this.lastName});
+
+  factory EventAssignee.fromJson(Map<String, dynamic> json) {
+    return EventAssignee(
+      username: json['username'] ?? '',
+      name: json['name'],
+      lastName: json['lastName'],
+    );
+  }
+
+  String get displayName {
+    final fullName = '${name ?? ''} ${lastName ?? ''}'.trim();
+    if (fullName.isNotEmpty) return fullName;
+    return username;
+  }
+}
+
 class Event {
   final String title;
   final String? displayTitle;
@@ -11,6 +33,7 @@ class Event {
   final int totalDays;
   final int currentDay;
   final List<EventConflict> conflicts;
+  final List<EventAssignee> assignees;
 
   Event({
     required this.title,
@@ -23,6 +46,7 @@ class Event {
     this.totalDays = 0,
     this.currentDay = 0,
     this.conflicts = const [],
+    this.assignees = const [],
   });
 
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -37,8 +61,12 @@ class Event {
       totalDays: json['totalDays'] ?? 0,
       currentDay: json['currentDay'] ?? 0,
       conflicts: json['conflicts'] != null
-          ? List<EventConflict>.from((json['conflicts'] as List)
-              .map((i) => EventConflict.fromJson(i)))
+          ? List<EventConflict>.from((json['conflicts'] as List).map((i) => EventConflict.fromJson(i)),)
+          : [],
+      assignees: json['assignees'] != null
+          ? List<EventAssignee>.from(
+              (json['assignees'] as List).map((i) => EventAssignee.fromJson(i)),
+            )
           : [],
     );
   }

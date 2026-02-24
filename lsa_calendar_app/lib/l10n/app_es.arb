@@ -25,5 +25,6 @@
   "eventDateRange": "Del {startDate} al {endDate}",
   "dayXofY": "Día {current} de {total}",
   "singleUserConflict": "{userName} tiene conflictos con otro(s) calendarios: {calendars}",
-  "multipleUsersConflict": "Los siguientes usuarios tienen conflictos con otros calendarios: {userNames}"
+  "multipleUsersConflict": "Los siguientes usuarios tienen conflictos con otros calendarios: {userNames}",
+  "assignees": "Asignados"
 }

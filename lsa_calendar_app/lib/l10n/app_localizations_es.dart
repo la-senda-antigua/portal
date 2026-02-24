@@ -102,4 +102,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String multipleUsersConflict(Object userNames) {
     return 'Los siguientes usuarios tienen conflictos con otros calendarios: $userNames';
   }
+
+  @override
+  String get assignees => 'Asignados';
 }

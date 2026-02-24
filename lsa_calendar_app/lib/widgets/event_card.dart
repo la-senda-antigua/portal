@@ -79,6 +79,15 @@ class _EventCardState extends State<EventCard> {
     final hasDescription =
         widget.event.description != null &&
         widget.event.description!.isNotEmpty;
+    final rawTitle = widget.event.displayTitle ?? widget.event.title;
+    final normalizedTitle = rawTitle.replaceAll(RegExp(r'\s+'), ' ').trim();
+    final assigneeNames = widget.event.assignees
+        .map((a) => a.displayName)
+        .where((name) => name.isNotEmpty)
+        .toList();
+    final showAssignees = widget.event.title.trim().isNotEmpty && assigneeNames.isNotEmpty;
+    final canExpand = hasDescription || showAssignees || normalizedTitle.isNotEmpty;
+    final assigneesLabel = AppLocalizations.of(context)!.assignees;
     final timeDesc = widget.event.getTimeDescription(
       AppLocalizations.of(context)!.allDay,
     );
@@ -102,8 +111,13 @@ class _EventCardState extends State<EventCard> {
             children: [
               ListTile(
                 title: Text(
-                  widget.event.displayTitle ?? widget.event.title,
+                  normalizedTitle,
                   style: AppTextStyles.title.copyWith(color: textColor),
+                  maxLines: _isExpanded ? null : 1,
+                  overflow: _isExpanded
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis,
+                  softWrap: _isExpanded,
                 ),
                 subtitle: Text.rich(
                   TextSpan(
@@ -136,15 +150,15 @@ class _EventCardState extends State<EventCard> {
                         ),
                       )
                     : null,
-                onTap: hasDescription
-                    ? () {                        
+                onTap: canExpand
+                    ? () {
                         setState(() {
                           _isExpanded = !_isExpanded;
                         });
                       }
                     : widget.onTap,
               ),
-              if (hasDescription)
+              if (hasDescription || showAssignees)
                 AnimatedCrossFade(
                   firstChild: const SizedBox(width: double.infinity),
                   secondChild: Container(
@@ -153,12 +167,22 @@ class _EventCardState extends State<EventCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.event.description!,
-                          style: AppTextStyles.subtitle.copyWith(
-                            color: textColor,
+                        if (hasDescription)
+                          Text(
+                            widget.event.description!,
+                            style: AppTextStyles.subtitle.copyWith(
+                              color: textColor,
+                            ),
                           ),
-                        ),
+                        if (hasDescription && showAssignees)
+                          const SizedBox(height: 8),
+                        if (showAssignees)
+                          Text(
+                            '$assigneesLabel: ${assigneeNames.join(', ')}',
+                            style: AppTextStyles.subtitle.copyWith(
+                              color: textColor,
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -178,10 +202,6 @@ class _EventCardState extends State<EventCard> {
                 onTap: _showConflictToast,
                 child: Container(
                   padding: const EdgeInsets.all(5),
-                  // decoration: BoxDecoration(
-                  //   color: AppColors.dark,
-                  //   borderRadius: BorderRadius.circular(10),                    
-                  // ),
                   child: Icon(
                     Icons.warning_rounded,
                     size: 32,
