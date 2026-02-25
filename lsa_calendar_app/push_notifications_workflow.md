@@ -1,9 +1,9 @@
 ## Fase 1: Configuración de Firebase
-- [ ] **Crear Proyecto en Firebase Console**: Ir a console.firebase.google.com y crear un nuevo proyecto.
-- [ ] **Configurar Apps**: Añadir la app de Android (y iOS si aplica) en el proyecto de Firebase para obtener los identificadores.
-- [ ] **Obtener Credenciales para Frontend**:
+- [x] **Crear Proyecto en Firebase Console**: Ir a console.firebase.google.com y crear un nuevo proyecto.
+- [x] **Configurar Apps**: Añadir la app de Android (y iOS si aplica) en el proyecto de Firebase para obtener los identificadores.
+- [x] **Obtener Credenciales para Frontend**:
     - [x] Descargar `google-services.json` (para Android).
-    - [ ] Descargar `GoogleService-Info.plist` (para iOS).
+    - [x] Descargar `GoogleService-Info.plist` (para iOS).
 - [ ] **Obtener Credenciales para Backend**:
     - [ ] Ir a *Project Settings* -> *Service accounts*.
     - [ ] Generar nueva clave privada (Private Key). Esto descargará un archivo `.json`.
