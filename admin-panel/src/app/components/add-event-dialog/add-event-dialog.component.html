@@ -16,14 +16,21 @@
 
      <!-- ASSIGNEES -->
      <app-user-selector
-     [label]="'Assignee'"
+     [label]="'Assignees'"
      [initialSelectedUsers]="assignees"
      [hint]="'Assignees are used for checking availability from other calendars.'"
      (selectedUsersChange)="onAssigneesChange($event)"
+     [disabled]="!eventForm.controls['calendarId'].value"
+     [allowedUserIds]="allowedUserIds"
      ></app-user-selector>
      @if (isCheckingAvailability()){
        <mat-progress-bar mode="indeterminate" class="mb-2"></mat-progress-bar>
      }
+
+
+    @if(assignees.length > 0 || userSelectionChanged()){
+      <p class="warning-conflicts-text mb-2" >Only members of this calendar are displayed</p>
+    }
 
     <!-- TITLE -->
     <mat-form-field appearance="outline" class="full-width">
@@ -46,20 +53,20 @@
       (endDateChange)="eventForm.controls['endTime'].setValue($event); checkAssigneesAvailability()"
       (allDayChange)="eventForm.controls['allDay'].setValue($event)"
       (isValid)="onDateTimePickerValidityChange($event)"
+      [disabled]="!eventForm.controls['calendarId'].value"
     ></app-date-time-picker>
+  </mat-dialog-content>
 
-    <!-- WARNINGS -->
+  <mat-dialog-actions class="bottom-actions">
+        <!-- WARNINGS -->
     @if(assigneesConflicts().length > 0){
       <p class="warning-conflicts-text" >
         {{conflictsMessage()}}
       </p>
     }
-  </mat-dialog-content>
-
-  <mat-dialog-actions class="bottom-actions">
     <button mat-button type="button" (click)="onCancel()">Cancel</button>
     <button
-      mat-raised-button
+      mat-stroked-button
       type="button"
       (click)="save('copy')"
       [disabled]="eventForm.invalid || !isDateTimePickerValid"

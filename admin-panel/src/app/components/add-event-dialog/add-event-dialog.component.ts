@@ -49,18 +49,23 @@ export interface DialogData {
     DateTimePickerComponent,
     UserSelectorComponent,
     MatProgressBar
-],
+  ],
 })
 export class AddEventDialogComponent implements OnInit, OnDestroy {
   eventForm: FormGroup;
   calendars: CalendarDto[] = [];
+  isDateTimePickerValid: boolean = true;
+  assignees: PortalUser[] = [];
+  allowedUserIds: any[] = [];
+
+  private timeSubscription?: Subscription;
+  private calendarSubscription?: Subscription;
+
   isEditMode = signal(false);
   isCheckingAvailability = signal(false);
-  isDateTimePickerValid: boolean = true;
-  private timeSubscription?: Subscription;
-
+  userSelectionChanged = signal(false);
   assigneesConflicts = signal<CalendarMemberConflict[]>([]);
-  assignees: PortalUser[] = [];
+
   conflictsMessage = computed(() => {
     const conflicts = this.assigneesConflicts();
     if (conflicts.length === 0) return '';
@@ -150,6 +155,29 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkAssigneesAvailability();
+
+    const calendarControl = this.eventForm.get('calendarId');
+    if (calendarControl) {
+      this.calendarSubscription = calendarControl.valueChanges
+        .pipe(startWith(calendarControl.value))
+        .subscribe((value) => {
+          const status = value ? 'enable' : 'disable';
+          this.eventForm.get('title')?.[status]();
+          this.eventForm.get('description')?.[status]();
+
+          if (value) {
+            const calendar = this.calendars.find((c) => c.id === value);
+            if (calendar) {
+              const members = calendar.members || [];
+              const managers = calendar.managers || [];
+              this.allowedUserIds = [...members, ...managers].map((m: any) => m.userId);
+            }
+          } else {
+            this.allowedUserIds = [];
+          }
+        });
+    }
+
     const startTimeControl = this.eventForm.get('startTime');
     const endTimeControl = this.eventForm.get('endTime');
 
@@ -177,10 +205,12 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.timeSubscription?.unsubscribe();
+    this.calendarSubscription?.unsubscribe();
   }
 
   onAssigneesChange(users: PortalUser[]) {
     this.assignees = users;
+    this.userSelectionChanged.set(true);
     this.updateTitleValidator();
     this.checkAssigneesAvailability();
   }
@@ -188,7 +218,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   checkAssigneesAvailability(): void {
     this.isCheckingAvailability.set(true);
 
-    const userIds = this.assignees.map(u=> u.userId)
+    const userIds = this.assignees.map(u => u.userId)
     if (userIds.length === 0 || !this.isDateTimePickerValid) {
       this.assigneesConflicts.set([]);
       this.isCheckingAvailability.set(false);
@@ -199,8 +229,22 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     const endTime = this.eventForm.get('endTime')?.value;
 
     this.calendarsService.checkUserAvailability(userIds, startTime, endTime).subscribe({
-      next: (conflicts) => {
-        this.assigneesConflicts.set(conflicts);
+      next: (assigneeConflicts) => {
+        const currentEventId = this.eventForm.value['id'] || null
+        if (currentEventId) {
+          assigneeConflicts = assigneeConflicts.map(assigneeConflict => ({
+            ...assigneeConflict,
+            conflicts: assigneeConflict.conflicts.filter(conflict =>
+              conflict.eventId !== currentEventId
+            )
+          }));
+          assigneeConflicts = assigneeConflicts.filter(assigneeConflict =>
+            assigneeConflict.conflicts.length > 0
+          );
+
+        }
+
+        this.assigneesConflicts.set(assigneeConflicts);
         this.isCheckingAvailability.set(false);
       },
       error: (err) => {
