@@ -39,7 +39,7 @@
 
 
 ## Fase 3: Backend API (.NET Core) - Gestión de Dispositivos
-- [ ] **Instalar SDK**: Instalar paquete NuGet `FirebaseAdmin` en el proyecto API.
+- [x] **Instalar SDK**: Instalar paquete NuGet `FirebaseAdmin` en el proyecto API.
 - [ ] **Inicializar Firebase**: En `Program.cs` o `Startup.cs`, configurar la instancia de Firebase usando el JSON descargado en la Fase 1.
 - [ ] **Endpoint de Registro (Login)**:
     - [ ] Crear/Modificar endpoint (ej. `POST /api/notifications/register-device`).
@@ -71,18 +71,18 @@
 
 ## Fase 5: Frontend (Flutter)
 - [x] **Instalar Dependencias**: Agregar `firebase_core` y `firebase_messaging` en `pubspec.yaml`.
-- [ ] **Configuración Nativa**:
+- [x] **Configuración Nativa**:
     - [x] Android: Colocar `google-services.json` en `android/app/`.
     - [x] Android: Modificar `build.gradle.kts` (Nivel App).
-    - [ ] Android: Modificar `build.gradle` (Nivel Proyecto).
-    - [ ] iOS: Colocar `GoogleService-Info.plist` en `ios/Runner/`. Configurar Capabilities en Xcode.
-- [ ] **Lógica de Token**:
-    - [ ] Crear servicio para obtener el token: `FirebaseMessaging.instance.getToken()`.
+    - [x] Android: Agregar permiso `POST_NOTIFICATIONS` en `AndroidManifest.xml`.
+    - [x] iOS: Colocar `GoogleService-Info.plist` en `ios/Runner/`.
+- [x] **Lógica de Token**:
+    - [x] Crear servicio para obtener el token: `FirebaseMessaging.instance.getToken()` en `firebase_service.dart`.
     - [ ] Llamar al endpoint del Backend `register-device` justo después del Login exitoso.
     - [ ] Llamar al endpoint del Backend `unregister-device` justo antes de hacer Logout y borrar datos locales.
-- [ ] **Recepción de Mensajes**:
-    - [ ] Configurar callbacks para cuando la app está en primer plano (Foreground).
-    - [ ] Configurar callbacks para cuando la app está en segundo plano/cerrada (Background/Terminated).
+- [x] **Recepción de Mensajes**:
+    - [x] Configurar callbacks para cuando la app está en primer plano (Foreground).
+    - [x] Configurar callbacks para cuando la app está en segundo plano/cerrada (Background/Terminated).
 
 ## Resumen de Flujo de Datos
 1. **Usuario Loguea** -> App obtiene Token FCM -> App envía Token a Backend -> Backend guarda en MySQL.
