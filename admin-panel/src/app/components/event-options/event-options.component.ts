@@ -1,9 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, Inject, ViewEncapsulation } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { Component, inject, signal, ViewEncapsulation } from '@angular/core';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-
 
 @Component({
   selector: 'app-event-options',
@@ -13,21 +16,18 @@ import { MatIconModule } from '@angular/material/icon';
   encapsulation: ViewEncapsulation.None,
 })
 export class EventOptionsComponent {
+  readonly dialogData = signal(inject(MAT_DIALOG_DATA));
+  readonly canEdit = signal(this.dialogData().canEdit);
 
-  constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private dialogRef: MatDialogRef<EventOptionsComponent>
-  ) {
-
-  }
+  constructor(private dialogRef: MatDialogRef<EventOptionsComponent>) {}
 
   close() {
     this.dialogRef.close();
   }
   delete() {
-    this.dialogRef.close({ action: 'delete', event: this.data });
+    this.dialogRef.close({ action: 'delete', event: this.dialogData() });
   }
   edit() {
-    this.dialogRef.close({ action: 'edit', event: this.data });
+    this.dialogRef.close({ action: 'edit', event: this.dialogData() });
   }
 }

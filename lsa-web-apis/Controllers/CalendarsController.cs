@@ -112,7 +112,7 @@ namespace lsa_web_apis.Controllers
                 _context.CalendarManagers.RemoveRange(existingManagers);
 
                 // Add new members (excluding those who are managers)
-                if (dto.Members != null && dto.Members.Any())
+                if (!dto.IsPublic && dto.Members != null && dto.Members.Any())
                 {
                     var newMembers = dto.Members
                         .Where(member => !managerIds.Contains(member.UserId))

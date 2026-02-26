@@ -56,7 +56,7 @@ interface ExtendedCalendar extends CalendarDto {
     MatIconModule,
     MatButtonModule,
     MatProgressBar,
-    MatTooltipModule
+    MatTooltipModule,
   ],
   templateUrl: './calendars.component.html',
   styleUrl: './calendars.component.scss',
@@ -308,7 +308,10 @@ export class CalendarsComponent implements OnInit {
     const dialogRef = this.dialog.open(AddEventDialogComponent, {
       width: '500px',
       maxHeight: '95vh',
-      data: { calendars: this.myCalendars.filter(c => c.iAmManager), event: eventData },
+      data: {
+        calendars: this.myCalendars.filter((c) => c.iAmManager),
+        event: eventData,
+      },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
@@ -397,6 +400,14 @@ export class CalendarsComponent implements OnInit {
       title: displayTitle,
       backgroundColor,
     } = item.event;
+    const calendar = this.myCalendars.find(
+      (c) => c.id === extendedProps.calendarId,
+    );
+
+    if (!calendar) {
+      return;
+    }
+
     const startDate = allDay ? startStr : startStr.split('T')[0];
     let endDate = startDate;
 
@@ -425,11 +436,10 @@ export class CalendarsComponent implements OnInit {
       end: allDay ? '23:59' : endStr?.split('T')[1]?.substring(0, 5) || '',
       allDay: allDay,
       calendarId: extendedProps.calendarId,
-      calendarName: this.myCalendars.find(
-        (c) => c.id === extendedProps.calendarId,
-      )?.name,
+      calendarName: calendar?.name,
       color: backgroundColor,
       assignees,
+      canEdit: calendar.iAmManager,
     };
 
     const dialogWidth = 400;
