@@ -14,7 +14,7 @@ void main() async {
   const envFile = String.fromEnvironment('ENV_FILE', defaultValue: '.env');
   await dotenv.load(fileName: envFile);
 
-  // Inicializar Firebase
+  // initialize Firebase
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(
@@ -22,10 +22,10 @@ void main() async {
       );
     }
   } catch (e) {
-    debugPrint('Firebase ya estaba inicializado: $e');
+    debugPrint('Firebase was already initialized: $e');
   }
 
-  // Inicializar Firebase Messaging
+  // Initialize Firebase Messaging
   await FirebaseService.initialize();
 
   runApp(const MainApp());

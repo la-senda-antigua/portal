@@ -11,34 +11,35 @@ class FirebaseService {
 
   static Future<void> initialize() async {
     try {
-      // Inicializar notificaciones locales
+      // Initialize local notifications for displaying messages when the app is in the foreground
       await _initializeLocalNotifications();
 
-      // Solicitar permiso para notificaciones
+      // Request permissions for iOS (no-op on Android)
       NotificationSettings settings = await _firebaseMessaging.requestPermission(
         alert: true,
         badge: true,
         sound: true,
       );
 
-      debugPrint('###### Permiso de notificaciones: ${settings.authorizationStatus}');
+      debugPrint('###### Notification permission: ${settings.authorizationStatus}');
 
-      // Obtener token FCM
+      // Get FCM token
       _fcmToken = await _firebaseMessaging.getToken();
       debugPrint('###### FCM Token: $_fcmToken');
 
-      // Configurar handlers de mensajes
+      // Set up message handlers
       await setupForegroundMessageHandler();
       await setupBackgroundMessageHandler();
 
-      // Escuchar cambios del token
+      // Listen for token changes
       FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
         _fcmToken = newToken;
-        debugPrint('Nuevo FCM Token: $_fcmToken');
-        // Aquí puedes actualizar el token en el backend
+        debugPrint('New FCM Token: $_fcmToken');
+
+        //TODO: Send the new token to the backend
       });
     } catch (e) {
-      debugPrint('Error inicializando Firebase Messaging: $e');
+      debugPrint('Error initializing Firebase Messaging: $e');
     }
   }
 
@@ -52,7 +53,7 @@ class FirebaseService {
 
     await _localNotifications.initialize(initSettings);
 
-    // Crear canal de notificaciones para Android
+    // Create notification channel for Android
     const androidChannel = AndroidNotificationChannel(
       'high_importance_channel',
       'High Importance Notifications',
@@ -67,7 +68,7 @@ class FirebaseService {
 
   static Future<void> setupForegroundMessageHandler() async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      debugPrint('Mensaje recibido en foreground: ${message.notification?.title}');
+      debugPrint('Message received in foreground: ${message.notification?.title}');
       debugPrint('Body: ${message.notification?.body}');
 
       // Mostrar notificación local
@@ -101,8 +102,8 @@ class FirebaseService {
 
   static Future<void> setupBackgroundMessageHandler() async {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('Mensaje tocado: ${message.notification?.title}');
-      // Navegar a la pantalla correspondiente
+      debugPrint('Message tap: ${message.notification?.title}');
+      // Navigate to screen
     });
   }
 }
