@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using lsa_web_apis.Data;
@@ -9,7 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()  ?? Array.Empty<string>();
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -56,7 +57,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = builder.Configuration["AppSettings:Audience"],
             ValidateLifetime = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
-            ValidateIssuerSigningKey = true
+            ValidateIssuerSigningKey = true,
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = ClaimTypes.NameIdentifier
         };
     });
 
@@ -78,7 +81,7 @@ if (app.Environment.IsDevelopment())
 if (app.Environment.IsEnvironment("Testing"))
 {
     app.Use(async (context, next) =>
-    {        
+    {
         context.Request.Headers["Authorization"] = "Test";
         await next();
     });

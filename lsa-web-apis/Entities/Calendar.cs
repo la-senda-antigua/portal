@@ -7,7 +7,7 @@ namespace lsa_web_apis.Entities
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool Active { get; set; }
-
+        public bool IsPublic { get; set; } = false;
         public ICollection<CalendarEvent> Events { get; set; } = new List<CalendarEvent>();
         public ICollection<CalendarManager> Managers { get; set; } = new List<CalendarManager>();
         public ICollection<CalendarMember> Members { get; set; } = new List<CalendarMember>();
@@ -23,7 +23,9 @@ namespace lsa_web_apis.Entities
         public Calendar Calendar { get; set; } = null!;
         public string? StartTime { get; set; }
         public string? EndTime { get; set; }
-        public bool AllDay { get; set; } = false;        
+        public bool AllDay { get; set; } = false;
+
+        public ICollection<CalendarEventAssignee> Assignees { get; set; } = new List<CalendarEventAssignee>();
     }
 
     public class CalendarManager

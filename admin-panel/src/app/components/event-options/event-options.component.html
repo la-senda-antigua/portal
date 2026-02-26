@@ -1,10 +1,12 @@
 <div class="header">
-  <button mat-icon-button (click)="edit()">
-    <mat-icon>edit</mat-icon>
-  </button>
-  <button mat-icon-button (click)="delete()">
-    <mat-icon>delete</mat-icon>
-  </button>
+  @if(canEdit()){
+    <button mat-icon-button (click)="edit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+    <button mat-icon-button (click)="delete()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  }
   <button mat-icon-button (click)="close()">
     <mat-icon>close</mat-icon>
   </button>
@@ -14,30 +16,42 @@
   <table>
     <tr>
       <td class="column-icons">
-        <div [style.background-color]="data.color" class="color-icon"></div>
+        <div [style.background-color]="dialogData().color" class="color-icon"></div>
       </td>
-      <td class="title">{{data.title}}</td>
+      <td class="title">
+        {{dialogData().title || dialogData().displayTitle}}
+      </td>
     </tr>
     <tr>
       <td></td>
       <td class="pb-2">
-        {{data.date | date:'MMMM dd, yyyy'}} <br>
-        @if (data.allDay){
+        {{dialogData().date | date:'MMMM dd, yyyy'}} <br>
+        @if (dialogData().allDay){
           <span>All day</span>
         } @else{
-          {{data.start}} - {{data.end}}
+          {{dialogData().start}} - {{dialogData().end}}
         }
       </td>
     </tr>
-    @if(data.description){
+    @if (dialogData().assignees.length > 0){
+      <tr>
+        <td> <mat-icon>people</mat-icon> </td>
+        <td class="pb-2">
+          @for(assignee of dialogData().assignees; track assignee.userId){
+            <span class="chip"> {{assignee.name}} {{assignee.lastName}} </span>
+          }
+        </td>
+      </tr>
+    }
+    @if(dialogData().description){
       <tr>
         <td> <mat-icon>notes</mat-icon> </td>
-        <td class="pb-2">{{data.description}}</td>
+        <td class="pb-2">{{dialogData().description}}</td>
       </tr>
     }
     <tr>
       <td ><mat-icon>calendar_today</mat-icon></td>
-      <td class="pb-2">{{data.calendarName}}</td>
+      <td class="pb-2">{{dialogData().calendarName}}</td>
     </tr>
   </table>
 

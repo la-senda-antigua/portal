@@ -32,13 +32,19 @@ import {
   getDisplayName,
 } from '../../../utils/user.utils';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import {
+  CalendarMemberDto,
+} from '../../models/CalendarMemberDto';
+import { MatTableModule } from '@angular/material/table';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 export interface CalendarFormData extends TableViewFormData {
   data: {
     id?: string;
     name: string;
+    isPublic?: boolean;
     description?: string | null;
-    selectedUsers?: PortalUser[];
+    selectedUsers?: CalendarMemberDto[];
   };
 }
 
@@ -58,6 +64,8 @@ export interface CalendarFormData extends TableViewFormData {
     TitleCasePipe,
     MatProgressBar,
     MatTooltipModule,
+    MatTableModule,
+    MatCheckboxModule
   ],
   templateUrl: './edit-calendar-form.component.html',
   styleUrl: './edit-calendar-form.component.scss',
@@ -72,8 +80,9 @@ export class EditCalendarFormComponent implements OnInit {
   readonly dialog = inject(MatDialog);
   readonly calendarForm: FormGroup<{
     name: FormControl<string | null>;
+    isPublic: FormControl<boolean | null>;
   }>;
-  selectedUsers: PortalUser[] = [];
+  selectedUsers: CalendarMemberDto[] = [];
   loadingUsers = signal(true);
 
   protected readonly getUserColor = getUserColor;
@@ -83,6 +92,7 @@ export class EditCalendarFormComponent implements OnInit {
   constructor() {
     this.calendarForm = new FormGroup({
       name: new FormControl(this.formData.data.name, Validators.required),
+      isPublic: new FormControl(this.formData.data.isPublic ?? false),
     });
   }
 
@@ -90,20 +100,21 @@ export class EditCalendarFormComponent implements OnInit {
     if (this.formData.mode != 'add') {
       this.getDetails();
     }
+    this.calendarForm.controls.isPublic.valueChanges.subscribe((isPublic) => {
+      if (isPublic) {
+        this.selectedUsers = this.selectedUsers.filter((user) => user.role === 'Manager');
+      }
+    });
   }
 
   getDetails() {
     this.loadingUsers.set(true);
     this.calendarsService.getById(this.formData.data.id!).subscribe({
       next: (data) => {
-        const members = data.members!.map((member) => ({
-          ...(member as PortalUser),
-          role: 'User',
-        }));
-        const managers = data.managers!.map((manager) => ({
-          ...(manager as PortalUser),
-          role: 'Manager',
-        }));
+        const members =
+          data.members?.map((u) => ({ ...u, role: 'User' } as CalendarMemberDto)) ?? [];
+        const managers =
+          data.managers?.map((u) => ({ ...u, role: 'Manager' } as CalendarMemberDto)) ?? [];
         this.selectedUsers = [...members, ...managers];
         this.loadingUsers.set(false);
       },
@@ -125,13 +136,14 @@ export class EditCalendarFormComponent implements OnInit {
     if (this.calendarForm.invalid) {
       return this.formData;
     }
-
+    
     return {
       mode: this.formData.mode,
       type: this.formData.type,
       data: {
         id: this.formData.data.id,
         name: this.calendarForm.controls.name.value!,
+        isPublic: this.calendarForm.controls.isPublic.value!,
         selectedUsers: this.selectedUsers,
       },
     };
@@ -149,21 +161,25 @@ export class EditCalendarFormComponent implements OnInit {
       maxWidth: '90vw',
     });
 
-    dialogRef.afterClosed().subscribe((selectedUsers) => {
+    dialogRef.afterClosed().subscribe((selectedUsers: CalendarMemberDto[]) => {
       if (selectedUsers) {
         const existingUsers = this.selectedUsers.filter(
           (existing) =>
             !selectedUsers.some(
-              (selected: PortalUser) => selected.userId === existing.userId,
+              (selected: CalendarMemberDto) => selected.userId === existing.userId,
             ),
         );
+
+        if(this.calendarForm.controls.isPublic.value) {
+          selectedUsers = selectedUsers.map(u => ({...u, role: 'Manager'}));
+        }
 
         this.selectedUsers = [...existingUsers, ...selectedUsers];
       }
     });
   }
 
-  remove(user: PortalUser): void {
+  remove(user: CalendarMemberDto): void {
     const index = this.selectedUsers.indexOf(user);
     if (index >= 0) {
       this.selectedUsers.splice(index, 1);

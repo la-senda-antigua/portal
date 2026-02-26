@@ -9,30 +9,55 @@ namespace lsa_web_apis.Models
         public bool Active { get; set; } = true;
         public List<CalendarManagerDto>? Managers { get; set; }
         public List<CalendarMemberDto>? Members { get; set; }
+        public bool IsPublic { get; set; } = false;
     }
 
     public class CalendarEventDto
     {
         public Guid? Id { get; set; }
         public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }        
+        public string? Description { get; set; }
         public Guid CalendarId { get; set; }
         public string? Start { get; set; }
         public string? End { get; set; }
         public bool AllDay { get; set; } = false;
+        public string? DisplayTitle { get; set; }
+        public int CurrentDay { get; set; }
+        public int TotalDays { get; set; }
+        public UserDto[]? Assignees { get; set; }
+        public List<EventConflictDto> Conflicts { get; set; } = new();
+    }
+
+    public class EventConflictDto
+    {
+        public Guid UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string CalendarName { get; set; } = string.Empty;
+    }
+
+    public class CalendarEventAssigneeDto
+    {
+        public Guid CalendarEventId { get; set; }
+        public Guid UserId { get; set; }
     }
 
     public class CalendarManagerDto
     {
         public Guid CalendarId { get; set; }
-        public string Username { get; set; } = string.Empty;
         public Guid UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? LastName { get; set; }
     }
 
     public class CalendarMemberDto
     {
-        public Guid UserId { get; set; } 
-        public string Username { get; set; } = string.Empty; 
+        public Guid UserId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string? Name { get; set; }
+        public string? LastName { get; set; }
 
     }
 

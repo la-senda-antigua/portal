@@ -1,3 +1,4 @@
+import { CalendarMemberDto } from '../app/models/CalendarMemberDto';
 import { PortalUser } from '../app/models/PortalUser';
 import { UserGroupMember } from '../app/models/UserGroup';
 
@@ -26,14 +27,14 @@ export function getUserColor(userId: string): string {
   return colors[index % colors.length];
 }
 
-export function getInitial(user: PortalUser | UserGroupMember): string {
-  const name = user.name || user.username;
+export function getInitial(user: PortalUser | UserGroupMember | CalendarMemberDto): string {
+  const name = (user as PortalUser).name || user.username || '';
   return name.charAt(0).toUpperCase();
 }
 
-export function getDisplayName(user: PortalUser | UserGroupMember): string {
+export function getDisplayName(user: PortalUser | UserGroupMember | CalendarMemberDto): string {
   if (user.name || user.lastName) {
     return `${user.name ?? ''} ${user.lastName ?? ''}`.trim();
   }
-  return user.username.split('@')[0];
+  return user.username?.split('@')[0] || '';
 }

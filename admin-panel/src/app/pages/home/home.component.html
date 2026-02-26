@@ -7,7 +7,7 @@
     mat-stroked-button
     href="broadcast"
     class="menu-button"
-    [disabled]="!authService.hasRole('Admin', 'BroadcastManager')"
+    [disabled]="!authService.hasRole(userRoles.Admin) && !authService.hasRole(userRoles.BroadcastManager)"
   >
     <mat-icon>bigtop_updates</mat-icon>
     Broadcast
@@ -17,7 +17,7 @@
     mat-stroked-button
     href="media"
     class="menu-button"
-    [disabled]="!authService.hasRole('Admin', 'MediaManager')"
+    [disabled]="!authService.hasRole(userRoles.Admin) && !authService.hasRole(userRoles.MediaManager)"
   >
     <mat-icon>video_settings</mat-icon> Media</a
   >
@@ -26,7 +26,7 @@
     mat-stroked-button
     href="calendars"
     class="menu-button"
-    [disabled]="!authService.hasRole('Admin', 'MediaManager')"
+    [disabled]="!authService.hasRole(userRoles.Admin) && !authService.hasRole(userRoles.CalendarManager)"
   >
     <mat-icon>calendar_today</mat-icon> Calendars</a
   >
@@ -35,7 +35,7 @@
     mat-stroked-button
     href="users"
     class="menu-button"
-    [disabled]="!authService.hasRole('Admin')"
+    [disabled]="!authService.hasRole(userRoles.Admin)"
   >
     <mat-icon>account_circle</mat-icon>
     Users
@@ -45,7 +45,7 @@
     mat-stroked-button
     href="userGroups"
     class="menu-button"
-    [disabled]="!authService.hasRole('Admin', 'CalendarManager')"
+    [disabled]="!authService.hasRole(userRoles.Admin)"
   >
     <mat-icon>group_add</mat-icon>
     User Groups

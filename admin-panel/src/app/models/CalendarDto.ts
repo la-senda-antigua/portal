@@ -5,6 +5,7 @@ export interface CalendarDto{
   name: string;
   active?: boolean;
   color?: string;
+  isPublic?: boolean;
   managers?: CalendarMemberDto[];
   members?: CalendarMemberDto[];
 }

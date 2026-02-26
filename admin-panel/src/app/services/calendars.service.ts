@@ -4,6 +4,8 @@ import { CalendarDto } from '../models/CalendarDto';
 import { Observable, of } from 'rxjs';
 import { TableResult } from '../models/TableResult';
 import { CalendarEvent } from '../models/CalendarEvent';
+import { PortalUser } from '../models/PortalUser';
+import { CalendarMemberConflict } from '../models/CalendarMemberDto';
 
 @Injectable({
   providedIn: 'root',
@@ -57,9 +59,9 @@ export class CalendarsService extends GeneralServiceBase {
     return this.requestManager.get<CalendarEvent[]>(url);
   }
 
-  getMonthEvents(month: number, year: number): Observable<CalendarEvent[]> {
-    const url = `${this.apiUrl}/events?month=${month}&year=${year}`;
-    return this.requestManager.get<CalendarEvent[]>(url);
+  getMonthEvents(month: number, year: number, calendarIds: string[]): Observable<CalendarEvent[]> {
+    const url = `${this.apiUrl}/GetEventsByMonth`;
+    return this.requestManager.post<CalendarEvent[]>(url, { month, year, calendarIds });
   }
 
   addMember(data: { calendarId: string; userId: string }): Observable<void> {
@@ -80,6 +82,11 @@ export class CalendarsService extends GeneralServiceBase {
   addEvent(item: CalendarEvent): Observable<void> {
     const url = `${this.apiUrl}/addEvent`;
     return this.requestManager.post<void>(url, item);
+  }
+
+  checkUserAvailability(userIds: string[], startTime: string, endTime: string): Observable<CalendarMemberConflict[]> {
+    const url = `${this.apiUrl}/UserAvailability`;
+    return this.requestManager.post<CalendarMemberConflict[]>(url, {userIds, startTime, endTime});
   }
 
   private colors = [

@@ -9,13 +9,13 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 
 namespace lsa_web_apis.Controllers
-{
-    [Authorize(Roles = "Admin")]
+{    
     [Route("[controller]")]
     [ApiController]
     public class UsersController(IAuthService authService, UserDbContext context) : ControllerBase
     {
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PagedResult<UserDto>>> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
         {
             var usersQuery = context.PortalUsers
@@ -60,6 +60,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpGet("GetAll")]
+        [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<PagedResult<UserDto>>> GetAllUsers()
         {
             var users = await context.PortalUsers.Select(u => new UserDto
@@ -75,6 +76,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpPost()]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<User>> Register(UserDto data)
         {
             using var transaction = await context.Database.BeginTransactionAsync();
@@ -111,6 +113,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<User>> UpdateUser(Guid id, [FromBody] UserDto updateData)
         {
             using var transaction = await context.Database.BeginTransactionAsync();
@@ -155,6 +158,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             var user = await context.PortalUsers.FindAsync(id);

@@ -4,26 +4,7 @@
 
 <form [formGroup]="eventForm">
   <mat-dialog-content>
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Event Title</mat-label>
-      <input matInput formControlName="title" required />
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Description</mat-label>
-      <textarea matInput formControlName="description" rows="3"></textarea>
-    </mat-form-field>
-
-    <app-date-time-picker
-      [initialStartDate]="eventForm.controls['startTime'].value ?? ''"
-      [initialEndDate]="eventForm.controls['endTime'].value ?? ''"
-      [initialIsAllDay]="eventForm.controls['allDay'].value ?? ''"
-      (startDateChange)="eventForm.controls['startTime'].setValue($event)"
-      (endDateChange)="eventForm.controls['endTime'].setValue($event)"
-      (allDayChange)="eventForm.controls['allDay'].setValue($event)"
-      (isValid)="onDateTimePickerValidityChange($event)"
-    ></app-date-time-picker>
-
+    <!-- CALENDAR DROPDOWN -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Calendar</mat-label>
       <mat-select formControlName="calendarId">
@@ -32,13 +13,60 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+
+     <!-- ASSIGNEES -->
+     <app-user-selector
+     [label]="'Assignees'"
+     [initialSelectedUsers]="assignees"
+     [hint]="'Assignees are used for checking availability from other calendars.'"
+     (selectedUsersChange)="onAssigneesChange($event)"
+     [disabled]="!eventForm.controls['calendarId'].value"
+     [allowedUserIds]="allowedUserIds"
+     ></app-user-selector>
+     @if (isCheckingAvailability()){
+       <mat-progress-bar mode="indeterminate" class="mb-2"></mat-progress-bar>
+     }
+
+
+    @if(assignees.length > 0 || userSelectionChanged()){
+      <p class="warning-conflicts-text mb-2" >Only members of this calendar are displayed</p>
+    }
+
+    <!-- TITLE -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Event Title</mat-label>
+      <input matInput formControlName="title" />
+    </mat-form-field>
+
+    <!-- DESCRIPTION -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+    </mat-form-field>
+
+    <!-- DATES -->
+    <app-date-time-picker
+      [initialStartDate]="eventForm.controls['startTime'].value ?? ''"
+      [initialEndDate]="eventForm.controls['endTime'].value ?? ''"
+      [initialIsAllDay]="eventForm.controls['allDay'].value ?? ''"
+      (startDateChange)="eventForm.controls['startTime'].setValue($event); checkAssigneesAvailability()"
+      (endDateChange)="eventForm.controls['endTime'].setValue($event); checkAssigneesAvailability()"
+      (allDayChange)="eventForm.controls['allDay'].setValue($event)"
+      (isValid)="onDateTimePickerValidityChange($event)"
+      [disabled]="!eventForm.controls['calendarId'].value"
+    ></app-date-time-picker>
   </mat-dialog-content>
 
-  <mat-dialog-actions>
+  <mat-dialog-actions class="bottom-actions">
+        <!-- WARNINGS -->
+    @if(assigneesConflicts().length > 0){
+      <p class="warning-conflicts-text" >
+        {{conflictsMessage()}}
+      </p>
+    }
     <button mat-button type="button" (click)="onCancel()">Cancel</button>
     <button
-      mat-flat-button
-
+      mat-stroked-button
       type="button"
       (click)="save('copy')"
       [disabled]="eventForm.invalid || !isDateTimePickerValid"
@@ -46,7 +74,7 @@
       Save & Copy
     </button>
     <button
-      mat-raised-button
+      mat-flat-button
       type="button"
       (click)="save('save')"
       [disabled]="eventForm.invalid || !isDateTimePickerValid"

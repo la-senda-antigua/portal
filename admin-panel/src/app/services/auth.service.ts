@@ -3,10 +3,14 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RequestManagerService } from './request-manager.service';
 import { Router } from '@angular/router';
+import { UserRole } from '../models/PortalUser';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  constructor(private requestManager: RequestManagerService, private router: Router) { }
+  constructor(
+    private requestManager: RequestManagerService,
+    private router: Router,
+  ) {}
 
   logout() {
     localStorage.removeItem('access-token');
@@ -15,25 +19,33 @@ export class AuthService {
   }
 
   validateToken(): Observable<boolean> {
-    return this.requestManager
-      .get('/Auth/validate-token')
-      .pipe(
-        map((res: any) => {
-          const roles = res?.user?.roles || [];
-          localStorage.setItem('user-roles', JSON.stringify(roles));
-          return true;
-        }),
-        catchError(() => of(false))
-      );
+    return this.requestManager.get('/Auth/validate-token').pipe(
+      map((res: any) => {
+        const roles = res?.user?.roles || [];
+        localStorage.setItem('user-roles', JSON.stringify(roles));
+        localStorage.setItem('user-info', JSON.stringify(res?.user || {}));
+        return true;
+      }),
+      catchError(() => of(false)),
+    );
   }
 
-  hasRole(...roles: string[]): boolean {
-    const userRoles = JSON.parse(localStorage.getItem('user-roles') || '[]') as string[];
-    return roles.some(r => userRoles.includes(r));
+  hasRole(role: UserRole): boolean {
+    let userRoles = [] as UserRole[];
+    try {
+      const userRolesString = localStorage.getItem('user-roles');
+      if (userRolesString) {
+        userRoles = JSON.parse(userRolesString);
+      }
+    } catch (error) {
+      console.error('Error parsing user roles:', error);
+    }
+
+    return userRoles.includes(role);
   }
 
   startGoogleLoginRedirect() {
-    const baseUrl = `${window.location.protocol}//${window.location.host}/auth/callback`
+    const baseUrl = `${window.location.protocol}//${window.location.host}/auth/callback`;
     const callbackUrl = encodeURIComponent(baseUrl);
     window.location.href = `${environment.apiBaseUrl}/Auth/google-login?callbackUrl=${callbackUrl}`;
   }
@@ -50,7 +62,23 @@ export class AuthService {
           localStorage.setItem('refresh-token', response.refreshToken!);
           return true;
         }),
-        catchError(() => of(false))
+        catchError(() => of(false)),
       );
   }
+
+  get currentUserId(): string | null {
+    const userInfoString = localStorage.getItem('user-info');
+    if (!userInfoString) {
+      return null;
+    }
+
+    try {
+      const userInfo = JSON.parse(userInfoString);
+      return userInfo?.id || null;
+    } catch (error) {
+      console.error('Error decoding user info:', error);
+      return null;
+    }
+  }
+
 }

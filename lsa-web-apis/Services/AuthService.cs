@@ -19,10 +19,7 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
 {
     public async Task<User?> RegisterAsync(string username, string role, string name, string lastName)
     {
-        if (await context.PortalUsers.AnyAsync(u => u.Username == username))
-        {
-            return null;
-        }
+        // Username (ussually, email) is not unique, because some of our users share email addresses.
         var user = new User()
         {
             Username = username,
@@ -207,8 +204,13 @@ public class AuthService(UserDbContext context, IConfiguration configuration) : 
         {
             new Claim(ClaimTypes.Name, user.Username),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.Role)
         };
+
+        if (!string.IsNullOrEmpty(user.Role))
+        {
+            var roles = user.Role.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r.Trim())));
+        }
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!)

@@ -12,7 +12,7 @@ class ApiService {
   }
 
   static Future<Map<String, String>> _getHeaders() async {
-    final token = await _getToken();
+    final token = await _getToken();    
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
