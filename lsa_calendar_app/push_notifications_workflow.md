@@ -4,40 +4,39 @@
 - [x] **Obtener Credenciales para Frontend**:
     - [x] Descargar `google-services.json` (para Android).
     - [x] Descargar `GoogleService-Info.plist` (para iOS).
-- [ ] **Obtener Credenciales para Backend**:
-    - [ ] Ir a *Project Settings* -> *Service accounts*.
-    - [ ] Generar nueva clave privada (Private Key). Esto descargará un archivo `.json`.
-    - [ ] Guardar este JSON de forma segura en el servidor backend (ej. en una carpeta `Keys/` o usar User Secrets).
+- [x] **Obtener Credenciales para Backend**:
+    - [x] Ir a *Project Settings* -> *Service accounts*.
+    - [x] Generar nueva clave privada (Private Key). Esto descargará un archivo `.json`.
+    - [x] Guardar este JSON de forma segura en el servidor backend (ej. en una carpeta `Keys/` o usar User Secrets).
 
 ## Fase 2: Base de Datos 
-- [ ] **Crear Tabla para Registro de Dispositivos**: 
+- [x] **Crear Tabla para Registro de Dispositivos**: 
     ```sql
-    CREATE TABLE `UserDevices` (
-      `Id` INT NOT NULL AUTO_INCREMENT,
-      `UserId` CHAR(36)NOT NULL,
-      `FirebaseToken` VARCHAR(512) NOT NULL,
-      `Platform` VARCHAR(50) DEFAULT NULL, /* Ej: 'Android', 'iOS' */
-      `LastLogin` DATETIME DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (`Id`),
-      UNIQUE KEY `UQ_FcmToken` (`FcmToken`),
-      INDEX `IX_UserId` (`UserId`)
-      CONSTRAINT `FK_UserDevices_Users` FOREIGN KEY (`UserId`) REFERENCES `Users` (`Id`) ON DELETE CASCADE 
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        CREATE TABLE `UserDevices` (
+        `Id` INT NOT NULL AUTO_INCREMENT,
+        `UserId` CHAR(36) NOT NULL,
+        `FirebaseToken` VARCHAR(512) NOT NULL,
+        `Platform` VARCHAR(50) DEFAULT NULL,
+        `LastLogin` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`Id`),
+        UNIQUE KEY `UQ_FirebaseToken` (`FirebaseToken`),
+        INDEX `IX_UserId` (`UserId`),
+        CONSTRAINT `FK_UserDevices_Users` FOREIGN KEY (`UserId`) REFERENCES `PortalUsers` (`Id`) ON DELETE CASCADE
+        ) 
+
+        CREATE TABLE `NotificationLogs` (
+        `Id` INT NOT NULL AUTO_INCREMENT,
+        `EventId` CHAR(36) NOT NULL,
+        `UserId` CHAR(36) NOT NULL,
+        `NotificationType` VARCHAR(50) NOT NULL,
+        `SentAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (`Id`),
+        UNIQUE KEY `UQ_Event_User_Type` (`EventId`, `UserId`, `NotificationType`)
+        ) 
     ```
-- [ ] **Actualizar Modelo en .NET**:
-    - [ ] **Crear Entidad**: Crear la clase `UserDevice.cs` en tu carpeta de entidades y agregar `public virtual DbSet<UserDevice> UserDevices { get; set; }` en tu `UserDbContext`.
-- [ ] **Tabla de Historial**: Crear tabla `NotificationLogs` para evitar envíos duplicados.
-    ```sql
-    CREATE TABLE `NotificationLogs` (
-      `Id` INT NOT NULL AUTO_INCREMENT,
-      `EventId` Char(36) NOT NULL,
-      `UserId` CHAR(36) NOT NULL,
-      `NotificationType` VARCHAR(50) NOT NULL, /* Ej: 'TwoWeeksReminder' */
-      `SentAt` DATETIME DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (`Id`),
-      UNIQUE KEY `UQ_Event_User_Type` (`EventId`, `UserId`, `NotificationType`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-    ```
+- [x] **Actualizar Modelo en .NET**:
+    - [x] **Crear Entidad**: Crear la clase `UserDevice.cs` en tu carpeta de entidades y agregar `public virtual DbSet<UserDevice> UserDevices { get; set; }` en tu `UserDbContext`.
+
 
 ## Fase 3: Backend API (.NET Core) - Gestión de Dispositivos
 - [ ] **Instalar SDK**: Instalar paquete NuGet `FirebaseAdmin` en el proyecto API.
