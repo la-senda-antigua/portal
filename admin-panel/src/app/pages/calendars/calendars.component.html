@@ -33,13 +33,20 @@
           >
             {{ item.name }}
           </mat-list-option>
-          <button
-            mat-icon-button
-            class="more-options"
-            (click)="showCalendarOptions($event, item)"
+
+          <span
+            matTooltip="You don't have permission to make edits this calendar"
+            [matTooltipDisabled]="item.iAmManager"
           >
-            <mat-icon>more_vert</mat-icon>
-          </button>
+            <button
+              mat-icon-button
+              class="more-options"
+              (click)="showCalendarOptions($event, item)"
+              [disabled]="!item.iAmManager"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </span>
         </div>
       }
     </mat-selection-list>

@@ -7,7 +7,7 @@ namespace lsa_web_apis.Entities
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool Active { get; set; }
-
+        public bool IsPublic { get; set; } = false;
         public ICollection<CalendarEvent> Events { get; set; } = new List<CalendarEvent>();
         public ICollection<CalendarManager> Managers { get; set; } = new List<CalendarManager>();
         public ICollection<CalendarMember> Members { get; set; } = new List<CalendarMember>();

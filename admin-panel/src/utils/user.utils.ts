@@ -32,9 +32,9 @@ export function getInitial(user: PortalUser | UserGroupMember | CalendarMemberDt
   return name.charAt(0).toUpperCase();
 }
 
-export function getDisplayName(user: PortalUser | UserGroupMember): string {
+export function getDisplayName(user: PortalUser | UserGroupMember | CalendarMemberDto): string {
   if (user.name || user.lastName) {
     return `${user.name ?? ''} ${user.lastName ?? ''}`.trim();
   }
-  return user.username.split('@')[0];
+  return user.username?.split('@')[0] || '';
 }
