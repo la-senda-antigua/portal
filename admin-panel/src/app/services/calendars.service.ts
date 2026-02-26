@@ -59,9 +59,9 @@ export class CalendarsService extends GeneralServiceBase {
     return this.requestManager.get<CalendarEvent[]>(url);
   }
 
-  getMonthEvents(month: number, year: number): Observable<CalendarEvent[]> {
-    const url = `${this.apiUrl}/events?month=${month}&year=${year}`;
-    return this.requestManager.get<CalendarEvent[]>(url);
+  getMonthEvents(month: number, year: number, calendarIds: string[]): Observable<CalendarEvent[]> {
+    const url = `${this.apiUrl}/GetEventsByMonth`;
+    return this.requestManager.post<CalendarEvent[]>(url, { month, year, calendarIds });
   }
 
   addMember(data: { calendarId: string; userId: string }): Observable<void> {

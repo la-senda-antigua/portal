@@ -1,4 +1,13 @@
-import { Component, Inject, signal, computed, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Inject,
+  signal,
+  computed,
+  OnInit,
+  OnDestroy,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -24,7 +33,7 @@ import { Subscription } from 'rxjs';
 import { pairwise, startWith } from 'rxjs/operators';
 import { CalendarsService } from '../../services/calendars.service';
 import { CalendarMemberConflict } from '../../models/CalendarMemberDto';
-import { MatProgressBar } from "@angular/material/progress-bar";
+import { MatProgressBar } from '@angular/material/progress-bar';
 
 export interface DialogData {
   calendars: CalendarDto[];
@@ -48,7 +57,7 @@ export interface DialogData {
     MatDatepickerModule,
     DateTimePickerComponent,
     UserSelectorComponent,
-    MatProgressBar
+    MatProgressBar,
   ],
 })
 export class AddEventDialogComponent implements OnInit, OnDestroy {
@@ -76,7 +85,9 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
       return `${c.user.name} ${c.user.lastName} has a conflict with other calendar (${calendarNames}) at this date and time. If you continue, a warning will be presented in the calendar app.`;
     }
 
-    const names = conflicts.map((c) => `${c.user.name} ${c.user.lastName}`).join(', ');
+    const names = conflicts
+      .map((c) => `${c.user.name} ${c.user.lastName}`)
+      .join(', ');
     return `The following users have conflicts with other calendars at this date and time. If you continue, a warning will be presented in the calendar app. ${names}`;
   });
 
@@ -84,7 +95,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AddEventDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private calendarsService: CalendarsService
+    private calendarsService: CalendarsService,
   ) {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
@@ -165,15 +176,15 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
           this.eventForm.get('title')?.[status]();
           this.eventForm.get('description')?.[status]();
 
-          if (value) {
-            const calendar = this.calendars.find((c) => c.id === value);
-            if (calendar) {
-              const members = calendar.members || [];
-              const managers = calendar.managers || [];
-              this.allowedUserIds = [...members, ...managers].map((m: any) => m.userId);
-            }
-          } else {
-            this.allowedUserIds = [];
+          this.allowedUserIds = [];
+
+          const calendar = this.calendars.find((c) => c.id === (value ?? ''));
+          if (calendar && !calendar.isPublic) {
+            const members = calendar.members || [];
+            const managers = calendar.managers || [];
+            this.allowedUserIds = [...members, ...managers].map(
+              (m: any) => m.userId,
+            );
           }
         });
     }
@@ -183,20 +194,23 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
 
     if (startTimeControl && endTimeControl) {
       this.timeSubscription = startTimeControl.valueChanges
-        .pipe(
-          startWith(startTimeControl.value),
-          pairwise()
-        )
+        .pipe(startWith(startTimeControl.value), pairwise())
         .subscribe(([prev, curr]) => {
           if (prev && curr && endTimeControl.value) {
             const prevDate = new Date(prev);
             const currDate = new Date(curr);
             const endDate = new Date(endTimeControl.value);
 
-            if (!isNaN(prevDate.getTime()) && !isNaN(currDate.getTime()) && !isNaN(endDate.getTime())) {
+            if (
+              !isNaN(prevDate.getTime()) &&
+              !isNaN(currDate.getTime()) &&
+              !isNaN(endDate.getTime())
+            ) {
               const diff = currDate.getTime() - prevDate.getTime();
               const newEndDate = new Date(endDate.getTime() + diff);
-              endTimeControl.setValue(this.convertToISOString(newEndDate), { emitEvent: false });
+              endTimeControl.setValue(this.convertToISOString(newEndDate), {
+                emitEvent: false,
+              });
             }
           }
         });
@@ -218,7 +232,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   checkAssigneesAvailability(): void {
     this.isCheckingAvailability.set(true);
 
-    const userIds = this.assignees.map(u => u.userId)
+    const userIds = this.assignees.map((u) => u.userId);
     if (userIds.length === 0 || !this.isDateTimePickerValid) {
       this.assigneesConflicts.set([]);
       this.isCheckingAvailability.set(false);
@@ -228,31 +242,32 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     const startTime = this.eventForm.get('startTime')?.value;
     const endTime = this.eventForm.get('endTime')?.value;
 
-    this.calendarsService.checkUserAvailability(userIds, startTime, endTime).subscribe({
-      next: (assigneeConflicts) => {
-        const currentEventId = this.eventForm.value['id'] || null
-        if (currentEventId) {
-          assigneeConflicts = assigneeConflicts.map(assigneeConflict => ({
-            ...assigneeConflict,
-            conflicts: assigneeConflict.conflicts.filter(conflict =>
-              conflict.eventId !== currentEventId
-            )
-          }));
-          assigneeConflicts = assigneeConflicts.filter(assigneeConflict =>
-            assigneeConflict.conflicts.length > 0
-          );
+    this.calendarsService
+      .checkUserAvailability(userIds, startTime, endTime)
+      .subscribe({
+        next: (assigneeConflicts) => {
+          const currentEventId = this.eventForm.value['id'] || null;
+          if (currentEventId) {
+            assigneeConflicts = assigneeConflicts.map((assigneeConflict) => ({
+              ...assigneeConflict,
+              conflicts: assigneeConflict.conflicts.filter(
+                (conflict) => conflict.eventId !== currentEventId,
+              ),
+            }));
+            assigneeConflicts = assigneeConflicts.filter(
+              (assigneeConflict) => assigneeConflict.conflicts.length > 0,
+            );
+          }
 
-        }
-
-        this.assigneesConflicts.set(assigneeConflicts);
-        this.isCheckingAvailability.set(false);
-      },
-      error: (err) => {
-        console.error(err);
-        this.isCheckingAvailability.set(false);
-        this.assigneesConflicts.set([]);
-      }
-    });
+          this.assigneesConflicts.set(assigneeConflicts);
+          this.isCheckingAvailability.set(false);
+        },
+        error: (err) => {
+          console.error(err);
+          this.isCheckingAvailability.set(false);
+          this.assigneesConflicts.set([]);
+        },
+      });
   }
 
   save(trigger: string): void {
@@ -301,5 +316,4 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
       pad(date.getSeconds())
     );
   }
-
 }

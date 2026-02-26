@@ -9,6 +9,7 @@ namespace lsa_web_apis.Models
         public bool Active { get; set; } = true;
         public List<CalendarManagerDto>? Managers { get; set; }
         public List<CalendarMemberDto>? Members { get; set; }
+        public bool IsPublic { get; set; } = false;
     }
 
     public class CalendarEventDto
@@ -21,6 +22,8 @@ namespace lsa_web_apis.Models
         public string? End { get; set; }
         public bool AllDay { get; set; } = false;
         public string? DisplayTitle { get; set; }
+        public int CurrentDay { get; set; }
+        public int TotalDays { get; set; }
         public UserDto[]? Assignees { get; set; }
         public List<EventConflictDto> Conflicts { get; set; } = new();
     }

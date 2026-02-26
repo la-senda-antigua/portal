@@ -80,7 +80,7 @@ export class EditUserFormComponent {
   });
   /** calendars that are not in the manager list */
   readonly noManagerCalendars = computed(() => {
-    const calendars = this.sortedCalendarList();
+    const calendars = this.sortedCalendarList().filter(c => !c.isPublic);
     if (!calendars) {
       return [];
     }
