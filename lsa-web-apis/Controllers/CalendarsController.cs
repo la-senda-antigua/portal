@@ -290,7 +290,6 @@ namespace lsa_web_apis.Controllers
         [Authorize]
         public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(GetEventsRequest request)
         {
-            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var startDate = new DateTime(request.year, request.month - 1, 21);
             var endDate = new DateTime(request.year, request.month + 1, 14);
             var startString = startDate.ToString("yyyy-MM-dd");
