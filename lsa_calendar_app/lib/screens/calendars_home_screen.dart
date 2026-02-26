@@ -127,6 +127,19 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     });
   }
 
+  Future<void> _loadViewMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      viewMode = prefs.getString('view_mode') ?? 'day';
+    });
+  }
+
+  Future<void> _saveViewMode(String mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('view_mode', mode);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -139,6 +152,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     setState(() => error = null);
     await fetchCalendars();
     await _loadSelectedCalendars();
+    await _loadViewMode();
     await fetchEvents();
 
     final eventsOnDate = events.where((e) => 
@@ -288,7 +302,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         calendars: calendars,
         viewMode: viewMode,
         onSelectedCalendarsChanged: (ids) => setState(() => selectedCalendarIds = ids),
-        onViewModeChanged: (mode) => setState(() => viewMode = mode),
+        onViewModeChanged: (mode) {
+          setState(() => viewMode = mode);
+          _saveViewMode(mode);
+        },
       ),
       onDrawerChanged: (isOpened) {},
       body: Column(

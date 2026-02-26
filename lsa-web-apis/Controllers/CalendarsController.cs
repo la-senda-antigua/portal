@@ -290,6 +290,7 @@ namespace lsa_web_apis.Controllers
         [Authorize]
         public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(GetEventsRequest request)
         {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var startDate = new DateTime(request.year, request.month - 1, 21);
             var endDate = new DateTime(request.year, request.month + 1, 14);
             var startString = startDate.ToString("yyyy-MM-dd");
@@ -316,6 +317,7 @@ namespace lsa_web_apis.Controllers
                     e.StartTime,
                     e.EndTime,
                     e.AllDay,
+                    CalendarName = e.Calendar.Name,
                     Assignees = e.Assignees.Select(a => new UserDto
                     {
                         UserId = a.User.Id,
@@ -325,28 +327,59 @@ namespace lsa_web_apis.Controllers
                         Role = a.User.Role
                     }).ToArray()
                 })
-                .AsNoTracking()
-                .ToListAsync();
+                .AsNoTracking().ToListAsync();
+
+            var assigneeIds = rawEvents
+                .SelectMany(e => e.Assignees)
+                .Select(u => u.UserId)
+                .Where(id => id.HasValue)
+                .Select(id => id!.Value)
+                .Distinct()
+                .ToList();
+
+            var potentialConflicts = await GetPotentialConflicts(request.month, request.year, assigneeIds);
 
             var result = new List<CalendarEventDto>();
 
             foreach (var e in rawEvents)
             {
                 if (!DateTime.TryParse(e.StartTime, out var start)) continue;
+                DateTime end = string.IsNullOrEmpty(e.EndTime) || !DateTime.TryParse(e.EndTime, out var eEnd) ? start : eEnd;
 
-                DateTime end = start;
-                bool hasEnd = !string.IsNullOrEmpty(e.EndTime) && DateTime.TryParse(e.EndTime, out end);
-                if (!hasEnd) end = start;
+                var conflicts = new List<EventConflictDto>();
 
-                int totalDays = (int)(end.Date - start.Date).TotalDays + 1;
+                foreach (var assignee in e.Assignees)
+                {
+                    if (assignee.UserId == null) continue;
+
+                    var assigneeConflicts = potentialConflicts
+                        .Where(pc => pc.Id != e.Id &&
+                                     pc.AssigneeIds.Contains(assignee.UserId.Value) &&
+                                     string.Compare(pc.StartTime, e.EndTime) < 0 &&
+                                     string.Compare(pc.EndTime, e.StartTime) > 0)
+                        .ToList();
+
+                    foreach (var conflict in assigneeConflicts)
+                    {
+                        if (!conflicts.Any(c => c.UserId == assignee.UserId && c.CalendarName == conflict.CalendarName))
+                        {
+                            conflicts.Add(new EventConflictDto
+                            {
+                                UserId = assignee.UserId.Value,
+                                Username = assignee.Username,
+                                Name = assignee.Name ?? "",
+                                LastName = assignee.LastName ?? "",
+                                CalendarName = conflict.CalendarName ?? ""
+                            });
+                        }
+                    }
+                }
 
                 var intersectionStart = start.Date < startDate.Date ? startDate.Date : start.Date;
                 var intersectionEnd = end.Date > endDate.Date ? endDate.Date : end.Date;
 
                 for (var date = intersectionStart; date <= intersectionEnd; date = date.AddDays(1))
                 {
-                    int currentDay = (int)(date - start.Date).TotalDays + 1;
-
                     result.Add(new CalendarEventDto
                     {
                         Id = e.Id,
@@ -356,17 +389,17 @@ namespace lsa_web_apis.Controllers
                         Start = date == start.Date ? e.StartTime : date.ToString("yyyy-MM-dd HH:mm:ss"),
                         End = e.EndTime,
                         AllDay = e.AllDay,
-                        CurrentDay = currentDay,
-                        TotalDays = totalDays,
+                        Conflicts = conflicts,
                         Assignees = e.Assignees,
-                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ?
-                                        e.Title : string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
+                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? e.Title :
+                                       string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
                     });
                 }
             }
 
             return Ok(result.OrderBy(e => e.Start).ToList());
         }
+
 
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
@@ -610,5 +643,40 @@ namespace lsa_web_apis.Controllers
             return Ok(result);
         }
 
+        private async Task<List<PotentialConflict>> GetPotentialConflicts(int month, int year, List<Guid> assigneeIds)
+        {
+            if (!assigneeIds.Any()) return new List<PotentialConflict>();
+
+            var startOfMonth = $"{year:D4}-{month:D2}-01 00:00:00";
+            var endOfMonth = $"{year:D4}-{month:D2}-{DateTime.DaysInMonth(year, month):D2} 23:59:59";
+
+            return await _context.CalendarEvents
+                .IgnoreQueryFilters()
+                .Where(e => e.StartTime != null && e.EndTime != null &&
+                            string.Compare(e.StartTime, endOfMonth) <= 0 &&
+                            string.Compare(e.EndTime, startOfMonth) >= 0 &&
+                            e.Assignees.Any(a => assigneeIds.Contains(a.UserId)))
+                .Select(e => new PotentialConflict
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    StartTime = e.StartTime,
+                    EndTime = e.EndTime,
+                    CalendarName = e.Calendar.Name,
+                    AssigneeIds = e.Assignees.Select(a => a.UserId).ToList()
+                })
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        private class PotentialConflict
+        {
+            public Guid Id { get; set; }
+            public string? Title { get; set; }
+            public string? StartTime { get; set; }
+            public string? EndTime { get; set; }
+            public string? CalendarName { get; set; }
+            public List<Guid> AssigneeIds { get; set; } = new();
+        }
     }
 }
