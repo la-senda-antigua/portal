@@ -43,28 +43,21 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
         modelBuilder.Entity<UserDevice>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Username).IsRequired().HasMaxLength(320);
             entity.Property(e => e.FirebaseToken).IsRequired().HasMaxLength(512);
             entity.Property(e => e.Platform).HasMaxLength(50);
             entity.HasIndex(e => e.FirebaseToken).IsUnique();
-            entity.HasIndex(e => e.UserId);
-            entity.HasOne(e => e.User)
-                .WithMany()
-                .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.Username);
         });
 
         modelBuilder.Entity<NotificationLog>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.EventId).IsRequired();
-            entity.Property(e => e.UserId).IsRequired();
+            entity.Property(e => e.Username).IsRequired().HasMaxLength(320);
             entity.Property(e => e.NotificationType).IsRequired().HasMaxLength(50);
-            entity.HasIndex(e => new { e.EventId, e.UserId, e.NotificationType }).IsUnique();
-            entity.HasIndex(e => e.UserId);
-            entity.HasOne(e => e.User)
-                .WithMany()
-                .HasForeignKey(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => new { e.EventId, e.Username, e.NotificationType }).IsUnique();
+            entity.HasIndex(e => e.Username);
         });
     }
 

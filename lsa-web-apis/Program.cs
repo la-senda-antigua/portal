@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using lsa_web_apis.Data;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,6 +13,35 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+// Initialize Firebase Admin SDK if credentials are provided in configuration
+var firebaseKeySection = builder.Configuration.GetSection("FirebaseKey");
+if (FirebaseApp.GetApps().Count == 0 && firebaseKeySection.Exists())
+{
+    var firebaseKey = firebaseKeySection.Get<FirebaseKeyOptions>();
+    if (firebaseKey is not null)
+    {
+        var firebaseKeyJson = JsonSerializer.Serialize(new
+        {
+            type = firebaseKey.Type,
+            project_id = firebaseKey.ProjectId,
+            private_key_id = firebaseKey.PrivateKeyId,
+            private_key = firebaseKey.PrivateKey,
+            client_email = firebaseKey.ClientEmail,
+            client_id = firebaseKey.ClientId,
+            auth_uri = firebaseKey.AuthUri,
+            token_uri = firebaseKey.TokenUri,
+            auth_provider_x509_cert_url = firebaseKey.AuthProviderX509CertUrl,
+            client_x509_cert_url = firebaseKey.ClientX509CertUrl,
+            universe_domain = firebaseKey.UniverseDomain
+        });
+
+        FirebaseApp.Create(new AppOptions
+        {
+            Credential = GoogleCredential.FromJson(firebaseKeyJson)
+        });
+    }
+}
 
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -99,3 +130,18 @@ app.MapHub<LiveServiceHub>("/lsa-service-hub");
 app.MapHub<RadioInfoHub>("/radio-info-hub");
 
 app.Run();
+
+sealed class FirebaseKeyOptions
+{
+    public string? Type { get; set; }
+    public string? ProjectId { get; set; }
+    public string? PrivateKeyId { get; set; }
+    public string? PrivateKey { get; set; }
+    public string? ClientEmail { get; set; }
+    public string? ClientId { get; set; }
+    public string? AuthUri { get; set; }
+    public string? TokenUri { get; set; }
+    public string? AuthProviderX509CertUrl { get; set; }
+    public string? ClientX509CertUrl { get; set; }
+    public string? UniverseDomain { get; set; }
+}
