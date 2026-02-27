@@ -47,15 +47,21 @@
     - [x] Inicialización desde `FirebaseKey` en `appsettings`.
     - [x] Sin afectar login OAuth (Google/Apple siguen fuera de Firebase Auth).
 - [x] **Endpoint de Registro (Login)**:
-    - [x] Crear/Modificar endpoint (ej. `POST /api/notifications/register-device`).
+    - [x] Crear/Modificar endpoint (ej. `POST /notifications/register-device`).
     - [x] Recibe: `fcmToken`, `platform`.
     - [x] El usuario se identifica por `username` del token JWT (no enviado en body).
     - [x] Lógica: Buscar si el `fcmToken` ya existe. Si existe, actualizar `username` y `LastLogin`. Si no, crear nuevo registro.
     - [x] Regla de negocio: Un mismo `username` puede tener múltiples dispositivos (múltiples `fcmToken`).
 - [x] **Endpoint de Eliminación (Logout)**:
-    - [x] Crear/Modificar endpoint (ej. `POST /api/notifications/unregister-device`).
+    - [x] Crear/Modificar endpoint (ej. `POST /notifications/unregister-device`).
     - [x] Recibe: `fcmToken`.
     - [x] Lógica: Eliminar el registro de la tabla `UserDevices` que coincida con ese token y el `username` del usuario actual.
+- [x] **Endpoint de Envío Manual**:
+    - [x] Crear endpoint `POST /notifications/send`.
+    - [x] Recibe: `title`, `body` y `username` opcional.
+    - [x] Si no se envía `username`, usa el `username` del JWT.
+    - [x] Envía push a todos los tokens registrados del `username` objetivo.
+    - [x] Seguridad: solo `Admin` puede enviar a un `username` distinto al propio.
 
 ## Fase 4: Backend Worker (Lógica de Negocio)
 - [ ] **Crear Background Service**: Implementar una clase que herede de `BackgroundService` (o usar Hangfire/Quartz si ya lo tienes).
@@ -86,9 +92,9 @@
     - [x] iOS: Colocar `GoogleService-Info.plist` en `ios/Runner/`.
 - [x] **Lógica de Token**:
     - [x] Crear servicio para obtener el token: `FirebaseMessaging.instance.getToken()` en `firebase_service.dart`.
-    - [ ] Llamar al endpoint del Backend `register-device` justo después del Login exitoso.
-    - [ ] Llamar al endpoint del Backend `unregister-device` justo antes de hacer Logout y borrar datos locales.
-    - [ ] Soportar múltiples dispositivos por usuario: cada instalación/sesión activa registra su propio `fcmToken`.
+    - [x] Llamar al endpoint del Backend `register-device` justo después del Login exitoso.
+    - [x] Llamar al endpoint del Backend `unregister-device` justo antes de hacer Logout y borrar datos locales.
+    - [x] Soportar múltiples dispositivos por usuario: cada instalación/sesión activa registra su propio `fcmToken` (incluye `onTokenRefresh`).
 - [x] **Recepción de Mensajes**:
     - [x] Configurar callbacks para cuando la app está en primer plano (Foreground).
     - [x] Configurar callbacks para cuando la app está en segundo plano/cerrada (Background/Terminated).
@@ -106,7 +112,8 @@
 - [x] Definido modelo de negocio por `username` compartido.
 - [x] Entidades y mapeo EF alineados a `username` (`UserDevice` y `NotificationLog`).
 - [x] Inicialización de Firebase Admin en backend completada.
-- [ ] Ejecutar script SQL en MySQL para recrear tablas con el nuevo esquema.
+- [x] Ejecutar script en MySQL para crear tablas.
 - [x] Implementar `register-device`.
 - [x] Implementar `unregister-device`.
-- [ ] Conectar llamadas desde Flutter (post-login / pre-logout).
+- [x] Implementar endpoint de envío manual (`/api/notifications/send`).
+- [x] Conectar llamadas desde Flutter (post-login / pre-logout).

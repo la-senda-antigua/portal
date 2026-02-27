@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
+using FirebaseAdmin.Messaging;
 using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Models;
@@ -8,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace lsa_web_apis.Controllers;
 
-[Route("api/notifications")]
+[Route("[controller]")]
 [ApiController]
 [Authorize]
 public class NotificationsController(UserDbContext context) : ControllerBase
@@ -87,5 +89,92 @@ public class NotificationsController(UserDbContext context) : ControllerBase
         await context.SaveChangesAsync();
 
         return Ok(new { message = "Device unregistered." });
+    }
+
+    [HttpPost("send")]
+    [Authorize(Roles = "Admin,CalendarManager")]
+    public async Task<IActionResult> SendNotification([FromBody] SendNotificationRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Title) || string.IsNullOrWhiteSpace(request.Body))
+        {
+            return BadRequest("title and body are required.");
+        }
+
+        var usernameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
+        if (string.IsNullOrWhiteSpace(usernameClaim))
+        {
+            return Unauthorized("Username claim not found.");
+        }
+
+        var requesterUsername = usernameClaim.Trim().ToLowerInvariant();
+        var targetUsername = string.IsNullOrWhiteSpace(request.Username)
+            ? requesterUsername
+            : request.Username.Trim().ToLowerInvariant();
+
+        var isAdmin = User.Claims.Any(c =>
+            (c.Type == ClaimTypes.Role || c.Type == "role") &&
+            c.Value.Equals("Admin", StringComparison.OrdinalIgnoreCase));
+
+        if (!isAdmin && targetUsername != requesterUsername)
+        {
+            return Forbid();
+        }
+
+        var tokens = await context.UserDevices
+            .Where(x => x.Username == targetUsername)
+            .Select(x => x.FirebaseToken)
+            .Where(x => x != null && x != "")
+            .Distinct()
+            .ToListAsync();
+
+        if (tokens.Count == 0)
+        {
+            return NotFound("No registered devices found for the target username.");
+        }
+
+        try
+        {
+            FirebaseAdmin.FirebaseApp? app;
+            try
+            {
+                app = FirebaseAdmin.FirebaseApp.DefaultInstance;
+                if (app is null ) throw new Exception("Firebase DefaultInstance is null.");
+            }
+            catch
+            {
+                return StatusCode(500, "Firebase Admin is not initialized correctly.");
+            }
+
+            var message = new MulticastMessage
+            {
+                Notification = new Notification
+                {
+                    Title = request.Title.Trim(),
+                    Body = request.Body.Trim()
+                },
+                Tokens = tokens
+            };
+
+            var messaging = FirebaseMessaging.DefaultInstance;
+            if (messaging is null)
+            {
+                return StatusCode(500, "Firebase Messaging is not available.");
+            }
+
+            var result = await messaging.SendEachForMulticastAsync(message);
+
+            return Ok(new
+            {
+                targetUsername,
+                requestedBy = requesterUsername,
+                totalTokens = tokens.Count,
+                successCount = result.SuccessCount,
+                failureCount = result.FailureCount
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Failed to send push notification: {ex.Message}");
+        }
     }
 }

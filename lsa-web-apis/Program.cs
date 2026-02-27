@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
@@ -15,32 +16,71 @@ var builder = WebApplication.CreateBuilder(args);
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
 // Initialize Firebase Admin SDK if credentials are provided in configuration
-var firebaseKeySection = builder.Configuration.GetSection("FirebaseKey");
-if (FirebaseApp.GetApps().Count == 0 && firebaseKeySection.Exists())
+var firebaseAlreadyInitialized = true;
+try
 {
-    var firebaseKey = firebaseKeySection.Get<FirebaseKeyOptions>();
-    if (firebaseKey is not null)
-    {
-        var firebaseKeyJson = JsonSerializer.Serialize(new
-        {
-            type = firebaseKey.Type,
-            project_id = firebaseKey.ProjectId,
-            private_key_id = firebaseKey.PrivateKeyId,
-            private_key = firebaseKey.PrivateKey,
-            client_email = firebaseKey.ClientEmail,
-            client_id = firebaseKey.ClientId,
-            auth_uri = firebaseKey.AuthUri,
-            token_uri = firebaseKey.TokenUri,
-            auth_provider_x509_cert_url = firebaseKey.AuthProviderX509CertUrl,
-            client_x509_cert_url = firebaseKey.ClientX509CertUrl,
-            universe_domain = firebaseKey.UniverseDomain
-        });
+    var existingApp = FirebaseApp.DefaultInstance;
+    firebaseAlreadyInitialized = existingApp is not null;
+}
+catch
+{
+    firebaseAlreadyInitialized = false;
+}
 
-        FirebaseApp.Create(new AppOptions
-        {
-            Credential = GoogleCredential.FromJson(firebaseKeyJson)
-        });
+if (!firebaseAlreadyInitialized)
+{
+    var firebaseKeySection = builder.Configuration.GetSection("FirebaseKey");
+    if (!firebaseKeySection.Exists())
+    {
+        Console.WriteLine("[FirebaseInit] 'FirebaseKey' section not found. Firebase Admin was not initialized.");
     }
+    else
+    {
+        var firebaseKey = firebaseKeySection.Get<FirebaseKeyOptions>();
+        if (firebaseKey is null)
+        {
+            Console.WriteLine("[FirebaseInit] FirebaseKey section exists but could not be parsed.");
+        }
+        else
+        {
+            firebaseKey.PrivateKey = firebaseKey.PrivateKey?.Replace("\\n", "\n");
+
+            if (string.IsNullOrWhiteSpace(firebaseKey.ProjectId) ||
+                string.IsNullOrWhiteSpace(firebaseKey.PrivateKey) ||
+                string.IsNullOrWhiteSpace(firebaseKey.ClientEmail))
+            {
+                Console.WriteLine("[FirebaseInit] Missing required FirebaseKey fields (ProjectId/PrivateKey/ClientEmail).");
+            }
+            else
+            {
+                var firebaseKeyJson = JsonSerializer.Serialize(new
+                {
+                    type = firebaseKey.Type,
+                    project_id = firebaseKey.ProjectId,
+                    private_key_id = firebaseKey.PrivateKeyId,
+                    private_key = firebaseKey.PrivateKey,
+                    client_email = firebaseKey.ClientEmail,
+                    client_id = firebaseKey.ClientId,
+                    auth_uri = firebaseKey.AuthUri,
+                    token_uri = firebaseKey.TokenUri,
+                    auth_provider_x509_cert_url = firebaseKey.AuthProviderX509CertUrl,
+                    client_x509_cert_url = firebaseKey.ClientX509CertUrl,
+                    universe_domain = firebaseKey.UniverseDomain
+                });
+
+                FirebaseApp.Create(new AppOptions
+                {
+                    Credential = GoogleCredential.FromJson(firebaseKeyJson)
+                });
+
+                Console.WriteLine("[FirebaseInit] Firebase Admin initialized successfully.");
+            }
+        }
+    }
+}
+else
+{
+    Console.WriteLine("[FirebaseInit] Firebase Admin already initialized.");
 }
 
 // Add services to the container.

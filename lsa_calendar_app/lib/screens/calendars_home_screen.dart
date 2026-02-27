@@ -4,6 +4,7 @@ import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 import 'package:lsa_calendar_app/screens/login_screen.dart';
 import 'package:lsa_calendar_app/services/api_service.dart';
+import 'package:lsa_calendar_app/services/firebase_service.dart';
 import 'package:lsa_calendar_app/widgets/calendars_drawer.dart';
 import 'package:lsa_calendar_app/widgets/user_profile_menu.dart';
 import 'package:lsa_calendar_app/widgets/date_navigator.dart';
@@ -220,6 +221,18 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   Future<void> _logout() async {
+    final fcmToken = FirebaseService.fcmToken;
+    if (fcmToken != null && fcmToken.isNotEmpty) {
+      try {
+        await ApiService.post(
+          '/notifications/unregister-device',
+          body: {'fcmToken': fcmToken},
+        );
+      } catch (e) {
+        debugPrint('unregister-device error: $e');
+      }
+    }
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     if (!mounted) return;

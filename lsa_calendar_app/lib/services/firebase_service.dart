@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:lsa_calendar_app/services/api_service.dart';
 
 class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -35,8 +37,7 @@ class FirebaseService {
       FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
         _fcmToken = newToken;
         debugPrint('New FCM Token: $_fcmToken');
-
-        //TODO: Send the new token to the backend
+        _registerDeviceOnBackend(newToken);
       });
     } catch (e) {
       debugPrint('Error initializing Firebase Messaging: $e');
@@ -105,5 +106,47 @@ class FirebaseService {
       debugPrint('Message tap: ${message.notification?.title}');
       // Navigate to screen
     });
+  }
+
+  static Future<void> _registerDeviceOnBackend(String token) async {
+    final normalizedToken = token.trim();
+    if (normalizedToken.isEmpty) return;
+
+    String platform;
+    if (kIsWeb) {
+      platform = 'web';
+    } else {
+      switch (defaultTargetPlatform) {
+        case TargetPlatform.android:
+          platform = 'android';
+          break;
+        case TargetPlatform.iOS:
+          platform = 'ios';
+          break;
+        case TargetPlatform.windows:
+          platform = 'windows';
+          break;
+        case TargetPlatform.macOS:
+          platform = 'macos';
+          break;
+        case TargetPlatform.linux:
+          platform = 'linux';
+          break;
+        default:
+          platform = 'other';
+      }
+    }
+
+    try {
+      await ApiService.post(
+        '/notifications/register-device',
+        body: {
+          'fcmToken': normalizedToken,
+          'platform': platform,
+        },
+      );
+    } catch (e) {
+      debugPrint('register-device (onTokenRefresh) error: $e');
+    }
   }
 }
