@@ -115,5 +115,5 @@
 - [x] Ejecutar script en MySQL para crear tablas.
 - [x] Implementar `register-device`.
 - [x] Implementar `unregister-device`.
-- [x] Implementar endpoint de envío manual (`/api/notifications/send`).
+- [x] Implementar endpoint de envío manual (`/notifications/send`).
 - [x] Conectar llamadas desde Flutter (post-login / pre-logout).

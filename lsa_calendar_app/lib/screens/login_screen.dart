@@ -317,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final platform = Platform.isAndroid ? 'android' : Platform.isIOS ? 'ios': 'other';
     try {
-      await ApiService.post('/api/notifications/register-device',
+      await ApiService.post('/notifications/register-device',
         body: {
           'fcmToken': fcmToken,
           'platform': platform,
