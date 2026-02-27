@@ -46,16 +46,16 @@
 - [x] **Inicializar Firebase**: En `Program.cs` o `Startup.cs`, configurar la instancia de Firebase usando el JSON descargado en la Fase 1.
     - [x] Inicialización desde `FirebaseKey` en `appsettings`.
     - [x] Sin afectar login OAuth (Google/Apple siguen fuera de Firebase Auth).
-- [ ] **Endpoint de Registro (Login)**:
-    - [ ] Crear/Modificar endpoint (ej. `POST /api/notifications/register-device`).
-    - [ ] Recibe: `fcmToken`, `platform`.
-    - [ ] El usuario se identifica por `username` del token JWT (no enviado en body).
-    - [ ] Lógica: Buscar si el `fcmToken` ya existe. Si existe, actualizar `username` y `LastLogin`. Si no, crear nuevo registro.
-    - [ ] Regla de negocio: Un mismo `username` puede tener múltiples dispositivos (múltiples `fcmToken`).
-- [ ] **Endpoint de Eliminación (Logout)**:
-    - [ ] Crear/Modificar endpoint (ej. `POST /api/notifications/unregister-device`).
-    - [ ] Recibe: `fcmToken`.
-    - [ ] Lógica: Eliminar el registro de la tabla `UserDevices` que coincida con ese token y el `username` del usuario actual.
+- [x] **Endpoint de Registro (Login)**:
+    - [x] Crear/Modificar endpoint (ej. `POST /api/notifications/register-device`).
+    - [x] Recibe: `fcmToken`, `platform`.
+    - [x] El usuario se identifica por `username` del token JWT (no enviado en body).
+    - [x] Lógica: Buscar si el `fcmToken` ya existe. Si existe, actualizar `username` y `LastLogin`. Si no, crear nuevo registro.
+    - [x] Regla de negocio: Un mismo `username` puede tener múltiples dispositivos (múltiples `fcmToken`).
+- [x] **Endpoint de Eliminación (Logout)**:
+    - [x] Crear/Modificar endpoint (ej. `POST /api/notifications/unregister-device`).
+    - [x] Recibe: `fcmToken`.
+    - [x] Lógica: Eliminar el registro de la tabla `UserDevices` que coincida con ese token y el `username` del usuario actual.
 
 ## Fase 4: Backend Worker (Lógica de Negocio)
 - [ ] **Crear Background Service**: Implementar una clase que herede de `BackgroundService` (o usar Hangfire/Quartz si ya lo tienes).
@@ -107,6 +107,6 @@
 - [x] Entidades y mapeo EF alineados a `username` (`UserDevice` y `NotificationLog`).
 - [x] Inicialización de Firebase Admin en backend completada.
 - [ ] Ejecutar script SQL en MySQL para recrear tablas con el nuevo esquema.
-- [ ] Implementar `register-device`.
-- [ ] Implementar `unregister-device`.
+- [x] Implementar `register-device`.
+- [x] Implementar `unregister-device`.
 - [ ] Conectar llamadas desde Flutter (post-login / pre-logout).
