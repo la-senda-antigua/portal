@@ -76,7 +76,7 @@ namespace lsa_web_apis.Controllers
 
             try
             {
-                var calendar = await _context.Calendars.FindAsync(id);
+                var calendar = await _context.Calendars.Where(c => c.Id == id).Include(c => c.Managers).FirstOrDefaultAsync();
                 if (calendar is null)
                 {
                     if (useTransaction)
@@ -90,7 +90,7 @@ namespace lsa_web_apis.Controllers
                 {
                     if (useTransaction)
                         await _context.Database.RollbackTransactionAsync();
-                    return Forbid("You do not have permission to edit this calendar.");
+                    return StatusCode(403, "You do not have permission to edit this calendar.");
                 }
 
                 calendar.Name = dto.Name;
@@ -196,13 +196,13 @@ namespace lsa_web_apis.Controllers
         {
             try
             {
-                var calendarEvent = await _context.CalendarEvents.FindAsync(id);
+                var calendarEvent = await _context.CalendarEvents.Where(e => e.Id == id).Include(e => e.Calendar).Include(e => e.Calendar.Managers).FirstOrDefaultAsync();
                 if (calendarEvent is null)
                     return NotFound("Event not found.");
 
                 var hasPermission = User.IsInRole("Admin") || calendarEvent.Calendar.Managers.Any(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (!hasPermission)
-                    return Forbid();
+                    return StatusCode(403, "You do not have permission to delete this event.");
 
                 _context.CalendarEvents.Remove(calendarEvent);
                 await _context.SaveChangesAsync();
@@ -410,14 +410,14 @@ namespace lsa_web_apis.Controllers
 
             try
             {
-                var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+                var calendar = await _context.Calendars.Where(c => c.Id == request.CalendarId).Include(c => c.Managers).FirstOrDefaultAsync();
                 if (calendar is null)
                 {
                     if (useTransaction)
                     {
                         await _context.Database.RollbackTransactionAsync();
                     }
-                    return NotFound("Calendar not found.");
+                    return StatusCode(404, "Calendar not found.");
                 }
 
                 var hasPermission = User.IsInRole("Admin") || calendar.Managers.FirstOrDefault(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value) != null;
@@ -427,7 +427,7 @@ namespace lsa_web_apis.Controllers
                     {
                         await _context.Database.RollbackTransactionAsync();
                     }
-                    return Forbid("You do not have permission to add events to this calendar.");
+                    return StatusCode(403, "You do not have permission to add events to this calendar.");
                 }
 
                 var calendarEvent = new CalendarEvent
@@ -489,11 +489,11 @@ namespace lsa_web_apis.Controllers
 
             if (existingEvent is null) return NotFound("Event not found.");
 
-            var calendar = await _context.Calendars.FindAsync(request.CalendarId);
+            var calendar = await _context.Calendars.Where(c => c.Id == request.CalendarId).Include(c => c.Managers).FirstOrDefaultAsync();
             if (calendar is null) return NotFound("Calendar not found.");
             var hasPermission = User.IsInRole("Admin") || calendar.Managers.FirstOrDefault(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value) != null;
             if (!hasPermission)
-                return Forbid("You do not have permission to edit events in this calendar.");
+                return StatusCode(403, "You do not have permission to edit events in this calendar.");
 
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
@@ -559,7 +559,7 @@ namespace lsa_web_apis.Controllers
             var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
             if (calendar == null)
             {
-                return NotFound("Calendar not found");
+                return StatusCode(404, "Calendar not found");
             }
 
             var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
