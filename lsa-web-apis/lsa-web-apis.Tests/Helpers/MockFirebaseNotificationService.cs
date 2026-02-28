@@ -13,7 +13,7 @@ namespace lsa_web_apis.Tests.Helpers
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new FirebaseAdmin.Messaging.BatchResponse(new List<FirebaseAdmin.Messaging.SendResponse>(), 0, 0));
+                .ReturnsAsync((FirebaseAdmin.Messaging.BatchResponse)null!);
             return mock.Object;
         }
     }
