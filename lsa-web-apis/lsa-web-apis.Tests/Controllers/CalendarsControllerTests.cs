@@ -29,7 +29,7 @@ public class CalendarsControllerTests
         );
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
@@ -52,7 +52,7 @@ public class CalendarsControllerTests
             .Options;
 
         using var context = new UserDbContext(options);
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
 
@@ -91,7 +91,7 @@ public class CalendarsControllerTests
         });
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
@@ -129,7 +129,7 @@ public class CalendarsControllerTests
         });
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
         controller.ControllerContext = new ControllerContext()
         {
@@ -176,7 +176,7 @@ public class CalendarsControllerTests
         });
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         var requestUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {

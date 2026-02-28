@@ -41,7 +41,7 @@ public class CalendarsEventsTests
         // Expected result: no conflicts
 
         using var context = GetContext("Scenario1");
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         var userA = new User { Id = Guid.NewGuid(), Username = "UserA", Name = "User", LastName = "A" };
         context.PortalUsers.Add(userA);
@@ -84,7 +84,7 @@ public class CalendarsEventsTests
         // Expected result: conflict should exist
 
         using var context = GetContext("Scenario2");
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         var userA = new User { Id = Guid.NewGuid(), Username = "UserA", Name = "User", LastName = "A" };
         context.PortalUsers.Add(userA);
@@ -130,7 +130,7 @@ public class CalendarsEventsTests
         // Expected result: no conflict
 
         using var context = GetContext("Scenario3");
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         var userA = new User { Id = Guid.NewGuid(), Username = "UserA", Name = "User", LastName = "A" };
         var userB = new User { Id = Guid.NewGuid(), Username = "UserB", Name = "User", LastName = "B" };
@@ -174,7 +174,7 @@ public class CalendarsEventsTests
         // Expected result: conflict should exist
 
         using var context = GetContext("Scenario5");
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         var userA = new User { Id = Guid.NewGuid(), Username = "UserA", Name = "User", LastName = "A" };
         context.PortalUsers.Add(userA);
@@ -219,7 +219,7 @@ public class CalendarsEventsTests
         // Expected result: User B has a conflict.
 
         using var context = GetContext("Scenario_ConflictWithOneOfTwoUsers");
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         var userA = new User { Id = Guid.NewGuid(), Username = "UserA", Name = "User", LastName = "A" };
         var userB = new User { Id = Guid.NewGuid(), Username = "UserB", Name = "User", LastName = "B" };
@@ -271,7 +271,7 @@ public class CalendarsEventsTests
         // Expected result: 2 users should have conflicts.
 
         using var context = GetContext("Scenario_ComplexConflicts");
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock());
 
         // Create users
         var user1 = new User { Id = Guid.NewGuid(), Username = "User1", Name = "User", LastName = "1" };
