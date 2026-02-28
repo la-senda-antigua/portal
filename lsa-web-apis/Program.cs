@@ -84,6 +84,7 @@ else
 }
 
 // Add services to the container.
+builder.Services.AddSingleton<IFirebaseNotificationService, FirebaseNotificationService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
@@ -140,6 +141,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // LiveService instances which causes timers to be out of sync.
 builder.Services.AddSingleton<ILiveService, LiveService>();
 builder.Services.AddScoped<IVideoRecordingService, VideoRecordingService>();
+builder.Services.AddHostedService<NotificationWorker>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

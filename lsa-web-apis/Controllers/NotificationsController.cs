@@ -7,14 +7,17 @@ using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using lsa_web_apis.Services;
 
 namespace lsa_web_apis.Controllers;
 
 [Route("[controller]")]
 [ApiController]
 [Authorize]
-public class NotificationsController(UserDbContext context) : ControllerBase
+public class NotificationsController(UserDbContext context, IFirebaseNotificationService firebaseNotificationService) : ControllerBase
 {
+    private readonly IFirebaseNotificationService _firebaseNotificationService = firebaseNotificationService;
+
     [HttpPost("register-device")]
     public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceRequest request)
     {
@@ -134,35 +137,11 @@ public class NotificationsController(UserDbContext context) : ControllerBase
 
         try
         {
-            FirebaseAdmin.FirebaseApp? app;
-            try
-            {
-                app = FirebaseAdmin.FirebaseApp.DefaultInstance;
-                if (app is null ) throw new Exception("Firebase DefaultInstance is null.");
-            }
-            catch
-            {
-                return StatusCode(500, "Firebase Admin is not initialized correctly.");
-            }
-
-            var message = new MulticastMessage
-            {
-                Notification = new Notification
-                {
-                    Title = request.Title.Trim(),
-                    Body = request.Body.Trim()
-                },
-                Tokens = tokens
-            };
-
-            var messaging = FirebaseMessaging.DefaultInstance;
-            if (messaging is null)
-            {
-                return StatusCode(500, "Firebase Messaging is not available.");
-            }
-
-            var result = await messaging.SendEachForMulticastAsync(message);
-
+            var result = await _firebaseNotificationService.SendMulticastAsync(
+                tokens,
+                request.Title.Trim(),
+                request.Body.Trim()
+            );
             return Ok(new
             {
                 targetUsername,

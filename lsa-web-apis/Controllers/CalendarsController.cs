@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Ocsp;
+using lsa_web_apis.Services;
 using System;
 using System.Security.Claims;
 
@@ -15,7 +16,7 @@ namespace lsa_web_apis.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class CalendarsController(UserDbContext _context) : ControllerBase
+    public class CalendarsController(UserDbContext _context, IFirebaseNotificationService _firebaseNotificationService) : ControllerBase
     {
         [Authorize(Roles = "Admin,CalendarManager")]
         [HttpGet]
@@ -459,6 +460,40 @@ namespace lsa_web_apis.Controllers
 
                     _context.CalendarEventAssignees.AddRange(assignees);
                     await _context.SaveChangesAsync();
+                }
+
+                // Immediately send notifications for events happening within the next 14 days
+                if (DateTime.TryParse(calendarEvent.StartTime, out var eventDate))
+                {
+                    var dias = (eventDate.Date - DateTime.Now.Date).TotalDays;
+                    if (dias < 14)
+                    {
+                        // Get assigned users
+                        var assignees = await _context.CalendarEventAssignees
+                            .Where(a => a.CalendarEventId == calendarEvent.Id)
+                            .Include(a => a.User)
+                            .ToListAsync();
+                        foreach (var assignee in assignees)
+                        {
+                            var user = assignee.User;
+                            if (user == null || string.IsNullOrEmpty(user.Username)) continue;
+                            var userDevices = await _context.UserDevices
+                                .Where(d => d.Username == user.Username)
+                                .Select(d => d.FirebaseToken)
+                                .ToListAsync();
+                            if (!userDevices.Any()) continue;
+                            var body = $"{calendar.Name} - {eventDate:MMMM dd}";
+                            if (!string.IsNullOrWhiteSpace(calendarEvent.Title))
+                            {
+                                body = $"{calendarEvent.Title}\n{body}";
+                            }
+                            await _firebaseNotificationService.SendMulticastAsync(
+                                userDevices,
+                                $"{user.Name} {user.LastName}",
+                                body
+                            );
+                        }
+                    }
                 }
 
                 if (useTransaction)
