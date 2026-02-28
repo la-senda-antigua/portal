@@ -90,12 +90,14 @@
     - [x] Android: Modificar `build.gradle.kts` (Nivel App).
     - [x] Android: Agregar permiso `POST_NOTIFICATIONS` en `AndroidManifest.xml`.
     - [x] iOS: Colocar `GoogleService-Info.plist` en `ios/Runner/`.
+    - [x] iOS: Configurar Push Notification Capability en Xcode y Apple Developer Portal.
+    - [x] iOS: Generar y subir certificado APNs (.p12) a Firebase Console (Dev & Prod).
 - [x] **Lógica de Token**:
     - [x] Crear servicio para obtener el token: `FirebaseMessaging.instance.getToken()` en `firebase_service.dart`.
     - [x] Llamar al endpoint del Backend `register-device` justo después del Login exitoso.
     - [x] Llamar al endpoint del Backend `unregister-device` justo antes de hacer Logout y borrar datos locales.
     - [x] Soportar múltiples dispositivos por usuario: cada instalación/sesión activa registra su propio `fcmToken` (incluye `onTokenRefresh`).
-- [x] **Recepción de Mensajes**:
+- [ ] **Recepción de Mensajes**:
     - [x] Configurar callbacks para cuando la app está en primer plano (Foreground).
     - [x] Configurar callbacks para cuando la app está en segundo plano/cerrada (Background/Terminated).
 
