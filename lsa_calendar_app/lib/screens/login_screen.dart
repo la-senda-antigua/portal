@@ -9,6 +9,7 @@ import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/screens/calendars_home_screen.dart';
 import 'package:lsa_calendar_app/services/api_service.dart';
+import 'package:lsa_calendar_app/services/firebase_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -69,6 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (token != null && token.isNotEmpty) {
         await ApiService.get('/auth/validate-token');
+        await _registerFirebaseDevice();
 
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
@@ -105,6 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
               prefs.getString('email'),
               prefs.getString('avatar'),
             );
+            await _registerFirebaseDevice();
 
             if (!mounted) return;
             Navigator.of(context).pushAndRemoveUntil(
@@ -152,6 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
         null,
         null,
       );
+      await _registerFirebaseDevice();
 
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
@@ -214,6 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
         userData['email'],
         userData['avatar'],
       );
+      await _registerFirebaseDevice();
 
       if (!mounted) return;
 
@@ -280,6 +285,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (_) {}
 
       await _saveData(token, refreshToken, username, email, null);
+      await _registerFirebaseDevice();
 
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
@@ -302,6 +308,22 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _registerFirebaseDevice() async {
+    final fcmToken = FirebaseService.fcmToken;
+    if (fcmToken == null || fcmToken.isEmpty) return;
+
+    final platform = Platform.isAndroid ? 'android' : Platform.isIOS ? 'ios': 'other';
+    try {
+      await ApiService.post('/notifications/register-device',
+        body: {
+          'fcmToken': fcmToken,
+          'platform': platform,
+        });
+    } catch (e) {
+      debugPrint('register-device error: $e');
     }
   }
 

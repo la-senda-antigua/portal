@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:lsa_calendar_app/services/firebase_service.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/screens/login_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,6 +13,20 @@ void main() async {
   // use '.env' by default
   const envFile = String.fromEnvironment('ENV_FILE', defaultValue: '.env');
   await dotenv.load(fileName: envFile);
+
+  // initialize Firebase
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    debugPrint('Firebase was already initialized: $e');
+  }
+
+  // Initialize Firebase Messaging
+  await FirebaseService.initialize();
 
   runApp(const MainApp());
 }

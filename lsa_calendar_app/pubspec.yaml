@@ -1,7 +1,7 @@
 name: lsa_calendar_app
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.28+1
+version: 1.0.31+1
 
 environment:
   sdk: ^3.8.1
@@ -14,6 +14,9 @@ dependencies:
   http: ^0.13.5
   shared_preferences: ^2.3.0
   sign_in_with_apple: ^6.1.0
+  firebase_core: ^3.4.0
+  firebase_messaging: ^15.1.0
+  flutter_local_notifications: ^17.0.0
 
   flutter:
     sdk: flutter
