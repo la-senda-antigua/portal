@@ -1,14 +1,6 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using FirebaseAdmin.Messaging;
 using lsa_web_apis.Data;
 using lsa_web_apis.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace lsa_web_apis.Services
 {
@@ -51,7 +43,8 @@ namespace lsa_web_apis.Services
                     .Include(e => e.Calendar)
                     .Include(e => e.Assignees)
                     .ThenInclude(a => a.User)
-                    .Where(e => e.StartTime != null &&
+                    .Where(e => e.Calendar.IsHidden == false &&
+                                e.StartTime != null &&
                                 e.StartTime.CompareTo(targetDateStringStart) >= 0 &&
                                 e.StartTime.CompareTo(targetDateStringEnd) <= 0)
                     .ToListAsync(stoppingToken);
