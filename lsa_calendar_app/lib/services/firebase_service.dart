@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +9,16 @@ import 'package:lsa_calendar_app/services/api_service.dart';
 class FirebaseService {
   static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  static final StreamController<RemoteMessage> _notificationEventsController =
+    StreamController<RemoteMessage>.broadcast();
   static String? _fcmToken;
 
   static String? get fcmToken => _fcmToken;
+  static Stream<RemoteMessage> get notificationEvents =>
+    _notificationEventsController.stream;
+
+  static Future<RemoteMessage?> getInitialMessage() =>
+    FirebaseMessaging.instance.getInitialMessage();
 
   static Future<void> initialize() async {
     try {
@@ -68,12 +77,13 @@ class FirebaseService {
   }
 
   static Future<void> setupForegroundMessageHandler() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       debugPrint('Message received in foreground: ${message.notification?.title}');
       debugPrint('Body: ${message.notification?.body}');
 
       // Mostrar notificación local
-      _showLocalNotification(message);
+      await _showLocalNotification(message);
+      _emitNotificationEvent(message, source: 'foreground');
     });
   }
 
@@ -104,8 +114,17 @@ class FirebaseService {
   static Future<void> setupBackgroundMessageHandler() async {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('Message tap: ${message.notification?.title}');
-      // Navigate to screen
+      _emitNotificationEvent(message, source: 'message_opened_app');
     });
+  }
+
+  static void _emitNotificationEvent(
+    RemoteMessage message, {
+    required String source,
+  }) {
+    if (_notificationEventsController.isClosed) return;
+    debugPrint('Notification event emitted from: $source');
+    _notificationEventsController.add(message);
   }
 
   static Future<void> _registerDeviceOnBackend(String token) async {
