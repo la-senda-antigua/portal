@@ -179,7 +179,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
           this.allowedUserIds = [];
 
           const calendar = this.calendars.find((c) => c.id === (value ?? ''));
-          if (calendar && !calendar.isPublic) {
+          if (calendar && !calendar.isPublic && !calendar.isHidden) {
             const members = calendar.members || [];
             const managers = calendar.managers || [];
             this.allowedUserIds = [...members, ...managers].map(

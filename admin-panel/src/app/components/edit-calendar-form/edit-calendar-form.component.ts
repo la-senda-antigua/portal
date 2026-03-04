@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
 import {
   FormBuilder,
@@ -43,6 +43,7 @@ export interface CalendarFormData extends TableViewFormData {
     id?: string;
     name: string;
     isPublic?: boolean;
+    isHidden?: boolean;
     description?: string | null;
     selectedUsers?: CalendarMemberDto[];
   };
@@ -74,14 +75,17 @@ export interface CalendarFormData extends TableViewFormData {
 export class EditCalendarFormComponent implements OnInit {
   readonly formBuilder = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<EditCalendarFormComponent>);
-  readonly formData = inject<CalendarFormData>(MAT_DIALOG_DATA);
+  readonly formData = signal(inject<CalendarFormData>(MAT_DIALOG_DATA));
   readonly calendarsService = inject(CalendarsService);
   readonly datePipe = inject(DatePipe);
   readonly dialog = inject(MatDialog);
-  readonly calendarForm: FormGroup<{
-    name: FormControl<string | null>;
-    isPublic: FormControl<boolean | null>;
-  }>;
+  readonly calendarForm = computed(() => {
+    return new FormGroup({
+      name: new FormControl(this.formData().data.name, Validators.required),
+      isPublic: new FormControl(this.formData().data.isPublic ?? false),
+      isHidden: new FormControl(this.formData().data.isHidden ?? false),
+    });
+  });
   selectedUsers: CalendarMemberDto[] = [];
   loadingUsers = signal(true);
 
@@ -89,19 +93,18 @@ export class EditCalendarFormComponent implements OnInit {
   protected readonly getInitial = getInitial;
   protected readonly getDisplayName = getDisplayName;
 
-  constructor() {
-    this.calendarForm = new FormGroup({
-      name: new FormControl(this.formData.data.name, Validators.required),
-      isPublic: new FormControl(this.formData.data.isPublic ?? false),
-    });
-  }
-
   ngOnInit(): void {
-    if (this.formData.mode != 'add') {
+    if (this.formData().mode != 'add') {
       this.getDetails();
     }
-    this.calendarForm.controls.isPublic.valueChanges.subscribe((isPublic) => {
+    this.calendarForm().controls.isPublic.valueChanges.subscribe((isPublic) => {
       if (isPublic) {
+        this.selectedUsers = this.selectedUsers.filter((user) => user.role === 'Manager');
+      }
+    });
+    this.calendarForm().controls.isHidden.valueChanges.subscribe((isHidden) => {
+      if (isHidden) {
+        this.calendarForm().controls.isPublic.setValue(false);
         this.selectedUsers = this.selectedUsers.filter((user) => user.role === 'Manager');
       }
     });
@@ -109,7 +112,7 @@ export class EditCalendarFormComponent implements OnInit {
 
   getDetails() {
     this.loadingUsers.set(true);
-    this.calendarsService.getById(this.formData.data.id!).subscribe({
+    this.calendarsService.getById(this.formData().data.id!).subscribe({
       next: (data) => {
         const members =
           data.members?.map((u) => ({ ...u, role: 'User' } as CalendarMemberDto)) ?? [];
@@ -133,17 +136,18 @@ export class EditCalendarFormComponent implements OnInit {
   }
 
   private toCalendarFormData(): CalendarFormData {
-    if (this.calendarForm.invalid) {
-      return this.formData;
+    if (this.calendarForm().invalid) {
+      return this.formData();
     }
     
     return {
-      mode: this.formData.mode,
-      type: this.formData.type,
+      mode: this.formData().mode,
+      type: this.formData().type,
       data: {
-        id: this.formData.data.id,
-        name: this.calendarForm.controls.name.value!,
-        isPublic: this.calendarForm.controls.isPublic.value!,
+        id: this.formData().data.id,
+        name: this.calendarForm().controls.name.value!,
+        isPublic: this.calendarForm().controls.isPublic.value!,
+        isHidden: this.calendarForm().controls.isHidden.value!,
         selectedUsers: this.selectedUsers,
       },
     };
@@ -153,7 +157,7 @@ export class EditCalendarFormComponent implements OnInit {
     const dialogRef = this.dialog.open(AddPeopleFormComponent, {
       data: {
         title: 'Share With',
-        calendarId: this.formData.data.id,
+        calendarId: this.formData().data.id,
         existingUsers: this.selectedUsers,
       },
       width: '400px',
@@ -170,7 +174,7 @@ export class EditCalendarFormComponent implements OnInit {
             ),
         );
 
-        if(this.calendarForm.controls.isPublic.value) {
+        if(this.calendarForm().controls.isPublic.value || this.calendarForm().controls.isHidden.value) {
           selectedUsers = selectedUsers.map(u => ({...u, role: 'Manager'}));
         }
 
@@ -190,8 +194,8 @@ export class EditCalendarFormComponent implements OnInit {
     this.dialogRef.close({
       data: {
         action: 'delete',
-        id: this.formData.data.id,
-        name: this.formData.data.name,
+        id: this.formData().data.id,
+        name: this.formData().data.name,
       },
     });
   }

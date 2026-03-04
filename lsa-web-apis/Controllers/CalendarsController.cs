@@ -57,7 +57,8 @@ namespace lsa_web_apis.Controllers
                 Id = Guid.NewGuid(),
                 Name = dto.Name,
                 Active = dto.Active,
-                IsPublic = dto.IsPublic
+                IsPublic = dto.IsPublic,
+                IsHidden = dto.IsHidden
             };
 
             _context.Calendars.Add(calendar);
@@ -97,6 +98,7 @@ namespace lsa_web_apis.Controllers
                 calendar.Name = dto.Name;
                 calendar.Active = dto.Active;
                 calendar.IsPublic = dto.IsPublic;
+                calendar.IsHidden = dto.IsHidden;
 
                 var managerIds = new HashSet<Guid>(dto.Managers?.Select(m => m.UserId) ?? new List<Guid>());
 
@@ -113,7 +115,7 @@ namespace lsa_web_apis.Controllers
                 _context.CalendarManagers.RemoveRange(existingManagers);
 
                 // Add new members (excluding those who are managers)
-                if (!dto.IsPublic && dto.Members != null && dto.Members.Any())
+                if (!dto.IsPublic && !dto.IsHidden && dto.Members != null && dto.Members.Count != 0)
                 {
                     var newMembers = dto.Members
                         .Where(member => !managerIds.Contains(member.UserId))
@@ -127,7 +129,7 @@ namespace lsa_web_apis.Controllers
                 }
 
                 // Add new managers
-                if (dto.Managers != null && dto.Managers.Any())
+                if (dto.Managers != null && dto.Managers.Count != 0)
                 {
                     var newManagers = dto.Managers.Select(member => new CalendarManager
                     {
@@ -234,6 +236,7 @@ namespace lsa_web_apis.Controllers
                     Name = c.Name!,
                     Active = c.Active,
                     IsPublic = c.IsPublic,
+                    IsHidden = c.IsHidden,
                     Managers = c.Managers.Select(m => new CalendarManagerDto
                     {
                         UserId = m.UserId,
@@ -265,6 +268,7 @@ namespace lsa_web_apis.Controllers
                     Name = c.Name!,
                     Active = c.Active,
                     IsPublic = c.IsPublic,
+                    IsHidden = c.IsHidden,
                     Managers = c.Managers.Select(m => new CalendarManagerDto
                     {
                         CalendarId = m.CalendarId,
