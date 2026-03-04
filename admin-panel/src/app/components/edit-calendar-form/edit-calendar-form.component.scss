@@ -64,3 +64,19 @@ mat-form-field {
 .dialog-actions {
   gap: 8px;
 }
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  .checkbox-hint {
+    font-size: 10px;
+    color: rgba(0, 0, 0, 0.6);
+    margin: -8px 0 8px 48px;
+  }
+}

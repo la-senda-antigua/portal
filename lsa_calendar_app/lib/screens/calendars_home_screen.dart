@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
@@ -34,6 +37,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   String? previousDate;
   String? nextDate;
   String viewMode = 'day';
+  StreamSubscription<RemoteMessage>? _notificationSubscription;
+  bool _isRefreshingFromNotification = false;
 
   Future<void> fetchCalendars() async {
     try {
@@ -146,6 +151,36 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     super.initState();
     _loadUsername();
     _loadData();
+    _setupNotificationRefreshListener();
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _setupNotificationRefreshListener() async {
+    _notificationSubscription = FirebaseService.notificationEvents.listen((_) {
+      _refreshFromNotification();
+    });
+
+    final initialMessage = await FirebaseService.getInitialMessage();
+    if (initialMessage != null) {
+      debugPrint('--- App opened from terminated state via notification');
+      await _refreshFromNotification();
+    }
+  }
+
+  Future<void> _refreshFromNotification() async {
+    if (!mounted || _isRefreshingFromNotification) return;
+    _isRefreshingFromNotification = true;
+    debugPrint('--- Refreshing calendars/events due to notification');
+    try {
+      await _loadData(showLoading: false);
+    } finally {
+      _isRefreshingFromNotification = false;
+    }
   }
 
   Future<void> _loadData({bool showLoading = true}) async {
