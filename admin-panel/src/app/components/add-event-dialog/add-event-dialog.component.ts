@@ -67,7 +67,6 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   assignees: PortalUser[] = [];
   allowedUserIds: any[] = [];
 
-  private timeSubscription?: Subscription;
   private calendarSubscription?: Subscription;
 
   isEditMode = signal(false);
@@ -188,37 +187,9 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
           }
         });
     }
-
-    const startTimeControl = this.eventForm.get('startTime');
-    const endTimeControl = this.eventForm.get('endTime');
-
-    if (startTimeControl && endTimeControl) {
-      this.timeSubscription = startTimeControl.valueChanges
-        .pipe(startWith(startTimeControl.value), pairwise())
-        .subscribe(([prev, curr]) => {
-          if (prev && curr && endTimeControl.value) {
-            const prevDate = new Date(prev);
-            const currDate = new Date(curr);
-            const endDate = new Date(endTimeControl.value);
-
-            if (
-              !isNaN(prevDate.getTime()) &&
-              !isNaN(currDate.getTime()) &&
-              !isNaN(endDate.getTime())
-            ) {
-              const diff = currDate.getTime() - prevDate.getTime();
-              const newEndDate = new Date(endDate.getTime() + diff);
-              endTimeControl.setValue(this.convertToISOString(newEndDate), {
-                emitEvent: false,
-              });
-            }
-          }
-        });
-    }
   }
 
   ngOnDestroy(): void {
-    this.timeSubscription?.unsubscribe();
     this.calendarSubscription?.unsubscribe();
   }
 
