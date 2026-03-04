@@ -16,12 +16,13 @@ namespace lsa_web_apis.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class CalendarsController(UserDbContext _context, IFirebaseNotificationService _firebaseNotificationService) : ControllerBase
+    public class CalendarsController(UserDbContext _context, IFirebaseNotificationService _firebaseNotificationService, ILogger<CalendarsController> _logger) : ControllerBase
     {
         [Authorize(Roles = "Admin,CalendarManager")]
         [HttpGet]
         public async Task<ActionResult<PagedResult<Calendar>>> GetCalendars([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
         {
+            _logger.LogInformation("Getting calendars.");
             if (string.IsNullOrEmpty(searchTerm))
             {
                 var pagedResult = await _context.Calendars
@@ -44,6 +45,7 @@ namespace lsa_web_apis.Controllers
         [Route("getAll")]
         public async Task<ActionResult<List<Calendar>>> GetAll()
         {
+            _logger.LogInformation("Getting all calendars.");
             var calendars = await _context.Calendars.ToListAsync();
             return Ok(calendars);
         }
@@ -52,6 +54,7 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<Calendar>> Add([FromBody] CalendarDto dto)
         {
+            _logger.LogInformation("Adding a new calendar with values: {@CalendarDto}", dto);
             var calendar = new Calendar
             {
                 Id = Guid.NewGuid(),
@@ -63,6 +66,7 @@ namespace lsa_web_apis.Controllers
 
             _context.Calendars.Add(calendar);
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Added a new calendar with ID: {CalendarId}", calendar.Id);
 
             return CreatedAtAction(nameof(GetAll), new { id = calendar.Id }, calendar);
         }
@@ -72,6 +76,8 @@ namespace lsa_web_apis.Controllers
         public async Task<ActionResult<Calendar>> Edit(Guid id, [FromBody] CalendarDto dto)
         {
             // Use transactions if not in UnitTests
+            _logger.LogInformation("Editing calendar with ID: {CalendarId}", id);
+            _logger.LogInformation("New values for calendar: {@CalendarDto}", dto);
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction)
                 await _context.Database.BeginTransactionAsync();
@@ -92,6 +98,7 @@ namespace lsa_web_apis.Controllers
                 {
                     if (useTransaction)
                         await _context.Database.RollbackTransactionAsync();
+                    _logger.LogWarning("User does not have permission to edit calendar with ID: {CalendarId}", id);
                     return StatusCode(403, "You do not have permission to edit this calendar.");
                 }
 
@@ -174,7 +181,10 @@ namespace lsa_web_apis.Controllers
 
                 var hasPermission = User.IsInRole("Admin") || calendar.Managers.Any(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (!hasPermission)
+                {
+                    _logger.LogWarning("User does not have permission to delete calendar with ID: {CalendarId}", id);
                     return Forbid();
+                }
 
                 _context.Calendars.Remove(calendar);
                 await _context.SaveChangesAsync();
@@ -184,11 +194,12 @@ namespace lsa_web_apis.Controllers
 
                 return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
                 if (useTransaction)
                     await _context.Database.RollbackTransactionAsync();
-
+                    
+                _logger.LogError(ex, "An error occurred while deleting the calendar with ID: {CalendarId}", id);
                 return StatusCode(500, "An error occurred while deleting the calendar.");
             }
         }
@@ -205,7 +216,10 @@ namespace lsa_web_apis.Controllers
 
                 var hasPermission = User.IsInRole("Admin") || calendarEvent.Calendar.Managers.Any(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (!hasPermission)
+                {
+                    _logger.LogWarning("User does not have permission to delete event with ID: {EventId}", id);
                     return StatusCode(403, "You do not have permission to delete this event.");
+                }
 
                 _context.CalendarEvents.Remove(calendarEvent);
                 await _context.SaveChangesAsync();
@@ -214,6 +228,7 @@ namespace lsa_web_apis.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred while deleting the event with ID: {EventId}", id);
                 return StatusCode(500, "An error occurred while deleting the event.");
             }
 
@@ -223,7 +238,9 @@ namespace lsa_web_apis.Controllers
         [Authorize]
         public async Task<ActionResult<List<CalendarDto>>> GetByUsername()
         {
-            var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;            
+            _logger.LogInformation("Getting calendars for user: {Username}", userName);
+
             IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
                 ? _context.Calendars
                 : _context.Calendars.Where(c => c.IsPublic || c.Managers.Any(m => m.User.Username == userName) || c.Members.Any(m => m.User.Username == userName));
@@ -253,6 +270,7 @@ namespace lsa_web_apis.Controllers
                     }).ToList()
                 }).ToListAsync();
 
+            _logger.LogInformation("Returning {Count} calendars for user: {Username}", paged.Count, userName);
             return Ok(paged);
         }
 
@@ -260,6 +278,7 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<CalendarDto>> GetById(Guid id)
         {
+            _logger.LogInformation("Getting calendar with ID: {CalendarId}", id);
             var calendar = await _context.Calendars
                 .Where(c => c.Id == id)
                 .Select(c => new CalendarDto
@@ -295,6 +314,9 @@ namespace lsa_web_apis.Controllers
         [Authorize]
         public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(GetEventsRequest request)
         {
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
+            _logger.LogInformation("Getting events for user: {Username} for month: {Month} and year: {Year}", userName, request.month, request.year);
+
             var startDate = new DateTime(request.year, request.month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             var startString = startDate.ToString("yyyy-MM-dd");
@@ -379,6 +401,8 @@ namespace lsa_web_apis.Controllers
                     }
                 }
 
+                _logger.LogInformation("Conflicts for event {EventId}: {@Conflicts}", e.Id, conflicts);
+
                 var intersectionStart = start.Date < startDate.Date ? startDate.Date : start.Date;
                 var intersectionEnd = end.Date > endDate.Date ? endDate.Date : end.Date;
 
@@ -401,6 +425,7 @@ namespace lsa_web_apis.Controllers
                 }
             }
 
+            _logger.LogInformation("Returning {Count} events for user: {Username} for month: {Month} and year: {Year}", result.Count, userName, request.month, request.year);
             return Ok(result.OrderBy(e => e.Start).ToList());
         }
 
@@ -415,6 +440,7 @@ namespace lsa_web_apis.Controllers
 
             try
             {
+                _logger.LogInformation("Adding event to calendar with ID: {CalendarId}. Event details: {@EventDetails}", request.CalendarId, request);
                 var calendar = await _context.Calendars.Where(c => c.Id == request.CalendarId).Include(c => c.Managers).FirstOrDefaultAsync();
                 if (calendar is null)
                 {
@@ -507,12 +533,13 @@ namespace lsa_web_apis.Controllers
 
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 if (useTransaction)
                 {
                     await _context.Database.RollbackTransactionAsync();
                 }
+                _logger.LogError(ex, "An error occurred while creating the event. Event details: {@EventDetails}", request);
                 return StatusCode(500, "An error occurred while creating the event. All changes have been rolled back.");
             }
         }
@@ -578,12 +605,13 @@ namespace lsa_web_apis.Controllers
 
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 if (useTransaction)
                 {
                     await _context.Database.RollbackTransactionAsync();
                 }
+                _logger.LogError(ex, "An error occurred while updating the event. Event details: {@EventDetails}", request);
                 return StatusCode(500, "An error occurred while updating the event. All changes have been rolled back.");
             }
         }
@@ -592,12 +620,14 @@ namespace lsa_web_apis.Controllers
         [Route("GetPublicEvents")]
         public async Task<ActionResult> GetPublicEvents(DateTime? dateTime)
         {
+            _logger.LogInformation("Getting public events for date: {DateTime}", dateTime);
             if (dateTime is null)
                 dateTime = DateTime.Now;
 
             var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
             if (calendar == null)
             {
+                _logger.LogWarning("Public calendar not found for date: {DateTime}", dateTime);
                 return StatusCode(404, "Calendar not found");
             }
 
@@ -617,6 +647,7 @@ namespace lsa_web_apis.Controllers
                   AllDay = e.AllDay
               })
               .ToListAsync();
+            _logger.LogInformation("Returning {Count} public events for date: {DateTime}", events.Count, dateTime);
             return Ok(events);
         }
 
@@ -626,6 +657,9 @@ namespace lsa_web_apis.Controllers
         [Route("UserAvailability")]
         public async Task<ActionResult> UserAvailability(UserAvailabilityRequest request)
         {
+            var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
+            _logger.LogInformation("Checking user availability for user: {Username}. Request details: {@Request}", userName, request);
+            
             var userGuids = request.userIds
                 .Select(Guid.Parse)
                 .ToArray();
@@ -646,6 +680,8 @@ namespace lsa_web_apis.Controllers
                     .ThenInclude(a => a.User)
                 .AsNoTracking()
                 .ToListAsync();
+            
+            _logger.LogInformation("Found {Count} conflicting events for user availability check for user: {Username}. Request details: {@Request}", conflictingEvents.Count, userName, request);
 
             var result = conflictingEvents
                 .SelectMany(e => e.Assignees
@@ -678,6 +714,7 @@ namespace lsa_web_apis.Controllers
                 })
                 .ToList();
 
+            _logger.LogInformation("Returning {Count} user availability results for user: {Username}. Request details: {@Request}", result.Count, userName, request);
             return Ok(result);
         }
 
