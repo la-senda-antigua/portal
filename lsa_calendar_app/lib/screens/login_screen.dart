@@ -11,6 +11,7 @@ import 'package:lsa_calendar_app/screens/calendars_home_screen.dart';
 import 'package:lsa_calendar_app/services/api_service.dart';
 import 'package:lsa_calendar_app/services/firebase_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,11 +26,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = true;
   bool _obscurePassword = true;
+  String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
+    _loadAppVersion();
     _checkExistingSession();
+  }
+
+  Future<void> _loadAppVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        _appVersion = packageInfo.version;
+      });
+    }
   }
 
   @override
@@ -315,13 +327,16 @@ class _LoginScreenState extends State<LoginScreen> {
     final fcmToken = FirebaseService.fcmToken;
     if (fcmToken == null || fcmToken.isEmpty) return;
 
-    final platform = Platform.isAndroid ? 'android' : Platform.isIOS ? 'ios': 'other';
+    final platform = Platform.isAndroid
+        ? 'android'
+        : Platform.isIOS
+        ? 'ios'
+        : 'other';
     try {
-      await ApiService.post('/notifications/register-device',
-        body: {
-          'fcmToken': fcmToken,
-          'platform': platform,
-        });
+      await ApiService.post(
+        '/notifications/register-device',
+        body: {'fcmToken': fcmToken, 'platform': platform},
+      );
     } catch (e) {
       debugPrint('register-device error: $e');
     }
@@ -335,129 +350,152 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(42.0),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: _isLoading
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const CircularProgressIndicator(),
-                      const SizedBox(height: 16),
-                      Text(
-                        AppLocalizations.of(context)!.loggingIn,
-                        style: AppTextStyles.body,
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextField(
-                        controller: _usernameController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(
-                            context,
-                          )!.usernameLabel,
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(
-                            context,
-                          )!.passwordLabel,
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _handleStandardLogin,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            backgroundColor: AppColors.accent,
-                            foregroundColor: AppColors.light,
-                            fixedSize: const Size.fromHeight(60),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!.loginButton,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _isLoading
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(),
+                          const SizedBox(height: 16),
+                          Text(
+                            AppLocalizations.of(context)!.loggingIn,
                             style: AppTextStyles.body,
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Row(children: [Expanded(child: Divider())]),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _handleGoogleSignIn,
-                          icon: const FaIcon(FontAwesomeIcons.google, size: 28),
-                          label: Text(
-                            AppLocalizations.of(context)!.googleLoginButton,
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextField(
+                            controller: _usernameController,
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(
+                                context,
+                              )!.usernameLabel,
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.person),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: AppLocalizations.of(
+                                context,
+                              )!.passwordLabel,
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.lock),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _handleStandardLogin,
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                backgroundColor: AppColors.accent,
+                                foregroundColor: AppColors.light,
+                                fixedSize: const Size.fromHeight(60),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context)!.loginButton,
+                                style: AppTextStyles.body,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          const Row(children: [Expanded(child: Divider())]),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: _handleGoogleSignIn,
+                              icon: const FaIcon(
+                                FontAwesomeIcons.google,
+                                size: 28,
+                              ),
+                              label: Text(
+                                AppLocalizations.of(context)!.googleLoginButton,
+                                style: AppTextStyles.body,
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.light,
+                                foregroundColor: AppColors.dark,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: const BorderSide(
+                                    color: AppColors.secondary,
+                                  ),
+                                ),
+                                elevation: 0,
+                              ),
+                            ),
+                          ),
+                          if (Platform.isIOS) ...[
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: _handleAppleSignIn,
+                                icon: const FaIcon(
+                                  FontAwesomeIcons.apple,
+                                  size: 28,
+                                ),
+                                label: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.appleLoginButton,
+                                  style: AppTextStyles.body,
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.dark,
+                                  foregroundColor: AppColors.light,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  elevation: 0,
+                                ),
+                              ),
+                            ),
+                          ],
+
+                          const SizedBox(height: 24),
+                          Text(
+                            'v$_appVersion',
                             style: AppTextStyles.body,
+                            textAlign: TextAlign.center,
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.light,
-                            foregroundColor: AppColors.dark,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                              side: const BorderSide(
-                                color: AppColors.secondary,
-                              ),
-                            ),
-                            elevation: 0,
-                          ),
-                        ),
+                        ],
                       ),
-                      if (Platform.isIOS) ...[
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: _handleAppleSignIn,
-                            icon: const FaIcon(
-                              FontAwesomeIcons.apple,
-                              size: 28,
-                            ),
-                            label: Text(
-                              AppLocalizations.of(context)!.appleLoginButton,
-                              style: AppTextStyles.body,
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              elevation: 0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+              ],
+            ),
           ),
         ),
       ),

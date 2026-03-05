@@ -5,6 +5,7 @@ import 'package:lsa_calendar_app/core/calendar_colors.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class CalendarsDrawer extends StatefulWidget {
   final List<Calendar> calendars;
@@ -26,18 +27,29 @@ class CalendarsDrawer extends StatefulWidget {
 
 class _CalendarsDrawerState extends State<CalendarsDrawer> {
   Set<String> _selectedIds = {};
+  String _appVersion = '';
 
   @override
   void initState() {
     super.initState();
     _selectedIds = widget.calendars.map((c) => c.id.toString()).toSet();
     _loadPreferences();
+    _loadAppVersion();
+  }
+
+  Future<void> _loadAppVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (mounted) {
+      setState(() {
+        _appVersion = packageInfo.version;
+      });
+    }
   }
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final savedIds = prefs.getStringList('selected_calendars');
-    
+
     if (savedIds != null) {
       if (!mounted) return;
       setState(() {
@@ -73,30 +85,47 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(AppLocalizations.of(context)!.viewEventsBy, style: AppTextStyles.subtitle),
+                child: Text(
+                  AppLocalizations.of(context)!.viewEventsBy,
+                  style: AppTextStyles.subtitle,
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: ElevatedButton.icon(
                   onPressed: () => widget.onViewModeChanged('day'),
                   icon: const Icon(Icons.calendar_view_day),
                   label: Text(AppLocalizations.of(context)!.day),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.viewMode == 'day' ? AppColors.accent : AppColors.secondary,
-                    foregroundColor: widget.viewMode == 'day' ?  AppColors.secondary : AppColors.accent ,
+                    backgroundColor: widget.viewMode == 'day'
+                        ? AppColors.accent
+                        : AppColors.secondary,
+                    foregroundColor: widget.viewMode == 'day'
+                        ? AppColors.secondary
+                        : AppColors.accent,
                     elevation: 0,
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: ElevatedButton.icon(
                   onPressed: () => widget.onViewModeChanged('month'),
                   icon: const Icon(Icons.calendar_month),
                   label: Text(AppLocalizations.of(context)!.month),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: widget.viewMode == 'month' ? AppColors.accent :  AppColors.secondary,
-                    foregroundColor: widget.viewMode == 'month' ?  AppColors.secondary : AppColors.accent,
+                    backgroundColor: widget.viewMode == 'month'
+                        ? AppColors.accent
+                        : AppColors.secondary,
+                    foregroundColor: widget.viewMode == 'month'
+                        ? AppColors.secondary
+                        : AppColors.accent,
                     elevation: 0,
                   ),
                 ),
@@ -118,10 +147,13 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
               itemCount: widget.calendars.length,
               itemBuilder: (context, index) {
                 final calendar = widget.calendars[index];
-                final color = CalendarColors.colors[index % CalendarColors.colors.length];
-                final isSelected = _selectedIds.contains(calendar.id.toString());
+                final color =
+                    CalendarColors.colors[index % CalendarColors.colors.length];
+                final isSelected = _selectedIds.contains(
+                  calendar.id.toString(),
+                );
 
-                return CheckboxListTile(                
+                return CheckboxListTile(
                   value: isSelected,
                   onChanged: (bool? value) {
                     if (value != null) {
@@ -133,14 +165,31 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
                       Container(
                         width: 12,
                         height: 12,
-                        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(child: Text(calendar.name, overflow: TextOverflow.ellipsis)),
+                      Expanded(
+                        child: Text(
+                          calendar.name,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 );
               },
+            ),
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              'v$_appVersion',
+              style: AppTextStyles.body,
+              textAlign: TextAlign.center,
             ),
           ),
         ],
