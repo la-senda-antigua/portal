@@ -150,6 +150,7 @@ export class CalendarsComponent implements OnInit {
               name: c.name,
               color: this.service.getCalendarColor(c.id!),
               isPublic: c.isPublic,
+              isHidden: c.isHidden,
               members: c.members,
               managers: c.managers,
             }) as CalendarDto,
@@ -281,6 +282,7 @@ export class CalendarsComponent implements OnInit {
               color: this.service.getCalendarColor(response.id!),
             };
             calendarWithColor.id = response.id;
+            calendarWithColor.iamManager = true;
             this.myCalendars.push(calendarWithColor);
             this.selectedCalendars.push(calendarWithColor.id!);
             this.calendarListLoading.set(false);

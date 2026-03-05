@@ -10,6 +10,7 @@ namespace lsa_web_apis.Models
         public List<CalendarManagerDto>? Managers { get; set; }
         public List<CalendarMemberDto>? Members { get; set; }
         public bool IsPublic { get; set; } = false;
+        public bool IsHidden { get; set; } = false;
     }
 
     public class CalendarEventDto

@@ -7,6 +7,8 @@ using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace lsa_web_apis.Tests.Controllers;
@@ -29,7 +31,7 @@ public class CalendarsControllerTests
         );
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock(), NullLogger<CalendarsController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
@@ -52,7 +54,7 @@ public class CalendarsControllerTests
             .Options;
 
         using var context = new UserDbContext(options);
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock(), NullLogger<CalendarsController>.Instance);
 
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
 
@@ -91,7 +93,7 @@ public class CalendarsControllerTests
         });
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock(), NullLogger<CalendarsController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
@@ -129,7 +131,7 @@ public class CalendarsControllerTests
         });
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock(), NullLogger<CalendarsController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
         controller.ControllerContext = new ControllerContext()
         {
@@ -176,7 +178,7 @@ public class CalendarsControllerTests
         });
         await context.SaveChangesAsync();
 
-        var controller = new CalendarsController(context);
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock(), NullLogger<CalendarsController>.Instance);
 
         var requestUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
         {

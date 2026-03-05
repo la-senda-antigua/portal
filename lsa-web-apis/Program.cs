@@ -1,6 +1,9 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using lsa_web_apis.Data;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -8,11 +11,83 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
+
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 
+// Initialize Firebase Admin SDK if credentials are provided in configuration
+var firebaseAlreadyInitialized = true;
+try
+{
+    var existingApp = FirebaseApp.DefaultInstance;
+    firebaseAlreadyInitialized = existingApp is not null;
+}
+catch
+{
+    firebaseAlreadyInitialized = false;
+}
+
+if (!firebaseAlreadyInitialized)
+{
+    var firebaseKeySection = builder.Configuration.GetSection("FirebaseKey");
+    if (!firebaseKeySection.Exists())
+    {
+        Console.WriteLine("[FirebaseInit] 'FirebaseKey' section not found. Firebase Admin was not initialized.");
+    }
+    else
+    {
+        var firebaseKey = firebaseKeySection.Get<FirebaseKeyOptions>();
+        if (firebaseKey is null)
+        {
+            Console.WriteLine("[FirebaseInit] FirebaseKey section exists but could not be parsed.");
+        }
+        else
+        {
+            firebaseKey.PrivateKey = firebaseKey.PrivateKey?.Replace("\\n", "\n");
+
+            if (string.IsNullOrWhiteSpace(firebaseKey.ProjectId) ||
+                string.IsNullOrWhiteSpace(firebaseKey.PrivateKey) ||
+                string.IsNullOrWhiteSpace(firebaseKey.ClientEmail))
+            {
+                Console.WriteLine("[FirebaseInit] Missing required FirebaseKey fields (ProjectId/PrivateKey/ClientEmail).");
+            }
+            else
+            {
+                var firebaseKeyJson = JsonSerializer.Serialize(new
+                {
+                    type = firebaseKey.Type,
+                    project_id = firebaseKey.ProjectId,
+                    private_key_id = firebaseKey.PrivateKeyId,
+                    private_key = firebaseKey.PrivateKey,
+                    client_email = firebaseKey.ClientEmail,
+                    client_id = firebaseKey.ClientId,
+                    auth_uri = firebaseKey.AuthUri,
+                    token_uri = firebaseKey.TokenUri,
+                    auth_provider_x509_cert_url = firebaseKey.AuthProviderX509CertUrl,
+                    client_x509_cert_url = firebaseKey.ClientX509CertUrl,
+                    universe_domain = firebaseKey.UniverseDomain
+                });
+
+                FirebaseApp.Create(new AppOptions
+                {
+                    Credential = GoogleCredential.FromJson(firebaseKeyJson)
+                });
+
+                Console.WriteLine("[FirebaseInit] Firebase Admin initialized successfully.");
+            }
+        }
+    }
+}
+else
+{
+    Console.WriteLine("[FirebaseInit] Firebase Admin already initialized.");
+}
+
 // Add services to the container.
+builder.Services.AddSingleton<IFirebaseNotificationService, FirebaseNotificationService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
@@ -69,7 +144,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 // LiveService instances which causes timers to be out of sync.
 builder.Services.AddSingleton<ILiveService, LiveService>();
 builder.Services.AddScoped<IVideoRecordingService, VideoRecordingService>();
+builder.Services.AddHostedService<NotificationWorker>();
+
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -99,3 +177,18 @@ app.MapHub<LiveServiceHub>("/lsa-service-hub");
 app.MapHub<RadioInfoHub>("/radio-info-hub");
 
 app.Run();
+
+sealed class FirebaseKeyOptions
+{
+    public string? Type { get; set; }
+    public string? ProjectId { get; set; }
+    public string? PrivateKeyId { get; set; }
+    public string? PrivateKey { get; set; }
+    public string? ClientEmail { get; set; }
+    public string? ClientId { get; set; }
+    public string? AuthUri { get; set; }
+    public string? TokenUri { get; set; }
+    public string? AuthProviderX509CertUrl { get; set; }
+    public string? ClientX509CertUrl { get; set; }
+    public string? UniverseDomain { get; set; }
+}

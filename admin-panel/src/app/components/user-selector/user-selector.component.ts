@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Observable, map, startWith } from 'rxjs';
-import { PortalUser } from '../../models/PortalUser';
+import { PortalUser, UserRole } from '../../models/PortalUser';
 import { UserGroup } from '../../models/UserGroup';
 import { UsersService } from '../../services/users.service';
 import { UserGroupsService } from '../../services/userGroups.service';
@@ -91,7 +91,7 @@ export class UserSelectorComponent implements OnInit, OnChanges {
   private filterAvailableData() {
     if (this.allowedUserIds && this.allowedUserIds.length > 0) {
       this.allUsers = this.rawUsers.filter((u) =>
-        this.allowedUserIds!.includes(u.userId)
+        u.role === UserRole.Admin || this.allowedUserIds!.includes(u.userId)
       );
 
       // Filter selected users if the allowedUserIds input has changed and some selected users are no longer allowed (calendarChange for example)

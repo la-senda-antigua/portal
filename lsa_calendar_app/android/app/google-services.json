@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "394230192742",
+    "firebase_url": "https://ilsa-661a4.firebaseio.com",
+    "project_id": "ilsa-661a4",
+    "storage_bucket": "ilsa-661a4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:394230192742:android:826539833e2f537d6e6ba7",
+        "android_client_info": {
+          "package_name": "com.iglesialasendaantigua.calendar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxeqzjgfMvnWL9EqEzDhVvu2U51bKh7Qs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
