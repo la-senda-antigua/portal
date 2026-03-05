@@ -28,8 +28,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
             var user = await authService.RegisterAsync(username, role, name, lastName);
             if (user is null)
             {
-                log.Warning("Username already in use. Username: {Username}", username);
-                return BadRequest("User name already in use.");
+                throw new Exception("User registration returned null.");
             }
 
             log.Info("User registered successfully. Username: {Username}", username);
@@ -56,8 +55,7 @@ public class AuthController(IAuthService authService, ILogger<AuthController> lo
             var user = await authService.RegisterWithPasswordAsync(request.Username, request.Password, request.Role, request.Name ?? "");
             if (user is null)
             {
-                log.Warning("Username already in use. Username: {Username}", request.Username);
-                return BadRequest("User name already in use.");
+                throw new Exception("User registration returned null.");
             }
 
             log.Info("User registered successfully. Username: {Username}", request.Username);
