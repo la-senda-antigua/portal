@@ -16,26 +16,45 @@ namespace lsa_web_apis.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class CalendarsController(UserDbContext _context, IFirebaseNotificationService _firebaseNotificationService) : ControllerBase
+    public class CalendarsController(UserDbContext _context, IFirebaseNotificationService _firebaseNotificationService, ILogger<CalendarsController> _logger) : ControllerBase
     {
+        private string GetRequestUsername() => User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name ?? "Anonymous";
+        private RequestLogContext CreateLogContext(string actionName, Guid? transactionId = null) => RequestLoggingHelper.CreateContext<CalendarsController>(_logger, User, actionName, transactionId);
+
         [Authorize(Roles = "Admin,CalendarManager")]
         [HttpGet]
         public async Task<ActionResult<PagedResult<Calendar>>> GetCalendars([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
         {
-            if (string.IsNullOrEmpty(searchTerm))
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(GetCalendars), transactionId);
+
+            try
             {
-                var pagedResult = await _context.Calendars
-                .OrderBy(c => c.Id)
-                .ToPagedResultAsync(page, pageSize);
+                log.Info("Getting calendars. Page: {Page}, PageSize: {PageSize}, SearchTerm: {SearchTerm}", page, pageSize, searchTerm);
+                if (string.IsNullOrEmpty(searchTerm))
+                {
+                    var pagedResult = await _context.Calendars
+                    .OrderBy(c => c.Id)
+                    .ToPagedResultAsync(page, pageSize);
 
-                return Ok(pagedResult);
+                    log.Debug("Returning {Count} calendars without search term.", pagedResult.Items.Count());
+
+                    return Ok(pagedResult);
+                }
+
+                var result = await _context.Calendars
+                    .Where(c => !string.IsNullOrEmpty(c.Name) && EF.Functions.Like(c.Name, $"%{searchTerm}%"))
+                    .ToPagedResultAsync(page, pageSize);
+
+                log.Debug("Returning {Count} calendars filtered by search term.", result.Items.Count());
+
+                return Ok(result);
             }
-
-            var result = await _context.Calendars
-                .Where(c => !string.IsNullOrEmpty(c.Name) && EF.Functions.Like(c.Name, $"%{searchTerm}%"))
-                .ToPagedResultAsync(page, pageSize);
-
-            return Ok(result);
+            catch (Exception ex)
+            {
+                log.Error(ex, "Error while getting calendars.");
+                return StatusCode(500, "An error occurred while getting calendars.");
+            }
 
         }
 
@@ -44,34 +63,64 @@ namespace lsa_web_apis.Controllers
         [Route("getAll")]
         public async Task<ActionResult<List<Calendar>>> GetAll()
         {
-            var calendars = await _context.Calendars.ToListAsync();
-            return Ok(calendars);
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(GetAll), transactionId);
+
+            try
+            {
+                log.Info("Getting all calendars.");
+                var calendars = await _context.Calendars.ToListAsync();
+                log.Debug("Returning {Count} calendars.", calendars.Count);
+                return Ok(calendars);
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex, "Error while getting all calendars.");
+                return StatusCode(500, "An error occurred while getting calendars.");
+            }
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<Calendar>> Add([FromBody] CalendarDto dto)
         {
-            var calendar = new Calendar
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(Add), transactionId);
+
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = dto.Name,
-                Active = dto.Active,
-                IsPublic = dto.IsPublic,
-                IsHidden = dto.IsHidden
-            };
+                log.InfoJson("Adding a new calendar. Values:", dto);
+                var calendar = new Calendar
+                {
+                    Id = Guid.NewGuid(),
+                    Name = dto.Name,
+                    Active = dto.Active,
+                    IsPublic = dto.IsPublic,
+                    IsHidden = dto.IsHidden
+                };
 
-            _context.Calendars.Add(calendar);
-            await _context.SaveChangesAsync();
+                _context.Calendars.Add(calendar);
+                await _context.SaveChangesAsync();
+                log.Info("Added a new calendar with ID: {CalendarId}", calendar.Id);
 
-            return CreatedAtAction(nameof(GetAll), new { id = calendar.Id }, calendar);
+                return CreatedAtAction(nameof(GetAll), new { id = calendar.Id }, calendar);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorJson(ex, "Error while adding calendar. Values:", dto);
+                return StatusCode(500, "An error occurred while adding the calendar.");
+            }
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<Calendar>> Edit(Guid id, [FromBody] CalendarDto dto)
         {
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(Edit), transactionId);
             // Use transactions if not in UnitTests
+            log.Info("Editing calendar with ID: {CalendarId}", id);
+            log.InfoJson("New values for calendar:", dto);
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction)
                 await _context.Database.BeginTransactionAsync();
@@ -92,6 +141,7 @@ namespace lsa_web_apis.Controllers
                 {
                     if (useTransaction)
                         await _context.Database.RollbackTransactionAsync();
+                    log.Warning("User does not have permission to edit calendar with ID: {CalendarId}", id);
                     return StatusCode(403, "You do not have permission to edit this calendar.");
                 }
 
@@ -145,12 +195,15 @@ namespace lsa_web_apis.Controllers
                 if (useTransaction)
                     await _context.Database.CommitTransactionAsync();
 
+                log.Info("Calendar updated successfully. CalendarId: {CalendarId}", id);
+
                 return Ok(calendar);
             }
-            catch
+            catch (Exception ex)
             {
                 if (useTransaction)
                     await _context.Database.RollbackTransactionAsync();
+                log.Error(ex, "An error occurred while updating the calendar with ID: {CalendarId}", id);
                 return StatusCode(500, "An error occurred while updating the calendar.");
             }
         }
@@ -159,6 +212,9 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(Delete), transactionId);
+            log.Info("Deleting calendar with ID: {CalendarId}", id);
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction)
                 await _context.Database.BeginTransactionAsync();
@@ -174,7 +230,10 @@ namespace lsa_web_apis.Controllers
 
                 var hasPermission = User.IsInRole("Admin") || calendar.Managers.Any(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (!hasPermission)
+                {
+                    log.Warning("User does not have permission to delete calendar with ID: {CalendarId}", id);
                     return Forbid();
+                }
 
                 _context.Calendars.Remove(calendar);
                 await _context.SaveChangesAsync();
@@ -182,13 +241,16 @@ namespace lsa_web_apis.Controllers
                 if (useTransaction)
                     await _context.Database.CommitTransactionAsync();
 
+                log.Info("Calendar deleted successfully. CalendarId: {CalendarId}", id);
+
                 return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
                 if (useTransaction)
                     await _context.Database.RollbackTransactionAsync();
-
+                    
+                log.Error(ex, "An error occurred while deleting the calendar with ID: {CalendarId}", id);
                 return StatusCode(500, "An error occurred while deleting the calendar.");
             }
         }
@@ -197,6 +259,9 @@ namespace lsa_web_apis.Controllers
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<IActionResult> DeleteEvent(Guid id)
         {
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(DeleteEvent), transactionId);
+            log.Info("Deleting event with ID: {EventId}", id);
             try
             {
                 var calendarEvent = await _context.CalendarEvents.Where(e => e.Id == id).Include(e => e.Calendar).Include(e => e.Calendar.Managers).FirstOrDefaultAsync();
@@ -205,15 +270,21 @@ namespace lsa_web_apis.Controllers
 
                 var hasPermission = User.IsInRole("Admin") || calendarEvent.Calendar.Managers.Any(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
                 if (!hasPermission)
+                {
+                    log.Warning("User does not have permission to delete event with ID: {EventId}", id);
                     return StatusCode(403, "You do not have permission to delete this event.");
+                }
 
                 _context.CalendarEvents.Remove(calendarEvent);
                 await _context.SaveChangesAsync();
+
+                log.Info("Event deleted successfully. EventId: {EventId}", id);
 
                 return NoContent();
             }
             catch (Exception ex)
             {
+                log.Error(ex, "An error occurred while deleting the event with ID: {EventId}", id);
                 return StatusCode(500, "An error occurred while deleting the event.");
             }
 
@@ -223,70 +294,98 @@ namespace lsa_web_apis.Controllers
         [Authorize]
         public async Task<ActionResult<List<CalendarDto>>> GetByUsername()
         {
-            var userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity?.Name;
-            IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
-                ? _context.Calendars
-                : _context.Calendars.Where(c => c.IsPublic || c.Managers.Any(m => m.User.Username == userName) || c.Members.Any(m => m.User.Username == userName));
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(GetByUsername), transactionId);
 
-            var paged = await baseQuery
-                .OrderBy(c => c.Name)
-                .Select(c => new CalendarDto
-                {
-                    Id = c.Id,
-                    Name = c.Name!,
-                    Active = c.Active,
-                    IsPublic = c.IsPublic,
-                    IsHidden = c.IsHidden,
-                    Managers = c.Managers.Select(m => new CalendarManagerDto
-                    {
-                        UserId = m.UserId,
-                        Username = m.User.Username,
-                        Name = m.User.Name,
-                        LastName = m.User.LastName
-                    }).ToList(),
-                    Members = c.Members.Select(m => new CalendarMemberDto
-                    {
-                        UserId = m.UserId,
-                        Username = m.User.Username,
-                        Name = m.User.Name,
-                        LastName = m.User.LastName
-                    }).ToList()
-                }).ToListAsync();
+            try
+            {
+                var userName = GetRequestUsername();
+                log.Info("Getting calendars for user: {Username}", userName);
 
-            return Ok(paged);
+                IQueryable<Calendar> baseQuery = User.IsInRole("Admin")
+                    ? _context.Calendars
+                    : _context.Calendars.Where(c => c.IsPublic || c.Managers.Any(m => m.User.Username == userName) || c.Members.Any(m => m.User.Username == userName));
+
+                var paged = await baseQuery
+                    .OrderBy(c => c.Name)
+                    .Select(c => new CalendarDto
+                    {
+                        Id = c.Id,
+                        Name = c.Name!,
+                        Active = c.Active,
+                        IsPublic = c.IsPublic,
+                        IsHidden = c.IsHidden,
+                        Managers = c.Managers.Select(m => new CalendarManagerDto
+                        {
+                            UserId = m.UserId,
+                            Username = m.User.Username,
+                            Name = m.User.Name,
+                            LastName = m.User.LastName
+                        }).ToList(),
+                        Members = c.Members.Select(m => new CalendarMemberDto
+                        {
+                            UserId = m.UserId,
+                            Username = m.User.Username,
+                            Name = m.User.Name,
+                            LastName = m.User.LastName
+                        }).ToList()
+                    }).ToListAsync();
+
+                log.Info("Returning {Count} calendars for user: {Username}", paged.Count, userName);
+                return Ok(paged);
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex, "Error while getting calendars by username.");
+                return StatusCode(500, "An error occurred while getting calendars.");
+            }
         }
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<CalendarDto>> GetById(Guid id)
         {
-            var calendar = await _context.Calendars
-                .Where(c => c.Id == id)
-                .Select(c => new CalendarDto
-                {
-                    Id = c.Id,
-                    Name = c.Name!,
-                    Active = c.Active,
-                    IsPublic = c.IsPublic,
-                    IsHidden = c.IsHidden,
-                    Managers = c.Managers.Select(m => new CalendarManagerDto
-                    {
-                        CalendarId = m.CalendarId,
-                        Username = m.User.Username,
-                        UserId = m.User.Id
-                    }).ToList(),
-                    Members = c.Members.Select(m => new CalendarMemberDto
-                    {
-                        UserId = m.UserId,
-                        Username = m.User.Username
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(GetById), transactionId);
 
-            if (calendar is null)
-                return NotFound("Calendar not found.");
+            try
+            {
+                log.Info("Getting calendar with ID: {CalendarId}", id);
+                var calendar = await _context.Calendars
+                    .Where(c => c.Id == id)
+                    .Select(c => new CalendarDto
+                    {
+                        Id = c.Id,
+                        Name = c.Name!,
+                        Active = c.Active,
+                        IsPublic = c.IsPublic,
+                        IsHidden = c.IsHidden,
+                        Managers = c.Managers.Select(m => new CalendarManagerDto
+                        {
+                            CalendarId = m.CalendarId,
+                            Username = m.User.Username,
+                            UserId = m.User.Id
+                        }).ToList(),
+                        Members = c.Members.Select(m => new CalendarMemberDto
+                        {
+                            UserId = m.UserId,
+                            Username = m.User.Username
+                        }).ToList()
+                    })
+                    .FirstOrDefaultAsync();
 
-            return Ok(calendar);
+                if (calendar is null)
+                    return NotFound("Calendar not found.");
+
+                log.Debug("Returning calendar with ID: {CalendarId}", id);
+
+                return Ok(calendar);
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex, "Error while getting calendar with ID: {CalendarId}", id);
+                return StatusCode(500, "An error occurred while getting the calendar.");
+            }
         }
 
         public record GetEventsRequest(int month, int year, List<Guid> calendarIds);
@@ -295,113 +394,128 @@ namespace lsa_web_apis.Controllers
         [Authorize]
         public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(GetEventsRequest request)
         {
-            var startDate = new DateTime(request.year, request.month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-            var startString = startDate.ToString("yyyy-MM-dd");
-            var endString = endDate.ToString("yyyy-MM-dd") + " 23:59:59";
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(GetEventsByMonth), transactionId);
 
-            var query = _context.CalendarEvents.AsQueryable();
-
-            if (request.calendarIds == null || !request.calendarIds.Any())
-                return new List<CalendarEventDto>();
-
-            query = query.Where(e =>
-                e.StartTime != null &&
-                e.StartTime.CompareTo(endString) <= 0 &&
-                (e.EndTime == null || e.EndTime.CompareTo(startString) >= 0)
-            );
-
-            var rawEvents = await query
-                .Select(e => new
-                {
-                    e.Id,
-                    e.Title,
-                    e.Description,
-                    e.CalendarId,
-                    e.StartTime,
-                    e.EndTime,
-                    e.AllDay,
-                    CalendarName = e.Calendar.Name,
-                    Assignees = e.Assignees.Select(a => new UserDto
-                    {
-                        UserId = a.User.Id,
-                        Username = a.User.Username,
-                        Name = a.User.Name,
-                        LastName = a.User.LastName,
-                        Role = a.User.Role
-                    }).ToArray()
-                })
-                .AsNoTracking().ToListAsync();
-
-            var assigneeIds = rawEvents
-                .SelectMany(e => e.Assignees)
-                .Select(u => u.UserId)
-                .Where(id => id.HasValue)
-                .Select(id => id!.Value)
-                .Distinct()
-                .ToList();
-
-            var potentialConflicts = await GetPotentialConflicts(request.month, request.year, assigneeIds);
-
-            var result = new List<CalendarEventDto>();
-
-            foreach (var e in rawEvents)
+            try
             {
-                if (!DateTime.TryParse(e.StartTime, out var start)) continue;
-                DateTime end = string.IsNullOrEmpty(e.EndTime) || !DateTime.TryParse(e.EndTime, out var eEnd) ? start : eEnd;
+                var userName = GetRequestUsername();
+                log.Info("Getting events for user: {Username} for month: {Month} and year: {Year}", userName, request.month, request.year);
 
-                var conflicts = new List<EventConflictDto>();
+                var startDate = new DateTime(request.year, request.month, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+                var startString = startDate.ToString("yyyy-MM-dd");
+                var endString = endDate.ToString("yyyy-MM-dd") + " 23:59:59";
 
-                foreach (var assignee in e.Assignees)
-                {
-                    if (assignee.UserId == null) continue;
+                var query = _context.CalendarEvents.AsQueryable();
 
-                    var assigneeConflicts = potentialConflicts
-                        .Where(pc => pc.Id != e.Id &&
-                                     pc.AssigneeIds.Contains(assignee.UserId.Value) &&
-                                     string.Compare(pc.StartTime, e.EndTime) < 0 &&
-                                     string.Compare(pc.EndTime, e.StartTime) > 0)
-                        .ToList();
+                if (request.calendarIds == null || !request.calendarIds.Any())
+                    return new List<CalendarEventDto>();
 
-                    foreach (var conflict in assigneeConflicts)
+                query = query.Where(e =>
+                    e.StartTime != null &&
+                    e.StartTime.CompareTo(endString) <= 0 &&
+                    (e.EndTime == null || e.EndTime.CompareTo(startString) >= 0)
+                );
+
+                var rawEvents = await query
+                    .Select(e => new
                     {
-                        if (!conflicts.Any(c => c.UserId == assignee.UserId && c.CalendarName == conflict.CalendarName))
+                        e.Id,
+                        e.Title,
+                        e.Description,
+                        e.CalendarId,
+                        e.StartTime,
+                        e.EndTime,
+                        e.AllDay,
+                        CalendarName = e.Calendar.Name,
+                        Assignees = e.Assignees.Select(a => new UserDto
                         {
-                            conflicts.Add(new EventConflictDto
+                            UserId = a.User.Id,
+                            Username = a.User.Username,
+                            Name = a.User.Name,
+                            LastName = a.User.LastName,
+                            Role = a.User.Role
+                        }).ToArray()
+                    })
+                    .AsNoTracking().ToListAsync();
+
+                var assigneeIds = rawEvents
+                    .SelectMany(e => e.Assignees)
+                    .Select(u => u.UserId)
+                    .Where(id => id.HasValue)
+                    .Select(id => id!.Value)
+                    .Distinct()
+                    .ToList();
+
+                var potentialConflicts = await GetPotentialConflicts(request.month, request.year, assigneeIds, transactionId);
+
+                var result = new List<CalendarEventDto>();
+
+                foreach (var e in rawEvents)
+                {
+                    if (!DateTime.TryParse(e.StartTime, out var start)) continue;
+                    DateTime end = string.IsNullOrEmpty(e.EndTime) || !DateTime.TryParse(e.EndTime, out var eEnd) ? start : eEnd;
+
+                    var conflicts = new List<EventConflictDto>();
+
+                    foreach (var assignee in e.Assignees)
+                    {
+                        if (assignee.UserId == null) continue;
+
+                        var assigneeConflicts = potentialConflicts
+                            .Where(pc => pc.Id != e.Id &&
+                                         pc.AssigneeIds.Contains(assignee.UserId.Value) &&
+                                         string.Compare(pc.StartTime, e.EndTime) < 0 &&
+                                         string.Compare(pc.EndTime, e.StartTime) > 0)
+                            .ToList();
+
+                        foreach (var conflict in assigneeConflicts)
+                        {
+                            if (!conflicts.Any(c => c.UserId == assignee.UserId && c.CalendarName == conflict.CalendarName))
                             {
-                                UserId = assignee.UserId.Value,
-                                Username = assignee.Username,
-                                Name = assignee.Name ?? "",
-                                LastName = assignee.LastName ?? "",
-                                CalendarName = conflict.CalendarName ?? ""
-                            });
+                                conflicts.Add(new EventConflictDto
+                                {
+                                    UserId = assignee.UserId.Value,
+                                    Username = assignee.Username,
+                                    Name = assignee.Name ?? "",
+                                    LastName = assignee.LastName ?? "",
+                                    CalendarName = conflict.CalendarName ?? ""
+                                });
+                            }
                         }
+                    }
+
+                    var intersectionStart = start.Date < startDate.Date ? startDate.Date : start.Date;
+                    var intersectionEnd = end.Date > endDate.Date ? endDate.Date : end.Date;
+
+                    for (var date = intersectionStart; date <= intersectionEnd; date = date.AddDays(1))
+                    {
+                        result.Add(new CalendarEventDto
+                        {
+                            Id = e.Id,
+                            Title = e.Title,
+                            Description = e.Description,
+                            CalendarId = e.CalendarId,
+                            Start = date == start.Date ? e.StartTime : date.ToString("yyyy-MM-dd HH:mm:ss"),
+                            End = e.EndTime,
+                            AllDay = e.AllDay,
+                            Conflicts = conflicts,
+                            Assignees = e.Assignees,
+                            DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? e.Title :
+                                           string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
+                        });
                     }
                 }
 
-                var intersectionStart = start.Date < startDate.Date ? startDate.Date : start.Date;
-                var intersectionEnd = end.Date > endDate.Date ? endDate.Date : end.Date;
-
-                for (var date = intersectionStart; date <= intersectionEnd; date = date.AddDays(1))
-                {
-                    result.Add(new CalendarEventDto
-                    {
-                        Id = e.Id,
-                        Title = e.Title,
-                        Description = e.Description,
-                        CalendarId = e.CalendarId,
-                        Start = date == start.Date ? e.StartTime : date.ToString("yyyy-MM-dd HH:mm:ss"),
-                        End = e.EndTime,
-                        AllDay = e.AllDay,
-                        Conflicts = conflicts,
-                        Assignees = e.Assignees,
-                        DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? e.Title :
-                                       string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
-                    });
-                }
+                log.Info("Returning {Count} events for user: {Username} for month: {Month} and year: {Year}", result.Count, userName, request.month, request.year);
+                return Ok(result.OrderBy(e => e.Start).ToList());
             }
-
-            return Ok(result.OrderBy(e => e.Start).ToList());
+            catch (Exception ex)
+            {
+                log.ErrorJson(ex, "Error while getting events by month. Request:", request);
+                return StatusCode(500, "An error occurred while getting events.");
+            }
         }
 
 
@@ -410,11 +524,15 @@ namespace lsa_web_apis.Controllers
         [Route("addEvent")]
         public async Task<ActionResult> AddEvent(CalendarEventDto request)
         {
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(AddEvent), transactionId);
             var useTransaction = !_context.Database.IsInMemory();
             if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
 
             try
             {
+                log.Info("Adding event to calendar with ID: {CalendarId}", request.CalendarId);
+                log.InfoJson("Event details:", request);
                 var calendar = await _context.Calendars.Where(c => c.Id == request.CalendarId).Include(c => c.Managers).FirstOrDefaultAsync();
                 if (calendar is null)
                 {
@@ -505,14 +623,17 @@ namespace lsa_web_apis.Controllers
                     await _context.Database.CommitTransactionAsync();
                 }
 
+                log.Info("Event created successfully for CalendarId: {CalendarId}", request.CalendarId);
+
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 if (useTransaction)
                 {
                     await _context.Database.RollbackTransactionAsync();
                 }
+                log.ErrorJson(ex, "An error occurred while creating the event. Event details:", request);
                 return StatusCode(500, "An error occurred while creating the event. All changes have been rolled back.");
             }
         }
@@ -522,23 +643,28 @@ namespace lsa_web_apis.Controllers
         [Route("updateEvent")]
         public async Task<ActionResult> UpdateEvent(CalendarEventDto request)
         {
-            var existingEvent = await _context.CalendarEvents
-                .Include(e => e.Assignees)
-                .FirstOrDefaultAsync(e => e.Id == request.Id);
-
-            if (existingEvent is null) return NotFound("Event not found.");
-
-            var calendar = await _context.Calendars.Where(c => c.Id == request.CalendarId).Include(c => c.Managers).FirstOrDefaultAsync();
-            if (calendar is null) return NotFound("Calendar not found.");
-            var hasPermission = User.IsInRole("Admin") || calendar.Managers.FirstOrDefault(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value) != null;
-            if (!hasPermission)
-                return StatusCode(403, "You do not have permission to edit events in this calendar.");
-
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(UpdateEvent), transactionId);
+            log.Info("Updating event with ID: {EventId}", request.Id);
+            log.InfoJson("New values for event:", request);
             var useTransaction = !_context.Database.IsInMemory();
-            if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
 
             try
             {
+                var existingEvent = await _context.CalendarEvents
+                    .Include(e => e.Assignees)
+                    .FirstOrDefaultAsync(e => e.Id == request.Id);
+
+                if (existingEvent is null) return NotFound("Event not found.");
+
+                var calendar = await _context.Calendars.Where(c => c.Id == request.CalendarId).Include(c => c.Managers).FirstOrDefaultAsync();
+                if (calendar is null) return NotFound("Calendar not found.");
+                var hasPermission = User.IsInRole("Admin") || calendar.Managers.FirstOrDefault(m => m.UserId.ToString() == User.FindFirst(ClaimTypes.NameIdentifier)!.Value) != null;
+                if (!hasPermission)
+                    return StatusCode(403, "You do not have permission to edit events in this calendar.");
+
+                if (useTransaction) { await _context.Database.BeginTransactionAsync(); }
+
                 _context.Entry(existingEvent).Collection(e => e.Assignees).Load();
                 var existingAssignees = existingEvent.Assignees.ToList();
 
@@ -576,14 +702,17 @@ namespace lsa_web_apis.Controllers
                     await _context.Database.CommitTransactionAsync();
                 }
 
+                log.Info("Event updated successfully. EventId: {EventId}", request.Id);
+
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 if (useTransaction)
                 {
                     await _context.Database.RollbackTransactionAsync();
                 }
+                log.ErrorJson(ex, "An error occurred while updating the event. Event details:", request);
                 return StatusCode(500, "An error occurred while updating the event. All changes have been rolled back.");
             }
         }
@@ -592,32 +721,46 @@ namespace lsa_web_apis.Controllers
         [Route("GetPublicEvents")]
         public async Task<ActionResult> GetPublicEvents(DateTime? dateTime)
         {
-            if (dateTime is null)
-                dateTime = DateTime.Now;
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(GetPublicEvents), transactionId);
 
-            var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
-            if (calendar == null)
+            try
             {
-                return StatusCode(404, "Calendar not found");
+                log.Info("Getting public events for date: {DateTime}", dateTime);
+                if (dateTime is null)
+                    dateTime = DateTime.Now;
+
+                var calendar = await _context.Calendars.FirstOrDefaultAsync(c => c.Name == "Eventos Publicos");
+                if (calendar == null)
+                {
+                    log.Warning("Public calendar not found for date: {DateTime}", dateTime);
+                    return StatusCode(404, "Calendar not found");
+                }
+
+                var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
+
+                var events = await _context.CalendarEvents
+                  .Where(e => string.Compare(e.StartTime, dateString) > 0 && e.CalendarId == calendar.Id)
+                  .OrderBy(e => e.StartTime)
+                  .Select(e => new CalendarEventDto
+                  {
+                      Id = e.Id,
+                      Title = e.Title,
+                      Description = e.Description,
+                      CalendarId = e.CalendarId,
+                      Start = e.StartTime,
+                      End = e.EndTime,
+                      AllDay = e.AllDay
+                  })
+                  .ToListAsync();
+                log.Info("Returning {Count} public events for date: {DateTime}", events.Count, dateTime);
+                return Ok(events);
             }
-
-            var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
-
-            var events = await _context.CalendarEvents
-              .Where(e => string.Compare(e.StartTime, dateString) > 0 && e.CalendarId == calendar.Id)
-              .OrderBy(e => e.StartTime)
-              .Select(e => new CalendarEventDto
-              {
-                  Id = e.Id,
-                  Title = e.Title,
-                  Description = e.Description,
-                  CalendarId = e.CalendarId,
-                  Start = e.StartTime,
-                  End = e.EndTime,
-                  AllDay = e.AllDay
-              })
-              .ToListAsync();
-            return Ok(events);
+            catch (Exception ex)
+            {
+                log.Error(ex, "Error while getting public events. DateTime: {DateTime}", dateTime);
+                return StatusCode(500, "An error occurred while getting public events.");
+            }
         }
 
         public record UserAvailabilityRequest(string[] userIds, string startTime, string endTime);
@@ -626,69 +769,96 @@ namespace lsa_web_apis.Controllers
         [Route("UserAvailability")]
         public async Task<ActionResult> UserAvailability(UserAvailabilityRequest request)
         {
-            var userGuids = request.userIds
-                .Select(Guid.Parse)
-                .ToArray();
+            var transactionId = Guid.NewGuid();
+            var log = CreateLogContext(nameof(UserAvailability), transactionId);
 
-            var reqStartTime = request.startTime.Replace("T", " ");
-            var reqEndTime = request.endTime.Replace("T", " ");
+            try
+            {
+                var userName = GetRequestUsername();
+                log.Info("Checking user availability for user: {Username}", userName);
+                log.InfoJson("Request details:", request);
 
-            var conflictingEvents = await _context.CalendarEvents
-                .Where(e =>
-                    e.StartTime != null &&
-                    e.EndTime != null &&
-                    string.Compare(e.StartTime, reqEndTime) < 0 &&
-                    string.Compare(e.EndTime, reqStartTime) > 0 &&
-                    e.Assignees.Any(a => userGuids.Contains(a.UserId))
-                )
-                .Include(e => e.Calendar)
-                .Include(e => e.Assignees)
-                    .ThenInclude(a => a.User)
-                .AsNoTracking()
-                .ToListAsync();
+                var userGuids = request.userIds
+                    .Select(Guid.Parse)
+                    .ToArray();
 
-            var result = conflictingEvents
-                .SelectMany(e => e.Assignees
-                    .Where(a => userGuids.Contains(a.UserId))
-                    .Select(a => new
-                    {
-                        a.User,
-                        e.Calendar,
-                        EventId = e.Id,
-                    }))
-                .GroupBy(x => x.User.Id)
-                .Select(g => new
-                {
-                    user = new CalendarMemberDto
-                    {
-                        UserId = g.Key,
-                        Username = g.First().User.Username,
-                        Name = g.First().User.Name,
-                        LastName = g.First().User.LastName
-                    },
-                    conflicts = g
-                        .Select(x => new
+                var reqStartTime = request.startTime.Replace("T", " ");
+                var reqEndTime = request.endTime.Replace("T", " ");
+
+                var conflictingEvents = await _context.CalendarEvents
+                    .Where(e =>
+                        e.StartTime != null &&
+                        e.EndTime != null &&
+                        string.Compare(e.StartTime, reqEndTime) < 0 &&
+                        string.Compare(e.EndTime, reqStartTime) > 0 &&
+                        e.Assignees.Any(a => userGuids.Contains(a.UserId))
+                    )
+                    .Include(e => e.Calendar)
+                    .Include(e => e.Assignees)
+                        .ThenInclude(a => a.User)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                log.Info("Found {Count} conflicting events for user availability check for user: {Username}", conflictingEvents.Count, userName);
+                log.InfoJson("Request details:", request);
+
+                var result = conflictingEvents
+                    .SelectMany(e => e.Assignees
+                        .Where(a => userGuids.Contains(a.UserId))
+                        .Select(a => new
                         {
-                            x.Calendar.Id,
-                            x.Calendar.Name,
-                            x.EventId,
-                        })
-                        .DistinctBy(c => c.Id)
-                        .ToList()
-                })
-                .ToList();
+                            a.User,
+                            e.Calendar,
+                            EventId = e.Id,
+                        }))
+                    .GroupBy(x => x.User.Id)
+                    .Select(g => new
+                    {
+                        user = new CalendarMemberDto
+                        {
+                            UserId = g.Key,
+                            Username = g.First().User.Username,
+                            Name = g.First().User.Name,
+                            LastName = g.First().User.LastName
+                        },
+                        conflicts = g
+                            .Select(x => new
+                            {
+                                x.Calendar.Id,
+                                x.Calendar.Name,
+                                x.EventId,
+                            })
+                            .DistinctBy(c => c.Id)
+                            .ToList()
+                    })
+                    .ToList();
 
-            return Ok(result);
+                log.Info("Returning {Count} user availability results for user: {Username}", result.Count, userName);
+                log.InfoJson("Request details:", request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorJson(ex, "Error while checking user availability. Request details:", request);
+                return StatusCode(500, "An error occurred while checking user availability.");
+            }
         }
 
-        private async Task<List<PotentialConflict>> GetPotentialConflicts(int month, int year, List<Guid> assigneeIds)
+        private async Task<List<PotentialConflict>> GetPotentialConflicts(int month, int year, List<Guid> assigneeIds, Guid transactionId)
         {
-            if (!assigneeIds.Any()) return new List<PotentialConflict>();
+            var log = CreateLogContext(nameof(GetPotentialConflicts), transactionId);
+            log.Debug("Getting potential conflicts. Month: {Month}, Year: {Year}, AssigneeCount: {AssigneeCount}", month, year, assigneeIds.Count);
+
+            if (!assigneeIds.Any())
+            {
+                log.Debug("No assignees provided. Returning empty conflicts list.");
+                return new List<PotentialConflict>();
+            }
 
             var startOfMonth = $"{year:D4}-{month:D2}-01 00:00:00";
             var endOfMonth = $"{year:D4}-{month:D2}-{DateTime.DaysInMonth(year, month):D2} 23:59:59";
 
-            return await _context.CalendarEvents
+            var conflicts = await _context.CalendarEvents
                 .IgnoreQueryFilters()
                 .Where(e => e.StartTime != null && e.EndTime != null &&
                             string.Compare(e.StartTime, endOfMonth) <= 0 &&
@@ -705,6 +875,9 @@ namespace lsa_web_apis.Controllers
                 })
                 .AsNoTracking()
                 .ToListAsync();
+
+            log.Debug("Found {Count} potential conflicts.", conflicts.Count);
+            return conflicts;
         }
 
         private class PotentialConflict
