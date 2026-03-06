@@ -158,11 +158,13 @@ export class CalendarsComponent implements OnInit {
           !this.calendarEventRecords[year][month] ||
           !this.calendarEventRecords[year][month][id],
       );
-      const existingEvents: CalendarEvent[] = [];
-      selectedCalendarIds.forEach((id: string) => {
-        const events = this.calendarEventRecords[year]?.[month]?.[id] ?? [];
-        existingEvents.push(...events);
-      });
+      const existingEvents: CalendarEvent[] = Object.values(this.calendarEventRecords).flatMap((yearRecords) =>
+        Object.values(yearRecords).flatMap((monthRecords) =>
+          Object.values(monthRecords).flatMap((events) =>
+            events.filter((e) => selectedCalendarIds.includes(e.calendarId)),
+          ),
+        ),
+      );
       if (!missingCalendarIds.length) {
         return of(existingEvents);
       }
