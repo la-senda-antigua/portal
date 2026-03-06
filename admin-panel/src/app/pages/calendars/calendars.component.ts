@@ -85,6 +85,10 @@ export class CalendarsComponent implements OnInit {
   readonly router = inject(Router);
   readonly authService = signal(inject(AuthService));
   readonly currentUserId = computed(() => this.authService().currentUserId);
+  readonly calendarEventRecords: Record<
+    number,
+    Record<number, Record<string, CalendarEvent[]>>
+  > = {};
 
   readonly currentMonth$ = this.activatedRoute.queryParams.pipe(
     map((params) =>
@@ -145,11 +149,44 @@ export class CalendarsComponent implements OnInit {
   ]).pipe(
     debounceTime(200),
     switchMap(([selectedCalendarIds, month, year]) => {
-      return this.calendarsService.getMonthEvents(
-        month,
-        year,
-        selectedCalendarIds,
+      if (!selectedCalendarIds.length) {
+        return of([] as CalendarEvent[]);
+      }
+      const missingCalendarIds = selectedCalendarIds.filter(
+        (id: string) =>
+          !this.calendarEventRecords[year] ||
+          !this.calendarEventRecords[year][month] ||
+          !this.calendarEventRecords[year][month][id],
       );
+      const existingEvents: CalendarEvent[] = [];
+      selectedCalendarIds.forEach((id: string) => {
+        const events = this.calendarEventRecords[year]?.[month]?.[id] ?? [];
+        existingEvents.push(...events);
+      });
+      if (!missingCalendarIds.length) {
+        return of(existingEvents);
+      }
+      return this.calendarsService
+        .getMonthEvents(month, year, missingCalendarIds)
+        .pipe(
+          map((events) => {
+            events.forEach((e) => {
+              if (!this.calendarEventRecords[year]) {
+                this.calendarEventRecords[year] = {};
+              }
+              if (!this.calendarEventRecords[year][month]) {
+                this.calendarEventRecords[year][month] = {};
+              }
+              if (!this.calendarEventRecords[year][month][e.calendarId]) {
+                this.calendarEventRecords[year][month][e.calendarId] = [];
+              }
+              if (!this.calendarEventRecords[year][month][e.calendarId].some((ev) => ev.id === e.id)) {
+                this.calendarEventRecords[year][month][e.calendarId].push(e);
+              }
+            });
+            return [...existingEvents, ...events];
+          }),
+        );
     }),
     catchError(() => of([] as CalendarEvent[])),
     map((events) => this.mapEvents(events)),
