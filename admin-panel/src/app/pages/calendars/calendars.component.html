@@ -15,19 +15,19 @@
       </button>
     </div>
 
-    @if (calendarListLoading()) {
+    @if (calendarListLoading$ | async) {
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     }
 
     <mat-selection-list
       class="calendars-scroll-container"
-      (selectionChange)="onCalendarSelectionChange($event)"
+      (selectionChange)="calendarSelectionChange($event)"
     >
-      @for (item of myCalendars; track item.id) {
+      @for (item of myCalendars$ | async; track item.id) {
         <div class="calendar-item">
           <mat-list-option
             [value]="item.id"
-            [selected]="selectedCalendars.includes(item.id!)"
+            [selected]="(selectedCalendarIds$ | async ).includes(item.id)"
             togglePosition="before"
             [style.--checkbox-color]="item.color"
           >

@@ -407,12 +407,13 @@ namespace lsa_web_apis.Controllers
                 var startString = startDate.ToString("yyyy-MM-dd");
                 var endString = endDate.ToString("yyyy-MM-dd") + " 23:59:59";
 
-                var query = _context.CalendarEvents.AsQueryable();
-
                 if (request.calendarIds == null || !request.calendarIds.Any())
                     return new List<CalendarEventDto>();
 
+                var query = _context.CalendarEvents.AsQueryable();
+
                 query = query.Where(e =>
+                    request.calendarIds.Contains(e.CalendarId) &&
                     e.StartTime != null &&
                     e.StartTime.CompareTo(endString) <= 0 &&
                     (e.EndTime == null || e.EndTime.CompareTo(startString) >= 0)
