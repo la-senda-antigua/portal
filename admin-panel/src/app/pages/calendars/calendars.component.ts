@@ -177,9 +177,13 @@ export class CalendarsComponent implements OnInit {
   }
 
   private filterEvents() {
-    this.calendarOptions.events = this.allEvents
+    const uniqueEvents = new Map<string, any>();
+
+    this.allEvents
       .filter((e) => this.selectedCalendars.includes(e.calendarId))
-      .map((e) => {
+      .forEach((e) => {
+        if (uniqueEvents.has(e.id)) return;
+
         let end = e.end?.replace(' ', 'T');
 
         if (e.allDay && e.end) {
@@ -188,7 +192,7 @@ export class CalendarsComponent implements OnInit {
 
         const color = this.service.getCalendarColor(e.calendarId);
 
-        return {
+        uniqueEvents.set(e.id, {
           title: e.displayTitle ?? e.title,
           backgroundColor: color,
           borderColor: color,
@@ -202,8 +206,10 @@ export class CalendarsComponent implements OnInit {
             originalTitle: e.title,
             displayTitle: e.displayTitle,
           },
-        } as EventInput;
+        } as EventInput);
       });
+
+    this.calendarOptions.events = Array.from(uniqueEvents.values());
   }
 
   onCalendarSelectionChange(event: MatSelectionListChange) {
