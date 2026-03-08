@@ -38,7 +38,9 @@ import {
   map,
   Observable,
   of,
+  ReplaySubject,
   startWith,
+  Subject,
   switchMap,
 } from 'rxjs';
 import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
@@ -83,11 +85,16 @@ export class CalendarsComponent implements OnInit {
   readonly calendarsService = inject(CalendarsService);
   readonly router = inject(Router);
   readonly authService = signal(inject(AuthService));
+  readonly dialog = inject(MatDialog);
+  readonly snackBar = inject(MatSnackBar);
+
   readonly currentUserId = computed(() => this.authService().currentUserId);
   readonly calendarEventRecords: Record<
-    number,
-    Record<number, Record<string, CalendarEvent[]>>
+    string,
+    Record<number, Record<number, CalendarEvent[]>>
   > = {};
+
+  private triggerGetCalendarList$ = new ReplaySubject(1);
 
   readonly currentMonth$ = this.activatedRoute.queryParams.pipe(
     map((params) =>
@@ -105,9 +112,9 @@ export class CalendarsComponent implements OnInit {
     ),
   );
 
-  readonly myCalendars$: Observable<ExtendedCalendar[]> = this.calendarsService
-    .getMyCalendars()
-    .pipe(
+  readonly myCalendars$: Observable<ExtendedCalendar[]> =
+    this.triggerGetCalendarList$.pipe(
+      switchMap(() => this.calendarsService.getMyCalendars()),
       takeUntilDestroyed(this.destroyRef),
       map((calendarDtos) => {
         return calendarDtos.map(
@@ -136,9 +143,9 @@ export class CalendarsComponent implements OnInit {
     );
 
   /** The list of calendars is fetched only once per session */
-  readonly calendarListLoading$ = this.myCalendars$.pipe(
+  readonly calendarListLoading$ = this.triggerGetCalendarList$.pipe(
+    switchMap(() => this.myCalendars$),
     map(() => false),
-    startWith(true),
   );
 
   readonly calendarEvents$ = combineLatest([
@@ -153,9 +160,9 @@ export class CalendarsComponent implements OnInit {
       }
       const missingCalendarIds = selectedCalendarIds.filter(
         (id: string) =>
-          !this.calendarEventRecords[year] ||
-          !this.calendarEventRecords[year][month] ||
-          !this.calendarEventRecords[year][month][id],
+          !this.calendarEventRecords[id] ||
+          !this.calendarEventRecords[id][year] ||
+          !this.calendarEventRecords[id][year][month],
       );
       const existingEvents = this.getEventsInStore(selectedCalendarIds);
       if (!missingCalendarIds.length) {
@@ -164,6 +171,7 @@ export class CalendarsComponent implements OnInit {
       const startDate = this.getInitialDate(month, year);
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 41);
+      this.calendarEventsLoading.set(true);
       return this.calendarsService
         .getEventsByDates(
           startDate.toISOString().split('T')[0],
@@ -172,7 +180,7 @@ export class CalendarsComponent implements OnInit {
         )
         .pipe(
           map((events) => {
-            this.updateEventsInStore(events, month, year, missingCalendarIds);
+            this.addEventsToStore(events, month, year, missingCalendarIds);
             return this.getEventsInStore(selectedCalendarIds);
           }),
         );
@@ -183,17 +191,15 @@ export class CalendarsComponent implements OnInit {
 
   calendarOptions?: CalendarOptions;
 
-  constructor(
-    public dialog: MatDialog,
-    private snackBar: MatSnackBar,
-  ) {}
-
   ngOnInit(): void {
+    this.triggerGetCalendarList$.next(true);
+
     this.calendarEvents$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((events) => {
         if (this.calendarOptions != undefined) {
           this.calendarOptions.events = events;
+          this.calendarEventsLoading.set(false);
         }
       });
 
@@ -240,35 +246,7 @@ export class CalendarsComponent implements OnInit {
     });
   }
 
-  private mapEvents(events: CalendarEvent[]) {
-    return events.map((e) => {
-      let end = e.end?.replace(' ', 'T');
-
-      if (e.allDay && e.end) {
-        end = this.adjustDateByDays(e.end, 1);
-      }
-
-      const color = this.calendarsService.getCalendarColor(e.calendarId);
-
-      return {
-        title: e.displayTitle ?? e.title,
-        backgroundColor: color,
-        borderColor: color,
-        start: e.start?.replace(' ', 'T'),
-        end: end,
-        allDay: e.allDay,
-        extendedProps: {
-          calendarId: e.calendarId,
-          description: e.description,
-          id: e.id,
-          originalTitle: e.title,
-          displayTitle: e.displayTitle,
-        },
-      } as EventInput;
-    });
-  }
-
-  showCalendarOptions(event: MouseEvent, calendar: CalendarDto) {
+  openEditCalendarDialog(event: MouseEvent, calendar: CalendarDto) {
     event.stopPropagation();
 
     const dialogRef = this.dialog.open(EditCalendarFormComponent, {
@@ -313,7 +291,7 @@ export class CalendarsComponent implements OnInit {
       )
       .subscribe((result) => {
         if (result != null) {
-          // this.loadCalendarsAndEvents(true);
+          this.triggerGetCalendarList$.next(true);
         }
       });
   }
@@ -330,15 +308,8 @@ export class CalendarsComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.calendarsService.add(result.data).subscribe({
-          next: (response) => {
-            let calendarWithColor = {
-              ...result.data,
-              color: this.calendarsService.getCalendarColor(response.id!),
-            };
-            calendarWithColor.id = response.id;
-            calendarWithColor.iamManager = true;
-            // this.myCalendars$.push(calendarWithColor);
-            // this.selectedCalendarIds.push(calendarWithColor.id!);
+          next: () => {
+            this.triggerGetCalendarList$.next(true);
           },
           error: (err) => {
             this.handleException(
@@ -544,18 +515,28 @@ export class CalendarsComponent implements OnInit {
       },
     });
 
-    // dialogDelete.afterClosed().subscribe((result) => {
-    //   if (result) {
-    //     this.calendarEventsLoading.set(true);
-    //     this.calendarsService.delete(id).subscribe({
-    //       next: () => this.loadCalendarsAndEvents(true),
-    //       error: (err) => {
-    //         this.calendarEventsLoading.set(false);
-    //         this.handleException(err, err.error);
-    //       },
-    //     });
-    //   }
-    // });
+    dialogDelete.afterClosed().subscribe((result) => {
+      if (result) {
+        this.calendarsService
+          .delete(id)
+          .pipe(switchMap(() => this.selectedCalendarIds$))
+          .subscribe({
+            next: (ids: string[]) => {
+              delete this.calendarEventRecords[id];
+              this.triggerGetCalendarList$.next(true);
+              const updatedIds = ids.filter((calendarId) => calendarId !== id);
+              this.router.navigate([], {
+                relativeTo: this.activatedRoute,
+                queryParams: { calendars: updatedIds.join(',') },
+                queryParamsHandling: 'merge',
+              });
+            },
+            error: (err) => {
+              this.handleException(err, err.error);
+            },
+          });
+      }
+    });
   }
 
   handleException(e: Error, message: string) {
@@ -563,6 +544,34 @@ export class CalendarsComponent implements OnInit {
     console.error(e);
     this.snackBar.open(message, '', {
       duration: 4000,
+    });
+  }
+
+  private mapEvents(events: CalendarEvent[]) {
+    return events.map((e) => {
+      let end = e.end?.replace(' ', 'T');
+
+      if (e.allDay && e.end) {
+        end = this.adjustDateByDays(e.end, 1);
+      }
+
+      const color = this.calendarsService.getCalendarColor(e.calendarId);
+
+      return {
+        title: e.displayTitle ?? e.title,
+        backgroundColor: color,
+        borderColor: color,
+        start: e.start?.replace(' ', 'T'),
+        end: end,
+        allDay: e.allDay,
+        extendedProps: {
+          calendarId: e.calendarId,
+          description: e.description,
+          id: e.id,
+          originalTitle: e.title,
+          displayTitle: e.displayTitle,
+        },
+      } as EventInput;
     });
   }
 
@@ -574,42 +583,45 @@ export class CalendarsComponent implements OnInit {
   }
 
   private getEventsInStore(selectedCalendarIds: string[]): CalendarEvent[] {
-    const arrayOfEvents = Object.values(this.calendarEventRecords).flatMap(
-      (yearRecords) =>
-        Object.values(yearRecords).flatMap((monthRecords) =>
-          Object.values(monthRecords).flatMap((events) =>
-            events.filter((e) => selectedCalendarIds.includes(e.calendarId)),
-          ),
-        ),
-    );
-    return [...new Map(arrayOfEvents.map((e) => [e.id, e])).values()];
+    const events: CalendarEvent[] = [];
+    selectedCalendarIds.forEach((id) => {
+      const calendarEvents = this.calendarEventRecords[id];
+      if (calendarEvents) {
+        Object.values(calendarEvents).forEach((yearEvents) => {
+          Object.values(yearEvents).forEach((monthEvents) => {
+            events.push(...monthEvents);
+          });
+        });
+      }
+    });
+    return [...new Map(events.map((e) => [e.id, e])).values()];
   }
 
-  private updateEventsInStore(
+  private addEventsToStore(
     events: CalendarEvent[],
     month: number,
     year: number,
     missingCalendarIds: string[],
   ) {
-    if (!this.calendarEventRecords[year]) {
-      this.calendarEventRecords[year] = {};
-    }
-    if (!this.calendarEventRecords[year][month]) {
-      this.calendarEventRecords[year][month] = {};
-    }
     missingCalendarIds.forEach((id) => {
-      if (!this.calendarEventRecords[year][month][id]) {
-        this.calendarEventRecords[year][month][id] = [];
+      if (!this.calendarEventRecords[id]) {
+        this.calendarEventRecords[id] = {};
+        if (!this.calendarEventRecords[id][year]) {
+          this.calendarEventRecords[id][year] = {};
+        }
+        if (!this.calendarEventRecords[id][year][month]) {
+          this.calendarEventRecords[id][year][month] = [];
+        }
       }
     });
 
     events.forEach((e) => {
       if (
-        !this.calendarEventRecords[year][month][e.calendarId].some(
+        !this.calendarEventRecords[e.calendarId][year][month].some(
           (ev) => ev.id === e.id,
         )
       ) {
-        this.calendarEventRecords[year][month][e.calendarId].push(e);
+        this.calendarEventRecords[e.calendarId][year][month].push(e);
       }
     });
   }
