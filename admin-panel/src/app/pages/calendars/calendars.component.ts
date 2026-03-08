@@ -205,7 +205,7 @@ export class CalendarsComponent implements OnInit {
     eventTimeFormat: {
       hour: '2-digit' as const,
       minute: '2-digit' as const,
-      hour12: false,
+      hour12: true,
     },
     eventClick: (info: any) => this.showEventOptions(info),
     dateClick: (inf: any) => this.openAddEventDialog(inf),

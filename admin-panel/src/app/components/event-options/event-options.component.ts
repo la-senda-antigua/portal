@@ -21,6 +21,18 @@ export class EventOptionsComponent {
 
   constructor(private dialogRef: MatDialogRef<EventOptionsComponent>) {}
 
+  ngOnInit(): void {
+    const data = this.dialogData();
+
+    if (data.start) {
+      data.startDateObject = new Date(`${data.date}T${data.start}:00`);
+    }
+
+    if (data.end) {
+      data.endDateObject = new Date(`${data.date}T${data.end}:00`);
+    }
+  }
+
   close() {
     this.dialogRef.close();
   }

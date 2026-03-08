@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:lsa_calendar_app/models/eventConflict.dart';
 
 class EventAssignee {
@@ -87,10 +88,8 @@ class Event {
 
   String getTimeDescription(String allDayText) {
     if (allDay) return allDayText;
-    final startStr =
-        "${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}";
-    final endStr =
-        "${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}";
+    final startStr = DateFormat('hh:mm a').format(start);
+    final endStr = DateFormat('hh:mm a').format(end);
     return '$startStr - $endStr';
   }
 
