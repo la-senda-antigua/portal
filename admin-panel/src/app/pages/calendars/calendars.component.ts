@@ -84,7 +84,7 @@ export class CalendarsComponent implements OnInit {
     eventTimeFormat: {
       hour: '2-digit' as const,
       minute: '2-digit' as const,
-      hour12: false,
+      hour12: true,
     },
     eventClick: (info: any) => this.showEventOptions(info),
     dateClick: (inf: any) => this.openAddEventDialog(inf),
@@ -162,8 +162,7 @@ export class CalendarsComponent implements OnInit {
 
   loadCalendarEvents(): Observable<CalendarEvent[]> {
     this.calendarEventsLoading.set(true);
-    const currentStart =
-      this.fullCalendarApi()?.view.currentStart ?? new Date();
+    const currentStart = this.fullCalendarApi()?.view.currentStart ?? new Date();
     const month = currentStart.getMonth() + 1;
     const year = currentStart.getFullYear();
 
