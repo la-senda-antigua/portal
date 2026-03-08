@@ -27,7 +27,7 @@
         <div class="calendar-item">
           <mat-list-option
             [value]="item.id"
-            [selected]="(selectedCalendarIds$ | async ).includes(item.id)"
+            [selected]="(selectedCalendarIds$ | async).includes(item.id)"
             togglePosition="before"
             [style.--checkbox-color]="item.color"
           >
@@ -67,7 +67,8 @@
       class="progress-bar"
       [class.invisible]="!calendarEventsLoading()"
     ></mat-progress-bar>
-
-    <full-calendar [options]="calendarOptions"></full-calendar>
+    @if (calendarOptions != undefined) {
+      <full-calendar [options]="calendarOptions"></full-calendar>
+    }
   </div>
 </div>

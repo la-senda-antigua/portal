@@ -34,22 +34,21 @@ import {
   catchError,
   combineLatest,
   debounceTime,
+  first,
   map,
   Observable,
   of,
   startWith,
   switchMap,
 } from 'rxjs';
-import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
 import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
 import {
   CalendarFormData,
   EditCalendarFormComponent,
 } from '../../components/edit-calendar-form/edit-calendar-form.component';
-import { EventOptionsComponent } from '../../components/event-options/event-options.component';
 import { CalendarEvent } from '../../models/CalendarEvent';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
-import { PortalUser, UserRole } from '../../models/PortalUser';
+import { UserRole } from '../../models/PortalUser';
 import { AuthService } from '../../services/auth.service';
 
 interface ExtendedCalendar extends CalendarDto {
@@ -158,35 +157,23 @@ export class CalendarsComponent implements OnInit {
           !this.calendarEventRecords[year][month] ||
           !this.calendarEventRecords[year][month][id],
       );
-      const existingEvents: CalendarEvent[] = Object.values(this.calendarEventRecords).flatMap((yearRecords) =>
-        Object.values(yearRecords).flatMap((monthRecords) =>
-          Object.values(monthRecords).flatMap((events) =>
-            events.filter((e) => selectedCalendarIds.includes(e.calendarId)),
-          ),
-        ),
-      );
+      const existingEvents = this.getEventsInStore(selectedCalendarIds);
       if (!missingCalendarIds.length) {
         return of(existingEvents);
       }
+      const startDate = this.getInitialDate(month, year);
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 41);
       return this.calendarsService
-        .getMonthEvents(month, year, missingCalendarIds)
+        .getEventsByDates(
+          startDate.toISOString().split('T')[0],
+          endDate.toISOString().split('T')[0],
+          missingCalendarIds,
+        )
         .pipe(
           map((events) => {
-            events.forEach((e) => {
-              if (!this.calendarEventRecords[year]) {
-                this.calendarEventRecords[year] = {};
-              }
-              if (!this.calendarEventRecords[year][month]) {
-                this.calendarEventRecords[year][month] = {};
-              }
-              if (!this.calendarEventRecords[year][month][e.calendarId]) {
-                this.calendarEventRecords[year][month][e.calendarId] = [];
-              }
-              if (!this.calendarEventRecords[year][month][e.calendarId].some((ev) => ev.id === e.id)) {
-                this.calendarEventRecords[year][month][e.calendarId].push(e);
-              }
-            });
-            return [...existingEvents, ...events];
+            this.updateEventsInStore(events, month, year, missingCalendarIds);
+            return this.getEventsInStore(selectedCalendarIds);
           }),
         );
     }),
@@ -194,22 +181,7 @@ export class CalendarsComponent implements OnInit {
     map((events) => this.mapEvents(events)),
   );
 
-  readonly calendarOptions: CalendarOptions = {
-    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-    initialView: 'dayGridMonth',
-    editable: true,
-    selectable: true,
-    events: [] as EventInput,
-    datesSet: (args) => this.calendarMonthChange(args),
-    displayEventTime: true,
-    eventTimeFormat: {
-      hour: '2-digit' as const,
-      minute: '2-digit' as const,
-      hour12: true,
-    },
-    eventClick: (info: any) => this.showEventOptions(info),
-    dateClick: (inf: any) => this.openAddEventDialog(inf),
-  };
+  calendarOptions?: CalendarOptions;
 
   constructor(
     public dialog: MatDialog,
@@ -220,7 +192,31 @@ export class CalendarsComponent implements OnInit {
     this.calendarEvents$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((events) => {
-        this.calendarOptions.events = events;
+        if (this.calendarOptions != undefined) {
+          this.calendarOptions.events = events;
+        }
+      });
+
+    combineLatest([this.currentMonth$, this.currentYear$])
+      .pipe(first(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(([month, year]) => {
+        this.calendarOptions = {
+          plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+          initialView: 'dayGridMonth',
+          editable: true,
+          selectable: true,
+          events: [] as EventInput,
+          initialDate: new Date(year, month - 1, 1),
+          datesSet: (args) => this.calendarMonthChange(args),
+          displayEventTime: true,
+          eventTimeFormat: {
+            hour: '2-digit' as const,
+            minute: '2-digit' as const,
+            hour12: true,
+          },
+          eventClick: (info: any) => this.showEventOptions(info),
+          dateClick: (inf: any) => this.openAddEventDialog(inf),
+        };
       });
   }
 
@@ -236,8 +232,7 @@ export class CalendarsComponent implements OnInit {
   }
 
   calendarMonthChange(datesSet: DatesSetArg) {
-    const month = datesSet.start.getMonth() + 1;
-    const year = datesSet.start.getFullYear();
+    const { month, year } = this.getCurrentMonthFromDate(datesSet.start);
     this.router.navigate([], {
       relativeTo: this.activatedRoute,
       queryParams: { month, year },
@@ -576,5 +571,76 @@ export class CalendarsComponent implements OnInit {
     const date = new Date(`${datePart}T00:00:00Z`);
     date.setUTCDate(date.getUTCDate() + days);
     return date.toISOString().split('T')[0];
+  }
+
+  private getEventsInStore(selectedCalendarIds: string[]): CalendarEvent[] {
+    const arrayOfEvents = Object.values(this.calendarEventRecords).flatMap(
+      (yearRecords) =>
+        Object.values(yearRecords).flatMap((monthRecords) =>
+          Object.values(monthRecords).flatMap((events) =>
+            events.filter((e) => selectedCalendarIds.includes(e.calendarId)),
+          ),
+        ),
+    );
+    return [...new Map(arrayOfEvents.map((e) => [e.id, e])).values()];
+  }
+
+  private updateEventsInStore(
+    events: CalendarEvent[],
+    month: number,
+    year: number,
+    missingCalendarIds: string[],
+  ) {
+    if (!this.calendarEventRecords[year]) {
+      this.calendarEventRecords[year] = {};
+    }
+    if (!this.calendarEventRecords[year][month]) {
+      this.calendarEventRecords[year][month] = {};
+    }
+    missingCalendarIds.forEach((id) => {
+      if (!this.calendarEventRecords[year][month][id]) {
+        this.calendarEventRecords[year][month][id] = [];
+      }
+    });
+
+    events.forEach((e) => {
+      if (
+        !this.calendarEventRecords[year][month][e.calendarId].some(
+          (ev) => ev.id === e.id,
+        )
+      ) {
+        this.calendarEventRecords[year][month][e.calendarId].push(e);
+      }
+    });
+  }
+
+  /**
+   *
+   * @param month The month for which to calculate the initial date (1-12)
+   * @param year The year for which to calculate the initial date
+   * @returns A Date object representing the initial date to be used in the calendar, which is the Sunday on or before the first day of the given month and year
+   * This ensures that the calendar view always starts on a Sunday, even if the first day of the month is in the middle of the week
+   */
+  private getInitialDate(month: number, year: number): Date {
+    const startOfMonth = new Date(year, month - 1, 1);
+    const indexOfFirstDay = startOfMonth.getDay();
+    const initialDate = new Date(startOfMonth);
+    initialDate.setDate(initialDate.getDate() - indexOfFirstDay);
+    return initialDate;
+  }
+
+  /**
+   * @param date The date of the first Sunday of the calendar view
+   * @returns The month (1-12) that should be used as the current month in the calendar view. If the given date is not the first day of the month
+   * it returns the next month, otherwise it returns the month of the given date.
+   * This is used to determine the current month when the calendar view starts on a Sunday that belongs to the previous month
+   */
+  private getCurrentMonthFromDate(date: Date): { month: number; year: number } {
+    if (date.getDate() === 1) {
+      return { month: date.getMonth() + 1, year: date.getFullYear() };
+    }
+    const nextMonth = new Date(date);
+    nextMonth.setDate(nextMonth.getDate() + 7);
+    return { month: nextMonth.getMonth() + 1, year: nextMonth.getFullYear() };
   }
 }
