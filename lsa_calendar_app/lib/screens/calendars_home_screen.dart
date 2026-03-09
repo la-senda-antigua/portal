@@ -44,7 +44,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     try {
       final data = await ApiService.get('/calendars/myCalendars');
       setState(() {
-        calendars = (data as List).map((json) => Calendar.fromJson(json)).toList();
+        calendars = (data as List)
+            .map((json) => Calendar.fromJson(json))
+            .toList();
       });
     } catch (e) {
       if (mounted) {
@@ -65,7 +67,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         'calendarIds': calendars.map((c) => c.id.toString()).toList(),
       };
 
-      final response = await ApiService.post('/calendars/GetEventsByMonth',body: body);     
+      final response = await ApiService.post(
+        '/calendars/GetEventsByMonth',
+        body: body,
+      );
 
       setState(() {
         events = [];
@@ -79,13 +84,18 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         }
 
         if (snapToFirst) {
-          final uniqueDates = events
-              .map((e) => "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}")
-              .toSet()
-              .toList()
-            ..sort();
-          final currentStr = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
-          if (uniqueDates.isNotEmpty && !uniqueDates.contains(currentStr)) {            
+          final uniqueDates =
+              events
+                  .map(
+                    (e) =>
+                        "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}",
+                  )
+                  .toSet()
+                  .toList()
+                ..sort();
+          final currentStr =
+              "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
+          if (uniqueDates.isNotEmpty && !uniqueDates.contains(currentStr)) {
             currentDate = DateTime.parse(uniqueDates.first);
           }
         }
@@ -106,12 +116,16 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   void _updateNavigationDates() {
     final uniqueDates =
         events
-            .map((e) => "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}")
+            .map(
+              (e) =>
+                  "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}",
+            )
             .toSet()
             .toList()
           ..sort();
 
-    final currentStr = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
+    final currentStr =
+        "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
     String? prev;
     String? next;
 
@@ -191,9 +205,14 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     await _loadViewMode();
     await fetchEvents();
 
-    final eventsOnDate = events.where((e) => 
-      e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day
-    ).toList();
+    final eventsOnDate = events
+        .where(
+          (e) =>
+              e.start.year == currentDate.year &&
+              e.start.month == currentDate.month &&
+              e.start.day == currentDate.day,
+        )
+        .toList();
 
     if (eventsOnDate.isEmpty) {
       final found = await _findAndSetNextEventDateFrom(currentDate);
@@ -203,11 +222,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   Future<bool> _findAndSetNextEventDateFrom(DateTime fromDate) async {
-    final uniqueDatesCurrent = events
-        .map((e) => DateTime(e.start.year, e.start.month, e.start.day))
-        .toSet()
-        .toList()
-      ..sort();
+    final uniqueDatesCurrent =
+        events
+            .map((e) => DateTime(e.start.year, e.start.month, e.start.day))
+            .toSet()
+            .toList()
+          ..sort();
 
     for (final d in uniqueDatesCurrent) {
       if (d.isAfter(DateTime(fromDate.year, fromDate.month, fromDate.day))) {
@@ -225,13 +245,20 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         'calendarIds': calendars.map((c) => c.id.toString()).toList(),
       };
       try {
-        final resp = await ApiService.post('/calendars/GetEventsByMonth', body: body);
+        final resp = await ApiService.post(
+          '/calendars/GetEventsByMonth',
+          body: body,
+        );
         final monthEvents = (resp as List)
             .map((json) => Event.fromJson(json))
             .toList();
         if (monthEvents.isNotEmpty) {
           monthEvents.sort((a, b) => a.start.compareTo(b.start));
-          final earliest = DateTime(monthEvents.first.start.year, monthEvents.first.start.month, monthEvents.first.start.day);
+          final earliest = DateTime(
+            monthEvents.first.start.year,
+            monthEvents.first.start.month,
+            monthEvents.first.start.day,
+          );
           setState(() => currentDate = earliest);
           _updateNavigationDates();
           return true;
@@ -249,7 +276,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
-      username = prefs.getString('username') ?? AppLocalizations.of(context)!.guestUser;
+      username =
+          prefs.getString('username') ??
+          AppLocalizations.of(context)!.guestUser;
       avatar = prefs.getString('avatar');
       email = prefs.getString('email');
     });
@@ -300,20 +329,29 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('--- Build. CurrentDate: $currentDate. Events: ${events.length}');
-    
+    debugPrint(
+      '--- Build. CurrentDate: $currentDate. Events: ${events.length}',
+    );
+
     final eventsToShow = viewMode == 'day'
-        ? events.where((e) =>
-            e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day
-          ).toList()
+        ? events
+              .where(
+                (e) =>
+                    e.start.year == currentDate.year &&
+                    e.start.month == currentDate.month &&
+                    e.start.day == currentDate.day,
+              )
+              .toList()
         : events;
 
     final visibleEvents = eventsToShow.where((e) {
-      final matchesCalendar = selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId);
+      final matchesCalendar =
+          selectedCalendarIds == null ||
+          selectedCalendarIds!.contains(e.calendarId);
       return matchesCalendar;
     }).toList();
 
-    if (viewMode == 'month') {      
+    if (viewMode == 'month') {
       final calendarNames = {for (var c in calendars) c.id.toString(): c.name};
       visibleEvents.sort((a, b) {
         final nameA = calendarNames[a.calendarId] ?? '';
@@ -349,7 +387,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       drawer: CalendarsDrawer(
         calendars: calendars,
         viewMode: viewMode,
-        onSelectedCalendarsChanged: (ids) => setState(() => selectedCalendarIds = ids),
+        onSelectedCalendarsChanged: (ids) =>
+            setState(() => selectedCalendarIds = ids),
         onViewModeChanged: (mode) {
           setState(() => viewMode = mode);
           _saveViewMode(mode);
@@ -373,26 +412,44 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
               onDateSelected: (dateStr) => _goToDate(dateStr),
             ),
           Expanded(
-            child: (visibleEvents.isEmpty && eventsToShow.isNotEmpty)
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        AppLocalizations.of(context)!.selectCalendarMessage,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge,
+            child: AnimatedSwitcher(
+              duration: Duration(milliseconds: 800),
+              transitionBuilder: (child, animation) {
+                final curvedAnimation = CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.decelerate, //easeIn, easeOut, linear
+                );
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset(1, 0),
+                    end: Offset(0, 0),
+                  ).animate(curvedAnimation),
+                  child: child,
+                );
+              },
+              child: (visibleEvents.isEmpty && eventsToShow.isNotEmpty)
+                  ? Center(
+                      key: ValueKey('empty_${currentDate.toIso8601String()}'),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Text(
+                          AppLocalizations.of(context)!.selectCalendarMessage,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
                       ),
+                    )
+                  : EventsList(
+                      key: ValueKey(currentDate),
+                      events: visibleEvents,
+                      calendars: calendars,
+                      isLoading: isLoading || isLoadingEvents,
+                      error: error,
+                      onRefresh: () => _loadData(showLoading: false),
+                      onEventTap: (event) {},
+                      showDate: viewMode == 'month',
                     ),
-                  )
-                : EventsList(
-                    events: visibleEvents,
-                    calendars: calendars,
-                    isLoading: isLoading || isLoadingEvents,
-                    error: error,
-                    onRefresh: () => _loadData(showLoading: false),
-                    onEventTap: (event) {},
-                    showDate: viewMode == 'month',
-                  ),
+            ),
           ),
         ],
       ),
