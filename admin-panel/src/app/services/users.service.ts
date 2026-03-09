@@ -50,4 +50,9 @@ export class UsersService extends GeneralServiceBase {
     )}`;
     return this.requestManager.get<TableResult<PortalUser>>(url);
   }
+
+  override getById(id: string): Observable<PortalUser> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.requestManager.get<PortalUser>(url);
+  }
 }
