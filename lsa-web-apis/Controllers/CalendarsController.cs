@@ -389,11 +389,21 @@ namespace lsa_web_apis.Controllers
             }
         }
 
-        public record GetEventsRequest(int month, int year, List<Guid> calendarIds);
+        public record GetEventsRequest(List<Guid> CalendarIds, DateTime? StartDate, DateTime? EndDate, int Month = 0, int Year = 0);
 
         [HttpPost("GetEventsByMonth")]
         [Authorize]
         public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByMonth(GetEventsRequest request)
+        {
+            var startDate = new DateTime(request.Year, request.Month, 1);
+            var endDate = startDate.AddMonths(1).AddSeconds(-1);
+            var getEventsRequest = new GetEventsRequest(request.CalendarIds, startDate, endDate);
+            return await GetEventsByDates(getEventsRequest);
+        }
+
+        [HttpPost("GetEventsByDates")]
+        [Authorize]
+        public async Task<ActionResult<List<CalendarEventDto>>> GetEventsByDates(GetEventsRequest request)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(GetEventsByMonth), transactionId);
@@ -401,19 +411,17 @@ namespace lsa_web_apis.Controllers
             try
             {
                 var userName = GetRequestUsername();
-                log.Info("Getting events for user: {Username} for month: {Month} and year: {Year}", userName, request.month, request.year);
+                log.Info("Getting events for user: {Username} from: {StartDate} to: {EndDate}", userName, request.StartDate, request.EndDate);
+                var startString = request.StartDate?.ToString("yyyy-MM-dd");
+                var endString = request.EndDate?.ToString("yyyy-MM-dd") + " 23:59:59";
 
-                var startDate = new DateTime(request.year, request.month, 1);
-                var endDate = startDate.AddMonths(1).AddDays(-1);
-                var startString = startDate.ToString("yyyy-MM-dd");
-                var endString = endDate.ToString("yyyy-MM-dd") + " 23:59:59";
+                if (request.CalendarIds == null || !request.CalendarIds.Any())
+                    return new List<CalendarEventDto>();
 
                 var query = _context.CalendarEvents.AsQueryable();
 
-                if (request.calendarIds == null || !request.calendarIds.Any())
-                    return new List<CalendarEventDto>();
-
                 query = query.Where(e =>
+                    request.CalendarIds.Contains(e.CalendarId) &&
                     e.StartTime != null &&
                     e.StartTime.CompareTo(endString) <= 0 &&
                     (e.EndTime == null || e.EndTime.CompareTo(startString) >= 0)
@@ -449,7 +457,7 @@ namespace lsa_web_apis.Controllers
                     .Distinct()
                     .ToList();
 
-                var potentialConflicts = await GetPotentialConflicts(request.month, request.year, assigneeIds, transactionId);
+                var potentialConflicts = await GetPotentialConflicts(request.StartDate!.Value, request.EndDate!.Value, assigneeIds, transactionId);
 
                 var result = new List<CalendarEventDto>();
 
@@ -487,8 +495,8 @@ namespace lsa_web_apis.Controllers
                         }
                     }
 
-                    var intersectionStart = start.Date < startDate.Date ? startDate.Date : start.Date;
-                    var intersectionEnd = end.Date > endDate.Date ? endDate.Date : end.Date;
+                    var intersectionStart = start.Date < request.StartDate?.Date ? request.StartDate.Value.Date : start.Date;
+                    var intersectionEnd = end.Date > request.EndDate?.Date ? request.EndDate.Value.Date : end.Date;
 
                     for (var date = intersectionStart; date <= intersectionEnd; date = date.AddDays(1))
                     {
@@ -509,7 +517,7 @@ namespace lsa_web_apis.Controllers
                     }
                 }
 
-                log.Info("Returning {Count} events for user: {Username} for month: {Month} and year: {Year}", result.Count, userName, request.month, request.year);
+                log.Info("Returning {Count} events for user: {Username} for month: {Month} and year: {Year}", result.Count, userName, request.Month, request.Year);
                 return Ok(result.OrderBy(e => e.Start).ToList());
             }
             catch (Exception ex)
@@ -845,10 +853,10 @@ namespace lsa_web_apis.Controllers
             }
         }
 
-        private async Task<List<PotentialConflict>> GetPotentialConflicts(int month, int year, List<Guid> assigneeIds, Guid transactionId)
+        private async Task<List<PotentialConflict>> GetPotentialConflicts(DateTime startDate, DateTime endDate, List<Guid> assigneeIds, Guid transactionId)
         {
             var log = CreateLogContext(nameof(GetPotentialConflicts), transactionId);
-            log.Debug("Getting potential conflicts. Month: {Month}, Year: {Year}, AssigneeCount: {AssigneeCount}", month, year, assigneeIds.Count);
+            log.Debug("Getting potential conflicts. StartDate: {StartDate}, EndDate: {EndDate}, AssigneeCount: {AssigneeCount}", startDate, endDate, assigneeIds.Count);
 
             if (!assigneeIds.Any())
             {
@@ -856,14 +864,11 @@ namespace lsa_web_apis.Controllers
                 return new List<PotentialConflict>();
             }
 
-            var startOfMonth = $"{year:D4}-{month:D2}-01 00:00:00";
-            var endOfMonth = $"{year:D4}-{month:D2}-{DateTime.DaysInMonth(year, month):D2} 23:59:59";
-
             var conflicts = await _context.CalendarEvents
                 .IgnoreQueryFilters()
                 .Where(e => e.StartTime != null && e.EndTime != null &&
-                            string.Compare(e.StartTime, endOfMonth) <= 0 &&
-                            string.Compare(e.EndTime, startOfMonth) >= 0 &&
+                            string.Compare(e.StartTime, endDate.ToString("yyyy-MM-dd HH:mm:ss")) <= 0 &&
+                            string.Compare(e.EndTime, startDate.ToString("yyyy-MM-dd HH:mm:ss")) >= 0 &&
                             e.Assignees.Any(a => assigneeIds.Contains(a.UserId)))
                 .Select(e => new PotentialConflict
                 {

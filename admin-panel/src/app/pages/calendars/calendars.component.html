@@ -17,39 +17,47 @@
 
     @if (calendarListLoading()) {
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    }
-
-    <mat-selection-list
-      class="calendars-scroll-container"
-      (selectionChange)="onCalendarSelectionChange($event)"
-    >
-      @for (item of myCalendars; track item.id) {
-        <div class="calendar-item">
-          <mat-list-option
-            [value]="item.id"
-            [selected]="selectedCalendars.includes(item.id!)"
-            togglePosition="before"
-            [style.--checkbox-color]="item.color"
-          >
-            {{ item.name }}
-          </mat-list-option>
-
-          <span
-            matTooltip="You don't have permission to make edits this calendar"
-            [matTooltipDisabled]="item.iAmManager"
-          >
-            <button
-              mat-icon-button
-              class="more-options"
-              (click)="showCalendarOptions($event, item)"
-              [disabled]="!item.iAmManager"
+    } @else {
+      <mat-checkbox
+         class="select-all-checkbox"
+         [checked]="selectedCalendars.length === myCalendars.length"
+         (change)="toggleSelectAll($event)"
+      >
+        Select all
+      </mat-checkbox>
+      <mat-divider></mat-divider>
+      <mat-selection-list
+        class="calendars-scroll-container"
+        (selectionChange)="onCalendarSelectionChange($event)"
+      >
+        @for (item of myCalendars; track item.id) {
+          <div class="calendar-item">
+            <mat-list-option
+              [value]="item.id"
+              [selected]="selectedCalendars.includes(item.id!)"
+              togglePosition="before"
+              [style.--checkbox-color]="item.color"
             >
-              <mat-icon>more_vert</mat-icon>
-            </button>
-          </span>
-        </div>
-      }
-    </mat-selection-list>
+              {{ item.name }}
+            </mat-list-option>
+
+            <span
+              matTooltip="You don't have permission to make edits this calendar"
+              [matTooltipDisabled]="item.iAmManager"
+            >
+              <button
+                mat-icon-button
+                class="more-options"
+                (click)="showCalendarOptions($event, item)"
+                [disabled]="!item.iAmManager"
+              >
+                <mat-icon>more_vert</mat-icon>
+              </button>
+            </span>
+          </div>
+        }
+      </mat-selection-list>
+    }
 
     <button
       mat-stroked-button

@@ -6,6 +6,7 @@ export interface PortalUser {
   role: string;
   calendarsAsManager?: any[];
   calendarsAsMember?: any[];
+  preferences?: string;
 }
 
 export enum UserRole {

@@ -14,4 +14,5 @@ public class User
     public byte[]? PasswordHash { get; set; }
     public byte[]? PasswordSalt { get; set; }
     public int RowId { get; set; }
+    public string? Preferences { get; set; }
 }
