@@ -29,7 +29,7 @@
         @if (dialogData().allDay){
           <span>All day</span>
         } @else{
-          {{dialogData().start}} - {{dialogData().end}}
+          {{dialogData().startDateObject | date:'hh:mm a'}} - {{dialogData().endDateObject | date:'hh:mm a'}}
         }
       </td>
     </tr>

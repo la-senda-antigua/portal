@@ -2,7 +2,6 @@ using lsa_web_apis.Data;
 using lsa_web_apis.Models;
 using lsa_web_apis.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using lsa_web_apis.Entities;
@@ -113,7 +112,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<User>> UpdateUser(Guid id, [FromBody] UserDto updateData)
         {
             using var transaction = await context.Database.BeginTransactionAsync();
@@ -127,7 +126,7 @@ namespace lsa_web_apis.Controllers
                 user.Role = updateData.Role;
                 user.Name = updateData.Name;
                 user.LastName = updateData.LastName;
-
+                user.Preferences = updateData.Preferences;
 
                 var existingCalendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
                 var existingCalendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
@@ -169,6 +168,42 @@ namespace lsa_web_apis.Controllers
             await context.SaveChangesAsync();
 
             return NoContent();
+        }
+    
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,CalendarManager")]
+        public async Task<ActionResult<UserDto>> GetUserById(Guid id)
+        {
+            var user = await context.PortalUsers
+                .AsNoTracking()
+                .Where(u => u.Id == id)
+                .Select(u => new UserDto
+                {
+                    UserId = u.Id,
+                    Username = u.Username,
+                    Name = u.Name,
+                    LastName = u.LastName,
+                    Role = u.Role,
+                    Preferences = u.Preferences,
+                    CalendarsAsManager = context.CalendarManagers
+                        .Where(cm => cm.UserId == u.Id)
+                        .Select(cm => new CalendarDto
+                        {
+                            Id = cm.Calendar.Id,
+                            Name = cm.Calendar.Name,
+                            Active = cm.Calendar.Active
+                        }).ToList(),
+                    CalendarsAsMember = context.CalendarMembers
+                        .Where(cm => cm.UserId == u.Id)
+                        .Select(cm => new CalendarDto
+                        {
+                            Id = cm.Calendar.Id,
+                            Name = cm.Calendar.Name,
+                            Active = cm.Calendar.Active
+                        }).ToList()
+                })
+                .FirstOrDefaultAsync();
+        return Ok(user);
         }
     }
 }

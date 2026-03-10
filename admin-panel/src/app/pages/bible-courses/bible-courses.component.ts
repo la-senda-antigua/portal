@@ -35,6 +35,7 @@ export class BibleCoursesComponent extends PageBaseComponent {
     id: 'id',
     matchingString: 'id',
     name: 'title',
+    requestMatchingString: true,
   };
   override tableTitle = 'Bible Courses';
 

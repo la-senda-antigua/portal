@@ -8,4 +8,5 @@ export interface CalendarEvent {
   backgroundColor?: string;
   calendarId: string;
   displayTitle?: string;
+  allDay?: boolean;
 }

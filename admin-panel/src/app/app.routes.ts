@@ -92,5 +92,4 @@ export const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: [UserRole.Admin] }
   },
-
 ];
