@@ -50,6 +50,7 @@ export class UsersPageComponent extends PageBaseComponent {
     id: 'id',
     matchingString: 'username',
     name: 'username',
+    requestMatchingString: true,
   };
 
   override tableTitle = 'Users';

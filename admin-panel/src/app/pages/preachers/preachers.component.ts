@@ -27,6 +27,7 @@ export class PreachersComponent extends PageBaseComponent {
     id: 'id',
     matchingString: 'id',
     name: 'name',
+    requestMatchingString: true,
   };
   override tableTitle = 'Preachers';
 

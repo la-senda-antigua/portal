@@ -37,6 +37,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
     id: 'id',
     matchingString: 'id',
     name: 'title',
+    requestMatchingString: true,
   };
   override tableTitle = 'Church Services';
 
