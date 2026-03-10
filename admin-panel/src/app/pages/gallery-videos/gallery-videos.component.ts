@@ -34,6 +34,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
     id: 'id',
     matchingString: 'id',
     name: 'title',
+    requestMatchingString: true,
   };
   override tableTitle = 'Video Gallery';
 

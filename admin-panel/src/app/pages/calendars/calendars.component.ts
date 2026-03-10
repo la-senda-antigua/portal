@@ -42,7 +42,7 @@ import {
 } from '../../components/edit-calendar-form/edit-calendar-form.component';
 import { EventOptionsComponent } from '../../components/event-options/event-options.component';
 import { CalendarEvent } from '../../models/CalendarEvent';
-import { CalendarMemberDto } from '../../models/CalendarMemberDto';
+import { CalendarMemberDto, DeleteConfirmationData } from '../../models/CalendarMemberDto';
 import { PortalUser, UserRole } from '../../models/PortalUser';
 import { AuthService } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
@@ -534,12 +534,13 @@ export class CalendarsComponent {
       if (result?.action === 'edit') {
         this.openAddEventDialog(result.event);
       } else if (result?.action === 'delete') {
+        const deleteConfirmationData: DeleteConfirmationData = {
+          id: event.id,
+          requestMatchingString: false,
+          prompt: `Are you sure you want to delete ${displayTitle}?`
+        }
         const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
-          data: {
-            id: event.id,
-            matchingString: event.title,
-            name: event.title,
-          },
+          data: deleteConfirmationData
         });
 
         dialogDelete.afterClosed().subscribe((result) => {
@@ -565,9 +566,9 @@ export class CalendarsComponent {
     const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
       data: {
         id: id,
-        matchingString: name,
-        name: name,
-      },
+        requestMatchingString: false,
+        prompt: `Are you sure you want to delete ${name}?`
+      } as DeleteConfirmationData,
     });
 
     dialogDelete.afterClosed().subscribe((result) => {

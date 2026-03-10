@@ -223,6 +223,7 @@ namespace lsa_web_apis.Controllers
             {
                 var calendar = await _context.Calendars
                     .Include(c => c.Events)
+                    .Include(c => c.Managers)
                     .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (calendar is null)

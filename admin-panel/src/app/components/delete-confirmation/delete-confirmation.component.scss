@@ -1,6 +1,10 @@
 .content {
   max-width: 300px;
-  mat-form-field{
+  mat-form-field {
     width: 100%;
   }
+}
+
+.actions {
+  gap: 8px;
 }

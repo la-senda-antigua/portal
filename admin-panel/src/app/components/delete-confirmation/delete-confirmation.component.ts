@@ -16,9 +16,16 @@ export interface DeleteConfirmationData {
   // Used to communicate between components what element is being deleted
   id: string;
   // Users will be prompted to enter this text as confirmation
-  matchingString: string;
+  matchingString?: string;
   // This name is presented to users to let them know what they are deleting
-  name: string;
+  name?: string;
+  // If true, users will be required to enter the matchingString to confirm deletion. If false, users can simply click the confirm button.
+  requestMatchingString?: boolean;
+  // Optional: if not provided, the default prompt will be
+  // " You are about to delete "<b><i>{{ data.name }}</i></b>" from the database.
+  // Because this is a destructive action and it cannot be undone, we ask you
+  // to confirm this action by typing the following text in the box below: "
+  prompt?: string;
 }
 
 @Component({

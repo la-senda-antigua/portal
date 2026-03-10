@@ -33,6 +33,7 @@ export class PlaylistsViewComponent extends PageBaseComponent {
     id: 'id',
     matchingString: 'name',
     name: 'name',
+    requestMatchingString: true,
   };
   override tableTitle = 'Video Playlists';
 
