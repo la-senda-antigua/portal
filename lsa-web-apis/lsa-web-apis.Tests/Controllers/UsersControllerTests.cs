@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ public class UsersControllerTests
         );
         await context.SaveChangesAsync();
 
-        var controller = new UsersController(mockAuthService.Object, context);
+        var controller = new UsersController(mockAuthService.Object, context, NullLogger<UsersController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
 
         controller.ControllerContext = new ControllerContext()
@@ -75,7 +76,7 @@ public class UsersControllerTests
         mockAuthService.Setup(x => x.RegisterAsync("newuser", "User", "Usuario Nuevo", "Apellido Prueba"))
             .ReturnsAsync(newUser);
 
-        var controller = new UsersController(mockAuthService.Object, context);
+        var controller = new UsersController(mockAuthService.Object, context, NullLogger<UsersController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
             new Claim(ClaimTypes.Role, "Admin")
         }, "mock"));
@@ -138,7 +139,7 @@ public class UsersControllerTests
             "Apellido Prueba"
         )).ReturnsAsync(newUser);
 
-        var controller = new UsersController(mockAuthService.Object, context);
+        var controller = new UsersController(mockAuthService.Object, context, NullLogger<UsersController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
         controller.ControllerContext = new ControllerContext()
         {
@@ -186,7 +187,7 @@ public class UsersControllerTests
         context.PortalUsers.Add(new User { Id = userId, Username = "olduser", Role = "User" });
         await context.SaveChangesAsync();
 
-        var controller = new UsersController(mockAuthService.Object, context);
+        var controller = new UsersController(mockAuthService.Object, context, NullLogger<UsersController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
         controller.ControllerContext = new ControllerContext() { HttpContext = new DefaultHttpContext() { User = user } };
 
@@ -213,7 +214,7 @@ public class UsersControllerTests
         context.PortalUsers.Add(new User { Id = userId, Username = "testUser", Role = "User" });
         await context.SaveChangesAsync();
 
-        var controller = new UsersController(mockAuthService.Object, context);
+        var controller = new UsersController(mockAuthService.Object, context, NullLogger<UsersController>.Instance);
         var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { new Claim(ClaimTypes.Role, "Admin") }, "mock"));
         controller.ControllerContext = new ControllerContext() { HttpContext = new DefaultHttpContext() { User = user } };
 
