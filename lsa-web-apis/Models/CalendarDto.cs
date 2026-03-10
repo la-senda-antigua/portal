@@ -66,15 +66,7 @@ namespace lsa_web_apis.Models
     {
         public Guid? Id { get; set; }
         public string GroupName { get; set; } = string.Empty;
-        public List<UserGroupMemberDto>? Members { get; set; } = new List<UserGroupMemberDto>();
+        public List<CalendarMemberDto>? Members { get; set; } = new List<CalendarMemberDto>();
 
-    }
-
-    public class UserGroupMemberDto
-    {
-        //public Guid UserGroupId { get; set; }       
-        public Guid UserId { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
     }
 }
