@@ -511,9 +511,9 @@ export class CalendarsComponent implements OnInit {
     const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
       data: {
         id: id,
-        matchingString: name,
-        name: name,
-      },
+        requestMatchingString: false,
+        prompt: `Are you sure you want to delete ${name}?`
+      } as DeleteConfirmationData,
     });
 
     dialogDelete.afterClosed().subscribe((result) => {
