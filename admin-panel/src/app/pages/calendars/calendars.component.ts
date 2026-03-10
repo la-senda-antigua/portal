@@ -35,14 +35,14 @@ import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
-import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
+import { DeleteConfirmationComponent, DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 import {
   CalendarFormData,
   EditCalendarFormComponent,
 } from '../../components/edit-calendar-form/edit-calendar-form.component';
 import { EventOptionsComponent } from '../../components/event-options/event-options.component';
 import { CalendarEvent } from '../../models/CalendarEvent';
-import { CalendarMemberDto, DeleteConfirmationData } from '../../models/CalendarMemberDto';
+import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { PortalUser, UserRole } from '../../models/PortalUser';
 import { AuthService } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
