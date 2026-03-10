@@ -35,7 +35,7 @@ import { AddEventDialogComponent } from '../../components/add-event-dialog/add-e
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { EventOptionsComponent } from '../../components/event-options/event-options.component';
 import { CalendarEvent } from '../../models/CalendarEvent';
-import { DeleteConfirmationComponent } from '../../components/delete-confirmation/delete-confirmation.component';
+import { DeleteConfirmationComponent, DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -479,12 +479,13 @@ export class CalendarsComponent implements OnInit {
       if (result?.action === 'edit') {
         this.openAddEventDialog(result.event);
       } else if (result?.action === 'delete') {
+        const deleteConfirmationData: DeleteConfirmationData = {
+          id: event.id,
+          requestMatchingString: false,
+          prompt: `Are you sure you want to delete ${displayTitle}?`
+        }
         const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
-          data: {
-            id: event.id,
-            matchingString: event.title,
-            name: event.title,
-          },
+          data: deleteConfirmationData
         });
 
         dialogDelete.afterClosed().subscribe((result) => {
@@ -510,9 +511,9 @@ export class CalendarsComponent implements OnInit {
     const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
       data: {
         id: id,
-        matchingString: name,
-        name: name,
-      },
+        requestMatchingString: false,
+        prompt: `Are you sure you want to delete ${name}?`
+      } as DeleteConfirmationData,
     });
 
     dialogDelete.afterClosed().subscribe((result) => {

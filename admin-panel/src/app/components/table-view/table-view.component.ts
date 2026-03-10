@@ -198,8 +198,9 @@ export class TableViewComponent {
   openDeleteConfirmation(entry: any) {
     const confirmationData = {
       id: entry[this.deleteConfirmationFields().id],
-      matchingString: entry[this.deleteConfirmationFields().matchingString],
-      name: entry[this.deleteConfirmationFields().name],
+      matchingString: entry[this.deleteConfirmationFields().matchingString!],
+      name: entry[this.deleteConfirmationFields().name!],
+      requestMatchingString: this.deleteConfirmationFields().requestMatchingString
     } as DeleteConfirmationData;
     const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
       data: confirmationData,
