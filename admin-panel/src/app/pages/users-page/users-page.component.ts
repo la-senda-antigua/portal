@@ -113,6 +113,7 @@ export class UsersPageComponent extends PageBaseComponent {
   override load(): void {
     this.store.dispatch(UsersActions.loadUsers());
     this.store.dispatch(UsersActions.loadUserGroups());
+    this.dataSource.update
   }
 
   override parseForm(form: UserFormData): PortalUser {
@@ -131,35 +132,12 @@ export class UsersPageComponent extends PageBaseComponent {
   }
 
   override onSearch(data: any): void {
-    const { searchTerm, page, pageSize } = data;
-    this.isLoading.set(true);
-    this.service.search(searchTerm, page, pageSize).subscribe({
-      next: (response) => {
-        const users = response.items
-          .filter((u: PortalUser) => u.userId) // Filtrar usuarios sin userId
-          .map((u: PortalUser) => ({
-            id: u.userId,
-            username: u.username,
-            name: u.name,
-            lastName: u.lastName,
-            displayName: `${u.name ?? ''} ${u.lastName ?? ''}`,
-            roles: u.role?.split(',') || [],
-            calendarsAsManager: u.calendarsAsManager,
-            calendarsAsMember: u.calendarsAsMember,
-            groups: u.groups,
-          }));
-        this.dataSource.set({
-          page: response.page,
-          pageSize: response.pageSize,
-          totalItems: response.totalItems,
-          items: users,
-          columns: this.tableCols,
-        });
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.handleException(err, 'There was an error loading users.');
-      },
-    });
+    const { searchTerm } = data;
+    this.dataSource.update((tableData) => ({
+      ...tableData,
+      items: this.users().filter((user) =>
+        user.username.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    }));
   }
 }

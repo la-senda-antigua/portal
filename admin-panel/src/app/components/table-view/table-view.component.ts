@@ -154,6 +154,10 @@ export class TableViewComponent {
         const paginator = this.paginator();
         if (paginator) {
           if (!this.loadWithPagination()) {
+            this.tableDatasource.filterPredicate = (data, filter) => {
+              const dataStr = JSON.stringify(data).toLowerCase();
+              return dataStr.includes(filter);
+            };
             this.tableDatasource.paginator = paginator;
           }
           paginator.pageSize = this.datasource().pageSize;
@@ -233,6 +237,11 @@ export class TableViewComponent {
   }
 
   search(){
+    if(!this.loadWithPagination()){
+      this.tableDatasource!.filter = this.searchTerm.trim().toLowerCase();
+      this.tableDatasource!.paginator!.firstPage();
+      return;
+    }
     const data = {searchTerm: this.searchTerm, page: 1, pageSize: this.datasource().pageSize};
     this.onSearch.emit(data);
   }

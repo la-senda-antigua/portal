@@ -11,7 +11,7 @@
   }
   @if(tableDatasource != undefined) {
   <mat-form-field appearance="outline" class="w-full">
-    <input matInput placeholder="search..." [(ngModel)]="searchTerm" required (keydown.enter)="search()"/>
+    <input matInput placeholder="search..." [(ngModel)]="searchTerm" required (keyup)="search()"/>
   </mat-form-field>
 
   <table mat-table [dataSource]="tableDatasource!" class="mat-elevation-z8">
