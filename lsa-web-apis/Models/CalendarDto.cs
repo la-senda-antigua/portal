@@ -66,7 +66,7 @@ namespace lsa_web_apis.Models
     {
         public Guid? Id { get; set; }
         public string GroupName { get; set; } = string.Empty;
-        public List<UserGroupMemberDto>? Members { get; set; } = new List<UserGroupMemberDto>();
+        public List<Guid>? Members { get; set; } = [];
 
     }
 

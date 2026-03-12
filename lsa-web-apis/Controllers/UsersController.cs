@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
-using System;
 
 namespace lsa_web_apis.Controllers
 {    
@@ -42,23 +41,7 @@ namespace lsa_web_apis.Controllers
                         Username = u.Username,
                         Name = u.Name,
                         LastName = u.LastName,
-                        Role = u.Role,
-                        CalendarsAsManager = context.CalendarManagers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList(),
-                        CalendarsAsMember = context.CalendarMembers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList()
+                        Role = u.Role
                     });
 
                 var result = await usersQuery
@@ -256,23 +239,7 @@ namespace lsa_web_apis.Controllers
                         Name = u.Name,
                         LastName = u.LastName,
                         Role = u.Role,
-                        Preferences = u.Preferences,
-                        CalendarsAsManager = context.CalendarManagers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList(),
-                        CalendarsAsMember = context.CalendarMembers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList()
+                        Preferences = u.Preferences
                     })
                     .FirstOrDefaultAsync();
 

@@ -1,9 +1,10 @@
-import { Component, viewChild } from '@angular/core';
+import { Component, effect, inject, untracked, viewChild } from '@angular/core';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import {
   TableViewColumn,
   TableViewComponent,
+  TableViewDataSource,
 } from '../../components/table-view/table-view.component';
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
@@ -15,6 +16,14 @@ import {
   EditUserFormComponent,
   UserFormData,
 } from '../../components/edit-user-form/edit-user-form.component';
+import { Store } from '@ngrx/store';
+import {
+  selectUserGroups,
+  selectUserGroupsLoading,
+  selectUsers,
+  selectUsersLoading,
+} from '../../state/users.selectors';
+import { UsersActions } from '../../state/users.actions';
 
 @Component({
   selector: 'app-users-page',
@@ -44,6 +53,12 @@ export class UsersPageComponent extends PageBaseComponent {
       displayProperty: 'name',
       isArray: true,
     },
+    {
+      displayName: 'Groups',
+      datasourceName: 'groups',
+      displayProperty: 'groupName',
+      isArray: true,
+    },
   ];
 
   override deleteFields: DeleteConfirmationData = {
@@ -55,39 +70,49 @@ export class UsersPageComponent extends PageBaseComponent {
 
   override tableTitle = 'Users';
 
+  private readonly store = inject(Store);
+  readonly usersLoading = this.store.selectSignal(selectUsersLoading);
+  readonly userGroupsLoading = this.store.selectSignal(selectUserGroupsLoading);
+  readonly users = this.store.selectSignal(selectUsers);
+  readonly userGroups = this.store.selectSignal(selectUserGroups);
+
   constructor(service: UsersService) {
     super(service);
+    effect(() => {
+      let loading = false;
+      if (this.usersLoading() || this.userGroupsLoading()) {
+        loading = true;
+      }
+      untracked(() => this.isLoading.set(loading));
+    });
+    effect(() => {
+      const users = this.users();
+      const mappedUsers = users
+        .filter((u: PortalUser) => u.userId) // Filtrar usuarios sin userId
+        .map((u: PortalUser) => ({
+          id: u.userId,
+          username: u.username,
+          name: u.name,
+          lastName: u.lastName,
+          displayName: `${u.name ?? ''} ${u.lastName ?? ''}`,
+          roles: u.role?.split(',') || [],
+          calendarsAsManager: u.calendarsAsManager,
+          calendarsAsMember: u.calendarsAsMember,
+          groups: u.groups,
+        }));
+
+      untracked(() => {
+        this.dataSource.update((tableData) => ({
+          ...tableData,
+          items: mappedUsers,
+        }));
+      });
+    });
   }
 
-  override load(page: number, pageSize: number): void {
-    this.isLoading.set(true);
-    this.service.getPage(page, pageSize).subscribe({
-      next: (response) => {
-        const users = response.items
-          .filter((u: PortalUser) => u.userId) // Filtrar usuarios sin userId
-          .map((u: PortalUser) => ({
-            id: u.userId,
-            username: u.username,
-            name: u.name,
-            lastName: u.lastName,
-            displayName: `${u.name??''} ${u.lastName??''}`,
-            roles: u.role?.split(',') || [],
-            calendarsAsManager: u.calendarsAsManager,
-            calendarsAsMember: u.calendarsAsMember,
-          }));
-        this.dataSource.set({
-          page: response.page,
-          pageSize: response.pageSize,
-          totalItems: response.totalItems,
-          items: users,
-          columns: this.tableCols,
-        });
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        this.handleException(err, 'There was an error getting users.');
-      },
-    });
+  override load(): void {
+    this.store.dispatch(UsersActions.loadUsers());
+    this.store.dispatch(UsersActions.loadUserGroups());
   }
 
   override parseForm(form: UserFormData): PortalUser {
@@ -117,10 +142,11 @@ export class UsersPageComponent extends PageBaseComponent {
             username: u.username,
             name: u.name,
             lastName: u.lastName,
-            displayName: `${u.name??''} ${u.lastName??''}`,
+            displayName: `${u.name ?? ''} ${u.lastName ?? ''}`,
             roles: u.role?.split(',') || [],
             calendarsAsManager: u.calendarsAsManager,
             calendarsAsMember: u.calendarsAsMember,
+            groups: u.groups,
           }));
         this.dataSource.set({
           page: response.page,

@@ -27,7 +27,7 @@ export class UserGroupsService extends GeneralServiceBase {
       return this.requestManager.put<UserGroup>(url, item);
     }
 
-    override delete(id: number): Observable<void> {
+    override delete(id: string): Observable<void> {
       const url = `${this.apiUrl}/${id}`;
       return this.requestManager.delete<void>(url);
     }

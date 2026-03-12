@@ -28,8 +28,8 @@ export class UsersService extends GeneralServiceBase {
     return this.requestManager.put<PortalUser>(url, item);
   }
 
-  override delete(id: number): Observable<void> {
-    const url = `${this.apiUrl}/${id}`;
+  override delete(userId: string): Observable<void> {
+    const url = `${this.apiUrl}/${userId}`;
     return this.requestManager.delete<void>(url);
   }
 

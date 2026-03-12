@@ -3,10 +3,8 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace lsa_web_apis.Controllers
 {
@@ -27,18 +25,12 @@ namespace lsa_web_apis.Controllers
             {
                 log.Info("Getting all user groups.");
                 var groups = await _context.UserGroups
-                    .Include(ug => ug.Members)
-                    .ThenInclude(m => m.User)
+                .Include(ug => ug.Members)
                     .Select(ug => new UserGroupDto
                     {
                         Id = ug.Id,
                         GroupName = ug.GroupName,
-                        Members = ug.Members.Select(m => new UserGroupMemberDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username,
-                            Name = m.User.Name ?? "",
-                        }).ToList()
+                        Members = ug.Members.Select(m => m.UserId).ToList()
                     })
                     .ToListAsync();
 
@@ -63,19 +55,13 @@ namespace lsa_web_apis.Controllers
             {
                 log.Info("Getting user group with ID: {UserGroupId}", id);
                 var group = await _context.UserGroups
-                    .Include(ug => ug.Members)
-                    .ThenInclude(m => m.User)
                     .Where(ug => ug.Id == id)
+                    .Include(ug => ug.Members)
                     .Select(ug => new UserGroupDto
                     {
                         Id = ug.Id,
                         GroupName = ug.GroupName,
-                        Members = ug.Members.Select(m => new UserGroupMemberDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username,
-                            Name = m.User.Name ?? "",
-                        }).ToList()
+                        Members = ug.Members.Select(m => m.UserId).ToList()
                     }).FirstOrDefaultAsync();
 
                 if (group == null)
@@ -84,7 +70,7 @@ namespace lsa_web_apis.Controllers
                     return NotFound("Group not found");
                 }
 
-                log.Debug("User group found. UserGroupId: {UserGroupId}, MembersCount: {MembersCount}", id, group.Members?.Count ?? 0);
+                log.Debug("User group found. UserGroupId: {UserGroupId}", id);
                 return Ok(group);
             }
             catch (Exception ex)
@@ -211,13 +197,13 @@ namespace lsa_web_apis.Controllers
                 _context.UserGroupMembers.RemoveRange(existingMembers);
 
                 //add new members
-                if (dto.Members != null && dto.Members.Any())
+                if (dto.Members != null && dto.Members.Count != 0)
                 {
                     var newMembers = dto.Members
-                        .Select(member => new UserGroupMember
+                        .Select(memberId => new UserGroupMember
                         {
                             UserGroupId = userGroupId,
-                            UserId = member.UserId
+                            UserId = memberId
                         }).ToList();
 
                     await _context.UserGroupMembers.AddRangeAsync(newMembers);
