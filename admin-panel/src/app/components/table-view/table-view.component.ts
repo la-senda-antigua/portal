@@ -24,11 +24,17 @@ import {
   DeleteConfirmationComponent,
   DeleteConfirmationData,
 } from '../delete-confirmation/delete-confirmation.component';
-import { DisableConfirmationComponent, DisableConfirmationData } from '../disable-confirmation/disable-confirmation.component';
+import {
+  DisableConfirmationComponent,
+  DisableConfirmationData,
+} from '../disable-confirmation/disable-confirmation.component';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatListModule, MatListOption, MatSelectionListChange } from '@angular/material/list';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 export enum TableViewType {
   'sermon' = 'sermon',
@@ -49,6 +55,9 @@ export interface TableViewColumn {
   datasourceName: string;
   displayProperty?: string;
   isArray?: boolean;
+  sortable?: boolean;
+  filterOptions?: { value: any; viewValue: string }[];
+  width?: string;
 }
 
 export interface TableViewDataSource {
@@ -76,8 +85,12 @@ export interface TableViewFormData {
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule,MatChipsModule
-],
+    FormsModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatListModule,
+    MatTooltipModule
+  ],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',
 })
@@ -104,10 +117,6 @@ export class TableViewComponent {
   readonly isLoading = input<boolean>(false);
   /** Whether or not to show the action column  */
   readonly showActions = input<boolean>(true);
-  /** Whether or not to show the disable button  */
-  readonly showDisableButton = input<boolean>(false);
-  /** Whether or not to show the details button  */
-  readonly showDetailsButton = input<boolean>(false);
 
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
@@ -115,15 +124,9 @@ export class TableViewComponent {
     if (this.datasource && this.datasource()?.columns?.length) {
       cols.push(...this.datasource().columns.map((c) => c.datasourceName));
     }
-
     if (this.showActions()) {
       cols.push('actions');
     }
-
-    if (this.showDetailsButton()){
-      cols.push('details')
-    }
-
     return cols;
   });
 
@@ -135,12 +138,9 @@ export class TableViewComponent {
   readonly editRequest = output<any>();
   /** Emits the Id passed in the deleteConfirmationFeilds object, when delete is confirmed.  */
   readonly deleteRequest = output<string>();
-  /** Emits the Id passed in the disableConfirmationFeilds object, when disable is confirmed.  */
-  readonly disableRequest = output<string>();
-  /** Emits the Id to details.  */
-  readonly detailsRequest = output<string>();
 
   readonly onSearch = output<any>();
+  
   readonly dialog = inject(MatDialog);
 
   tableDatasource?: MatTableDataSource<any>;
@@ -204,7 +204,8 @@ export class TableViewComponent {
       id: entry[this.deleteConfirmationFields().id],
       matchingString: entry[this.deleteConfirmationFields().matchingString!],
       name: entry[this.deleteConfirmationFields().name!],
-      requestMatchingString: this.deleteConfirmationFields().requestMatchingString
+      requestMatchingString:
+        this.deleteConfirmationFields().requestMatchingString,
     } as DeleteConfirmationData;
     const dialogRef = this.dialog.open(DeleteConfirmationComponent, {
       data: confirmationData,
@@ -216,33 +217,47 @@ export class TableViewComponent {
     });
   }
 
-  openDisableConfirmation(entry: any){
-    const confirmationData = {
-      id: entry[this.disableConfirmationFields()!.id],
-      name: entry[this.disableConfirmationFields()!.name],
-      actionName: entry.status === 'Cancelled' ? 'enable' : 'disable'
-    } as DisableConfirmationData;
-    const dialogRef = this.dialog.open(DisableConfirmationComponent, {
-      data: confirmationData,
-    });
-    dialogRef.afterClosed().subscribe((confirmationId) => {
-      if (confirmationId != undefined) {
-        this.disableRequest.emit(confirmationId);
-      }
-    });
-  }
-
-  goToDetails(entry: any){
-    this.detailsRequest.emit(entry)
-  }
-
-  search(){
-    if(!this.loadWithPagination()){
+  search() {
+    if (!this.loadWithPagination()) {
       this.tableDatasource!.filter = this.searchTerm.trim().toLowerCase();
       this.tableDatasource!.paginator!.firstPage();
       return;
     }
-    const data = {searchTerm: this.searchTerm, page: 1, pageSize: this.datasource().pageSize};
+    const data = {
+      searchTerm: this.searchTerm,
+      page: 1,
+      pageSize: this.datasource().pageSize,
+    };
     this.onSearch.emit(data);
+  }
+
+  applyFilter(columnName: string, selection: MatListOption[]) {
+    if (!this.loadWithPagination()) {
+      const selectedValues = selection
+        .map((o) => String(o.value).toLowerCase())
+        .filter((v) => v.length > 0);
+
+      this.tableDatasource!.filterPredicate = (data, filter) => {
+        if (!filter) {
+          return true;
+        }
+
+        const options = filter.split('|').filter((v) => v.length > 0);
+        const dataStr = JSON.stringify(data[columnName]).toLowerCase();
+
+        return options.some((option) => dataStr.includes(option));
+      };
+      this.tableDatasource!.filter = selectedValues.join('|');
+      this.tableDatasource!.paginator!.firstPage();
+      return;
+    }
+  }
+
+  getTooltip(entry: any, key: string, displayProperty?: string): string {
+    const value = entry[key];
+    if (Array.isArray(value)) {
+      return value.map((item) => displayProperty ? item[displayProperty] : item).join(', ');
+    }
+    return String(value);
   }
 }

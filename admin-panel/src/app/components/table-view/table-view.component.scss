@@ -23,15 +23,36 @@
   }
 }
 
-.table-container{
-  flex:1;
+.table-container {
+  flex: 1;
   overflow-x: hidden;
 }
 
-.plus-icon{
+.plus-icon {
   font-size: 24px;
 }
 
 .w-full {
-    width: 100%;
+  width: 100%;
+}
+
+.header-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cell-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip {
+  font-size: 12px;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
 }

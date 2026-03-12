@@ -38,26 +38,30 @@ export class UsersPageComponent extends PageBaseComponent {
   override createForm = EditUserFormComponent;
 
   override tableCols: TableViewColumn[] = [
-    { displayName: 'Email', datasourceName: 'username' },
-    { displayName: 'Name', datasourceName: 'displayName' },
-    { displayName: 'Roles', datasourceName: 'roles', isArray: true },
+    { displayName: 'Email', datasourceName: 'username', width: '15%' },
+    { displayName: 'Name', datasourceName: 'displayName', width: '10%' },
+    { displayName: 'Roles', datasourceName: 'roles', isArray: true, width:'18%' },
     {
       displayName: 'Manager of',
       datasourceName: 'calendarsAsManager',
       displayProperty: 'name',
       isArray: true,
+      width: '18%',
     },
     {
       displayName: 'Calendars',
       datasourceName: 'calendarsAsMember',
       displayProperty: 'name',
       isArray: true,
+      width: '18%',
     },
     {
       displayName: 'Groups',
       datasourceName: 'groups',
       displayProperty: 'groupName',
       isArray: true,
+      filterOptions: [],
+      width: '18%',
     },
   ];
 
@@ -108,12 +112,28 @@ export class UsersPageComponent extends PageBaseComponent {
         }));
       });
     });
+    effect(() => {
+      const groups = this.userGroups();
+      this.dataSource.update((tableData) => ({
+        ...tableData,
+        columns: this.tableCols.map((col) => {
+          if (col.datasourceName === 'groups') {
+            return {
+              ...col,
+              filterOptions: groups
+                .map((g) => ({ value: g.groupName, viewValue: g.groupName }))
+                .sort((a, b) => a.viewValue.localeCompare(b.viewValue)),
+            };
+          }
+          return col;
+        }),
+      }));
+    });
   }
 
   override load(): void {
     this.store.dispatch(UsersActions.loadUsers());
     this.store.dispatch(UsersActions.loadUserGroups());
-    this.dataSource.update
   }
 
   override parseForm(form: UserFormData): PortalUser {
