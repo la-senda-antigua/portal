@@ -11,5 +11,4 @@ public class UserDto
     public string? Preferences { get; set; }
     public List<CalendarDto> CalendarsAsManager { get; set; } = new List<CalendarDto>();
     public List<CalendarDto> CalendarsAsMember { get; set; } = new List<CalendarDto>();
-    public List<UserGroupDto> UserGroups { get; set; } = new List<UserGroupDto>();
 }

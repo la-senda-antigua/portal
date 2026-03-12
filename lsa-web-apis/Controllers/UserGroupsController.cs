@@ -3,8 +3,10 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace lsa_web_apis.Controllers
 {
@@ -31,12 +33,11 @@ namespace lsa_web_apis.Controllers
                     {
                         Id = ug.Id,
                         GroupName = ug.GroupName,
-                        Members = ug.Members.Select(m => new CalendarMemberDto
+                        Members = ug.Members.Select(m => new UserGroupMemberDto
                         {
                             UserId = m.UserId,
                             Username = m.User.Username,
                             Name = m.User.Name ?? "",
-                            LastName = m.User.LastName ?? ""
                         }).ToList()
                     })
                     .ToListAsync();
@@ -69,12 +70,11 @@ namespace lsa_web_apis.Controllers
                     {
                         Id = ug.Id,
                         GroupName = ug.GroupName,
-                        Members = ug.Members.Select(m => new CalendarMemberDto
+                        Members = ug.Members.Select(m => new UserGroupMemberDto
                         {
                             UserId = m.UserId,
                             Username = m.User.Username,
                             Name = m.User.Name ?? "",
-                            LastName = m.User.LastName
                         }).ToList()
                     }).FirstOrDefaultAsync();
 
@@ -242,7 +242,7 @@ namespace lsa_web_apis.Controllers
 
         [Authorize(Roles = "Admin,CalendarManager")]
         [HttpPost("addMembers/{userGroupId}")]
-        public async Task<ActionResult> AddMembers(Guid userGroupId, [FromBody] List<CalendarMemberDto> members)
+        public async Task<ActionResult> AddMembers(Guid userGroupId, [FromBody] List<UserGroupMemberDto> members)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(AddMembers), transactionId);

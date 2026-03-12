@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
+using System;
 
 namespace lsa_web_apis.Controllers
 {    
@@ -57,13 +58,6 @@ namespace lsa_web_apis.Controllers
                                 Id = cm.Calendar.Id,
                                 Name = cm.Calendar.Name,
                                 Active = cm.Calendar.Active
-                            }).ToList(),
-                        UserGroups = context.UserGroups
-                            .Where(ug => ug.Members.Any(m => m.UserId == u.Id))
-                            .Select(ug => new UserGroupDto
-                            {
-                                Id = ug.Id,
-                                GroupName = ug.GroupName,
                             }).ToList()
                     });
 
@@ -184,10 +178,8 @@ namespace lsa_web_apis.Controllers
 
                 var existingCalendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
                 var existingCalendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
-                var existingUserGroups = await context.UserGroupMembers.Where(ugm => ugm.UserId == id).ToListAsync();
                 context.CalendarManagers.RemoveRange(existingCalendarsAsManager);
                 context.CalendarMembers.RemoveRange(existingCalendarsAsMember);
-                context.UserGroupMembers.RemoveRange(existingUserGroups);
 
                 var newCalendarsAsManager = updateData.CalendarsAsManager
                     .Select(calendar => new CalendarManager { CalendarId = calendar.Id, UserId = id })
@@ -196,14 +188,10 @@ namespace lsa_web_apis.Controllers
                 var newCalendarsAsMember = updateData.CalendarsAsMember
                     .Select(calendar => new CalendarMember { CalendarId = calendar.Id, UserId = id })
                     .ToList();
-                
-                var newUserGroupMembers = updateData.UserGroups
-                    .Select(ug => new UserGroupMember { UserGroupId = ug.Id!.Value, UserId = id })
-                    .ToList();
 
                 context.CalendarManagers.AddRange(newCalendarsAsManager);
                 context.CalendarMembers.AddRange(newCalendarsAsMember);
-                context.UserGroupMembers.AddRange(newUserGroupMembers);
+
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -284,13 +272,6 @@ namespace lsa_web_apis.Controllers
                                 Id = cm.Calendar.Id,
                                 Name = cm.Calendar.Name,
                                 Active = cm.Calendar.Active
-                            }).ToList(),
-                        UserGroups = context.UserGroups
-                            .Where(ug => ug.Members.Any(m => m.UserId == u.Id))
-                            .Select(ug => new UserGroupDto
-                            {
-                                Id = ug.Id,
-                                GroupName = ug.GroupName,
                             }).ToList()
                     })
                     .FirstOrDefaultAsync();
