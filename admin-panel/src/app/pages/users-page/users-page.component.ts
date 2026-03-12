@@ -18,9 +18,11 @@ import {
 } from '../../components/edit-user-form/edit-user-form.component';
 import { Store } from '@ngrx/store';
 import {
+  selectUserGroupsLoaded,
   selectUserGroups,
   selectUserGroupsLoading,
   selectUsers,
+  selectUsersLoaded,
   selectUsersLoading,
 } from '../../state/users.selectors';
 import { UsersActions } from '../../state/users.actions';
@@ -40,7 +42,12 @@ export class UsersPageComponent extends PageBaseComponent {
   override tableCols: TableViewColumn[] = [
     { displayName: 'Email', datasourceName: 'username', width: '15%' },
     { displayName: 'Name', datasourceName: 'displayName', width: '10%' },
-    { displayName: 'Roles', datasourceName: 'roles', isArray: true, width:'18%' },
+    {
+      displayName: 'Roles',
+      datasourceName: 'roles',
+      isArray: true,
+      width: '18%',
+    },
     {
       displayName: 'Manager of',
       datasourceName: 'calendarsAsManager',
@@ -77,6 +84,8 @@ export class UsersPageComponent extends PageBaseComponent {
   private readonly store = inject(Store);
   readonly usersLoading = this.store.selectSignal(selectUsersLoading);
   readonly userGroupsLoading = this.store.selectSignal(selectUserGroupsLoading);
+  readonly usersLoaded = this.store.selectSignal(selectUsersLoaded);
+  readonly userGroupsLoaded = this.store.selectSignal(selectUserGroupsLoaded);
   readonly users = this.store.selectSignal(selectUsers);
   readonly userGroups = this.store.selectSignal(selectUserGroups);
 
@@ -132,8 +141,12 @@ export class UsersPageComponent extends PageBaseComponent {
   }
 
   override load(): void {
-    this.store.dispatch(UsersActions.loadUsers());
-    this.store.dispatch(UsersActions.loadUserGroups());
+    if (!this.usersLoaded() && !this.usersLoading()) {
+      this.store.dispatch(UsersActions.loadUsers());
+    }
+    if (!this.userGroupsLoaded() && !this.userGroupsLoading()) {
+      this.store.dispatch(UsersActions.loadUserGroups());
+    }
   }
 
   override parseForm(form: UserFormData): PortalUser {

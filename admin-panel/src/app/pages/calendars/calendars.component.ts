@@ -46,6 +46,7 @@ import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { PortalUser, UserRole } from '../../models/PortalUser';
 import { AuthService } from '../../services/auth.service';
 import { UsersService } from '../../services/users.service';
+import { RouterLink } from '@angular/router';
 
 interface ExtendedCalendar extends CalendarDto {
   iAmManager: boolean;
@@ -65,6 +66,7 @@ export const LAST_SELECTED_CALENDARS_KEY = 'lastSelectedCalendars';
     MatProgressBar,
     MatTooltipModule,
     MatDividerModule,
+    RouterLink,
   ],
   templateUrl: './calendars.component.html',
   styleUrl: './calendars.component.scss',

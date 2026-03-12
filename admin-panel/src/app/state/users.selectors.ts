@@ -7,6 +7,8 @@ export interface UsersState {
   userGroups: UserGroup[];
   loadingUsers: boolean;
   loadingGroups: boolean;
+  usersLoaded: boolean;
+  userGroupsLoaded: boolean;
 }
 
 export const selectUsersState = createFeatureSelector<UsersState>('users');
@@ -29,4 +31,14 @@ export const selectUsersLoading = createSelector(
 export const selectUserGroupsLoading = createSelector(
   selectUsersState,
   (state) => state.loadingGroups,
+);
+
+export const selectUsersLoaded = createSelector(
+  selectUsersState,
+  (state) => state.usersLoaded,
+);
+
+export const selectUserGroupsLoaded = createSelector(
+  selectUsersState,
+  (state) => state.userGroupsLoaded,
 );

@@ -22,6 +22,7 @@ import {
   getUserColor,
   getDisplayName,
 } from '../../../utils/user.utils';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-user-groups',
@@ -31,6 +32,7 @@ import {
     MatButtonModule,
     MatProgressBar,
     MatMenuModule,
+    RouterLink,
   ],
   templateUrl: './user-groups.component.html',
   styleUrl: './user-groups.component.scss',

@@ -35,6 +35,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatListModule, MatListOption, MatSelectionListChange } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
 
 export enum TableViewType {
   'sermon' = 'sermon',
@@ -89,7 +90,8 @@ export interface TableViewFormData {
     MatChipsModule,
     MatMenuModule,
     MatListModule,
-    MatTooltipModule
+    MatTooltipModule,
+    RouterLink
   ],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',

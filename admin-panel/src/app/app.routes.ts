@@ -90,6 +90,6 @@ export const routes: Routes = [
     path: 'users',
     component: UsersPageComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: [UserRole.Admin] }
+    data: { roles: [UserRole.Admin] },
   },
 ];

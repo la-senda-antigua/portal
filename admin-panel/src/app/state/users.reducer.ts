@@ -9,6 +9,8 @@ export const initialState: UsersState = {
   userGroups: [],
   loadingUsers: false,
   loadingGroups: false,
+  usersLoaded: false,
+  userGroupsLoaded: false,
 };
 
 function getMemberUserId(member: UserGroupMember | string): string | undefined {
@@ -85,18 +87,16 @@ export const usersReducer = createReducer(
   on(UsersActions.loadUserGroups, (state) => ({
     ...state,
     loadingGroups: true,
-    error: null,
   })),
   on(UsersApiActions.loadUsersSuccess, (state, { users }) => ({
     ...state,
     ...hydrateState(users, state.userGroups),
     loadingUsers: false,
-    error: null,
+    usersLoaded: true,
   })),
-  on(UsersApiActions.loadUsersFailure, (state, { error }) => ({
+  on(UsersApiActions.loadUsersFailure, (state) => ({
     ...state,
     loadingUsers: false,
-    error,
   })),
   on(UsersApiActions.addUserSuccess, (state, { user }) => ({
     ...state,
@@ -125,12 +125,11 @@ export const usersReducer = createReducer(
     ...state,
     ...hydrateState(state.users, groups),
     loadingGroups: false,
-    error: null,
+    userGroupsLoaded: true,
   })),
-  on(UsersApiActions.loadUserGroupsFailure, (state, { error }) => ({
+  on(UsersApiActions.loadUserGroupsFailure, (state) => ({
     ...state,
     loadingGroups: false,
-    error,
   })),
   on(UsersApiActions.addUserGroupSuccess, (state, { group }) => ({
     ...state,

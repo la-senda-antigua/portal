@@ -5,7 +5,7 @@
 
   <a
     mat-stroked-button
-    href="broadcast"
+    routerLink="/broadcast"
     class="menu-button"
     [disabled]="!authService.hasRole(userRoles.Admin) && !authService.hasRole(userRoles.BroadcastManager)"
   >
@@ -15,7 +15,7 @@
 
   <a
     mat-stroked-button
-    href="media"
+    routerLink="/media"
     class="menu-button"
     [disabled]="!authService.hasRole(userRoles.Admin) && !authService.hasRole(userRoles.MediaManager)"
   >
@@ -24,7 +24,7 @@
 
   <a
     mat-stroked-button
-    href="calendars"
+    routerLink="/calendars"
     class="menu-button"
     [disabled]="!authService.hasRole(userRoles.Admin) && !authService.hasRole(userRoles.CalendarManager)"
   >
@@ -33,7 +33,7 @@
 
   <a
     mat-stroked-button
-    href="users"
+    routerLink="/users"
     class="menu-button"
     [disabled]="!authService.hasRole(userRoles.Admin)"
   >
@@ -43,7 +43,7 @@
 
   <a
     mat-stroked-button
-    href="userGroups"
+    routerLink="/userGroups"
     class="menu-button"
     [disabled]="!authService.hasRole(userRoles.Admin)"
   >
