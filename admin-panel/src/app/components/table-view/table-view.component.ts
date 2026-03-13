@@ -48,6 +48,7 @@ export enum TableViewType {
   'preacher' = 'preacher',
   'playlist' = 'playlist',
   'calendar' = 'calendar',
+  'usergroup' = 'user group',
 }
 
 export enum TableViewAccessMode {
@@ -106,7 +107,9 @@ export class TableViewComponent {
   /** A flag that let's other components know what type it is being used */
   readonly viewType = input.required<TableViewType>();
   /** A component that will be presented in a MatDialog when user presses the Add button */
-  readonly createForm = input.required<any>();
+  readonly createForm = input<any>();
+  /** An alternative for createForm. A menu shows up when user presses the Add button, and a form is opened once a selection is made  */
+  readonly addMenuOptions = input<{ option: string; form: any }[]>();
   /** A component that will be presented in a MatDialog when user presses the Edit button */
   readonly editForm = input.required<any>();
   /** This is the source of data for the table.  */
@@ -172,8 +175,11 @@ export class TableViewComponent {
     });
   }
 
-  openCreateForm() {
-    const dialogRef = this.dialog.open(this.createForm(), {
+  openCreateForm(form?: any) {
+    if(!form){
+      form = this.createForm();
+    }
+    const dialogRef = this.dialog.open(form, {
       data: {
         mode: 'add',
         type: this.viewType(),

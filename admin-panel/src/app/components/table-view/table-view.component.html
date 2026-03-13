@@ -2,9 +2,20 @@
   <a routerLink="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
   <h1>{{ tableTitle() }}</h1>
   <span class="spacer"></span>
-  <button mat-fab (click)="openCreateForm()">
-    <mat-icon class="plus-icon">add_2</mat-icon>
-  </button>
+  @if(createForm() != undefined){
+    <button mat-fab (click)="openCreateForm()">
+      <mat-icon class="plus-icon">add_2</mat-icon>
+    </button>
+  }@else if(addMenuOptions() != undefined){
+    <button mat-fab [matMenuTriggerFor]="addMenu">
+      <mat-icon class="plus-icon">add_2</mat-icon>
+    </button>
+    <mat-menu #addMenu="matMenu" yPosition="below" xPosition="before" [overlapTrigger]="true">
+      @for(option of addMenuOptions(); track option){
+        <button mat-menu-item (click)="openCreateForm(option.form)">{{option.option}}</button>
+      }
+    </mat-menu>
+  }
 </div>
 
 <div class="table-container">

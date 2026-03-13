@@ -30,6 +30,7 @@ import {
 } from '../../state/appstate.selectors';
 import { UsersActions } from '../../state/users.actions';
 import { CalendarsActions } from '../../state/calendars.actions';
+import { EditIdNameFormComponent } from '../../components/edit-id-name-form/edit-id-name-form.component';
 
 @Component({
   selector: 'app-users-page',
@@ -41,8 +42,6 @@ import { CalendarsActions } from '../../state/calendars.actions';
 export class UsersPageComponent extends PageBaseComponent {
   override tableViewComponent = viewChild(TableViewComponent);
   override editForm = EditUserFormComponent;
-  override createForm = EditUserFormComponent;
-
   override tableCols: TableViewColumn[] = [
     { displayName: 'User ID', datasourceName: 'username', width: '15%' },
     { displayName: 'Name', datasourceName: 'displayName', width: '10%' },
@@ -90,6 +89,10 @@ export class UsersPageComponent extends PageBaseComponent {
   readonly users = this.store.selectSignal(selectUsers);
   readonly userGroups = this.store.selectSignal(selectUserGroups);
   readonly calendars = this.store.selectSignal(selectCalendars);
+  readonly addMenuOptions = [
+    { option: 'Add new user', form: EditUserFormComponent },
+    { option: 'Create a group', form: EditIdNameFormComponent },
+  ];
 
   constructor(service: UsersService) {
     super(service);
