@@ -2,15 +2,21 @@ import { createReducer, on } from '@ngrx/store';
 import { PortalUser } from '../models/PortalUser';
 import { UsersActions, UsersApiActions } from './users.actions';
 import { UserGroup, UserGroupMember } from '../models/UserGroup';
-import { UsersState } from './users.selectors';
+import { AppState as AppState } from './appstate.selectors';
+import { Calendar, CalendarDto } from '../models/CalendarDto';
+import { CalendarMemberDto } from '../models/CalendarMemberDto';
+import { CalendarsActions, CalendarsApiActions } from './calendars.actions';
 
-export const initialState: UsersState = {
+const initialState: AppState = {
   users: [],
   userGroups: [],
+  calendars: [],
   loadingUsers: false,
   loadingGroups: false,
+  loadingCalendars: false,
   usersLoaded: false,
   userGroupsLoaded: false,
+  calendarsLoaded: false,
 };
 
 function getMemberUserId(member: UserGroupMember | string): string | undefined {
@@ -21,7 +27,11 @@ function getMemberUserId(member: UserGroupMember | string): string | undefined {
   return member?.userId;
 }
 
-function hydrateState(users: PortalUser[], groups: UserGroup[]) {
+function hydrateState(
+  users: PortalUser[],
+  groups: UserGroup[],
+  calendars: (CalendarDto | Calendar)[],
+): Partial<AppState> {
   const usersById = new Map(users.map((u) => [u.userId, u]));
 
   const hydratedGroups = groups.map((group) => ({
@@ -63,6 +73,58 @@ function hydrateState(users: PortalUser[], groups: UserGroup[]) {
     }),
   }));
 
+  const hydratedCalendars: Calendar[] = calendars.map((calendar) => ({
+    ...calendar,
+    managers: calendar.managers?.map((manager) => {
+      const managerId = typeof manager === 'string' ? manager : manager.userId;
+      const user = usersById.get(managerId);
+
+      if (!user) {
+        return {
+          userId: managerId,
+          name: '',
+          lastName: '',
+          calendarId: calendar.id ?? '',
+          username: '',
+          role: 'Manager',
+        } as CalendarMemberDto;
+      }
+
+      return {
+        userId: user.userId,
+        name: user.name ?? '',
+        lastName: user.lastName ?? '',
+        calendarId: calendar.id ?? '',
+        username: user.username,
+        role: 'Manager',
+      } as CalendarMemberDto;
+    }),
+    members: calendar.members?.map((member) => {
+      const memberId = typeof member === 'string' ? member : member.userId;
+      const user = usersById.get(memberId);
+
+      if (!user) {
+        return {
+          userId: memberId,
+          name: '',
+          lastName: '',
+          calendarId: calendar.id ?? '',
+          username: '',
+          role: 'User',
+        } as CalendarMemberDto;
+      }
+
+      return {
+        userId: user.userId,
+        name: user.name ?? '',
+        lastName: user.lastName ?? '',
+        calendarId: calendar.id ?? '',
+        username: user.username,
+        role: 'User',
+      } as CalendarMemberDto;
+    }),
+  }));
+
   const hydratedUsers = users.map((user) => ({
     ...user,
     groups: hydratedGroups
@@ -70,15 +132,22 @@ function hydrateState(users: PortalUser[], groups: UserGroup[]) {
         (group.members ?? []).some((member) => member.userId === user.userId),
       )
       .map((g) => ({ id: g.id, groupName: g.groupName })) as UserGroup[],
+    calendarsAsManager: hydratedCalendars.filter((calendar) =>
+      calendar.managers?.some((manager) => manager.userId === user.userId),
+    ) as Calendar[],
+    calendarsAsMember: hydratedCalendars.filter((calendar) =>
+      calendar.members?.some((member) => member.userId === user.userId),
+    ) as Calendar[],
   }));
 
   return {
     users: hydratedUsers,
     userGroups: hydratedGroups,
+    calendars: hydratedCalendars,
   };
 }
 
-export const usersReducer = createReducer(
+export const appStateReducer = createReducer(
   initialState,
   on(UsersActions.loadUsers, (state) => ({
     ...state,
@@ -90,7 +159,7 @@ export const usersReducer = createReducer(
   })),
   on(UsersApiActions.loadUsersSuccess, (state, { users }) => ({
     ...state,
-    ...hydrateState(users, state.userGroups),
+    ...hydrateState(users, state.userGroups, state.calendars),
     loadingUsers: false,
     usersLoaded: true,
   })),
@@ -100,7 +169,7 @@ export const usersReducer = createReducer(
   })),
   on(UsersApiActions.addUserSuccess, (state, { user }) => ({
     ...state,
-    ...hydrateState([...state.users, user], state.userGroups),
+    ...hydrateState([...state.users, user], state.userGroups, state.calendars),
   })),
   on(UsersApiActions.removeUserSuccess, (state, { userId }) => {
     const nextUsers = state.users.filter((u) => u.userId !== userId);
@@ -111,7 +180,7 @@ export const usersReducer = createReducer(
 
     return {
       ...state,
-      ...hydrateState(nextUsers, nextGroups),
+      ...hydrateState(nextUsers, nextGroups, state.calendars),
     };
   }),
   on(UsersApiActions.updateUserSuccess, (state, { userId, changes }) => ({
@@ -119,11 +188,12 @@ export const usersReducer = createReducer(
     ...hydrateState(
       state.users.map((u) => (u.userId === userId ? { ...u, ...changes } : u)),
       state.userGroups,
+      state.calendars,
     ),
   })),
   on(UsersApiActions.loadUserGroupsSuccess, (state, { groups }) => ({
     ...state,
-    ...hydrateState(state.users, groups),
+    ...hydrateState(state.users, groups, state.calendars),
     loadingGroups: false,
     userGroupsLoaded: true,
   })),
@@ -133,13 +203,14 @@ export const usersReducer = createReducer(
   })),
   on(UsersApiActions.addUserGroupSuccess, (state, { group }) => ({
     ...state,
-    ...hydrateState(state.users, [...state.userGroups, group]),
+    ...hydrateState(state.users, [...state.userGroups, group], state.calendars),
   })),
   on(UsersApiActions.removeUserGroupSuccess, (state, { groupId }) => ({
     ...state,
     ...hydrateState(
       state.users,
       state.userGroups.filter((g) => g.id !== groupId),
+      state.calendars,
     ),
   })),
   on(UsersApiActions.updateUserGroupSuccess, (state, { groupId, changes }) => ({
@@ -149,6 +220,47 @@ export const usersReducer = createReducer(
       state.userGroups.map((g) =>
         g.id === groupId ? { ...g, ...changes } : g,
       ),
+      state.calendars,
     ),
   })),
+  on(CalendarsActions.loadCalendars, (state) => ({
+    ...state,
+    loadingCalendars: true,
+  })),
+  on(CalendarsApiActions.loadCalendarsSuccess, (state, { calendars }) => ({
+    ...state,
+    ...hydrateState(state.users, state.userGroups, calendars),
+    loadingCalendars: false,
+    calendarsLoaded: true,
+  })),
+  on(CalendarsApiActions.loadCalendarsFailure, (state) => ({
+    ...state,
+    loadingCalendars: false,
+  })),
+  on(CalendarsApiActions.addCalendarSuccess, (state, { calendar }) => ({
+    ...state,
+    ...hydrateState(state.users, state.userGroups, [
+      ...state.calendars,
+      calendar,
+    ]),
+  })),
+  on(CalendarsApiActions.removeCalendarSuccess, (state, { calendarId }) => ({
+    ...state,
+    ...hydrateState(
+      state.users,
+      state.userGroups,
+      state.calendars.filter((c) => c.id !== calendarId),
+    ),
+  })),
+  on(
+    CalendarsApiActions.updateCalendarSuccess,
+    (state, { calendarId, calendar }) => ({
+      ...state,
+      ...hydrateState(
+        state.users,
+        state.userGroups,
+        state.calendars.map((c) => (c.id === calendarId ? { ...calendar } : c)),
+      ),
+    }),
+  ),
 );

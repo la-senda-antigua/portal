@@ -33,7 +33,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatListModule, MatListOption, MatSelectionListChange } from '@angular/material/list';
+import {
+  MatListModule,
+  MatListOption,
+  MatSelectionListChange,
+} from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 
@@ -91,7 +95,7 @@ export interface TableViewFormData {
     MatMenuModule,
     MatListModule,
     MatTooltipModule,
-    RouterLink
+    RouterLink,
   ],
   templateUrl: './table-view.component.html',
   styleUrl: './table-view.component.scss',
@@ -142,12 +146,13 @@ export class TableViewComponent {
   readonly deleteRequest = output<string>();
 
   readonly onSearch = output<any>();
-  
+
   readonly dialog = inject(MatDialog);
 
   tableDatasource?: MatTableDataSource<any>;
 
   searchTerm: string = '';
+  private activeColumnFilters: Record<string, string[]> = {};
 
   constructor(private changeDetector: ChangeDetectorRef) {
     effect(() => {
@@ -156,10 +161,6 @@ export class TableViewComponent {
         const paginator = this.paginator();
         if (paginator) {
           if (!this.loadWithPagination()) {
-            this.tableDatasource.filterPredicate = (data, filter) => {
-              const dataStr = JSON.stringify(data).toLowerCase();
-              return dataStr.includes(filter);
-            };
             this.tableDatasource.paginator = paginator;
           }
           paginator.pageSize = this.datasource().pageSize;
@@ -221,8 +222,7 @@ export class TableViewComponent {
 
   search() {
     if (!this.loadWithPagination()) {
-      this.tableDatasource!.filter = this.searchTerm.trim().toLowerCase();
-      this.tableDatasource!.paginator!.firstPage();
+      this.applyClientFilters();
       return;
     }
     const data = {
@@ -239,26 +239,79 @@ export class TableViewComponent {
         .map((o) => String(o.value).toLowerCase())
         .filter((v) => v.length > 0);
 
-      this.tableDatasource!.filterPredicate = (data, filter) => {
-        if (!filter) {
-          return true;
+      if (selectedValues.length === 0) {
+        delete this.activeColumnFilters[columnName];
+      } else {
+        this.activeColumnFilters[columnName] = selectedValues;
+      }
+
+      this.applyClientFilters();
+      return;
+    }
+  }
+
+  private applyClientFilters() {
+    if (!this.tableDatasource) {
+      return;
+    }
+
+    this.tableDatasource.filterPredicate = (data, filter) => {
+      const parsedFilter = this.parseFilter(filter);
+      const searchFilter = parsedFilter.searchTerm;
+
+      if (searchFilter) {
+        const dataStr = JSON.stringify(data).toLowerCase();
+        if (!dataStr.includes(searchFilter)) {
+          return false;
+        }
+      }
+
+      for (const [column, options] of Object.entries(parsedFilter.columnFilters)) {
+        if (!options?.length) {
+          continue;
         }
 
-        const options = filter.split('|').filter((v) => v.length > 0);
-        const dataStr = JSON.stringify(data[columnName]).toLowerCase();
+        const dataStr = JSON.stringify(data[column] ?? '').toLowerCase();
+        if (!options.some((option) => dataStr.includes(option))) {
+          return false;
+        }
+      }
 
-        return options.some((option) => dataStr.includes(option));
+      return true;
+    };
+
+    this.tableDatasource.filter = JSON.stringify({
+      searchTerm: this.searchTerm.trim().toLowerCase(),
+      columnFilters: this.activeColumnFilters,
+    });
+    this.tableDatasource.paginator?.firstPage();
+  }
+
+  private parseFilter(filter: string): {
+    searchTerm: string;
+    columnFilters: Record<string, string[]>;
+  } {
+    if (!filter) {
+      return { searchTerm: '', columnFilters: {} };
+    }
+
+    try {
+      const parsed = JSON.parse(filter);
+      return {
+        searchTerm: String(parsed?.searchTerm ?? ''),
+        columnFilters: (parsed?.columnFilters ?? {}) as Record<string, string[]>,
       };
-      this.tableDatasource!.filter = selectedValues.join('|');
-      this.tableDatasource!.paginator!.firstPage();
-      return;
+    } catch {
+      return { searchTerm: filter.toLowerCase(), columnFilters: {} };
     }
   }
 
   getTooltip(entry: any, key: string, displayProperty?: string): string {
     const value = entry[key];
     if (Array.isArray(value)) {
-      return value.map((item) => displayProperty ? item[displayProperty] : item).join(', ');
+      return value
+        .map((item) => (displayProperty ? item[displayProperty] : item))
+        .join(', ');
     }
     return String(value);
   }

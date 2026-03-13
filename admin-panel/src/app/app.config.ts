@@ -5,15 +5,16 @@ import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
-import { usersReducer } from './state/users.reducer';
+import { appStateReducer } from './state/appstate.reducer';
 import { UsersEffects } from './state/users.effects';
+import { CalendarsEffects } from './state/calendars.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-    provideStore({ users: usersReducer }),
-    provideEffects(UsersEffects),
+    provideStore({ appState: appStateReducer }),
+    provideEffects(UsersEffects, CalendarsEffects),
   ],
 };

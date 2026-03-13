@@ -147,7 +147,7 @@ namespace lsa_web_apis.Controllers
                 calendar.IsPublic = dto.IsPublic;
                 calendar.IsHidden = dto.IsHidden;
 
-                var managerIds = new HashSet<Guid>(dto.Managers?.Select(m => m.UserId) ?? new List<Guid>());
+                var managerIds = new HashSet<Guid>(dto.Managers ?? []);
 
                 // Remove existing members
                 var existingMembers = await _context.CalendarMembers
@@ -165,11 +165,11 @@ namespace lsa_web_apis.Controllers
                 if (!dto.IsPublic && !dto.IsHidden && dto.Members != null && dto.Members.Count != 0)
                 {
                     var newMembers = dto.Members
-                        .Where(member => !managerIds.Contains(member.UserId))
+                        .Where(member => !managerIds.Contains(member))
                         .Select(member => new CalendarMember
                         {
                             CalendarId = id,
-                            UserId = member.UserId
+                            UserId = member
                         }).ToList();
 
                     await _context.CalendarMembers.AddRangeAsync(newMembers);
@@ -181,7 +181,7 @@ namespace lsa_web_apis.Controllers
                     var newManagers = dto.Managers.Select(member => new CalendarManager
                     {
                         CalendarId = id,
-                        UserId = member.UserId
+                        UserId = member
                     }).ToList();
 
                     await _context.CalendarManagers.AddRangeAsync(newManagers);
@@ -313,20 +313,8 @@ namespace lsa_web_apis.Controllers
                         Active = c.Active,
                         IsPublic = c.IsPublic,
                         IsHidden = c.IsHidden,
-                        Managers = c.Managers.Select(m => new CalendarManagerDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username,
-                            Name = m.User.Name,
-                            LastName = m.User.LastName
-                        }).ToList(),
-                        Members = c.Members.Select(m => new CalendarMemberDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username,
-                            Name = m.User.Name,
-                            LastName = m.User.LastName
-                        }).ToList()
+                        Managers = c.Managers.Select(m => m.UserId).ToList(),
+                        Members = c.Members.Select(m => m.UserId).ToList()
                     }).ToListAsync();
 
                 log.Info("Returning {Count} calendars for user: {Username}", paged.Count, userName);
@@ -358,17 +346,8 @@ namespace lsa_web_apis.Controllers
                         Active = c.Active,
                         IsPublic = c.IsPublic,
                         IsHidden = c.IsHidden,
-                        Managers = c.Managers.Select(m => new CalendarManagerDto
-                        {
-                            CalendarId = m.CalendarId,
-                            Username = m.User.Username,
-                            UserId = m.User.Id
-                        }).ToList(),
-                        Members = c.Members.Select(m => new CalendarMemberDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username
-                        }).ToList()
+                        Managers = c.Managers.Select(m => m.UserId).ToList(),
+                        Members = c.Members.Select(m => m.UserId).ToList()
                     })
                     .FirstOrDefaultAsync();
 

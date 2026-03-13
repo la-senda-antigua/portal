@@ -149,29 +149,29 @@ export class CalendarsComponent {
   }
 
   loadCalendarsAndEvents(calendarSelection: string[]) {
-    this.loadCalendarList()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        tap((calendars) => {
-          this.selectedCalendars = calendarSelection.filter((id) =>
-            calendars.some((c) => c.id === id),
-          );
-          this.myCalendars = calendars.map((c) => ({
-            ...c,
-            iAmManager:
-              this.authService.hasRole(UserRole.Admin) ||
-              (c.managers?.some((m) => m.userId === this.currentUserId) ??
-                false),
-          }));
-        }),
-        switchMap(() => this.loadCalendarEvents()),
-        tap(() => {
-          this.handleLoadCalendarEvents();
-        }),
-      )
-      .subscribe(() => {
-        this.calendarListLoading.set(false);
-      });
+    // this.loadCalendarList()
+    //   .pipe(
+    //     takeUntilDestroyed(this.destroyRef),
+    //     tap((calendars) => {
+    //       this.selectedCalendars = calendarSelection.filter((id) =>
+    //         calendars.some((c) => c.id === id),
+    //       );
+    //       this.myCalendars = calendars.map((c) => ({
+    //         ...c,
+    //         iAmManager:
+    //           this.authService.hasRole(UserRole.Admin) ||
+    //           (c.managers?.some((m) => m.userId === this.currentUserId) ??
+    //             false),
+    //       }));
+    //     }),
+    //     switchMap(() => this.loadCalendarEvents()),
+    //     tap(() => {
+    //       this.handleLoadCalendarEvents();
+    //     }),
+    //   )
+    //   .subscribe(() => {
+    //     this.calendarListLoading.set(false);
+    //   });
   }
 
   handleLoadCalendarEvents() {

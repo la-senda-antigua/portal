@@ -33,7 +33,7 @@
               {{ field.displayName }}
               @if (field.filterOptions && field.filterOptions.length > 0) {
                 <button mat-icon-button [matMenuTriggerFor]="filterMenu">
-                  <mat-icon>filter_alt</mat-icon>
+                  <mat-icon [class.filled]="selectedOptions.selectedOptions.selected.length > 0">filter_alt</mat-icon>
                 </button>
                 <mat-menu #filterMenu="matMenu">
                   <mat-selection-list

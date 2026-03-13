@@ -9,7 +9,7 @@ import {
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 import { UsersService } from '../../services/users.service';
-import { PortalUser } from '../../models/PortalUser';
+import { PortalUser, UserRole } from '../../models/PortalUser';
 
 import { DatePipe } from '@angular/common';
 import {
@@ -24,8 +24,12 @@ import {
   selectUsers,
   selectUsersLoaded,
   selectUsersLoading,
-} from '../../state/users.selectors';
+  selectCalendarsLoaded,
+  selectLoadingCalendars,
+  selectCalendars,
+} from '../../state/appstate.selectors';
 import { UsersActions } from '../../state/users.actions';
+import { CalendarsActions } from '../../state/calendars.actions';
 
 @Component({
   selector: 'app-users-page',
@@ -40,27 +44,22 @@ export class UsersPageComponent extends PageBaseComponent {
   override createForm = EditUserFormComponent;
 
   override tableCols: TableViewColumn[] = [
-    { displayName: 'Email', datasourceName: 'username', width: '15%' },
+    { displayName: 'User ID', datasourceName: 'username', width: '15%' },
     { displayName: 'Name', datasourceName: 'displayName', width: '10%' },
     {
       displayName: 'Roles',
       datasourceName: 'roles',
       isArray: true,
-      width: '18%',
-    },
-    {
-      displayName: 'Manager of',
-      datasourceName: 'calendarsAsManager',
-      displayProperty: 'name',
-      isArray: true,
-      width: '18%',
+      width: '25%',
+      filterOptions: Object.values(UserRole).map((role) => ({ value: role, viewValue: role })),
     },
     {
       displayName: 'Calendars',
-      datasourceName: 'calendarsAsMember',
-      displayProperty: 'name',
+      datasourceName: 'calendars',
+      displayProperty: 'calendarName',
       isArray: true,
-      width: '18%',
+      width: '25%',
+      filterOptions: []
     },
     {
       displayName: 'Groups',
@@ -68,7 +67,7 @@ export class UsersPageComponent extends PageBaseComponent {
       displayProperty: 'groupName',
       isArray: true,
       filterOptions: [],
-      width: '18%',
+      width: '25%',
     },
   ];
 
@@ -84,16 +83,23 @@ export class UsersPageComponent extends PageBaseComponent {
   private readonly store = inject(Store);
   readonly usersLoading = this.store.selectSignal(selectUsersLoading);
   readonly userGroupsLoading = this.store.selectSignal(selectUserGroupsLoading);
+  readonly calendarsLoading = this.store.selectSignal(selectLoadingCalendars);
+  readonly calendarsLoaded = this.store.selectSignal(selectCalendarsLoaded);
   readonly usersLoaded = this.store.selectSignal(selectUsersLoaded);
   readonly userGroupsLoaded = this.store.selectSignal(selectUserGroupsLoaded);
   readonly users = this.store.selectSignal(selectUsers);
   readonly userGroups = this.store.selectSignal(selectUserGroups);
+  readonly calendars = this.store.selectSignal(selectCalendars);
 
   constructor(service: UsersService) {
     super(service);
     effect(() => {
       let loading = false;
-      if (this.usersLoading() || this.userGroupsLoading()) {
+      if (
+        this.usersLoading() ||
+        this.userGroupsLoading() ||
+        this.calendarsLoading()
+      ) {
         loading = true;
       }
       untracked(() => this.isLoading.set(loading));
@@ -109,8 +115,13 @@ export class UsersPageComponent extends PageBaseComponent {
           lastName: u.lastName,
           displayName: `${u.name ?? ''} ${u.lastName ?? ''}`,
           roles: u.role?.split(',') || [],
-          calendarsAsManager: u.calendarsAsManager,
-          calendarsAsMember: u.calendarsAsMember,
+          calendars: [
+            ...(u.calendarsAsManager?.map((c) => ({
+              calendarName: `* ${c.name}`,
+            })) || []),
+            ...(u.calendarsAsMember?.map((c) => ({ calendarName: c.name })) ||
+              []),
+          ],
           groups: u.groups,
         }));
 
@@ -123,6 +134,7 @@ export class UsersPageComponent extends PageBaseComponent {
     });
     effect(() => {
       const groups = this.userGroups();
+      const calendars = this.calendars();
       this.dataSource.update((tableData) => ({
         ...tableData,
         columns: this.tableCols.map((col) => {
@@ -131,6 +143,14 @@ export class UsersPageComponent extends PageBaseComponent {
               ...col,
               filterOptions: groups
                 .map((g) => ({ value: g.groupName, viewValue: g.groupName }))
+                .sort((a, b) => a.viewValue.localeCompare(b.viewValue)),
+            };
+          }
+          if (col.datasourceName === 'calendars') {
+            return {
+              ...col,
+              filterOptions: calendars
+                .map((c) => ({ value: c.name, viewValue: c.name }))
                 .sort((a, b) => a.viewValue.localeCompare(b.viewValue)),
             };
           }
@@ -147,6 +167,9 @@ export class UsersPageComponent extends PageBaseComponent {
     if (!this.userGroupsLoaded() && !this.userGroupsLoading()) {
       this.store.dispatch(UsersActions.loadUserGroups());
     }
+    if (!this.calendarsLoaded() && !this.calendarsLoading()) {
+      this.store.dispatch(CalendarsActions.loadCalendars());
+    }
   }
 
   override parseForm(form: UserFormData): PortalUser {
@@ -162,15 +185,5 @@ export class UsersPageComponent extends PageBaseComponent {
     if (form.data.id) item.userId = form.data.id;
 
     return item;
-  }
-
-  override onSearch(data: any): void {
-    const { searchTerm } = data;
-    this.dataSource.update((tableData) => ({
-      ...tableData,
-      items: this.users().filter((user) =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    }));
   }
 }
