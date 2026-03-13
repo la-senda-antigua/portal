@@ -85,8 +85,8 @@ export class PageBaseComponent implements OnInit {
 
   onEdit(form: any) {
     this.isLoading.set(true);
-    const video = this.parseForm(form) as any;
-    this.service.edit(video).subscribe({
+    const data = this.parseForm(form) as any;
+    this.service.edit(data).subscribe({
       next: () => {
         this.reload();
       },
@@ -98,8 +98,8 @@ export class PageBaseComponent implements OnInit {
 
   onAdd(form: any) {
     this.isLoading.set(true);
-    const video = this.parseForm(form);
-    this.service.add(video).subscribe({
+    const data = this.parseForm(form);
+    this.service.add(data).subscribe({
       next: () => {
         this.reload();
       },
@@ -118,6 +118,14 @@ export class PageBaseComponent implements OnInit {
     console.error(e);
     this.snackBar.open(message, '', {
       duration: 4000,
+      panelClass: ['snackbar-error']
+    });
+  }
+
+  showSnackbar(message: string) {
+    this.snackBar.open(message, '', {
+      duration: 4000,
+      panelClass: ['snackbar-success']
     });
   }
 

@@ -89,7 +89,7 @@ namespace lsa_web_apis.Controllers
 
         [HttpPost()]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<User>> Register(UserDto data)
+        public async Task<ActionResult<UserDto>> Register(UserDto data)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(Register), transactionId);
@@ -104,26 +104,37 @@ namespace lsa_web_apis.Controllers
                 var user = await authService.RegisterAsync(username, role, data.Name!, data.LastName!);
                 if (user is null)
                 {
-                    log.Warning("Register failed because username is already in use. Username: {Username}", username);
-                    return BadRequest("User name already in use.");
+                    log.Warning("User registration failed. Username: {Username}", username);
+                    return BadRequest("RegisterAsync returned null. User registration failed.");
                 }
 
                 List<CalendarMember> calendarsAsMember = new List<CalendarMember>();
-                foreach (var item in data.CalendarsAsMember)
-                    calendarsAsMember.Add(new CalendarMember { CalendarId = item.Id, UserId = user.Id });
+                foreach (var calendarId in data.CalendarsAsMember)
+                    calendarsAsMember.Add(new CalendarMember { CalendarId = calendarId, UserId = user.Id });
 
                 context.CalendarMembers.AddRange(calendarsAsMember);
 
                 List<CalendarManager> calendarsAsManager = new List<CalendarManager>();
-                foreach (var item in data.CalendarsAsManager)
-                    calendarsAsManager.Add(new CalendarManager { CalendarId = item.Id, UserId = user.Id });
+                foreach (var calendarId in data.CalendarsAsManager)
+                    calendarsAsManager.Add(new CalendarManager { CalendarId = calendarId, UserId = user.Id });
 
                 context.CalendarManagers.AddRange(calendarsAsManager);
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 log.Info("User created successfully. UserId: {UserId}, Username: {Username}", user.Id, user.Username);
-                return Ok(user);
+                var userDto = new UserDto
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Name = user.Name,
+                    LastName = user.LastName,
+                    Role = user.Role,
+                    Preferences = user.Preferences,
+                    CalendarsAsManager = data.CalendarsAsManager,
+                    CalendarsAsMember = data.CalendarsAsMember
+                };
+                return Ok(userDto);
             }
             catch (Exception ex)
             {
@@ -135,7 +146,7 @@ namespace lsa_web_apis.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
-        public async Task<ActionResult<User>> UpdateUser(Guid id, [FromBody] UserDto updateData)
+        public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromBody] UserDto updateData)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(UpdateUser), transactionId);
@@ -165,11 +176,11 @@ namespace lsa_web_apis.Controllers
                 context.CalendarMembers.RemoveRange(existingCalendarsAsMember);
 
                 var newCalendarsAsManager = updateData.CalendarsAsManager
-                    .Select(calendar => new CalendarManager { CalendarId = calendar.Id, UserId = id })
+                    .Select(calendarId => new CalendarManager { CalendarId = calendarId, UserId = id })
                     .ToList();
 
                 var newCalendarsAsMember = updateData.CalendarsAsMember
-                    .Select(calendar => new CalendarMember { CalendarId = calendar.Id, UserId = id })
+                    .Select(calendarId => new CalendarMember { CalendarId = calendarId, UserId = id })
                     .ToList();
 
                 context.CalendarManagers.AddRange(newCalendarsAsManager);
@@ -179,7 +190,18 @@ namespace lsa_web_apis.Controllers
                 await transaction.CommitAsync();
 
                 log.Info("User updated successfully. UserId: {UserId}", id);
-                return Ok(user);
+                var userDto = new UserDto
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Name = user.Name,
+                    LastName = user.LastName,
+                    Role = user.Role,
+                    Preferences = user.Preferences,
+                    CalendarsAsManager = updateData.CalendarsAsManager,
+                    CalendarsAsMember = updateData.CalendarsAsMember
+                };
+                return Ok(userDto);
             }
             catch (Exception ex)
             {

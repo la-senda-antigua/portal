@@ -13,6 +13,7 @@ export interface AppState {
   usersLoaded: boolean;
   userGroupsLoaded: boolean;
   calendarsLoaded: boolean;
+  error: string | null;
 }
 
 export const selectAppState = createFeatureSelector<AppState>('appState');
@@ -60,4 +61,9 @@ export const selectLoadingCalendars = createSelector(
 export const selectCalendarsLoaded = createSelector(
   selectAppState,
   (state) => state.calendarsLoaded,
+);
+
+export const selectError = createSelector(
+  selectAppState,
+  (state) => state.error,
 );

@@ -10,7 +10,7 @@
     [loadWithPagination]="false"
     [addMenuOptions]="addMenuOptions"
     (pageChange)="onPageChange($event)"
-    (createRequest)="onAdd($event)"
+    (createRequest)="addUserOrGroup($event)"
     (editRequest)="onEdit($event)"
     (deleteRequest)="onDelete($event)"
   ></app-table-view>

@@ -17,6 +17,7 @@ const initialState: AppState = {
   usersLoaded: false,
   userGroupsLoaded: false,
   calendarsLoaded: false,
+  error: null,
 };
 
 function getMemberUserId(member: UserGroupMember | string): string | undefined {
@@ -149,27 +150,84 @@ function hydrateState(
 
 export const appStateReducer = createReducer(
   initialState,
+
+  // User Actions
   on(UsersActions.loadUsers, (state) => ({
     ...state,
     loadingUsers: true,
   })),
+  on(UsersActions.addUser, (state) => ({
+    ...state,
+    loadingUsers: true,
+  })),
+  on(UsersActions.updateUser, (state) => ({
+    ...state,
+    loadingUsers: true,
+  })),
+  on(UsersActions.removeUser, (state) => ({
+    ...state,
+    loadingUsers: true,
+  })),
+
+  // User Group Actions
   on(UsersActions.loadUserGroups, (state) => ({
     ...state,
     loadingGroups: true,
   })),
+  on(UsersActions.addUserGroup, (state) => ({
+    ...state,
+    loadingGroups: true,
+  })),
+  on(UsersActions.updateUserGroup, (state) => ({
+    ...state,
+    loadingGroups: true,
+  })),
+  on(UsersActions.removeUserGroup, (state) => ({
+    ...state,
+    loadingGroups: true,
+  })),
+
+  // Calendar Actions
+  on(CalendarsActions.loadCalendars, (state) => ({
+    ...state,
+    loadingCalendars: true,
+  })),
+  on(CalendarsActions.addCalendar, (state) => ({
+    ...state,
+    loadingCalendars: true,
+  })),
+  on(CalendarsActions.updateCalendar, (state) => ({
+    ...state,
+    loadingCalendars: true,
+  })),
+  on(CalendarsActions.removeCalendar, (state) => ({
+    ...state,
+    loadingCalendars: true,
+  })),
+
+  // User Success Actions
   on(UsersApiActions.loadUsersSuccess, (state, { users }) => ({
     ...state,
     ...hydrateState(users, state.userGroups, state.calendars),
     loadingUsers: false,
     usersLoaded: true,
-  })),
-  on(UsersApiActions.loadUsersFailure, (state) => ({
-    ...state,
-    loadingUsers: false,
+    error: null,
   })),
   on(UsersApiActions.addUserSuccess, (state, { user }) => ({
     ...state,
     ...hydrateState([...state.users, user], state.userGroups, state.calendars),
+    loadingUsers: false,
+    error: null,
+  })),
+  on(UsersApiActions.updateUserSuccess, (state, { userId, changes }) => ({
+    ...state,
+    ...hydrateState(
+      state.users.map((u) => (u.userId === userId ? { ...u, ...changes } : u)),
+      state.userGroups,
+      state.calendars,
+    ),
+    error: null,
+    loadingUsers: false,
   })),
   on(UsersApiActions.removeUserSuccess, (state, { userId }) => {
     const nextUsers = state.users.filter((u) => u.userId !== userId);
@@ -181,37 +239,24 @@ export const appStateReducer = createReducer(
     return {
       ...state,
       ...hydrateState(nextUsers, nextGroups, state.calendars),
+      error: null,
+      loadingUsers: false,
     };
   }),
-  on(UsersApiActions.updateUserSuccess, (state, { userId, changes }) => ({
-    ...state,
-    ...hydrateState(
-      state.users.map((u) => (u.userId === userId ? { ...u, ...changes } : u)),
-      state.userGroups,
-      state.calendars,
-    ),
-  })),
+
+  // User Group Success Actions
   on(UsersApiActions.loadUserGroupsSuccess, (state, { groups }) => ({
     ...state,
     ...hydrateState(state.users, groups, state.calendars),
     loadingGroups: false,
     userGroupsLoaded: true,
-  })),
-  on(UsersApiActions.loadUserGroupsFailure, (state) => ({
-    ...state,
-    loadingGroups: false,
+    error: null,
   })),
   on(UsersApiActions.addUserGroupSuccess, (state, { group }) => ({
     ...state,
     ...hydrateState(state.users, [...state.userGroups, group], state.calendars),
-  })),
-  on(UsersApiActions.removeUserGroupSuccess, (state, { groupId }) => ({
-    ...state,
-    ...hydrateState(
-      state.users,
-      state.userGroups.filter((g) => g.id !== groupId),
-      state.calendars,
-    ),
+    error: null,
+    loadingGroups: false,
   })),
   on(UsersApiActions.updateUserGroupSuccess, (state, { groupId, changes }) => ({
     ...state,
@@ -222,20 +267,27 @@ export const appStateReducer = createReducer(
       ),
       state.calendars,
     ),
+    error: null,
+    loadingGroups: false,
   })),
-  on(CalendarsActions.loadCalendars, (state) => ({
+  on(UsersApiActions.removeUserGroupSuccess, (state, { groupId }) => ({
     ...state,
-    loadingCalendars: true,
+    ...hydrateState(
+      state.users,
+      state.userGroups.filter((g) => g.id !== groupId),
+      state.calendars,
+    ),
+    error: null,
+    loadingGroups: false,
   })),
+
+  // Calendar Success Actions
   on(CalendarsApiActions.loadCalendarsSuccess, (state, { calendars }) => ({
     ...state,
     ...hydrateState(state.users, state.userGroups, calendars),
     loadingCalendars: false,
     calendarsLoaded: true,
-  })),
-  on(CalendarsApiActions.loadCalendarsFailure, (state) => ({
-    ...state,
-    loadingCalendars: false,
+    error: null,
   })),
   on(CalendarsApiActions.addCalendarSuccess, (state, { calendar }) => ({
     ...state,
@@ -243,14 +295,8 @@ export const appStateReducer = createReducer(
       ...state.calendars,
       calendar,
     ]),
-  })),
-  on(CalendarsApiActions.removeCalendarSuccess, (state, { calendarId }) => ({
-    ...state,
-    ...hydrateState(
-      state.users,
-      state.userGroups,
-      state.calendars.filter((c) => c.id !== calendarId),
-    ),
+    error: null,
+    loadingCalendars: false,
   })),
   on(
     CalendarsApiActions.updateCalendarSuccess,
@@ -261,6 +307,41 @@ export const appStateReducer = createReducer(
         state.userGroups,
         state.calendars.map((c) => (c.id === calendarId ? { ...calendar } : c)),
       ),
+      error: null,
+      loadingCalendars: false,
+    }),
+  ),
+  on(CalendarsApiActions.removeCalendarSuccess, (state, { calendarId }) => ({
+    ...state,
+    ...hydrateState(
+      state.users,
+      state.userGroups,
+      state.calendars.filter((c) => c.id !== calendarId),
+    ),
+    error: null,
+    loadingCalendars: false,
+  })),
+
+  // Failure Actions
+  on(
+    UsersApiActions.loadUsersFailure,
+    UsersApiActions.loadUserGroupsFailure,
+    UsersApiActions.addUserFailure,
+    UsersApiActions.updateUserFailure,
+    UsersApiActions.removeUserFailure,
+    UsersApiActions.addUserGroupFailure,
+    UsersApiActions.updateUserGroupFailure,
+    UsersApiActions.removeUserGroupFailure,
+    CalendarsApiActions.loadCalendarsFailure,
+    CalendarsApiActions.addCalendarFailure,
+    CalendarsApiActions.updateCalendarFailure,
+    CalendarsApiActions.removeCalendarFailure,
+    (state, { error }) => ({
+      ...state,
+      loadingUsers: false,
+      loadingGroups: false,
+      loadingCalendars: false,
+      error: error?.message || 'An error occurred while loading data.',
     }),
   ),
 );

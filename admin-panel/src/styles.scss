@@ -1,3 +1,4 @@
+@use '@angular/material' as mat;
 
 html,
 body {
@@ -152,4 +153,18 @@ app-logout {
   border-radius: 4px;
   margin-bottom: 8px;
   font-size: smaller;
+}
+
+.snackbar-error {
+  @include mat.snack-bar-overrides((
+    container-color: #c35a5a,
+    supporting-text-color: white,
+  ));
+}
+
+.snackbar-success {
+  @include mat.snack-bar-overrides((
+    container-color: #3c3cc2,
+    supporting-text-color: white,
+  ));
 }

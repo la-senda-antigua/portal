@@ -1,4 +1,11 @@
-import { Component, effect, inject, untracked, viewChild } from '@angular/core';
+import {
+  Component,
+  effect,
+  inject,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -27,6 +34,7 @@ import {
   selectCalendarsLoaded,
   selectLoadingCalendars,
   selectCalendars,
+  selectError,
 } from '../../state/appstate.selectors';
 import { UsersActions } from '../../state/users.actions';
 import { CalendarsActions } from '../../state/calendars.actions';
@@ -50,7 +58,10 @@ export class UsersPageComponent extends PageBaseComponent {
       datasourceName: 'roles',
       isArray: true,
       width: '25%',
-      filterOptions: Object.values(UserRole).map((role) => ({ value: role, viewValue: role })),
+      filterOptions: Object.values(UserRole).map((role) => ({
+        value: role,
+        viewValue: role,
+      })),
     },
     {
       displayName: 'Calendars',
@@ -58,7 +69,7 @@ export class UsersPageComponent extends PageBaseComponent {
       displayProperty: 'calendarName',
       isArray: true,
       width: '25%',
-      filterOptions: []
+      filterOptions: [],
     },
     {
       displayName: 'Groups',
@@ -86,6 +97,7 @@ export class UsersPageComponent extends PageBaseComponent {
   readonly calendarsLoaded = this.store.selectSignal(selectCalendarsLoaded);
   readonly usersLoaded = this.store.selectSignal(selectUsersLoaded);
   readonly userGroupsLoaded = this.store.selectSignal(selectUserGroupsLoaded);
+  readonly error = this.store.selectSignal(selectError);
   readonly users = this.store.selectSignal(selectUsers);
   readonly userGroups = this.store.selectSignal(selectUserGroups);
   readonly calendars = this.store.selectSignal(selectCalendars);
@@ -93,6 +105,7 @@ export class UsersPageComponent extends PageBaseComponent {
     { option: 'Add new user', form: EditUserFormComponent },
     { option: 'Create a group', form: EditIdNameFormComponent },
   ];
+  readonly addUserTriggered = signal(false);
 
   constructor(service: UsersService) {
     super(service);
@@ -129,10 +142,9 @@ export class UsersPageComponent extends PageBaseComponent {
         }));
 
       untracked(() => {
-        this.dataSource.update((tableData) => ({
-          ...tableData,
-          items: mappedUsers,
-        }));
+        const newDataSource = { ...this.dataSource() };
+        newDataSource.items = mappedUsers;
+        this.dataSource.set(newDataSource);
       });
     });
     effect(() => {
@@ -161,6 +173,17 @@ export class UsersPageComponent extends PageBaseComponent {
         }),
       }));
     });
+    effect(() => {
+      if (!this.usersLoading() && this.addUserTriggered() && !this.error()) {
+        this.showSnackbar('User added successfully');
+        this.addUserTriggered.update(() => false);
+      }
+    });
+    effect(()=>{
+      if(this.error()){
+        this.handleException(new Error(this.error()!), 'There was a problem with your request');
+      }
+    });
   }
 
   override load(): void {
@@ -181,12 +204,18 @@ export class UsersPageComponent extends PageBaseComponent {
       name: form.data.name,
       lastName: form.data.lastName,
       role: form.data.roles?.join(',') || '',
-      calendarsAsManager: form.data.calendarsAsManager,
-      calendarsAsMember: form.data.calendarsAsMember,
+      calendarsAsManager: form.data.calendarsAsManager?.map((c) => c.id),
+      calendarsAsMember: form.data.calendarsAsMember?.map((c) => c.id),
     } as PortalUser;
 
     if (form.data.id) item.userId = form.data.id;
 
     return item;
+  }
+
+  addUserOrGroup(form: UserFormData) {
+    const user = this.parseForm(form);
+    this.store.dispatch(UsersActions.addUser({ user }));
+    this.addUserTriggered.update(() => true);
   }
 }
