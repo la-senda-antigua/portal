@@ -95,6 +95,7 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        this.isLoading.set(true);
         const { data } = result;
         const newUserGroup: UserGroup = {
           groupName: data.name as string,
@@ -103,12 +104,11 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
         this.service.add(newUserGroup).subscribe({
           next: () => {
             this.reload();
+            this.isLoading.set(false);
           },
           error: (err) => {
-            this.handleException(
-              err,
-              'There was a problem adding the user group.',
-            );
+            this.handleException(err,'There was a problem adding the user group.',);
+            this.isLoading.set(false);
           },
         });
       }
@@ -236,6 +236,27 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
   }
 
   deleteGroup(group: UserGroup) {
-    // Aquí implementa la lógica para eliminar el grupo
+    const { id, groupName } = group;
+    const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
+      data: {
+        id: id,
+        requestMatchingString: false,
+        prompt: `Are you sure you want to delete ${groupName}?`
+      } as DeleteConfirmationData,
+    });
+
+    dialogDelete.afterClosed().subscribe((result) => {
+      if (result) {
+        this.isLoading.set(true);
+        this.service.delete(id).subscribe({
+          next: () => this.reload(),
+          error: (err) => {
+            this.isLoading.set(false);
+            this.handleException(err, err.error);
+          },
+        });
+      }
+    });
+
   }
 }

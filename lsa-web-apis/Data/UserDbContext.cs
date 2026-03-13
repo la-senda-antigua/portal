@@ -29,7 +29,7 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.Id);    
+            entity.HasKey(e => e.Id);
             entity.Property(e => e.RowId).IsRequired();
         });
 
@@ -38,7 +38,8 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
             entity.HasKey(e => new { e.UserId, e.UserGroupId });
         });
 
-        modelBuilder.Entity<CalendarEventAssignee>().HasKey(e => new { e.CalendarEventId, e.UserId });
+        modelBuilder.Entity<CalendarEventAssignee>()
+            .HasKey(e => new { e.CalendarEventId, e.UserId });
 
         modelBuilder.Entity<UserDevice>(entity =>
         {
@@ -59,6 +60,61 @@ public class UserDbContext(DbContextOptions<UserDbContext> options) : DbContext(
             entity.HasIndex(e => new { e.EventId, e.Username, e.NotificationType }).IsUnique();
             entity.HasIndex(e => e.Username);
         });
+
+        //CASCADE DELETE CONFIGURATION        
+        modelBuilder.Entity<Calendar>()
+            .HasMany(c => c.Events)
+            .WithOne(e => e.Calendar)
+            .HasForeignKey(e => e.CalendarId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Calendar>()
+            .HasMany(c => c.Managers)
+            .WithOne(m => m.Calendar)
+            .HasForeignKey(m => m.CalendarId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CalendarManager>()
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Calendar>()
+            .HasMany(c => c.Members)
+            .WithOne(m => m.Calendar)
+            .HasForeignKey(m => m.CalendarId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CalendarEvent>()
+            .HasMany(e => e.Assignees)
+            .WithOne(a => a.CalendarEvent)
+            .HasForeignKey(a => a.CalendarEventId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CalendarMember>()
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CalendarEventAssignee>()
+            .HasOne(a => a.User)
+            .WithMany()
+            .HasForeignKey(a => a.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserGroupMember>()
+            .HasOne(m => m.UserGroup)
+            .WithMany(g => g.Members)
+            .HasForeignKey(m => m.UserGroupId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserGroupMember>()
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
 }
