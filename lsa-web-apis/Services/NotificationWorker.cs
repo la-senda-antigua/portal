@@ -9,21 +9,35 @@ namespace lsa_web_apis.Services
         private readonly ILogger<NotificationWorker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IFirebaseNotificationService _firebaseNotificationService;
+        private readonly TimeSpan _notificationInterval;
 
-        public NotificationWorker(ILogger<NotificationWorker> logger, IServiceScopeFactory scopeFactory, IFirebaseNotificationService firebaseNotificationService)
+        public NotificationWorker(
+            ILogger<NotificationWorker> logger,
+            IServiceScopeFactory scopeFactory,
+            IFirebaseNotificationService firebaseNotificationService,
+            IConfiguration configuration)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
             _firebaseNotificationService = firebaseNotificationService;
+
+            var configuredHours = configuration.GetValue<int?>("NotificationWorker:IntervalHours");
+            var intervalHours = configuredHours.GetValueOrDefault(1);
+            if (intervalHours <= 0)
+            {
+                intervalHours = 1;
+            }
+
+            _notificationInterval = TimeSpan.FromHours(intervalHours);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Notification Worker started.");
+            _logger.LogInformation("Notification Worker started. Interval: {Hours} hour(s)", _notificationInterval.TotalHours);
             while (!stoppingToken.IsCancellationRequested)
             {
                 await ProcessNotifications(stoppingToken);
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                await Task.Delay(_notificationInterval, stoppingToken);
             }
         }
 
@@ -57,6 +71,7 @@ namespace lsa_web_apis.Services
 
                 int totalSent = 0;
                 int totalFailed = 0;
+                var pendingLogKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var calendarEvent in events)
                 {
@@ -71,19 +86,32 @@ namespace lsa_web_apis.Services
                         var user = assignee.User;
                         if (user == null || string.IsNullOrEmpty(user.Username)) continue;
 
-                        var alreadyNotified = await dbContext.NotificationLogs
-                            .AnyAsync(n => n.EventId == calendarEvent.Id && n.Username == user.Username && n.NotificationType == notificationType, stoppingToken);
+                        var normalizedUsername = user.Username.Trim().ToLowerInvariant();
+                        if (string.IsNullOrEmpty(normalizedUsername)) continue;
+                        
+                        var pendingKey = $"{calendarEvent.Id:N}|{normalizedUsername}|{notificationType}";
+                        if (pendingLogKeys.Contains(pendingKey)) continue;
 
-                        if (alreadyNotified) continue;
+                        var claimedForSend = await TryCreateNotificationLogAsync(
+                            dbContext,
+                            calendarEvent.Id,
+                            normalizedUsername,
+                            notificationType,
+                            stoppingToken
+                        );
+
+                        if (!claimedForSend) continue;
+
+                        pendingLogKeys.Add(pendingKey);
 
                         var userDevices = await dbContext.UserDevices
-                            .Where(d => d.Username == user.Username)
+                            .Where(d => d.Username.ToLower() == normalizedUsername)
                             .Select(d => d.FirebaseToken)
                             .ToListAsync(stoppingToken);
 
                         if (!userDevices.Any())
                         {
-                            _logger.LogWarning("User {Username} has no registered devices to notify (event {EventId})", user.Username, calendarEvent.Id);
+                            _logger.LogWarning("User {Username} has no registered devices to notify (event {EventId})", normalizedUsername, calendarEvent.Id);
                         }
                         else
                         {
@@ -112,33 +140,75 @@ namespace lsa_web_apis.Services
                                 _logger.LogWarning("Failed to send to {FailureCount} tokens for user {Username}.", failedTokens.Count, user.Username);
 
                                 var devicesToRemove = await dbContext.UserDevices
-                                    .Where(d => d.Username == user.Username && failedTokens.Contains(d.FirebaseToken))
+                                    .Where(d => d.Username.ToLower() == normalizedUsername && failedTokens.Contains(d.FirebaseToken))
                                     .ToListAsync(stoppingToken);
 
                                 if(devicesToRemove.Any())
                                 {
                                     dbContext.UserDevices.RemoveRange(devicesToRemove);
+                                    await dbContext.SaveChangesAsync(stoppingToken);
                                 }
                             }
                         }
-
-                        dbContext.NotificationLogs.Add(new NotificationLog
-                        {
-                            EventId = calendarEvent.Id,
-                            Username = user.Username,
-                            NotificationType = notificationType,
-                            SentAt = DateTime.Now
-                        });
                     }
                 }
 
-                await dbContext.SaveChangesAsync(stoppingToken);
                 _logger.LogInformation("Notifications sent: {TotalOk}, failed: {TotalFail}", totalSent, totalFailed);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing push notifications.");
             }
+        }
+
+        private async Task<bool> TryCreateNotificationLogAsync(
+            UserDbContext dbContext,
+            Guid eventId,
+            string normalizedUsername,
+            string notificationType,
+            CancellationToken stoppingToken)
+        {
+            dbContext.NotificationLogs.Add(new NotificationLog
+            {
+                EventId = eventId,
+                Username = normalizedUsername,
+                NotificationType = notificationType,
+                SentAt = DateTime.Now
+            });
+
+            try
+            {
+                await dbContext.SaveChangesAsync(stoppingToken);
+                return true;
+            }
+            catch (DbUpdateException ex) when (IsDuplicateNotificationLogConstraintViolation(ex))
+            {
+                var duplicateNotificationEntries = ex.Entries
+                    .Where(e => e.Entity is NotificationLog)
+                    .ToList();
+
+                foreach (var entry in duplicateNotificationEntries)
+                {
+                    entry.State = EntityState.Detached;
+                }
+
+                _logger.LogInformation(
+                    "Skipping duplicate reminder for event {EventId}, username {Username}, type {Type}.",
+                    eventId,
+                    normalizedUsername,
+                    notificationType
+                );
+
+                return false;
+            }
+        }
+
+        private static bool IsDuplicateNotificationLogConstraintViolation(DbUpdateException ex)
+        {
+            var message = ex.InnerException?.Message;
+            return !string.IsNullOrWhiteSpace(message)
+                   && message.Contains("Duplicate entry", StringComparison.OrdinalIgnoreCase)
+                   && message.Contains("UQ_Event_Username_Type", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
