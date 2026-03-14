@@ -51,9 +51,9 @@ export class UsersEffects {
     updateUser$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UsersActions.updateUser),
-            switchMap(({ userId, changes }) =>
-                this.userService.edit(changes).pipe(
-                    map(updatedUser => UsersApiActions.updateUserSuccess({ userId, changes: updatedUser })),
+            switchMap(({ userId, user }) =>
+                this.userService.edit(user).pipe(
+                    map(updatedUser => UsersApiActions.updateUserSuccess({ userId, user: updatedUser })),
                     catchError(error => of(UsersApiActions.updateUserFailure({ error })))
                 )
             )
@@ -87,9 +87,9 @@ export class UsersEffects {
     updateUserGroup$ = createEffect(() =>
         this.actions$.pipe(
             ofType(UsersActions.updateUserGroup),
-            switchMap(({ groupId, changes }) =>
-                this.userGroupsService.edit(changes).pipe(
-                    map(updatedGroup => UsersApiActions.updateUserGroupSuccess({ groupId, changes: updatedGroup })),
+            switchMap(({ groupId, userGroup }) =>
+                this.userGroupsService.editMembers(userGroup).pipe(
+                    map(updatedGroup => UsersApiActions.updateUserGroupSuccess({ groupId, userGroup: updatedGroup })),
                     catchError(error => of(UsersApiActions.updateUserGroupFailure({ error })))
                 )
             )

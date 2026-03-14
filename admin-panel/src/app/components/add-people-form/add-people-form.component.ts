@@ -33,6 +33,7 @@ export class AddPeopleFormComponent {
       calendarId: string;
       groupId?: string;
       existingUsers?: PortalUser[];
+      showExistingUsers?: boolean;
     }
   ) {}
 

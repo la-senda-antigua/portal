@@ -68,11 +68,9 @@ export interface UserFormData extends TableViewFormData {
   providers: [DatePipe],
 })
 export class EditUserFormComponent {
-  readonly formBuilder = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<EditUserFormComponent>);
   readonly preachersService = inject(PreachersService);
   readonly datePipe = inject(DatePipe);
-  readonly dialog = inject(MatDialog);
   readonly formData = inject<UserFormData>(MAT_DIALOG_DATA);
   readonly store = inject(Store);
 

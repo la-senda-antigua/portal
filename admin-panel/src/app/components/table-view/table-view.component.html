@@ -1,3 +1,4 @@
+@if (!hideDefaultHeader()) {
 <div class="header">
   <a routerLink="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
   <h1>{{ tableTitle() }}</h1>
@@ -17,6 +18,7 @@
     </mat-menu>
   }
 </div>
+}
 
 <div class="table-container">
   @if (isLoading()) {

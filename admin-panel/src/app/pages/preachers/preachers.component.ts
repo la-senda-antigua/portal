@@ -58,7 +58,7 @@ export class PreachersComponent extends PageBaseComponent {
     });
   }
 
-  override parseForm(form: EditIdNameFormData): Preacher {
+  override parseUserForm(form: EditIdNameFormData): Preacher {
     const item = {
       id: form.data.id,
       name: form.data.name,

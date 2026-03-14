@@ -5,6 +5,12 @@ export interface UserGroup{
 
 }
 
+export interface UserGroupDto {
+  id?: string;
+  groupName: string;
+  members?: string[];
+}
+
 export interface UserGroupMember{
   userGroupId: string;
   userId: string;

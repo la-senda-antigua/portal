@@ -1,3 +1,26 @@
+<header>
+  <a routerLink="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
+  <h1>Users</h1>
+  <span class="spacer"></span>
+  <button mat-fab extended [matMenuTriggerFor]="editGroupMenu">
+    Edit group
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+  <mat-menu #editGroupMenu="matMenu">
+    @for (group of userGroups(); track group) {
+      <button mat-menu-item (click)="openEditGroupForm(group)">{{ group.groupName }}</button>
+    }
+  </mat-menu>
+  <button mat-fab extended (click)="openAddGroupForm()">
+    <mat-icon>group_add</mat-icon>
+    Add group
+  </button>
+  <button mat-fab extended (click)="openAddUserForm()">
+    <mat-icon>person_add</mat-icon>
+    Add User
+  </button>
+</header>
+
 <div class="container">
   <app-table-view
     [isLoading]="isLoading()"
@@ -8,10 +31,10 @@
     [deleteConfirmationFields]="deleteFields"
     [viewType]="tableViewTypes.usergroup"
     [loadWithPagination]="false"
-    [addMenuOptions]="addMenuOptions"
+    [hideDefaultHeader]="true"
     (pageChange)="onPageChange($event)"
-    (createRequest)="addUserOrGroup($event)"
-    (editRequest)="onEdit($event)"
+    (createRequest)="handleCreateRequest($event)"
+    (editRequest)="handleEditRequest($event)"
     (deleteRequest)="onDelete($event)"
   ></app-table-view>
 </div>

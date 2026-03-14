@@ -11,4 +11,5 @@ public class UserDto
     public string? Preferences { get; set; }
     public List<Guid> CalendarsAsManager { get; set; } = [];
     public List<Guid> CalendarsAsMember { get; set; } = [];
+    public List<Guid> Groups { get; set; } = [];
 }

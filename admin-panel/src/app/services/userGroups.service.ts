@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { GeneralServiceBase } from './general.service.base';
 import { Injectable } from '@angular/core';
-import { UserGroup } from '../models/UserGroup';
+import { UserGroupDto } from '../models/UserGroup';
 
 @Injectable({
   providedIn: 'root',
@@ -9,22 +9,22 @@ import { UserGroup } from '../models/UserGroup';
 export class UserGroupsService extends GeneralServiceBase {
   override apiUrl = '/userGroups';
 
-  override getAll(): Observable<UserGroup[]> {
+  override getAll(): Observable<UserGroupDto[]> {
     const url = `${this.apiUrl}/getAll`;
-    return this.requestManager.get<UserGroup[]>(url);
+    return this.requestManager.get<UserGroupDto[]>(url);
   }
 
-    override add(item: UserGroup): Observable<UserGroup> {
-      return this.requestManager.post<UserGroup>(this.apiUrl, item);
+    override add(item: UserGroupDto): Observable<UserGroupDto> {
+      return this.requestManager.post<UserGroupDto>(this.apiUrl, item);
     }
 
-    override edit(item: UserGroup): Observable<UserGroup> {
+    override edit(item: UserGroupDto): Observable<UserGroupDto> {
       const url = `${this.apiUrl}/${item.id}`;
-      return this.requestManager.put<UserGroup>(url, item);
+      return this.requestManager.put<UserGroupDto>(url, item);
     }
-    editMembers(item: UserGroup): Observable<UserGroup> {
+    editMembers(item: UserGroupDto): Observable<UserGroupDto> {
       const url = `${this.apiUrl}/editMembers/${item.id}`;
-      return this.requestManager.put<UserGroup>(url, item);
+      return this.requestManager.put<UserGroupDto>(url, item);
     }
 
     override delete(id: string): Observable<void> {

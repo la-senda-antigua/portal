@@ -85,7 +85,7 @@ export class PageBaseComponent implements OnInit {
 
   onEdit(form: any) {
     this.isLoading.set(true);
-    const data = this.parseForm(form) as any;
+    const data = this.parseUserForm(form) as any;
     this.service.edit(data).subscribe({
       next: () => {
         this.reload();
@@ -98,7 +98,7 @@ export class PageBaseComponent implements OnInit {
 
   onAdd(form: any) {
     this.isLoading.set(true);
-    const data = this.parseForm(form);
+    const data = this.parseUserForm(form);
     this.service.add(data).subscribe({
       next: () => {
         this.reload();
@@ -111,7 +111,7 @@ export class PageBaseComponent implements OnInit {
 
   onSearch(data: any): void {}
 
-  parseForm(form: any) {}
+  parseUserForm(form: any) {}
 
   handleException(e: Error, message: string) {
     this.isLoading.set(false);

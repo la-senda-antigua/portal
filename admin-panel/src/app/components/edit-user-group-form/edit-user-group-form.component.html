@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Edit user group</h1>
+<mat-dialog-content>
+    <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Group name</mat-label>
+        <input matInput [formControl]="form.controls.groupName" />
+    </mat-form-field>
+    <app-user-selector
+      [existingUsers]="existingUsers()"
+      [initialSelectedUsers]="existingUsers()"
+      (selectedUsersChange)="updateSelectedUsers($event)"
+    ></app-user-selector>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button (click)="close()">Cancel</button>
+    <button mat-button (click)="save()" [disabled]="form.invalid">
+        Save
+    </button>
+</mat-dialog-actions>

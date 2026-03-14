@@ -74,7 +74,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
     });
   }
 
-  override parseForm(form: VideoFormData): SermonDto {
+  override parseUserForm(form: VideoFormData): SermonDto {
     const sermon: any = {
       date: form.data.date.toISOString().substring(0, 10),
       title: form.data.title,
@@ -98,7 +98,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
     this.isLoading.set(true);
 
     const formData = new FormData();
-    const videoData = this.parseForm(form);
+    const videoData = this.parseUserForm(form);
     formData.append('sermonStr', JSON.stringify(videoData));
     if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);
@@ -114,7 +114,7 @@ export class ChurchServicesComponent extends PageBaseComponent {
   override onEdit(form: VideoFormData) {
     this.isLoading.set(true);
     const formData = new FormData();
-    const videoData = this.parseForm(form);
+    const videoData = this.parseUserForm(form);
     formData.append('sermonStr', JSON.stringify(videoData));
     if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);

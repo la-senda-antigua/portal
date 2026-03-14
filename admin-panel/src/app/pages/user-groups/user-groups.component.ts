@@ -176,19 +176,19 @@ export class UserGroupsComponent extends PageBaseComponent implements OnInit {
 
       const groupToUpdate: UserGroup = { ...group, members: updatedMembers };
 
-      (this.service as UserGroupsService).editMembers(groupToUpdate).subscribe({
-        next: () => {
-          this.reload();
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          this.handleException(
-            err,
-            'There was a problem updating the group members.',
-          );
-          this.isLoading.set(false);
-        },
-      });
+      // (this.service as UserGroupsService).editMembers(groupToUpdate).subscribe({
+      //   next: () => {
+      //     this.reload();
+      //     this.isLoading.set(false);
+      //   },
+      //   error: (err) => {
+      //     this.handleException(
+      //       err,
+      //       'There was a problem updating the group members.',
+      //     );
+      //     this.isLoading.set(false);
+      //   },
+      // });
     });
   }
 

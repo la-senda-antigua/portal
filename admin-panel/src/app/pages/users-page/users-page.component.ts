@@ -6,43 +6,54 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
 import {
   TableViewColumn,
   TableViewComponent,
-  TableViewDataSource,
 } from '../../components/table-view/table-view.component';
-import { PageBaseComponent } from '../page-base/page-base.component';
-import { DeleteConfirmationData } from '../../components/delete-confirmation/delete-confirmation.component';
-import { UsersService } from '../../services/users.service';
 import { PortalUser, UserRole } from '../../models/PortalUser';
+import { UsersService } from '../../services/users.service';
+import { PageBaseComponent } from '../page-base/page-base.component';
 
 import { DatePipe } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { EditIdNameFormComponent } from '../../components/edit-id-name-form/edit-id-name-form.component';
 import {
   EditUserFormComponent,
   UserFormData,
 } from '../../components/edit-user-form/edit-user-form.component';
-import { Store } from '@ngrx/store';
 import {
-  selectUserGroupsLoaded,
+  selectCalendars,
+  selectCalendarsLoaded,
+  selectError,
+  selectLoadingCalendars,
   selectUserGroups,
+  selectUserGroupsLoaded,
   selectUserGroupsLoading,
   selectUsers,
   selectUsersLoaded,
   selectUsersLoading,
-  selectCalendarsLoaded,
-  selectLoadingCalendars,
-  selectCalendars,
-  selectError,
 } from '../../state/appstate.selectors';
-import { UsersActions } from '../../state/users.actions';
 import { CalendarsActions } from '../../state/calendars.actions';
-import { EditIdNameFormComponent } from '../../components/edit-id-name-form/edit-id-name-form.component';
+import { UsersActions } from '../../state/users.actions';
+import { RouterLink } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
+import { UserGroup, UserGroupDto } from '../../models/UserGroup';
+import { AddPeopleFormComponent } from '../../components/add-people-form/add-people-form.component';
+import { EditUserGroupFormComponent } from '../../components/edit-user-group-form/edit-user-group-form.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-users-page',
-  imports: [MatIconModule, MatButtonModule, TableViewComponent],
+  imports: [
+    MatIconModule,
+    MatButtonModule,
+    TableViewComponent,
+    RouterLink,
+    MatMenuModule,
+  ],
   providers: [DatePipe],
   templateUrl: './users-page.component.html',
   styleUrl: './users-page.component.scss',
@@ -50,6 +61,7 @@ import { EditIdNameFormComponent } from '../../components/edit-id-name-form/edit
 export class UsersPageComponent extends PageBaseComponent {
   override tableViewComponent = viewChild(TableViewComponent);
   override editForm = EditUserFormComponent;
+  override createForm = EditUserFormComponent;
   override tableCols: TableViewColumn[] = [
     { displayName: 'User ID', datasourceName: 'username', width: '15%' },
     { displayName: 'Name', datasourceName: 'displayName', width: '10%' },
@@ -91,6 +103,7 @@ export class UsersPageComponent extends PageBaseComponent {
   override tableTitle = 'Users';
 
   private readonly store = inject(Store);
+  private readonly dialog = inject(MatDialog);
   readonly usersLoading = this.store.selectSignal(selectUsersLoading);
   readonly userGroupsLoading = this.store.selectSignal(selectUserGroupsLoading);
   readonly calendarsLoading = this.store.selectSignal(selectLoadingCalendars);
@@ -101,11 +114,11 @@ export class UsersPageComponent extends PageBaseComponent {
   readonly users = this.store.selectSignal(selectUsers);
   readonly userGroups = this.store.selectSignal(selectUserGroups);
   readonly calendars = this.store.selectSignal(selectCalendars);
-  readonly addMenuOptions = [
-    { option: 'Add new user', form: EditUserFormComponent },
-    { option: 'Create a group', form: EditIdNameFormComponent },
-  ];
   readonly addUserTriggered = signal(false);
+  readonly editUserTriggered = signal(false);
+  readonly deleteUserTriggered = signal(false);
+  readonly addUserGroupTriggered = signal(false);
+  readonly updateUserGroupTriggered = signal(false);
 
   constructor(service: UsersService) {
     super(service);
@@ -174,14 +187,36 @@ export class UsersPageComponent extends PageBaseComponent {
       }));
     });
     effect(() => {
-      if (!this.usersLoading() && this.addUserTriggered() && !this.error()) {
+      if (this.usersLoading() || this.error()) {
+        return;
+      }
+      if (this.addUserTriggered()) {
         this.showSnackbar('User added successfully');
         this.addUserTriggered.update(() => false);
       }
+      if (this.editUserTriggered()) {
+        this.showSnackbar('User edited successfully');
+        this.editUserTriggered.update(() => false);
+      }
+      if (this.deleteUserTriggered()) {
+        this.showSnackbar('User deleted successfully');
+        this.deleteUserTriggered.update(() => false);
+      }
+      if (this.addUserGroupTriggered()) {
+        this.showSnackbar('User group added successfully');
+        this.addUserGroupTriggered.update(() => false);
+      }
+      if (this.updateUserGroupTriggered()) {
+        this.showSnackbar('User group updated successfully');
+        this.updateUserGroupTriggered.update(() => false);
+      }
     });
-    effect(()=>{
-      if(this.error()){
-        this.handleException(new Error(this.error()!), 'There was a problem with your request');
+    effect(() => {
+      if (this.error()) {
+        this.handleException(
+          new Error(this.error()!),
+          'There was a problem with your request',
+        );
       }
     });
   }
@@ -198,24 +233,95 @@ export class UsersPageComponent extends PageBaseComponent {
     }
   }
 
-  override parseForm(form: UserFormData): PortalUser {
-    let item = {
+  override parseUserForm(form: UserFormData): PortalUser {
+    const user = {
       username: form.data.username,
       name: form.data.name,
       lastName: form.data.lastName,
       role: form.data.roles?.join(',') || '',
       calendarsAsManager: form.data.calendarsAsManager?.map((c) => c.id),
       calendarsAsMember: form.data.calendarsAsMember?.map((c) => c.id),
+      groups: form.data.groups?.map((g) => g.id),
     } as PortalUser;
 
-    if (form.data.id) item.userId = form.data.id;
+    if (form.data.id) user.userId = form.data.id;
 
-    return item;
+    return user;
   }
 
-  addUserOrGroup(form: UserFormData) {
-    const user = this.parseForm(form);
-    this.store.dispatch(UsersActions.addUser({ user }));
-    this.addUserTriggered.update(() => true);
+  openAddUserForm() {
+    this.tableViewComponent()?.openCreateForm();
+  }
+
+  openAddGroupForm() {
+    this.tableViewComponent()?.openCreateForm(EditIdNameFormComponent);
+  }
+
+  openEditGroupForm(group: UserGroup) {
+    const editGroupDialog = this.dialog.open(EditUserGroupFormComponent, {
+      data: group,
+      width: '400px',
+      height: 'calc(60vh + 140px)',
+    });
+    editGroupDialog.afterClosed().subscribe((result) => this.editGroup(result));
+  }
+
+  /** Handles the create request from TableView (create user or usergroup) */
+  handleCreateRequest(form: any) {
+    if (form.data.username) {
+      this.addOrEditUser(form);
+      return;
+    }
+    this.addGroup(form);
+  }
+
+  /** Handles the edit request from TableView (edit user) */
+  handleEditRequest(form: any) {
+    if (form.data.username) {
+      this.addOrEditUser(form);
+    }
+  }
+
+  addOrEditUser(form: UserFormData) {
+    const user = this.parseUserForm(form);
+    if (user.userId != undefined) {
+      this.store.dispatch(
+        UsersActions.updateUser({ userId: user.userId, user }),
+      );
+      this.editUserTriggered.set(true);
+    } else {
+      this.store.dispatch(UsersActions.addUser({ user }));
+      this.addUserTriggered.set(true);
+    }
+  }
+
+  deleteUser(userId: string) {
+    this.store.dispatch(UsersActions.removeUser({ userId }));
+    this.deleteUserTriggered.set(true);
+  }
+
+  addGroup(form: { data: { name: string } }) {
+    const newUserGroup: UserGroupDto = {
+      groupName: form.data.name as string,
+    };
+
+    this.store.dispatch(UsersActions.addUserGroup({ group: newUserGroup }));
+    this.addUserGroupTriggered.set(true);
+  }
+
+  editGroup(form: {
+    data: { id: string; groupName: string; members: string[] };
+  }) {
+    this.store.dispatch(
+      UsersActions.updateUserGroup({
+        groupId: form.data.id,
+        userGroup: {
+          id: form.data.id,
+          groupName: form.data.groupName,
+          members: form.data.members,
+        },
+      }),
+    );
+    this.updateUserGroupTriggered.set(true);
   }
 }

@@ -126,6 +126,8 @@ export class TableViewComponent {
   readonly isLoading = input<boolean>(false);
   /** Whether or not to show the action column  */
   readonly showActions = input<boolean>(true);
+  /** Whether or not to hide the default header */
+  readonly hideDefaultHeader = input<boolean>(false);
 
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
@@ -175,16 +177,20 @@ export class TableViewComponent {
     });
   }
 
-  openCreateForm(form?: any) {
+  openCreateForm(form?: any, data?: any, options = {}) {
     if(!form){
       form = this.createForm();
     }
-    const dialogRef = this.dialog.open(form, {
-      data: {
+    if(!data){
+      data = {
         mode: 'add',
         type: this.viewType(),
         data: {},
-      } as TableViewFormData,
+      } as TableViewFormData
+    }
+    const dialogRef = this.dialog.open(form, {
+      data,
+      ...options,
     });
     dialogRef.afterClosed().subscribe((form) => {
       if (form != null) {

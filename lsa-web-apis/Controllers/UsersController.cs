@@ -8,7 +8,7 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 
 namespace lsa_web_apis.Controllers
-{    
+{
     [Route("[controller]")]
     [ApiController]
     public class UsersController(IAuthService authService, UserDbContext context, ILogger<UsersController> _logger) : ControllerBase
@@ -119,6 +119,13 @@ namespace lsa_web_apis.Controllers
                     calendarsAsManager.Add(new CalendarManager { CalendarId = calendarId, UserId = user.Id });
 
                 context.CalendarManagers.AddRange(calendarsAsManager);
+
+                List<UserGroupMember> userGroupMembers = [];
+                foreach (var userGroupId in data.Groups)
+                    userGroupMembers.Add(new UserGroupMember { UserGroupId = userGroupId, UserId = user.Id });
+
+                context.UserGroupMembers.AddRange(userGroupMembers);
+
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -132,7 +139,8 @@ namespace lsa_web_apis.Controllers
                     Role = user.Role,
                     Preferences = user.Preferences,
                     CalendarsAsManager = data.CalendarsAsManager,
-                    CalendarsAsMember = data.CalendarsAsMember
+                    CalendarsAsMember = data.CalendarsAsMember,
+                    Groups = data.Groups
                 };
                 return Ok(userDto);
             }
@@ -172,8 +180,10 @@ namespace lsa_web_apis.Controllers
 
                 var existingCalendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
                 var existingCalendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
+                var existingUserGroups = await context.UserGroupMembers.Where(ugm => ugm.UserId == id).ToListAsync();
                 context.CalendarManagers.RemoveRange(existingCalendarsAsManager);
                 context.CalendarMembers.RemoveRange(existingCalendarsAsMember);
+                context.UserGroupMembers.RemoveRange(existingUserGroups);
 
                 var newCalendarsAsManager = updateData.CalendarsAsManager
                     .Select(calendarId => new CalendarManager { CalendarId = calendarId, UserId = id })
@@ -183,8 +193,13 @@ namespace lsa_web_apis.Controllers
                     .Select(calendarId => new CalendarMember { CalendarId = calendarId, UserId = id })
                     .ToList();
 
+                var newUserGroups = updateData.Groups
+                    .Select(userGroupId => new UserGroupMember { UserGroupId = userGroupId, UserId = id })
+                    .ToList();
+
                 context.CalendarManagers.AddRange(newCalendarsAsManager);
                 context.CalendarMembers.AddRange(newCalendarsAsMember);
+                context.UserGroupMembers.AddRange(newUserGroups);
 
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -199,7 +214,8 @@ namespace lsa_web_apis.Controllers
                     Role = user.Role,
                     Preferences = user.Preferences,
                     CalendarsAsManager = updateData.CalendarsAsManager,
-                    CalendarsAsMember = updateData.CalendarsAsMember
+                    CalendarsAsMember = updateData.CalendarsAsMember,
+                    Groups = updateData.Groups
                 };
                 return Ok(userDto);
             }
@@ -240,7 +256,7 @@ namespace lsa_web_apis.Controllers
                 return StatusCode(500, "An error occurred while deleting the user.");
             }
         }
-    
+
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<UserDto>> GetUserById(Guid id)
@@ -251,6 +267,9 @@ namespace lsa_web_apis.Controllers
             try
             {
                 log.Info("Getting user by ID: {UserId}", id);
+                var calendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
+                var calendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
+                var userGroups = await context.UserGroupMembers.Where(ugm => ugm.UserId == id).ToListAsync();
                 var user = await context.PortalUsers
                     .AsNoTracking()
                     .Where(u => u.Id == id)
@@ -261,7 +280,10 @@ namespace lsa_web_apis.Controllers
                         Name = u.Name,
                         LastName = u.LastName,
                         Role = u.Role,
-                        Preferences = u.Preferences
+                        Preferences = u.Preferences,
+                        CalendarsAsManager = calendarsAsManager.Select(c => c.CalendarId).ToList(),
+                        CalendarsAsMember = calendarsAsMember.Select(c => c.CalendarId).ToList(),
+                        Groups = userGroups.Select(ug => ug.UserGroupId).ToList()
                     })
                     .FirstOrDefaultAsync();
 
