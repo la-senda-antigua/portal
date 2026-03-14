@@ -92,13 +92,17 @@ namespace lsa_web_apis.Services
                         var pendingKey = $"{calendarEvent.Id:N}|{normalizedUsername}|{notificationType}";
                         if (pendingLogKeys.Contains(pendingKey)) continue;
 
-                        var alreadyNotified = await dbContext.NotificationLogs
-                            .AnyAsync(n => n.EventId == calendarEvent.Id &&
-                                           n.NotificationType == notificationType &&
-                                           n.Username.ToLower() == normalizedUsername,
-                                      stoppingToken);
+                        var claimedForSend = await TryCreateNotificationLogAsync(
+                            dbContext,
+                            calendarEvent.Id,
+                            normalizedUsername,
+                            notificationType,
+                            stoppingToken
+                        );
 
-                        if (alreadyNotified) continue;
+                        if (!claimedForSend) continue;
+
+                        pendingLogKeys.Add(pendingKey);
 
                         var userDevices = await dbContext.UserDevices
                             .Where(d => d.Username.ToLower() == normalizedUsername)
@@ -142,29 +146,69 @@ namespace lsa_web_apis.Services
                                 if(devicesToRemove.Any())
                                 {
                                     dbContext.UserDevices.RemoveRange(devicesToRemove);
+                                    await dbContext.SaveChangesAsync(stoppingToken);
                                 }
                             }
                         }
-
-                        dbContext.NotificationLogs.Add(new NotificationLog
-                        {
-                            EventId = calendarEvent.Id,
-                            Username = normalizedUsername,
-                            NotificationType = notificationType,
-                            SentAt = DateTime.Now
-                        });
-
-                        pendingLogKeys.Add(pendingKey);
                     }
                 }
 
-                await dbContext.SaveChangesAsync(stoppingToken);
                 _logger.LogInformation("Notifications sent: {TotalOk}, failed: {TotalFail}", totalSent, totalFailed);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing push notifications.");
             }
+        }
+
+        private async Task<bool> TryCreateNotificationLogAsync(
+            UserDbContext dbContext,
+            Guid eventId,
+            string normalizedUsername,
+            string notificationType,
+            CancellationToken stoppingToken)
+        {
+            dbContext.NotificationLogs.Add(new NotificationLog
+            {
+                EventId = eventId,
+                Username = normalizedUsername,
+                NotificationType = notificationType,
+                SentAt = DateTime.Now
+            });
+
+            try
+            {
+                await dbContext.SaveChangesAsync(stoppingToken);
+                return true;
+            }
+            catch (DbUpdateException ex) when (IsDuplicateNotificationLogConstraintViolation(ex))
+            {
+                var duplicateNotificationEntries = ex.Entries
+                    .Where(e => e.Entity is NotificationLog)
+                    .ToList();
+
+                foreach (var entry in duplicateNotificationEntries)
+                {
+                    entry.State = EntityState.Detached;
+                }
+
+                _logger.LogInformation(
+                    "Skipping duplicate reminder for event {EventId}, username {Username}, type {Type}.",
+                    eventId,
+                    normalizedUsername,
+                    notificationType
+                );
+
+                return false;
+            }
+        }
+
+        private static bool IsDuplicateNotificationLogConstraintViolation(DbUpdateException ex)
+        {
+            var message = ex.InnerException?.Message;
+            return !string.IsNullOrWhiteSpace(message)
+                   && message.Contains("Duplicate entry", StringComparison.OrdinalIgnoreCase)
+                   && message.Contains("UQ_Event_Username_Type", StringComparison.OrdinalIgnoreCase);
         }
     }
 }
