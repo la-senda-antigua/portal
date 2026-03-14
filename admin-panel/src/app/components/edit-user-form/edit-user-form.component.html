@@ -38,7 +38,7 @@
           *ngFor="let role of roles"
           [value]="role"
           [disabled]="
-            role === rolesEnum.User || (role !== rolesEnum.Admin && isAdmin())
+            role === rolesEnum.User || (role !== rolesEnum.Admin && adminRoleSelected())
           "
         >
           {{ role }}

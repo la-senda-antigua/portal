@@ -126,9 +126,10 @@ export class TableViewComponent {
   readonly isLoading = input<boolean>(false);
   /** Whether or not to show the action column  */
   readonly showActions = input<boolean>(true);
+  readonly disableActions= input<{ disableEdit?: boolean; disableDelete?: boolean }>();
   /** Whether or not to hide the default header */
   readonly hideDefaultHeader = input<boolean>(false);
-
+  
   /** Used to include the actions column in the list of columsn of the datasource */
   readonly columnsAndActions = computed(() => {
     const cols: string[] = [];

@@ -35,20 +35,9 @@
     mat-stroked-button
     routerLink="/users"
     class="menu-button"
-    [disabled]="!authService.hasRole(userRoles.Admin)"
+    [disabled]="!authService.hasRole(userRoles.Admin) && !authService.hasRole(userRoles.CalendarManager)"
   >
     <mat-icon>account_circle</mat-icon>
     Users
   </a>
-
-  <a
-    mat-stroked-button
-    routerLink="/userGroups"
-    class="menu-button"
-    [disabled]="!authService.hasRole(userRoles.Admin)"
-  >
-    <mat-icon>group_add</mat-icon>
-    User Groups
-  </a>
-
 </div>

@@ -2,38 +2,35 @@ import { CommonModule, DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  Validators,
+  Validators
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import {
   MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
+  MatDialogRef
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { PreachersService } from '../../services/preachers.service';
-import { TableViewFormData } from '../table-view/table-view.component';
-import { Calendar, CalendarDto } from '../../models/CalendarDto';
-import { CalendarsService } from '../../services/calendars.service';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { UserRole } from '../../models/PortalUser';
 import { Store } from '@ngrx/store';
+import { Calendar, CalendarDto } from '../../models/CalendarDto';
+import { UserRole } from '../../models/PortalUser';
+import { UserGroup } from '../../models/UserGroup';
+import { AuthService } from '../../services/auth.service';
+import { PreachersService } from '../../services/preachers.service';
 import {
   selectCalendars,
   selectUserGroups,
   selectUsers,
 } from '../../state/appstate.selectors';
-import { UserGroup } from '../../models/UserGroup';
+import { TableViewFormData } from '../table-view/table-view.component';
 
 export interface UserFormData extends TableViewFormData {
   data: {
@@ -73,6 +70,7 @@ export class EditUserFormComponent {
   readonly datePipe = inject(DatePipe);
   readonly formData = inject<UserFormData>(MAT_DIALOG_DATA);
   readonly store = inject(Store);
+  readonly authService = inject(AuthService);
 
   readonly rolesEnum = UserRole;
   readonly roles = Object.values(UserRole) as string[];
@@ -102,7 +100,8 @@ export class EditUserFormComponent {
     );
   });
   readonly selectedManagerCalendars = signal<Calendar[]>([]);
-  readonly isAdmin = signal(false);
+  readonly adminRoleSelected = signal(false);
+  readonly isAdmin = this.authService.hasRole(UserRole.Admin);
 
   readonly userForm = new FormGroup({
     userId: new FormControl(''),
@@ -141,6 +140,12 @@ export class EditUserFormComponent {
   }
 
   ngOnInit() {
+    if(!this.isAdmin){
+      this.userForm.controls.username.disable();
+      this.userForm.controls.name.disable();
+      this.userForm.controls.lastName.disable();
+      this.userForm.controls.roles.disable();
+    }
     this.userForm.controls.roles.valueChanges.subscribe((selectedRoles) => {
       this.handleIsAdminChange(selectedRoles || []);
       if (selectedRoles?.includes(UserRole.CalendarManager)) {
@@ -188,12 +193,12 @@ export class EditUserFormComponent {
       this.userForm.controls.roles.setValue([UserRole.Admin], {
         emitEvent: false,
       });
-      this.isAdmin.set(true);
+      this.adminRoleSelected.set(true);
       this.userForm.controls.calendarsAsMember.disable();
       this.userForm.controls.calendarsAsMember.setValue([]);
       this.userForm.controls.calendarsAsManager.setValue([]);
     } else {
-      this.isAdmin.set(false);
+      this.adminRoleSelected.set(false);
       if (!selectedRoles?.includes(UserRole.User)) {
         selectedRoles?.push(UserRole.User);
         this.userForm.controls.roles.setValue(selectedRoles, {

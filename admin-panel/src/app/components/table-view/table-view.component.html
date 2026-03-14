@@ -92,13 +92,14 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef style="width: 112px"></th>
           <td mat-cell *matCellDef="let entry">
-            <button mat-icon-button (click)="openEditForm(entry)">
+            <button mat-icon-button (click)="openEditForm(entry)" [disabled]="disableActions()?.disableEdit">
               <mat-icon>edit</mat-icon>
             </button>
             <button
               mat-icon-button
               color="warn"
               (click)="openDeleteConfirmation(entry)"
+              [disabled]="disableActions()?.disableDelete"
             >
               <mat-icon>delete</mat-icon>
             </button>

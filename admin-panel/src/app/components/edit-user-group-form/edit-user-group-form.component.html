@@ -11,6 +11,11 @@
     ></app-user-selector>
 </mat-dialog-content>
 <mat-dialog-actions>
+    <button mat-button class="warn" (click)="deleteGroup()">
+        <mat-icon>delete</mat-icon>
+        Delete group
+    </button>
+    <span class="spacer"></span>
     <button mat-button (click)="close()">Cancel</button>
     <button mat-button (click)="save()" [disabled]="form.invalid">
         Save

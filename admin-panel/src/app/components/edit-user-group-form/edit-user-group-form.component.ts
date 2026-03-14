@@ -1,7 +1,23 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { UserGroup, UserGroupMember } from '../../models/UserGroup';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,6 +29,10 @@ import { UserSelectorComponent } from '../user-selector/user-selector.component'
 import { Store } from '@ngrx/store';
 import { selectUsers } from '../../state/appstate.selectors';
 import { PortalUser } from '../../models/PortalUser';
+import {
+  DeleteConfirmationComponent,
+  DeleteConfirmationData,
+} from '../delete-confirmation/delete-confirmation.component';
 
 @Component({
   selector: 'app-edit-user-group-form',
@@ -27,7 +47,7 @@ import { PortalUser } from '../../models/PortalUser';
     MatIconModule,
     MatDividerModule,
     UserSelectorComponent,
-    MatDialogModule
+    MatDialogModule,
   ],
   templateUrl: './edit-user-group-form.component.html',
   styleUrls: ['./edit-user-group-form.component.scss'],
@@ -36,29 +56,50 @@ import { PortalUser } from '../../models/PortalUser';
 export class EditUserGroupFormComponent {
   readonly dialogData = inject<UserGroup>(MAT_DIALOG_DATA);
   readonly dialogRef = inject(MatDialogRef<EditUserGroupFormComponent>);
+  readonly matDialog = inject(MatDialog);
   readonly store = inject(Store);
   readonly users = this.store.selectSignal(selectUsers);
-  readonly existingUsers = computed(()=>{
-    return this.users().filter(user => this.dialogData.members?.some(member => member.userId === user.userId));
-  })
+  readonly existingUsers = computed(() => {
+    return this.users().filter((user) =>
+      this.dialogData.members?.some((member) => member.userId === user.userId),
+    );
+  });
   readonly form = new FormGroup({
     groupId: new FormControl(this.dialogData.id),
     groupName: new FormControl(this.dialogData.groupName, Validators.required),
-    members: new FormControl(this.dialogData.members?.map(m => m.userId) || [] as string[]),
-  })
-  
-  updateSelectedUsers(users: PortalUser[]){
-    this.form.controls.members.setValue(users.map(u => u.userId));
+    members: new FormControl(
+      this.dialogData.members?.map((m) => m.userId) || ([] as string[]),
+    ),
+  });
+
+  updateSelectedUsers(users: PortalUser[]) {
+    this.form.controls.members.setValue(users.map((u) => u.userId));
   }
-  save(){
+  save() {
     const data = {
       id: this.form.controls.groupId.value,
       groupName: this.form.controls.groupName.value,
-      members: this.form.controls.members.value
-    }
-    this.dialogRef.close({data});
+      members: this.form.controls.members.value,
+    };
+    this.dialogRef.close({ data });
   }
-  close(){
+  close() {
     this.dialogRef.close();
   }
- }
+  deleteGroup() {
+    const data = {
+      name: this.dialogData.groupName,
+      prompt: `Are you sure you want to delete <b><i>${this.dialogData.groupName}</i></b> ? This action cannot be undone.`,
+      id: this.dialogData.id,
+      requestMatchingString: false
+    } as DeleteConfirmationData;
+    this.matDialog
+      .open(DeleteConfirmationComponent, { data })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.dialogRef.close({ data: { ...this.dialogData, delete: true } });
+        }
+      });
+  }
+}

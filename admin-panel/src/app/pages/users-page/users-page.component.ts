@@ -44,6 +44,7 @@ import { UserGroup, UserGroupDto } from '../../models/UserGroup';
 import { AddPeopleFormComponent } from '../../components/add-people-form/add-people-form.component';
 import { EditUserGroupFormComponent } from '../../components/edit-user-group-form/edit-user-group-form.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-users-page',
@@ -104,6 +105,7 @@ export class UsersPageComponent extends PageBaseComponent {
 
   private readonly store = inject(Store);
   private readonly dialog = inject(MatDialog);
+  private readonly authService = inject(AuthService);
   readonly usersLoading = this.store.selectSignal(selectUsersLoading);
   readonly userGroupsLoading = this.store.selectSignal(selectUserGroupsLoading);
   readonly calendarsLoading = this.store.selectSignal(selectLoadingCalendars);
@@ -119,6 +121,8 @@ export class UsersPageComponent extends PageBaseComponent {
   readonly deleteUserTriggered = signal(false);
   readonly addUserGroupTriggered = signal(false);
   readonly updateUserGroupTriggered = signal(false);
+  readonly deleteUserGroupTriggered = signal(false);
+  readonly isAdmin = this.authService.hasRole(UserRole.Admin);
 
   constructor(service: UsersService) {
     super(service);
@@ -210,6 +214,10 @@ export class UsersPageComponent extends PageBaseComponent {
         this.showSnackbar('User group updated successfully');
         this.updateUserGroupTriggered.update(() => false);
       }
+      if (this.deleteUserGroupTriggered()) {
+        this.showSnackbar('User group deleted successfully');
+        this.deleteUserGroupTriggered.update(() => false);
+      }
     });
     effect(() => {
       if (this.error()) {
@@ -288,16 +296,16 @@ export class UsersPageComponent extends PageBaseComponent {
       this.store.dispatch(
         UsersActions.updateUser({ userId: user.userId, user }),
       );
-      this.editUserTriggered.set(true);
+      this.triggerLoading('editUser');
     } else {
       this.store.dispatch(UsersActions.addUser({ user }));
-      this.addUserTriggered.set(true);
+      this.triggerLoading('addUser');
     }
   }
 
   deleteUser(userId: string) {
     this.store.dispatch(UsersActions.removeUser({ userId }));
-    this.deleteUserTriggered.set(true);
+    this.triggerLoading('deleteUser');
   }
 
   addGroup(form: { data: { name: string } }) {
@@ -306,12 +314,17 @@ export class UsersPageComponent extends PageBaseComponent {
     };
 
     this.store.dispatch(UsersActions.addUserGroup({ group: newUserGroup }));
-    this.addUserGroupTriggered.set(true);
+    this.triggerLoading('addUserGroup'  );
   }
 
   editGroup(form: {
-    data: { id: string; groupName: string; members: string[] };
+    data: { id: string; groupName: string; members: string[], delete: boolean };
   }) {
+    if(form.data.delete){
+      this.store.dispatch(UsersActions.removeUserGroup({ groupId: form.data.id }));
+      this.triggerLoading('deleteUserGroup');
+      return;
+    }
     this.store.dispatch(
       UsersActions.updateUserGroup({
         groupId: form.data.id,
@@ -322,6 +335,39 @@ export class UsersPageComponent extends PageBaseComponent {
         },
       }),
     );
-    this.updateUserGroupTriggered.set(true);
+    this.triggerLoading('updateUserGroup');
+  }
+
+  triggerLoading(
+    trigger:
+      | 'addUser'
+      | 'editUser'
+      | 'deleteUser'
+      | 'addUserGroup'
+      | 'updateUserGroup'
+      | 'deleteUserGroup',
+  ) {
+    setTimeout(() => {
+      switch (trigger) {
+        case 'addUser':
+          this.addUserTriggered.set(true);
+          break;
+        case 'editUser':
+          this.editUserTriggered.set(true);
+          break;
+        case 'deleteUser':
+          this.deleteUserTriggered.set(true);
+          break;
+        case 'addUserGroup':
+          this.addUserGroupTriggered.set(true);
+          break;
+        case 'updateUserGroup':
+          this.updateUserGroupTriggered.set(true);
+          break;
+        case 'deleteUserGroup':
+          this.deleteUserGroupTriggered.set(true);
+          break;
+      }
+    }, 0);
   }
 }

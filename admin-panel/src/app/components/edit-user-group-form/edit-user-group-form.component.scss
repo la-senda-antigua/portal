@@ -10,6 +10,14 @@
   width: 100%;
 }
 
+.spacer {
+  flex: 1;
+}
+
+.warn {
+  color: var(--mat-sys-error);
+}
+
 mat-dialog-content {
   overflow: hidden;
   flex: 1;

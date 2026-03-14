@@ -3,19 +3,22 @@
   <h1>Users</h1>
   <span class="spacer"></span>
   <button mat-fab extended [matMenuTriggerFor]="editGroupMenu">
+    <mat-icon>group</mat-icon>
     Edit group
     <mat-icon>arrow_drop_down</mat-icon>
   </button>
   <mat-menu #editGroupMenu="matMenu">
     @for (group of userGroups(); track group) {
-      <button mat-menu-item (click)="openEditGroupForm(group)">{{ group.groupName }}</button>
+      <button mat-menu-item (click)="openEditGroupForm(group)">
+        {{ group.groupName }}
+      </button>
     }
   </mat-menu>
   <button mat-fab extended (click)="openAddGroupForm()">
     <mat-icon>group_add</mat-icon>
     Add group
   </button>
-  <button mat-fab extended (click)="openAddUserForm()">
+  <button mat-fab extended (click)="openAddUserForm()" [disabled]="!isAdmin">
     <mat-icon>person_add</mat-icon>
     Add User
   </button>
@@ -30,11 +33,12 @@
     [editForm]="editForm"
     [deleteConfirmationFields]="deleteFields"
     [viewType]="tableViewTypes.usergroup"
+    [disableActions]="{ disableDelete: !isAdmin }"
     [loadWithPagination]="false"
     [hideDefaultHeader]="true"
     (pageChange)="onPageChange($event)"
     (createRequest)="handleCreateRequest($event)"
     (editRequest)="handleEditRequest($event)"
-    (deleteRequest)="onDelete($event)"
+    (deleteRequest)="deleteUser($event)"
   ></app-table-view>
 </div>
