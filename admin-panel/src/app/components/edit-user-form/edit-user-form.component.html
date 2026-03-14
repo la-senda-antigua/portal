@@ -48,7 +48,7 @@
 
     <!-- Manager of -->
       <mat-form-field appearance="outline">
-        <mat-label>Manager of</mat-label>
+        <mat-label><mat-icon>supervisor_account</mat-icon>Manager of</mat-label>
         <mat-select
           [formControl]="userForm.controls.calendarsAsManager"
           multiple
@@ -65,7 +65,7 @@
 
     <!-- Calendars -->
     <mat-form-field appearance="outline">
-      <mat-label>Calendars</mat-label>
+      <mat-label><mat-icon>calendar_today</mat-icon>Calendars</mat-label>
       <mat-select
         [formControl]="userForm.controls.calendarsAsMember"
         multiple
@@ -79,7 +79,7 @@
 
     <!-- User Groups -->
     <mat-form-field appearance="outline">
-      <mat-label>User groups</mat-label>
+      <mat-label><mat-icon>group</mat-icon>User groups</mat-label>
       <mat-select
         [formControl]="userForm.controls.groups"
         multiple
