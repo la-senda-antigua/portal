@@ -9,21 +9,35 @@ namespace lsa_web_apis.Services
         private readonly ILogger<NotificationWorker> _logger;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IFirebaseNotificationService _firebaseNotificationService;
+        private readonly TimeSpan _notificationInterval;
 
-        public NotificationWorker(ILogger<NotificationWorker> logger, IServiceScopeFactory scopeFactory, IFirebaseNotificationService firebaseNotificationService)
+        public NotificationWorker(
+            ILogger<NotificationWorker> logger,
+            IServiceScopeFactory scopeFactory,
+            IFirebaseNotificationService firebaseNotificationService,
+            IConfiguration configuration)
         {
             _logger = logger;
             _scopeFactory = scopeFactory;
             _firebaseNotificationService = firebaseNotificationService;
+
+            var configuredHours = configuration.GetValue<int?>("NotificationWorker:IntervalHours");
+            var intervalHours = configuredHours.GetValueOrDefault(1);
+            if (intervalHours <= 0)
+            {
+                intervalHours = 1;
+            }
+
+            _notificationInterval = TimeSpan.FromHours(intervalHours);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Notification Worker started.");
+            _logger.LogInformation("Notification Worker started. Interval: {Hours} hour(s)", _notificationInterval.TotalHours);
             while (!stoppingToken.IsCancellationRequested)
             {
                 await ProcessNotifications(stoppingToken);
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                await Task.Delay(_notificationInterval, stoppingToken);
             }
         }
 
@@ -57,6 +71,7 @@ namespace lsa_web_apis.Services
 
                 int totalSent = 0;
                 int totalFailed = 0;
+                var pendingLogKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var calendarEvent in events)
                 {
@@ -71,19 +86,28 @@ namespace lsa_web_apis.Services
                         var user = assignee.User;
                         if (user == null || string.IsNullOrEmpty(user.Username)) continue;
 
+                        var normalizedUsername = user.Username.Trim().ToLowerInvariant();
+                        if (string.IsNullOrEmpty(normalizedUsername)) continue;
+                        
+                        var pendingKey = $"{calendarEvent.Id:N}|{normalizedUsername}|{notificationType}";
+                        if (pendingLogKeys.Contains(pendingKey)) continue;
+
                         var alreadyNotified = await dbContext.NotificationLogs
-                            .AnyAsync(n => n.EventId == calendarEvent.Id && n.Username == user.Username && n.NotificationType == notificationType, stoppingToken);
+                            .AnyAsync(n => n.EventId == calendarEvent.Id &&
+                                           n.NotificationType == notificationType &&
+                                           n.Username.ToLower() == normalizedUsername,
+                                      stoppingToken);
 
                         if (alreadyNotified) continue;
 
                         var userDevices = await dbContext.UserDevices
-                            .Where(d => d.Username == user.Username)
+                            .Where(d => d.Username.ToLower() == normalizedUsername)
                             .Select(d => d.FirebaseToken)
                             .ToListAsync(stoppingToken);
 
                         if (!userDevices.Any())
                         {
-                            _logger.LogWarning("User {Username} has no registered devices to notify (event {EventId})", user.Username, calendarEvent.Id);
+                            _logger.LogWarning("User {Username} has no registered devices to notify (event {EventId})", normalizedUsername, calendarEvent.Id);
                         }
                         else
                         {
@@ -112,7 +136,7 @@ namespace lsa_web_apis.Services
                                 _logger.LogWarning("Failed to send to {FailureCount} tokens for user {Username}.", failedTokens.Count, user.Username);
 
                                 var devicesToRemove = await dbContext.UserDevices
-                                    .Where(d => d.Username == user.Username && failedTokens.Contains(d.FirebaseToken))
+                                    .Where(d => d.Username.ToLower() == normalizedUsername && failedTokens.Contains(d.FirebaseToken))
                                     .ToListAsync(stoppingToken);
 
                                 if(devicesToRemove.Any())
@@ -125,10 +149,12 @@ namespace lsa_web_apis.Services
                         dbContext.NotificationLogs.Add(new NotificationLog
                         {
                             EventId = calendarEvent.Id,
-                            Username = user.Username,
+                            Username = normalizedUsername,
                             NotificationType = notificationType,
                             SentAt = DateTime.Now
                         });
+
+                        pendingLogKeys.Add(pendingKey);
                     }
                 }
 
