@@ -18,12 +18,18 @@ import { UsersService } from '../../services/users.service';
 import { PageBaseComponent } from '../page-base/page-base.component';
 
 import { DatePipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { EditIdNameFormComponent } from '../../components/edit-id-name-form/edit-id-name-form.component';
 import {
   EditUserFormComponent,
   UserFormData,
 } from '../../components/edit-user-form/edit-user-form.component';
+import { EditUserGroupFormComponent } from '../../components/edit-user-group-form/edit-user-group-form.component';
+import { UserGroup, UserGroupDto } from '../../models/UserGroup';
+import { AuthService } from '../../services/auth.service';
 import {
   selectCalendars,
   selectCalendarsLoaded,
@@ -38,13 +44,6 @@ import {
 } from '../../state/appstate.selectors';
 import { CalendarsActions } from '../../state/calendars.actions';
 import { UsersActions } from '../../state/users.actions';
-import { RouterLink } from '@angular/router';
-import { MatMenuModule } from '@angular/material/menu';
-import { UserGroup, UserGroupDto } from '../../models/UserGroup';
-import { AddPeopleFormComponent } from '../../components/add-people-form/add-people-form.component';
-import { EditUserGroupFormComponent } from '../../components/edit-user-group-form/edit-user-group-form.component';
-import { MatDialog } from '@angular/material/dialog';
-import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-users-page',
