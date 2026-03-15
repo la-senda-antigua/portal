@@ -27,6 +27,7 @@ const initialState: AppState = {
   userGroupsLoaded: false,
   calendarsLoaded: false,
   error: null,
+  currentUser: null,
 };
 
 export const appStateReducer = createReducer(
@@ -48,6 +49,12 @@ export const appStateReducer = createReducer(
   on(UsersActions.removeUser, (state) => ({
     ...state,
     loadingUsers: true,
+  })),
+  on(UsersApiActions.loadCurrentUserSuccess, (state, { user }) => ({
+    ...state,
+    currentUser: user,
+    loadingUsers: false,
+    error: null,
   })),
 
   // User Group Actions
@@ -196,7 +203,11 @@ export const appStateReducer = createReducer(
   on(
     CalendarsApiActions.updateCalendarSuccess,
     (state, { calendarId, calendar }) => {
-      const nextCalendars = updateCalendar(state.calendars, calendarId, calendar);
+      const nextCalendars = updateCalendar(
+        state.calendars,
+        calendarId,
+        calendar,
+      );
 
       return {
         ...state,

@@ -1,7 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { PortalUser } from '../models/PortalUser';
 import { UserGroup } from '../models/UserGroup';
-import { Calendar } from '../models/CalendarDto';
+import { Calendar, CalendarDto } from '../models/CalendarDto';
 
 export interface AppState {
   users: PortalUser[];
@@ -14,6 +14,7 @@ export interface AppState {
   userGroupsLoaded: boolean;
   calendarsLoaded: boolean;
   error: string | null;
+  currentUser: PortalUser | null;
 }
 
 export const selectAppState = createFeatureSelector<AppState>('appState');
@@ -66,4 +67,9 @@ export const selectCalendarsLoaded = createSelector(
 export const selectError = createSelector(
   selectAppState,
   (state) => state.error,
+);
+
+export const selectCurrentUser = createSelector(
+  selectAppState,
+  (state) => state.currentUser,
 );
