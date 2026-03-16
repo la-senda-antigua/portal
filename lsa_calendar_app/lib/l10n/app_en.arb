@@ -26,5 +26,20 @@
   "dayXofY": "Day {current} of {total}",
   "singleUserConflict": "{userName} has conflicts with other calendars: {calendars}",
   "multipleUsersConflict": "The following users have conflicts with other calendars: {userNames}",
-  "assignees": "Assignees"
+  "assignees": "Assignees",
+  "addNewEvent": "Add New Event",
+  "calendar": "Calendar",
+  "calendarRequired": "Calendar is required",
+  "eventTitle": "Event Title",
+  "titleRequired": "Title is required",
+  "description": "Description",
+  "start": "Start",
+  "end": "End",
+  "cancel": "Cancel",
+  "saveAndCopy": "Save and Copy",
+  "save": "Save",
+  "startDate": "Start date",
+  "startTime": "Start time",
+  "endDate": "End date",
+  "endTime": "End time"
 }

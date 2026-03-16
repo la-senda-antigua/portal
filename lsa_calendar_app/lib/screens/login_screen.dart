@@ -75,13 +75,56 @@ class _LoginScreenState extends State<LoginScreen> {
     if (avatar != null) await prefs.setString('avatar', avatar);
   }
 
+  Future<void> _saveRoles(List<String> roles) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (roles.isEmpty) {
+      await prefs.remove('roles');
+      return;
+    }
+
+    await prefs.setStringList('roles', roles);
+  }
+
+  List<String> _extractRolesFromValidation(dynamic validationResponse) {
+    if (validationResponse is! Map) return [];
+
+    final user = validationResponse['user'];
+    if (user is! Map) return [];
+
+    final rawRoles = user['roles'];
+    if (rawRoles is! List) return [];
+
+    return rawRoles
+        .whereType<String>()
+        .map((r) => r.trim())
+        .where((r) => r.isNotEmpty)
+        .toSet()
+        .toList();
+  }
+
+  Future<void> _syncRolesFromValidationResponse(dynamic validationResponse) async {
+    final roles = _extractRolesFromValidation(validationResponse);
+    await _saveRoles(roles);
+  }
+
+  Future<void> _syncUserRolesFromToken() async {
+    try {
+      final validationResponse = await ApiService.get('/auth/validate-token');
+      await _syncRolesFromValidationResponse(validationResponse);
+    } catch (e) {
+      debugPrint('Error syncing roles from token: $e');
+      await _saveRoles([]);
+    }
+  }
+
   Future<void> _checkExistingSession() async {
     final prefs = await SharedPreferences.getInstance();
     try {
       final token = prefs.getString('access_token');
 
       if (token != null && token.isNotEmpty) {
-        await ApiService.get('/auth/validate-token');
+        final validationResponse = await ApiService.get('/auth/validate-token');
+        await _syncRolesFromValidationResponse(validationResponse);
         await _registerFirebaseDevice();
 
         if (!mounted) return;
@@ -119,6 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
               prefs.getString('email'),
               prefs.getString('avatar'),
             );
+            await _syncUserRolesFromToken();
             await _registerFirebaseDevice();
 
             if (!mounted) return;
@@ -135,6 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       await prefs.remove('access_token');
       await prefs.remove('refresh_token');
+      await prefs.remove('roles');
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -167,6 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
         null,
         null,
       );
+      await _syncUserRolesFromToken();
       await _registerFirebaseDevice();
 
       if (!mounted) return;
@@ -230,6 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
         userData['email'],
         userData['avatar'],
       );
+      await _syncUserRolesFromToken();
       await _registerFirebaseDevice();
 
       if (!mounted) return;
@@ -297,6 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (_) {}
 
       await _saveData(token, refreshToken, username, email, null);
+      await _syncUserRolesFromToken();
       await _registerFirebaseDevice();
 
       if (!mounted) return;

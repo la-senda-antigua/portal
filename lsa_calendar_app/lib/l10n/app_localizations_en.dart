@@ -104,4 +104,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assignees => 'Assignees';
+
+  @override
+  String get addNewEvent => 'Add New Event';
+
+  @override
+  String get calendar => 'Calendar';
+
+  @override
+  String get calendarRequired => 'Calendar is required';
+
+  @override
+  String get eventTitle => 'Event Title';
+
+  @override
+  String get titleRequired => 'Title is required';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get end => 'End';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get saveAndCopy => 'Save and Copy';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get startTime => 'Start time';
+
+  @override
+  String get endDate => 'End date';
+
+  @override
+  String get endTime => 'End time';
 }

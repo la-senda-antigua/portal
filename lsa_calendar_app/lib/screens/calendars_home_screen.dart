@@ -9,6 +9,7 @@ import 'package:lsa_calendar_app/screens/login_screen.dart';
 import 'package:lsa_calendar_app/services/api_service.dart';
 import 'package:lsa_calendar_app/services/firebase_service.dart';
 import 'package:lsa_calendar_app/widgets/calendars_drawer.dart';
+import 'package:lsa_calendar_app/widgets/add_event_modal.dart';
 import 'package:lsa_calendar_app/widgets/user_profile_menu.dart';
 import 'package:lsa_calendar_app/widgets/date_navigator.dart';
 import 'package:lsa_calendar_app/widgets/events_list.dart';
@@ -32,6 +33,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   String username = 'Guest';
   String? avatar;
   String? email;
+  bool canCreateEvents = false;
 
   DateTime currentDate = DateTime.now();
   String? previousDate;
@@ -150,6 +152,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   void initState() {
     super.initState();
     _loadUsername();
+    _loadRolePermissions();
     _loadData();
     _setupNotificationRefreshListener();
   }
@@ -255,6 +258,27 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     });
   }
 
+  Future<void> _loadRolePermissions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final roles = prefs.getStringList('roles') ?? [];
+
+    final normalizedRoles = roles
+        .map((r) => r.trim().toLowerCase())
+        .where((r) => r.isNotEmpty)
+        .toSet();
+
+    for (var r in normalizedRoles) {
+      debugPrint('--- User role: $r');
+    }
+
+    if (!mounted) return;
+    setState(() {
+      canCreateEvents =
+          normalizedRoles.contains('admin') ||
+          normalizedRoles.contains('calendarmanager');
+    });
+  }
+
   Future<void> _logout() async {
     final fcmToken = FirebaseService.fcmToken;
     if (fcmToken != null && fcmToken.isNotEmpty) {
@@ -356,6 +380,15 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         },
       ),
       onDrawerChanged: (isOpened) {},
+      floatingActionButton: canCreateEvents
+          ? FloatingActionButton(
+              onPressed: () async {
+                await AddEventModal.show(context, calendars: calendars);
+              },
+              tooltip: AppLocalizations.of(context)!.addNewEvent,
+              child: const Icon(Icons.add),
+            )
+          : null,
       body: Column(
         children: [
           MonthNavigator(

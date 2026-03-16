@@ -105,4 +105,49 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get assignees => 'Asignados';
+
+  @override
+  String get addNewEvent => 'Agregar nuevo evento';
+
+  @override
+  String get calendar => 'Calendario';
+
+  @override
+  String get calendarRequired => 'El calendario es obligatorio';
+
+  @override
+  String get eventTitle => 'Título del evento';
+
+  @override
+  String get titleRequired => 'El título es obligatorio';
+
+  @override
+  String get description => 'Descripción';
+
+  @override
+  String get start => 'Inicio';
+
+  @override
+  String get end => 'Fin';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get saveAndCopy => 'Guardar y copiar';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get startDate => 'Fecha de inicio';
+
+  @override
+  String get startTime => 'Hora de inicio';
+
+  @override
+  String get endDate => 'Fecha de fin';
+
+  @override
+  String get endTime => 'Hora de fin';
 }
