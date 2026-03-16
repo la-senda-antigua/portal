@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { CalendarsActions, CalendarsApiActions } from './calendars.actions';
 import { CalendarsService } from '../services/calendars.service';
-import { map, mergeMap, catchError } from 'rxjs/operators';
+import { map, mergeMap, catchError, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Injectable()
@@ -56,5 +56,21 @@ export class CalendarsEffects {
                 )
             )
         )
+    );
+
+    loadCalendarEventsRange$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(CalendarsActions.loadCalendarEventsRange),
+        switchMap(({ cacheKey, startDate, endDate, calendarIds }) =>
+          this.calendarsService.getEventsByDates(startDate, endDate, calendarIds).pipe(
+            map(events =>
+              CalendarsApiActions.loadCalendarEventsRangeSuccess({ cacheKey, events }),
+            ),
+            catchError(error =>
+              of(CalendarsApiActions.loadCalendarEventsRangeFailure({ error })),
+            ),
+          ),
+        ),
+      ),
     );
 }

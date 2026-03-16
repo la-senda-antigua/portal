@@ -33,7 +33,16 @@ import { EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { catchError, map, Observable, of, switchMap, take, tap } from 'rxjs';
+import {
+  catchError,
+  filter,
+  map,
+  Observable,
+  of,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
 import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
 import {
   DeleteConfirmationComponent,
@@ -55,6 +64,7 @@ import {
   selectCalendarsLoaded,
   selectCurrentUser,
   selectUsersLoaded,
+  selectCalendarEventsByRange,
 } from '../../state/appstate.selectors';
 import { CalendarsActions } from '../../state/calendars.actions';
 import { UsersActions } from '../../state/users.actions';
@@ -167,7 +177,8 @@ export class CalendarsComponent {
       } catch (error) {
         console.error('Error parsing user preferences: ', error);
       } finally {
-        const selectedCalendars = preferences[LAST_SELECTED_CALENDARS_KEY] ?? [];
+        const selectedCalendars =
+          preferences[LAST_SELECTED_CALENDARS_KEY] ?? [];
 
         // this prevents unnecessary reloads when the calendars are already loaded and the user selects the same calendars again
         const sameSelection =
@@ -252,8 +263,8 @@ export class CalendarsComponent {
 
   loadCalendarEvents(): Observable<CalendarEvent[]> {
     this.calendarEventsLoading.set(true);
-    const currentStart =
-      this.fullCalendarApi()?.view.currentStart ?? new Date();
+
+    const currentStart = this.fullCalendarApi()?.view.currentStart ?? new Date();
     const month = currentStart.getMonth() + 1;
     const year = currentStart.getFullYear();
 
@@ -261,13 +272,32 @@ export class CalendarsComponent {
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + 41);
 
-    return this.service
-      .getEventsByDates(
-        startDate.toISOString().split('T')[0],
-        endDate.toISOString().split('T')[0],
-        this.myCalendars.map((c) => c.id!),
-      )
-      .pipe(catchError(() => of([])));
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
+    const calendarIds = this.myCalendars.map((c) => c.id!);
+    const cacheKey = this.buildEventsCacheKey(startDateStr,endDateStr,calendarIds);
+
+    return this.store.select(selectCalendarEventsByRange).pipe(
+      map((byRange) => ({
+        hasKey: Object.prototype.hasOwnProperty.call(byRange, cacheKey),
+        events: byRange[cacheKey] ?? [],
+      })),
+      tap(({ hasKey }) => {
+        if (!hasKey) {
+          this.store.dispatch(
+            CalendarsActions.loadCalendarEventsRange({
+              cacheKey,
+              startDate: startDateStr,
+              endDate: endDateStr,
+              calendarIds,
+            }),
+          );
+        }
+      }),
+      filter(({ hasKey }) => hasKey),
+      map(({ events }) => events),
+      take(1),
+    );
   }
 
   private filterEvents() {
@@ -666,5 +696,14 @@ export class CalendarsComponent {
     const initialDate = new Date(startOfMonth);
     initialDate.setDate(initialDate.getDate() - indexOfFirstDay);
     return initialDate;
+  }
+
+  private buildEventsCacheKey(
+    startDate: string,
+    endDate: string,
+    calendarIds: string[],
+  ): string {
+    const sortedIds = [...calendarIds].sort();
+    return [startDate, endDate, sortedIds.join(',')].join('|');
   }
 }

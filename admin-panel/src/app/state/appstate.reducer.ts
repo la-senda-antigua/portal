@@ -28,6 +28,8 @@ const initialState: AppState = {
   calendarsLoaded: false,
   error: null,
   currentUser: null,
+  calendarEventsByRange: {},
+  loadingCalendarEvents: false,
 };
 
 export const appStateReducer = createReducer(
@@ -91,6 +93,31 @@ export const appStateReducer = createReducer(
   on(CalendarsActions.removeCalendar, (state) => ({
     ...state,
     loadingCalendars: true,
+  })),
+
+  //Calendar Events Actions
+    on(CalendarsActions.loadCalendarEventsRange, (state) => ({
+    ...state,
+    loadingCalendarEvents: true,
+  })),
+
+  on(
+    CalendarsApiActions.loadCalendarEventsRangeSuccess,
+    (state, { cacheKey, events }) => ({
+      ...state,
+      loadingCalendarEvents: false,
+      calendarEventsByRange: {
+        ...state.calendarEventsByRange,
+        [cacheKey]: events,
+      },
+      error: null,
+    }),
+  ),
+
+  on(CalendarsApiActions.loadCalendarEventsRangeFailure, (state, { error }) => ({
+    ...state,
+    loadingCalendarEvents: false,
+    error,
   })),
 
   // User Success Actions

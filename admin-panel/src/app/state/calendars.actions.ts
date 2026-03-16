@@ -1,5 +1,6 @@
 import { createActionGroup, emptyProps, props } from "@ngrx/store";
 import { CalendarDto } from "../models/CalendarDto";
+import { CalendarEvent } from "../models/CalendarEvent";
 
 export const CalendarsActions = createActionGroup({
     source: 'Calendars',
@@ -8,6 +9,12 @@ export const CalendarsActions = createActionGroup({
         'Add Calendar': props<{ calendar: CalendarDto }>(),
         'Remove Calendar': props<{ calendarId: string }>(),
         'Update Calendar': props<{ calendarId: string; calendar: CalendarDto }>(),
+        'Load Calendar Events Range': props<{
+          cacheKey: string;
+          startDate: string;
+          endDate: string;
+          calendarIds: string[];
+        }>(),
     },
 });
 
@@ -25,5 +32,10 @@ export const CalendarsApiActions = createActionGroup({
             calendar: CalendarDto;
         }>(),
         'Update Calendar Failure': props<{ error: any }>(),
+        'Load Calendar Events Range Success': props<{
+          cacheKey: string;
+          events: CalendarEvent[];
+        }>(),
+        'Load Calendar Events Range Failure': props<{ error: any }>(),
     },
 });

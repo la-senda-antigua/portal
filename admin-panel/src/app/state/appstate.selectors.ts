@@ -2,6 +2,7 @@ import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { PortalUser } from '../models/PortalUser';
 import { UserGroup } from '../models/UserGroup';
 import { Calendar, CalendarDto } from '../models/CalendarDto';
+import { CalendarEvent } from '../models/CalendarEvent';
 
 export interface AppState {
   users: PortalUser[];
@@ -15,6 +16,8 @@ export interface AppState {
   calendarsLoaded: boolean;
   error: string | null;
   currentUser: PortalUser | null;
+  calendarEventsByRange: Record<string, CalendarEvent[]>;
+  loadingCalendarEvents: boolean;
 }
 
 export const selectAppState = createFeatureSelector<AppState>('appState');
@@ -63,6 +66,19 @@ export const selectCalendarsLoaded = createSelector(
   selectAppState,
   (state) => state.calendarsLoaded,
 );
+
+export const selectCalendarEventsByRange = createSelector(
+  selectAppState,
+  (state) => state.calendarEventsByRange,
+);
+
+export const selectCalendarEventsLoading = createSelector(
+  selectAppState,
+  (state) => state.loadingCalendarEvents,
+);
+
+export const selectCalendarEventsForKey = (cacheKey: string) =>
+  createSelector(selectCalendarEventsByRange, (byRange) => byRange[cacheKey] ?? []);
 
 export const selectError = createSelector(
   selectAppState,
