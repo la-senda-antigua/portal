@@ -79,14 +79,14 @@ export class CalendarsService extends GeneralServiceBase {
     return this.requestManager.post<void>(url, data);
   }
 
-  updateEvent(item: CalendarEvent): Observable<void> {
+  updateEvent(item: CalendarEvent): Observable<CalendarEvent> {
     const url = `${this.apiUrl}/updateEvent`;
-    return this.requestManager.put<void>(url, item);
+    return this.requestManager.put<CalendarEvent>(url, item);
   }
 
-  addEvent(item: CalendarEvent): Observable<void> {
+  addEvent(item: CalendarEvent): Observable<CalendarEvent> {
     const url = `${this.apiUrl}/addEvent`;
-    return this.requestManager.post<void>(url, item);
+    return this.requestManager.post<CalendarEvent>(url, item);
   }
 
   checkUserAvailability(userIds: string[], startTime: string, endTime: string): Observable<CalendarMemberConflict[]> {

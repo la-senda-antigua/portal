@@ -73,4 +73,50 @@ export class CalendarsEffects {
         ),
       ),
     );
+
+    updateEvent$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(CalendarsActions.updateEvent),
+        switchMap(({ eventId, event }) =>
+          this.calendarsService.updateEvent(event).pipe(
+            map(updatedEvent =>
+              CalendarsApiActions.updateEventSuccess({ event: updatedEvent }),
+            ),
+            catchError(error =>
+              of(CalendarsApiActions.updateEventFailure({ error })),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    addEvent$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(CalendarsActions.addEvent),
+        switchMap(({ event }) =>
+          this.calendarsService.addEvent(event).pipe(
+            map(newEvent =>
+              CalendarsApiActions.addEventSuccess({ event: newEvent }),
+            ),
+            catchError(error => of(CalendarsApiActions.addEventFailure({ error }))),
+          ),
+        ),
+      ),
+    );
+
+    removeEvent$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(CalendarsActions.removeEvent),
+        switchMap(({ eventId }) =>
+          this.calendarsService.deleteEvent(Number(eventId)).pipe(
+            map(() =>
+              CalendarsApiActions.removeEventSuccess({ eventId }),
+            ),
+            catchError(error =>
+              of(CalendarsApiActions.removeEventFailure({ error })),
+            ),
+          ),
+        ),
+      ),
+    );
 }

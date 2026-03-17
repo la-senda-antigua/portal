@@ -74,7 +74,8 @@ namespace lsa_web_apis.Controllers
                     Username = u.Username,
                     Name = u.Name,
                     LastName = u.LastName,
-                    Role = u.Role
+                    Role = u.Role,
+                    Preferences = u.Preferences
                 }).ToListAsync();
 
                 log.Debug("Returning {Count} users.", users.Count);

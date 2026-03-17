@@ -13,7 +13,6 @@ export const UsersActions = createActionGroup({
     'Add UserGroup': props<{ group: UserGroupDto }>(),
     'Remove UserGroup': props<{ groupId: string }>(),
     'Update UserGroup': props<{ groupId: string; userGroup: UserGroupDto }>(),
-    'Load Current User': props<{ userId: string }>(),
   },
 });
 
@@ -42,7 +41,5 @@ export const UsersApiActions = createActionGroup({
       userGroup: UserGroupDto;
     }>(),
     'Update UserGroup Failure': props<{ error: any }>(),
-    'Load Current User Success': props<{ user: PortalUser }>(),
-    'Load Current User Failure': props<{ error: any }>(),
   },
 });

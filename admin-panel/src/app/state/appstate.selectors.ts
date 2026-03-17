@@ -84,8 +84,3 @@ export const selectError = createSelector(
   selectAppState,
   (state) => state.error,
 );
-
-export const selectCurrentUser = createSelector(
-  selectAppState,
-  (state) => state.currentUser,
-);
