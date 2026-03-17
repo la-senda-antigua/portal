@@ -133,6 +133,8 @@ class _AddEventModalState extends State<AddEventModal> {
 	late DateTime _startDateTime;
 	DateTime? _endDateTime;
 	bool _allDay = false;
+	bool _isCheckingConflicts = false;
+	String _conflictMessage = '';
 
 	@override
 	void initState() {
@@ -259,6 +261,7 @@ class _AddEventModalState extends State<AddEventModal> {
 		setState(() {
 			_selectedAssignees = result;
 		});
+		_checkAvailability();
 	}
 
 	void _removeAssignee(String userId) {
@@ -267,6 +270,7 @@ class _AddEventModalState extends State<AddEventModal> {
 				.where((user) => user.userId != userId)
 				.toList();
 		});
+		_checkAvailability();
 	}
 
 	Future<void> _pickStartDate() async {
@@ -287,12 +291,27 @@ class _AddEventModalState extends State<AddEventModal> {
 				_endDateTime = _startDateTime.add(const Duration(hours: 1));
 			}
 		});
+		_checkAvailability();
 	}
 
 	Future<void> _pickStartTime() async {
+		final localizations = AppLocalizations.of(context)!;
 		final picked = await showTimePicker(
 			context: context,
 			initialTime: TimeOfDay.fromDateTime(_startDateTime),
+			helpText: localizations.startTime,
+			cancelText: localizations.cancel,
+			confirmText: localizations.save,
+			builder: (context, child) {
+				return Localizations.override(
+					context: context,
+					locale: const Locale('en', 'US'),
+					child: MediaQuery(
+						data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+						child: child!,
+					),
+				);
+			},
 		);
 		if (picked == null) return;
 		setState(() {
@@ -304,6 +323,7 @@ class _AddEventModalState extends State<AddEventModal> {
 				_endDateTime = _startDateTime.add(const Duration(hours: 1));
 			}
 		});
+		_checkAvailability();
 	}
 
 	Future<void> _pickEndDate() async {
@@ -321,13 +341,28 @@ class _AddEventModalState extends State<AddEventModal> {
 				endTime.hour, endTime.minute,
 			);
 		});
+		_checkAvailability();
 	}
 
 	Future<void> _pickEndTime() async {
 		final base = _endDateTime ?? _startDateTime.add(const Duration(hours: 1));
+		final localizations = AppLocalizations.of(context)!;
 		final picked = await showTimePicker(
 			context: context,
 			initialTime: TimeOfDay.fromDateTime(base),
+			helpText: localizations.endTime,
+			cancelText: localizations.cancel,
+			confirmText: localizations.save,
+			builder: (context, child) {
+				return Localizations.override(
+					context: context,
+					locale: const Locale('en', 'US'),
+					child: MediaQuery(
+						data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+						child: child!,
+					),
+				);
+			},
 		);
 		if (picked == null) return;
 		setState(() {
@@ -339,6 +374,7 @@ class _AddEventModalState extends State<AddEventModal> {
 				? _startDateTime.add(const Duration(hours: 1))
 				: nextEnd;
 		});
+		_checkAvailability();
 	}
 
 	String _formatDate(DateTime dt) {
@@ -346,9 +382,71 @@ class _AddEventModalState extends State<AddEventModal> {
 	}
 
 	String _formatTime(DateTime dt) {
-		final h = dt.hour.toString().padLeft(2, '0');
+		final hour12 = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
 		final m = dt.minute.toString().padLeft(2, '0');
-		return '$h:$m';
+		final period = dt.hour >= 12 ? 'PM' : 'AM';
+		return '$hour12:$m $period';
+	}
+
+	Future<void> _checkAvailability() async {
+		if (_selectedAssignees.isEmpty) {
+			setState(() => _conflictMessage = '');
+			return;
+		}
+
+		setState(() => _isCheckingConflicts = true);
+
+		try {
+			final endForCheck = _endDateTime ?? _startDateTime.add(const Duration(hours: 1));
+			final response = await ApiService.post('/calendars/UserAvailability', body: {
+				'userIds': _selectedAssignees.map((u) => u.userId).toList(),
+				'startTime': _startDateTime.toUtc().toIso8601String(),
+				'endTime': endForCheck.toUtc().toIso8601String(),
+			});
+
+			if (!mounted) return;
+
+			final results = response as List<dynamic>;
+			final List<({String userName, List<String> calendarNames})> conflicts = [];
+
+			for (final item in results) {
+				final user = item['user'] as Map<String, dynamic>;
+				final userConflicts = (item['conflicts'] as List<dynamic>)
+					.where((c) => widget.eventId == null || c['eventId'] != widget.eventId)
+					.toList();
+
+				if (userConflicts.isNotEmpty) {
+					final calendarNames = userConflicts
+						.map((c) => c['name'] as String? ?? '')
+						.where((n) => n.isNotEmpty)
+						.toList();
+					final userName = '${user['name'] ?? ''} ${user['lastName'] ?? ''}'.trim();
+					conflicts.add((userName: userName, calendarNames: calendarNames));
+				}
+			}
+
+			final localizations = AppLocalizations.of(context)!;
+			String message = '';
+
+			if (conflicts.length == 1) {
+				message = localizations.singleUserConflict(
+					conflicts[0].calendarNames.join(', '),
+					conflicts[0].userName,
+				);
+			} else if (conflicts.length > 1) {
+				message = localizations.multipleUsersConflict(
+					conflicts.map((c) => c.userName).join(', '),
+				);
+			}
+
+			setState(() {
+				_conflictMessage = message;
+				_isCheckingConflicts = false;
+			});
+		} catch (_) {
+			if (!mounted) return;
+			setState(() => _isCheckingConflicts = false);
+		}
 	}
 
 	@override
@@ -565,8 +663,35 @@ class _AddEventModalState extends State<AddEventModal> {
 												});
 											},
 										),
-										const SizedBox(height: 12),
-                    // --- Action Buttons ---
+										const SizedBox(height: 12),                    // --- Conflict Warning ---
+									if (_isCheckingConflicts) ...[
+										const LinearProgressIndicator(),
+										const SizedBox(height: 8),
+									],
+									if (_conflictMessage.isNotEmpty) ...[
+										Container(
+											padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+											decoration: BoxDecoration(
+												color: Colors.orange.shade50,
+												border: Border.all(color: Colors.orange.shade300),
+												borderRadius: BorderRadius.circular(8),
+											),
+											child: Row(
+												crossAxisAlignment: CrossAxisAlignment.start,
+												children: [
+													Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 18),
+													const SizedBox(width: 8),
+													Expanded(
+														child: Text(
+															_conflictMessage,
+															style: TextStyle(color: Colors.orange.shade800, fontSize: 13),
+														),
+													),
+												],
+											),
+										),
+										const SizedBox(height: 8),
+									],                    // --- Action Buttons ---
 										Row(
 											children: [
 												TextButton(
