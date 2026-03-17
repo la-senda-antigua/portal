@@ -60,11 +60,77 @@ class ApiService {
       debugPrint('post request response code: ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = json.decode(response.body);
+        final rawBody = response.body.trim();
+        if (rawBody.isEmpty) {
+          return fromJson != null ? fromJson(null) : null as T;
+        }
+        final data = json.decode(rawBody);
         return fromJson != null ? fromJson(data) : data;
       } else {        
         throw ApiException(response.statusCode, response.body);
 
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<T> put<T>(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    T Function(dynamic)? fromJson,
+  }) async {
+    try {
+      final baseUrl = dotenv.env['API_BASE_URL']!;
+      final headers = await _getHeaders();
+      final response = await http.put(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: headers,
+        body: body != null ? json.encode(body) : null,
+      );
+
+      debugPrint('put request response code: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+        final rawBody = response.body.trim();
+        if (rawBody.isEmpty) {
+          return fromJson != null ? fromJson(null) : null as T;
+        }
+        final data = json.decode(rawBody);
+        return fromJson != null ? fromJson(data) : data;
+      } else {
+        throw ApiException(response.statusCode, response.body);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<T> delete<T>(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    T Function(dynamic)? fromJson,
+  }) async {
+    try {
+      final baseUrl = dotenv.env['API_BASE_URL']!;
+      final headers = await _getHeaders();
+      final response = await http.delete(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: headers,
+        body: body != null ? json.encode(body) : null,
+      );
+
+      debugPrint('delete request response code: ${response.statusCode}');
+
+      if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
+        final rawBody = response.body.trim();
+        if (rawBody.isEmpty) {
+          return fromJson != null ? fromJson(null) : null as T;
+        }
+        final data = json.decode(rawBody);
+        return fromJson != null ? fromJson(data) : data;
+      } else {
+        throw ApiException(response.statusCode, response.body);
       }
     } catch (e) {
       rethrow;

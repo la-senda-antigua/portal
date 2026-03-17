@@ -85,6 +85,17 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setStringList('roles', roles);
   }
 
+  Future<void> _saveUserId(String? userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final normalized = userId?.trim();
+    if (normalized == null || normalized.isEmpty) {
+      await prefs.remove('user_id');
+      return;
+    }
+
+    await prefs.setString('user_id', normalized);
+  }
+
   List<String> _extractRolesFromValidation(dynamic validationResponse) {
     if (validationResponse is! Map) return [];
 
@@ -102,18 +113,30 @@ class _LoginScreenState extends State<LoginScreen> {
         .toList();
   }
 
-  Future<void> _syncRolesFromValidationResponse(dynamic validationResponse) async {
+  String? _extractUserIdFromValidation(dynamic validationResponse) {
+    if (validationResponse is! Map) return null;
+
+    final user = validationResponse['user'];
+    if (user is! Map) return null;
+
+    return user['id']?.toString();
+  }
+
+  Future<void> _syncUserContextFromValidationResponse(dynamic validationResponse) async {
     final roles = _extractRolesFromValidation(validationResponse);
+    final userId = _extractUserIdFromValidation(validationResponse);
     await _saveRoles(roles);
+    await _saveUserId(userId);
   }
 
   Future<void> _syncUserRolesFromToken() async {
     try {
       final validationResponse = await ApiService.get('/auth/validate-token');
-      await _syncRolesFromValidationResponse(validationResponse);
+      await _syncUserContextFromValidationResponse(validationResponse);
     } catch (e) {
       debugPrint('Error syncing roles from token: $e');
       await _saveRoles([]);
+      await _saveUserId(null);
     }
   }
 
@@ -124,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (token != null && token.isNotEmpty) {
         final validationResponse = await ApiService.get('/auth/validate-token');
-        await _syncRolesFromValidationResponse(validationResponse);
+        await _syncUserContextFromValidationResponse(validationResponse);
         await _registerFirebaseDevice();
 
         if (!mounted) return;
@@ -180,6 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.remove('access_token');
       await prefs.remove('refresh_token');
       await prefs.remove('roles');
+      await prefs.remove('user_id');
     }
 
     if (mounted) setState(() => _isLoading = false);

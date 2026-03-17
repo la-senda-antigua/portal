@@ -266,6 +266,48 @@ abstract class AppLocalizations {
   /// **'Assignees'**
   String get assignees;
 
+  /// No description provided for @selectAssignees.
+  ///
+  /// In en, this message translates to:
+  /// **'Select assignees'**
+  String get selectAssignees;
+
+  /// No description provided for @selectCalendarFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a calendar first'**
+  String get selectCalendarFirst;
+
+  /// No description provided for @searchAssignees.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people or groups'**
+  String get searchAssignees;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResultsFound;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @eventSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Event saved successfully'**
+  String get eventSaved;
+
+  /// No description provided for @group.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get group;
+
   /// No description provided for @addNewEvent.
   ///
   /// In en, this message translates to:
@@ -331,6 +373,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'deleted'**
+  String get deleted;
 
   /// No description provided for @startDate.
   ///

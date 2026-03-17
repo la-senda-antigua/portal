@@ -2,11 +2,19 @@ import 'package:intl/intl.dart';
 import 'package:lsa_calendar_app/models/eventConflict.dart';
 
 class EventAssignee {
+  final String userId;
   final String username;
   final String? name;
   final String? lastName;
+  final String role;
 
-  EventAssignee({required this.username, this.name, this.lastName});
+  EventAssignee({
+    required this.userId,
+    required this.username,
+    this.name,
+    this.lastName,
+    this.role = 'User',
+  });
 
   static String _normalizeSpaces(String value) {
     return value.replaceAll(RegExp(r'\s+'), ' ').trim();
@@ -20,9 +28,11 @@ class EventAssignee {
 
   factory EventAssignee.fromJson(Map<String, dynamic> json) {
     return EventAssignee(
+      userId: _normalizeSpaces((json['userId'] ?? json['id'] ?? '').toString()),
       username: _normalizeSpaces((json['username'] ?? '').toString()),
       name: _normalizeNullable(json['name']),
       lastName: _normalizeNullable(json['lastName']),
+      role: _normalizeSpaces((json['role'] ?? 'User').toString()),
     );
   }
 
@@ -34,6 +44,7 @@ class EventAssignee {
 }
 
 class Event {
+  final String id;
   final String title;
   final String? displayTitle;
   final String? description;
@@ -47,6 +58,7 @@ class Event {
   final List<EventAssignee> assignees;
 
   Event({
+    required this.id,
     required this.title,
     this.displayTitle,
     this.description,
@@ -62,6 +74,11 @@ class Event {
 
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
+      id:
+          json['id']?.toString() ??
+          json['eventId']?.toString() ??
+          json['_id']?.toString() ??
+          '',
       title: json['title'] ?? '- -',
       displayTitle: json['displayTitle'],
       description: json['description'],

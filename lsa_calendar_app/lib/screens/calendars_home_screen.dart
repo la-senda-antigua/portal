@@ -34,6 +34,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   String? avatar;
   String? email;
   bool canCreateEvents = false;
+  String? currentUserId;
 
   DateTime currentDate = DateTime.now();
   String? previousDate;
@@ -41,6 +42,250 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   String viewMode = 'day';
   StreamSubscription<RemoteMessage>? _notificationSubscription;
   bool _isRefreshingFromNotification = false;
+
+  String _toApiDateTime(DateTime value) {
+    final yyyy = value.year.toString().padLeft(4, '0');
+    final mm = value.month.toString().padLeft(2, '0');
+    final dd = value.day.toString().padLeft(2, '0');
+    final hh = value.hour.toString().padLeft(2, '0');
+    final min = value.minute.toString().padLeft(2, '0');
+    final ss = value.second.toString().padLeft(2, '0');
+    return '$yyyy-$mm-${dd}T$hh:$min:$ss';
+  }
+
+  Future<void> _saveEvent(AddEventModalResult result) async {
+    final calendarId = result.calendarId;
+    if (calendarId == null || calendarId.isEmpty) {
+      return;
+    }
+
+    final startDate = result.start;
+    final endDate = result.end ?? result.start.add(const Duration(hours: 1));
+
+    late final DateTime normalizedStart;
+    late final DateTime normalizedEnd;
+
+    if (result.allDay) {
+      normalizedStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
+      normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+    } else {
+      normalizedStart = startDate;
+      normalizedEnd = endDate.isBefore(startDate)
+          ? startDate.add(const Duration(hours: 1))
+          : endDate;
+    }
+
+    final payload = {
+      'title': result.title,
+      'description': result.description,
+      'calendarId': calendarId,
+      'start': _toApiDateTime(normalizedStart),
+      'end': _toApiDateTime(normalizedEnd),
+      'allDay': result.allDay,
+      'assignees': result.assignees
+          .map(
+            (user) => {
+              'userId': user.userId,
+              'username': user.username,
+              'name': user.name,
+              'lastName': user.lastName,
+              'role': user.role,
+            },
+          )
+          .toList(),
+    };
+
+    await ApiService.post('/calendars/addEvent', body: payload);
+  }
+
+  Future<void> _openAddEventFlow() async {
+    final manageCalendars = _managedCalendarsForCurrentUser;
+    if (manageCalendars.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.noPermission)),
+      );
+      return;
+    }
+
+    AddEventModalInitialData? prefill;
+
+    while (mounted) {
+      final result = await AddEventModal.show(
+        context,
+        calendars: manageCalendars,
+        initialData: prefill,
+      );
+
+      if (result == null) {
+        return;
+      }
+
+      try {
+        setState(() => isLoadingEvents = true);
+        await _saveEvent(result);
+        setState(() {
+          currentDate = DateTime(result.start.year, result.start.month, result.start.day);
+        });
+        await fetchEvents();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.eventSaved)),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => isLoadingEvents = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.connectionError)),
+        );
+        return;
+      }
+
+      if (result.trigger != 'copy') {
+        return;
+      }
+
+      prefill = AddEventModalInitialData.fromResult(result);
+    }
+  }
+
+  Future<void> _editEvent(Event event) async {
+    final manageCalendars = _managedCalendarsForCurrentUser;
+    if (manageCalendars.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.noPermission)),
+      );
+      return;
+    }
+
+    AddEventModalInitialData? prefill;
+
+    while (mounted) {
+      final result = await AddEventModal.show(
+        context,
+        calendars: manageCalendars,
+        initialData: prefill ?? AddEventModalInitialData.fromEvent(event),
+        eventId: event.id,
+      );
+
+      if (result == null) {
+        return;
+      }
+
+      try {
+        setState(() => isLoadingEvents = true);
+        await _updateEvent(result, event);
+        setState(() {
+          currentDate = DateTime(result.start.year, result.start.month, result.start.day);
+        });
+        await fetchEvents();
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.eventSaved)),
+        );
+      } catch (e) {
+        if (!mounted) return;
+        setState(() => isLoadingEvents = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.connectionError)),
+        );
+        return;
+      }
+
+      if (result.trigger != 'copy') {
+        return;
+      }
+
+      prefill = AddEventModalInitialData.fromResult(result);
+    }
+  }
+
+  Future<void> _deleteEvent(Event event) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.delete),
+        content: Text(
+          '${AppLocalizations.of(context)!.delete} "${event.title}"?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppLocalizations.of(context)!.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true || !mounted) return;
+
+    try {
+      setState(() => isLoadingEvents = true);
+      await ApiService.delete('/calendars/events/${event.id}');
+      await fetchEvents();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${event.title} ${AppLocalizations.of(context)!.deleted}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => isLoadingEvents = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.connectionError)),
+      );
+    }
+  }
+
+  Future<void> _updateEvent(AddEventModalResult result, Event originalEvent) async {
+    final calendarId = result.calendarId;
+    if (calendarId == null || calendarId.isEmpty) {
+      return;
+    }
+
+    final startDate = result.start;
+    final endDate = result.end ?? result.start.add(const Duration(hours: 1));
+
+    late final DateTime normalizedStart;
+    late final DateTime normalizedEnd;
+
+    if (result.allDay) {
+      normalizedStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
+      normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+    } else {
+      normalizedStart = startDate;
+      normalizedEnd = endDate.isBefore(startDate)
+          ? startDate.add(const Duration(hours: 1))
+          : endDate;
+    }
+
+    final payload = {
+      'id': result.eventId ?? originalEvent.id,
+      'title': result.title,
+      'description': result.description,
+      'calendarId': calendarId,
+      'start': _toApiDateTime(normalizedStart),
+      'end': _toApiDateTime(normalizedEnd),
+      'allDay': result.allDay,
+      'assignees': result.assignees
+          .map(
+            (user) => {
+              'userId': user.userId,
+              'username': user.username,
+              'name': user.name,
+              'lastName': user.lastName,
+              'role': user.role,
+            },
+          )
+          .toList(),
+    };
+
+    await ApiService.put('/calendars/updateEvent', body: payload);
+  }
 
   Future<void> fetchCalendars() async {
     try {
@@ -148,11 +393,25 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     await prefs.setString('view_mode', mode);
   }
 
+  List<Calendar> get _managedCalendarsForCurrentUser {
+    final userId = currentUserId?.trim().toLowerCase();
+    if (userId == null || userId.isEmpty) {
+      return const [];
+    }
+
+    return calendars.where((calendar) {
+      return calendar.managers.any(
+        (managerId) => managerId.trim().toLowerCase() == userId,
+      );
+    }).toList();
+  }
+
   @override
   void initState() {
     super.initState();
     _loadUsername();
     _loadRolePermissions();
+    _loadCurrentUserId();
     _loadData();
     _setupNotificationRefreshListener();
   }
@@ -279,6 +538,14 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     });
   }
 
+  Future<void> _loadCurrentUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      currentUserId = prefs.getString('user_id');
+    });
+  }
+
   Future<void> _logout() async {
     final fcmToken = FirebaseService.fcmToken;
     if (fcmToken != null && fcmToken.isNotEmpty) {
@@ -380,10 +647,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         },
       ),
       onDrawerChanged: (isOpened) {},
-      floatingActionButton: canCreateEvents
+      floatingActionButton: (canCreateEvents && _managedCalendarsForCurrentUser.isNotEmpty)
           ? FloatingActionButton(
               onPressed: () async {
-                await AddEventModal.show(context, calendars: calendars);
+                await _openAddEventFlow();
               },
               tooltip: AppLocalizations.of(context)!.addNewEvent,
               child: const Icon(Icons.add),
@@ -424,6 +691,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                     error: error,
                     onRefresh: () => _loadData(showLoading: false),
                     onEventTap: (event) {},
+                    onEditEvent: _editEvent,
+                    onDeleteEvent: _deleteEvent,
+                    managedCalendarIds: _managedCalendarsForCurrentUser.map((c) => c.id).toSet(),
                     showDate: viewMode == 'month',
                   ),
           ),

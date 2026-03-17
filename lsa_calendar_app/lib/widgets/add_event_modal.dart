@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
+import 'package:lsa_calendar_app/models/assignable_user.dart';
 import 'package:lsa_calendar_app/models/calendar.dart';
+import 'package:lsa_calendar_app/models/event.dart';
+import 'package:lsa_calendar_app/models/user_group.dart';
+import 'package:lsa_calendar_app/services/api_service.dart';
 
 class AddEventModalResult {
 	final String? calendarId;
@@ -11,7 +15,9 @@ class AddEventModalResult {
 	final DateTime start;
 	final DateTime? end;
 	final bool allDay;
+	final List<AssignableUser> assignees;
 	final String trigger;
+	final String? eventId;
 
 	AddEventModalResult({
 		required this.calendarId,
@@ -20,24 +26,91 @@ class AddEventModalResult {
 		required this.start,
 		required this.end,
 		required this.allDay,
+		required this.assignees,
 		required this.trigger,
+		this.eventId,
 	});
+}
+
+class AddEventModalInitialData {
+	final String? calendarId;
+	final String title;
+	final String description;
+	final DateTime start;
+	final DateTime? end;
+	final bool allDay;
+	final List<AssignableUser> assignees;
+
+	const AddEventModalInitialData({
+		this.calendarId,
+		this.title = '',
+		this.description = '',
+		required this.start,
+		this.end,
+		this.allDay = false,
+		this.assignees = const [],
+	});
+
+	factory AddEventModalInitialData.fromResult(AddEventModalResult result) {
+		return AddEventModalInitialData(
+			calendarId: result.calendarId,
+			title: result.title,
+			description: result.description,
+			start: result.start,
+			end: result.end,
+			allDay: result.allDay,
+			assignees: result.assignees,
+		);
+	}
+
+	factory AddEventModalInitialData.fromEvent(Event event) {
+		return AddEventModalInitialData(
+			calendarId: event.calendarId,
+			title: event.title,
+			description: event.description ?? '',
+			start: event.originalStart,
+			end: event.originalEnd,
+			allDay: event.allDay,
+			assignees: event.assignees
+				.map((a) => AssignableUser(
+					userId: a.userId.isNotEmpty ? a.userId : a.username,
+					username: a.username,
+					name: a.name,
+					lastName: a.lastName,
+					role: a.role,
+				))
+				.toList(),
+		);
+	}
 }
 
 class AddEventModal extends StatefulWidget {
 	final List<Calendar> calendars;
+	final AddEventModalInitialData? initialData;
+	final String? eventId;
 
-	const AddEventModal({super.key, required this.calendars});
+	const AddEventModal({
+		super.key,
+		required this.calendars,
+		this.initialData,
+		this.eventId,
+	});
 
 	static Future<AddEventModalResult?> show(
 		BuildContext context, {
 		required List<Calendar> calendars,
+		AddEventModalInitialData? initialData,
+		String? eventId,
 	}) {
 		return showModalBottomSheet<AddEventModalResult>(
 			context: context,
 			isScrollControlled: true,
 			backgroundColor: Colors.transparent,
-			builder: (_) => AddEventModal(calendars: calendars),
+			builder: (_) => AddEventModal(
+				calendars: calendars,
+				initialData: initialData,
+				eventId: eventId,
+			),
 		);
 	}
 
@@ -50,6 +123,12 @@ class _AddEventModalState extends State<AddEventModal> {
 	final _titleController = TextEditingController();
 	final _descriptionController = TextEditingController();
 
+	List<AssignableUser> _allUsers = [];
+	List<UserGroup> _allGroups = [];
+	List<AssignableUser> _selectedAssignees = [];
+	bool _isLoadingAssigneeData = true;
+	String? _assigneeDataError;
+
 	String? _selectedCalendarId;
 	late DateTime _startDateTime;
 	DateTime? _endDateTime;
@@ -58,8 +137,17 @@ class _AddEventModalState extends State<AddEventModal> {
 	@override
 	void initState() {
 		super.initState();
-		_startDateTime = DateTime.now();
-		_endDateTime = _startDateTime.add(const Duration(hours: 1));
+		final initialData = widget.initialData;
+		final now = DateTime.now();
+		final defaultStart = DateTime(now.year, now.month, now.day, 10, 0, 0);
+		_startDateTime = initialData?.start ?? defaultStart;
+		_endDateTime = initialData?.end ?? _startDateTime.add(const Duration(hours: 1));
+		_selectedCalendarId = initialData?.calendarId;
+		_allDay = initialData?.allDay ?? false;
+		_titleController.text = initialData?.title ?? '';
+		_descriptionController.text = initialData?.description ?? '';
+		_selectedAssignees = List<AssignableUser>.from(initialData?.assignees ?? const []);
+		_loadAssigneeData();
 	}
 
 	@override
@@ -80,9 +168,105 @@ class _AddEventModalState extends State<AddEventModal> {
 				start: _startDateTime,
 				end: _endDateTime,
 				allDay: _allDay,
+				assignees: List<AssignableUser>.from(_selectedAssignees),
 				trigger: trigger,
+				eventId: widget.eventId,
 			),
 		);
+	}
+
+	Future<void> _loadAssigneeData() async {
+		setState(() {
+			_isLoadingAssigneeData = true;
+			_assigneeDataError = null;
+		});
+
+		try {
+			final usersResponse = await ApiService.get('/users/getAll');
+			final groupsResponse = await ApiService.get('/userGroups/getAll');
+
+			if (!mounted) return;
+
+			setState(() {
+				_allUsers = (usersResponse as List<dynamic>)
+					.map((json) => AssignableUser.fromJson(json as Map<String, dynamic>))
+					.toList();
+				_allGroups = (groupsResponse as List<dynamic>)
+					.map((json) => UserGroup.fromJson(json as Map<String, dynamic>))
+					.toList();
+				_isLoadingAssigneeData = false;
+			});
+		} catch (_) {
+			if (!mounted) return;
+
+			setState(() {
+				_assigneeDataError = 'load_assignees_failed';
+				_isLoadingAssigneeData = false;
+			});
+		}
+	}
+
+	Calendar? get _selectedCalendar {
+		if (_selectedCalendarId == null) return null;
+		for (final calendar in widget.calendars) {
+			if (calendar.id == _selectedCalendarId) {
+				return calendar;
+			}
+		}
+		return null;
+	}
+
+	List<AssignableUser> get _availableUsers {
+		final calendar = _selectedCalendar;
+		if (calendar == null) return const [];
+
+		if (calendar.allowsAllAssignees) {
+			return _allUsers;
+		}
+
+		final allowedIds = calendar.allowedAssigneeIds.toSet();
+		return _allUsers.where((user) {
+			return user.role.toLowerCase() == 'admin' || allowedIds.contains(user.userId);
+		}).toList();
+	}
+
+	List<UserGroup> get _availableGroups {
+		final calendar = _selectedCalendar;
+		if (calendar == null) return const [];
+
+		final allowedIds = _availableUsers.map((user) => user.userId).toSet();
+		return _allGroups.where((group) {
+			return group.memberIds.any(allowedIds.contains);
+		}).toList();
+	}
+
+	Future<void> _openAssigneeSelector() async {
+		if (_selectedCalendar == null) return;
+
+		final result = await showModalBottomSheet<List<AssignableUser>>(
+			context: context,
+			isScrollControlled: true,
+			backgroundColor: Colors.transparent,
+			builder: (_) => _AssigneeSelectorSheet(
+				initialSelection: _selectedAssignees,
+				availableUsers: _availableUsers,
+				availableGroups: _availableGroups,
+			),
+		);
+
+		if (result == null || !mounted) return;
+
+		setState(() {
+			_selectedAssignees = result;
+		});
+	}
+
+	void _removeAssignee(String userId) {
+		setState(() {
+			_selectedAssignees = _selectedAssignees
+				.where((user) => user.userId != userId)
+				.toList();
+		});
 	}
 
 	Future<void> _pickStartDate() async {
@@ -147,10 +331,13 @@ class _AddEventModalState extends State<AddEventModal> {
 		);
 		if (picked == null) return;
 		setState(() {
-			_endDateTime = DateTime(
+			final nextEnd = DateTime(
 				base.year, base.month, base.day,
 				picked.hour, picked.minute,
 			);
+			_endDateTime = nextEnd.isBefore(_startDateTime)
+				? _startDateTime.add(const Duration(hours: 1))
+				: nextEnd;
 		});
 	}
 
@@ -168,6 +355,7 @@ class _AddEventModalState extends State<AddEventModal> {
 	Widget build(BuildContext context) {
 		final localizations = AppLocalizations.of(context)!;
 		final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+		final hasCalendarSelected = _selectedCalendar != null;
 
 		return SafeArea(
 			top: false,
@@ -181,7 +369,31 @@ class _AddEventModalState extends State<AddEventModal> {
 					child: SingleChildScrollView(
 						child: Padding(
 							padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-							child: Form(
+							child: _isLoadingAssigneeData
+								? const Padding(
+									padding: EdgeInsets.symmetric(vertical: 48),
+									child: Center(child: CircularProgressIndicator()),
+								)
+								: _assigneeDataError != null
+									? Padding(
+										padding: const EdgeInsets.symmetric(vertical: 24),
+										child: Column(
+											mainAxisSize: MainAxisSize.min,
+											children: [
+												Text(
+													localizations.serverConnectionError,
+													style: AppTextStyles.body,
+													textAlign: TextAlign.center,
+												),
+												const SizedBox(height: 12),
+												OutlinedButton(
+													onPressed: _loadAssigneeData,
+													child: Text(localizations.retry),
+												),
+											],
+										),
+									)
+									: Form(
 								key: _formKey,
 								child: Column(
 									crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +427,10 @@ class _AddEventModalState extends State<AddEventModal> {
 													)
 													.toList(),
 											onChanged: (value) {
-												setState(() => _selectedCalendarId = value);
+												setState(() {
+													_selectedCalendarId = value;
+													_selectedAssignees = [];
+												});
 											},
 											validator: (value) {
 												if (value == null || value.isEmpty) {
@@ -225,6 +440,28 @@ class _AddEventModalState extends State<AddEventModal> {
 											},
 										),
 										const SizedBox(height: 12),
+										_AssigneesField(
+											label: localizations.assignees,
+											enabled: hasCalendarSelected,
+											valueText: hasCalendarSelected
+												? localizations.selectAssignees
+												: localizations.selectCalendarFirst,
+											onTap: _openAssigneeSelector,
+										),
+										if (_selectedAssignees.isNotEmpty) ...[
+											const SizedBox(height: 10),
+											Wrap(
+												spacing: 8,
+												runSpacing: 8,
+												children: _selectedAssignees.map((assignee) {
+													return Chip(
+														label: Text(assignee.displayName),
+														onDeleted: () => _removeAssignee(assignee.userId),
+													);
+												}).toList(),
+											),
+										],
+										const SizedBox(height: 12),
 										TextFormField(
 											controller: _titleController,
 											decoration: InputDecoration(
@@ -232,7 +469,7 @@ class _AddEventModalState extends State<AddEventModal> {
 												border: OutlineInputBorder(),
 											),
 											validator: (value) {
-												if (value == null || value.trim().isEmpty) {
+												if (_selectedAssignees.isEmpty && (value == null || value.trim().isEmpty)) {
 													return localizations.titleRequired;
 												}
 												return null;
@@ -245,7 +482,7 @@ class _AddEventModalState extends State<AddEventModal> {
 												labelText: localizations.description,
 												border: OutlineInputBorder(),
 											),											
-											maxLines: 2,
+											maxLines: 2,                      
 										),
 										const SizedBox(height: 16),
 										// --- Start Date and Time ---
@@ -304,7 +541,28 @@ class _AddEventModalState extends State<AddEventModal> {
 											contentPadding: EdgeInsets.zero,
 											title: Text(localizations.allDay),
 											onChanged: (value) {
-												setState(() => _allDay = value);
+												setState(() {
+													_allDay = value;
+													if (value) {
+														_startDateTime = DateTime(
+															_startDateTime.year,
+															_startDateTime.month,
+															_startDateTime.day,
+															0,
+															0,
+															0,
+														);
+														final endBase = _endDateTime ?? _startDateTime;
+														_endDateTime = DateTime(
+															endBase.year,
+															endBase.month,
+															endBase.day,
+															23,
+															59,
+															59,
+														);
+													}
+												});
 											},
 										),
 										const SizedBox(height: 12),
@@ -334,6 +592,287 @@ class _AddEventModalState extends State<AddEventModal> {
 									],
 								),
 							),
+						),
+					),
+				),
+			),
+		);
+	}
+}
+
+class _AssigneesField extends StatelessWidget {
+	final String label;
+	final bool enabled;
+	final String valueText;
+	final VoidCallback onTap;
+
+	const _AssigneesField({
+		required this.label,
+		required this.enabled,
+		required this.valueText,
+		required this.onTap,
+	});
+
+	@override
+	Widget build(BuildContext context) {
+		final foregroundColor = enabled ? AppColors.dark : AppColors.dark.withOpacity(0.45);
+
+		return InkWell(
+			onTap: enabled ? onTap : null,
+			borderRadius: BorderRadius.circular(4),
+			child: InputDecorator(
+				decoration: InputDecoration(
+					labelText: label,
+					border: const OutlineInputBorder(),
+					suffixIcon: Icon(
+						enabled ? Icons.arrow_forward_ios : Icons.lock_outline,
+						size: 18,
+					),
+				),
+				child: Row(
+					children: [
+						Icon(Icons.people_alt_outlined, size: 18, color: foregroundColor),
+						const SizedBox(width: 8),
+						Expanded(
+							child: Text(
+								valueText,
+								style: AppTextStyles.body.copyWith(color: foregroundColor),
+							),
+						),
+					],
+				),
+			),
+		);
+	}
+}
+
+class _AssigneeSelectorSheet extends StatefulWidget {
+	final List<AssignableUser> initialSelection;
+	final List<AssignableUser> availableUsers;
+	final List<UserGroup> availableGroups;
+
+	const _AssigneeSelectorSheet({
+		required this.initialSelection,
+		required this.availableUsers,
+		required this.availableGroups,
+	});
+
+	@override
+	State<_AssigneeSelectorSheet> createState() => _AssigneeSelectorSheetState();
+}
+
+class _AssigneeSelectorSheetState extends State<_AssigneeSelectorSheet> {
+	late final TextEditingController _searchController;
+	late List<AssignableUser> _selectedUsers;
+
+	@override
+	void initState() {
+		super.initState();
+		_searchController = TextEditingController();
+		_selectedUsers = List<AssignableUser>.from(widget.initialSelection);
+	}
+
+	@override
+	void dispose() {
+		_searchController.dispose();
+		super.dispose();
+	}
+
+	String _normalize(String value) {
+		return value
+			.toLowerCase()
+			.replaceAll('á', 'a')
+			.replaceAll('é', 'e')
+			.replaceAll('í', 'i')
+			.replaceAll('ó', 'o')
+			.replaceAll('ú', 'u');
+	}
+
+	List<AssignableUser> get _filteredUsers {
+		final query = _normalize(_searchController.text.trim());
+		final users = List<AssignableUser>.from(widget.availableUsers)
+			..sort((a, b) => a.displayName.compareTo(b.displayName));
+		if (query.isEmpty) return users;
+
+		return users.where((user) {
+			final haystack = _normalize('${user.displayName} ${user.username}');
+			return haystack.contains(query);
+		}).toList();
+	}
+
+	List<UserGroup> get _filteredGroups {
+		final query = _normalize(_searchController.text.trim());
+		final groups = List<UserGroup>.from(widget.availableGroups)
+			..sort((a, b) => a.groupName.compareTo(b.groupName));
+		if (query.isEmpty) return groups;
+
+		return groups.where((group) {
+			return _normalize(group.groupName).contains(query);
+		}).toList();
+	}
+
+	void _toggleUser(AssignableUser user) {
+		setState(() {
+			final exists = _selectedUsers.any((item) => item.userId == user.userId);
+			if (exists) {
+				_selectedUsers = _selectedUsers
+					.where((item) => item.userId != user.userId)
+					.toList();
+				return;
+			}
+			_selectedUsers = [..._selectedUsers, user];
+		});
+	}
+
+	void _selectGroup(UserGroup group) {
+		setState(() {
+			final availableById = {
+				for (final user in widget.availableUsers) user.userId: user,
+			};
+			final selectedIds = _selectedUsers.map((user) => user.userId).toSet();
+
+			for (final memberId in group.memberIds) {
+				final user = availableById[memberId];
+				if (user == null || selectedIds.contains(memberId)) {
+					continue;
+				}
+				_selectedUsers.add(user);
+				selectedIds.add(memberId);
+			}
+		});
+	}
+
+	@override
+	Widget build(BuildContext context) {
+		final localizations = AppLocalizations.of(context)!;
+		final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+		final filteredUsers = _filteredUsers;
+		final filteredGroups = _filteredGroups;
+		final hasResults = filteredUsers.isNotEmpty || filteredGroups.isNotEmpty;
+
+		return SafeArea(
+			top: false,
+			child: Padding(
+				padding: EdgeInsets.only(bottom: bottomInset),
+				child: Container(
+					decoration: const BoxDecoration(
+						color: AppColors.light,
+						borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+					),
+					child: Padding(
+						padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+						child: Column(
+							mainAxisSize: MainAxisSize.min,
+							crossAxisAlignment: CrossAxisAlignment.start,
+							children: [
+								Center(
+									child: Container(
+										width: 44,
+										height: 5,
+										decoration: BoxDecoration(
+											color: AppColors.dark.withOpacity(0.3),
+											borderRadius: BorderRadius.circular(999),
+										),
+									),
+								),
+								const SizedBox(height: 14),
+								Text(localizations.assignees, style: AppTextStyles.title),
+								const SizedBox(height: 12),
+								TextField(
+									controller: _searchController,
+									onChanged: (_) => setState(() {}),
+									decoration: InputDecoration(
+										labelText: localizations.searchAssignees,
+										border: const OutlineInputBorder(),
+										prefixIcon: const Icon(Icons.search),
+									),
+								),
+								if (_selectedUsers.isNotEmpty) ...[
+									const SizedBox(height: 12),
+									Wrap(
+										spacing: 8,
+										runSpacing: 8,
+										children: _selectedUsers.map((user) {
+											return Chip(
+												label: Text(user.displayName),
+												onDeleted: () => _toggleUser(user),
+											);
+										}).toList(),
+									),
+								],
+								const SizedBox(height: 12),
+								Flexible(
+									child: ConstrainedBox(
+										constraints: const BoxConstraints(maxHeight: 360),
+										child: hasResults
+											? ListView(
+												shrinkWrap: true,
+												children: [
+													...filteredUsers.map((user) {
+														final selected = _selectedUsers.any((item) => item.userId == user.userId);
+														return ListTile(
+															contentPadding: EdgeInsets.zero,
+															leading: CircleAvatar(
+																backgroundColor: AppColors.accent.withOpacity(0.12),
+																child: Text(
+																	user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : '?',
+																	style: AppTextStyles.body.copyWith(color: AppColors.accent),
+																),
+															),
+															title: Text(user.displayName),
+															subtitle: Text(user.username),
+															trailing: Icon(
+																selected ? Icons.check_circle : Icons.add_circle_outline,
+																color: selected ? AppColors.accent : AppColors.dark.withOpacity(0.6),
+															),
+															onTap: () => _toggleUser(user),
+														);
+													}),
+													...filteredGroups.map((group) {
+														return ListTile(
+															contentPadding: EdgeInsets.zero,
+															leading: CircleAvatar(
+																backgroundColor: AppColors.dark.withOpacity(0.08),
+																child: const Icon(Icons.group_outlined, color: AppColors.dark),
+															),
+															title: Text(group.groupName),
+															subtitle: Text('${group.memberIds.length}'),
+															trailing: const Icon(Icons.add_circle_outline),
+															onTap: () => _selectGroup(group),
+														);
+													}),
+												],
+											)
+											: Center(
+												child: Padding(
+													padding: const EdgeInsets.symmetric(vertical: 24),
+													child: Text(
+														localizations.noResultsFound,
+														style: AppTextStyles.body,
+													),
+												),
+											),
+									),
+								),
+								const SizedBox(height: 12),
+								Row(
+									children: [
+										TextButton(
+											onPressed: () => Navigator.of(context).pop(),
+											child: Text(localizations.cancel),
+										),
+										const Spacer(),
+										ElevatedButton(
+											style: ElevatedButton.styleFrom(
+												backgroundColor: AppColors.accent,
+												foregroundColor: AppColors.light,
+											),
+											onPressed: () => Navigator.of(context).pop(_selectedUsers),
+											child: Text(localizations.save),
+										),
+									],
+								),
+							],
 						),
 					),
 				),

@@ -107,6 +107,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get assignees => 'Asignados';
 
   @override
+  String get selectAssignees => 'Seleccionar asignados';
+
+  @override
+  String get selectCalendarFirst => 'Seleccione primero un calendario';
+
+  @override
+  String get searchAssignees => 'Buscar personas o grupos';
+
+  @override
+  String get noResultsFound => 'No se encontraron resultados';
+
+  @override
+  String get retry => 'Reintentar';
+
+  @override
+  String get eventSaved => 'Evento guardado correctamente';
+
+  @override
+  String get group => 'Grupo';
+
+  @override
   String get addNewEvent => 'Agregar nuevo evento';
 
   @override
@@ -138,6 +159,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get save => 'Guardar';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get deleted => 'eliminado';
 
   @override
   String get startDate => 'Fecha de inicio';
