@@ -95,9 +95,9 @@ public class UsersControllerTests
 
         var result = await controller.Register(userDto);
 
-        var actionResult = Assert.IsType<ActionResult<User>>(result);
+        var actionResult = Assert.IsType<ActionResult<UserDto>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var returnedUser = Assert.IsType<User>(okResult.Value);
+        var returnedUser = Assert.IsType<UserDto>(okResult.Value);
 
         Assert.Equal("newuser", returnedUser.Username);
         Assert.Equal("User", returnedUser.Role);
@@ -152,21 +152,21 @@ public class UsersControllerTests
             Role = "CalendarManager",
             Name = "Administrador de Calendario",
             LastName = "Apellido Prueba",
-            CalendarsAsManager = new List<CalendarDto>
+            CalendarsAsManager = new List<Guid>
         {
-            new CalendarDto { Id = calendarId1, Name = "Test Calendar", Active = true },
-            new CalendarDto { Id = calendarId2, Name = "Test Calendar2", Active = true },
+            calendarId1,
+            calendarId2
         },
-            CalendarsAsMember = new List<CalendarDto>
+            CalendarsAsMember = new List<Guid>
         {
-            new CalendarDto { Id = calendarId3, Name = "Test Calendar3", Active = true },
+            calendarId3
         }
         };
 
         var result = await controller.Register(userDto);
-        var actionResult = Assert.IsType<ActionResult<User>>(result);
+        var actionResult = Assert.IsType<ActionResult<UserDto>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var returnedUser = Assert.IsType<User>(okResult.Value);
+        var returnedUser = Assert.IsType<UserDto>(okResult.Value);
 
         Assert.Equal("calendar_manager_name", returnedUser.Username);
         Assert.Equal("CalendarManager", returnedUser.Role);
@@ -194,9 +194,9 @@ public class UsersControllerTests
         var updateDto = new UserDto { Username = "olduser", Role = "Admin" };
         var result = await controller.UpdateUser(userId, updateDto);
 
-        var actionResult = Assert.IsType<ActionResult<User>>(result);
+        var actionResult = Assert.IsType<ActionResult<UserDto>>(result);
         var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
-        var userResult = Assert.IsType<User>(okResult.Value);
+        var userResult = Assert.IsType<UserDto>(okResult.Value);
         Assert.Equal("Admin", userResult.Role);
     }
 
