@@ -31,10 +31,9 @@ import { CalendarDto } from '../../models/CalendarDto';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarsService } from '../../services/calendars.service';
-import { CalendarsFacade, ExtendedCalendar } from './calendars.facade';
 import { CalendarsDialogsService } from './calendars-dialogs.service';
+import { CalendarsFacade, ExtendedCalendar } from './calendars.facade';
 import {
-  DateRange,
   adjustDateByDays,
   buildEventUniqueKey,
   eventOverlapsRange,
@@ -44,7 +43,7 @@ import {
   mergeRanges,
   normalizeDialogEventDto,
   prepareCopyData,
-  toCalendarEventInput,
+  toCalendarEventInput
 } from './calendars.utils';
 
 @Component({
