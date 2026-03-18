@@ -3,11 +3,8 @@ using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
 using lsa_web_apis.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Ocsp;
 using lsa_web_apis.Services;
 using System;
 using System.Security.Claims;
@@ -150,7 +147,7 @@ namespace lsa_web_apis.Controllers
                 calendar.IsPublic = dto.IsPublic;
                 calendar.IsHidden = dto.IsHidden;
 
-                var managerIds = new HashSet<Guid>(dto.Managers?.Select(m => m.UserId) ?? new List<Guid>());
+                var managerIds = new HashSet<Guid>(dto.Managers ?? []);
 
                 // Remove existing members
                 var existingMembers = await _context.CalendarMembers
@@ -168,11 +165,11 @@ namespace lsa_web_apis.Controllers
                 if (!dto.IsPublic && !dto.IsHidden && dto.Members != null && dto.Members.Count != 0)
                 {
                     var newMembers = dto.Members
-                        .Where(member => !managerIds.Contains(member.UserId))
+                        .Where(member => !managerIds.Contains(member))
                         .Select(member => new CalendarMember
                         {
                             CalendarId = id,
-                            UserId = member.UserId
+                            UserId = member
                         }).ToList();
 
                     await _context.CalendarMembers.AddRangeAsync(newMembers);
@@ -184,7 +181,7 @@ namespace lsa_web_apis.Controllers
                     var newManagers = dto.Managers.Select(member => new CalendarManager
                     {
                         CalendarId = id,
-                        UserId = member.UserId
+                        UserId = member
                     }).ToList();
 
                     await _context.CalendarManagers.AddRangeAsync(newManagers);
@@ -316,20 +313,8 @@ namespace lsa_web_apis.Controllers
                         Active = c.Active,
                         IsPublic = c.IsPublic,
                         IsHidden = c.IsHidden,
-                        Managers = c.Managers.Select(m => new CalendarManagerDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username,
-                            Name = m.User.Name,
-                            LastName = m.User.LastName
-                        }).ToList(),
-                        Members = c.Members.Select(m => new CalendarMemberDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username,
-                            Name = m.User.Name,
-                            LastName = m.User.LastName
-                        }).ToList()
+                        Managers = c.Managers.Select(m => m.UserId).ToList(),
+                        Members = c.Members.Select(m => m.UserId).ToList()
                     }).ToListAsync();
 
                 log.Info("Returning {Count} calendars for user: {Username}", paged.Count, userName);
@@ -361,17 +346,8 @@ namespace lsa_web_apis.Controllers
                         Active = c.Active,
                         IsPublic = c.IsPublic,
                         IsHidden = c.IsHidden,
-                        Managers = c.Managers.Select(m => new CalendarManagerDto
-                        {
-                            CalendarId = m.CalendarId,
-                            Username = m.User.Username,
-                            UserId = m.User.Id
-                        }).ToList(),
-                        Members = c.Members.Select(m => new CalendarMemberDto
-                        {
-                            UserId = m.UserId,
-                            Username = m.User.Username
-                        }).ToList()
+                        Managers = c.Managers.Select(m => m.UserId).ToList(),
+                        Members = c.Members.Select(m => m.UserId).ToList()
                     })
                     .FirstOrDefaultAsync();
 
@@ -531,7 +507,7 @@ namespace lsa_web_apis.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
         [Route("addEvent")]
-        public async Task<ActionResult> AddEvent(CalendarEventDto request)
+        public async Task<ActionResult<CalendarEventDto>> AddEvent(CalendarEventDto request)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(AddEvent), transactionId);
@@ -569,6 +545,7 @@ namespace lsa_web_apis.Controllers
                     CalendarId = request.CalendarId,
                     StartTime = request.Start!.Replace("T", " "),
                     AllDay = request.AllDay,
+                    Id = Guid.NewGuid()
                 };
 
                 if (!string.IsNullOrEmpty(request.End))
@@ -591,6 +568,8 @@ namespace lsa_web_apis.Controllers
 
                     _context.CalendarEventAssignees.AddRange(assignees);
                     await _context.SaveChangesAsync();
+
+                    calendarEvent.Assignees = assignees;
                 }
 
                 // Immediately send notifications for events happening within the next 14 days
@@ -634,7 +613,18 @@ namespace lsa_web_apis.Controllers
 
                 log.Info("Event created successfully for CalendarId: {CalendarId}", request.CalendarId);
 
-                return Ok();
+                var createdEventDto = new CalendarEventDto
+                {
+                    Id = calendarEvent.Id,
+                    Title = calendarEvent.Title,
+                    Description = calendarEvent.Description,
+                    CalendarId = calendarEvent.CalendarId,
+                    Start = calendarEvent.StartTime,
+                    End = calendarEvent.EndTime,
+                    AllDay = calendarEvent.AllDay,
+                    Assignees = request.Assignees
+                };
+                return Ok(createdEventDto);
             }
             catch (Exception ex)
             {
@@ -650,7 +640,7 @@ namespace lsa_web_apis.Controllers
         [HttpPut]
         [Authorize(Roles = "Admin,CalendarManager")]
         [Route("updateEvent")]
-        public async Task<ActionResult> UpdateEvent(CalendarEventDto request)
+        public async Task<ActionResult<CalendarEventDto>> UpdateEvent(CalendarEventDto request)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(UpdateEvent), transactionId);
@@ -713,7 +703,19 @@ namespace lsa_web_apis.Controllers
 
                 log.Info("Event updated successfully. EventId: {EventId}", request.Id);
 
-                return Ok();
+                var updatedEventDto = new CalendarEventDto
+                {
+                    Id = existingEvent.Id,
+                    Title = existingEvent.Title,
+                    Description = existingEvent.Description,
+                    CalendarId = existingEvent.CalendarId,
+                    Start = existingEvent.StartTime,
+                    End = existingEvent.EndTime,
+                    AllDay = existingEvent.AllDay,
+                    Assignees = [.. existingEvent.Assignees.Select(a => new UserDto { UserId = a.UserId })]
+                };
+
+                return Ok(updatedEventDto);
             }
             catch (Exception ex)
             {

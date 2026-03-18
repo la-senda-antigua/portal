@@ -5,6 +5,7 @@ import { LogoutComponent } from '../../components/logout/logout.component';
 import { AuthService } from '../../services/auth.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { UserRole } from '../../models/PortalUser';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,7 @@ import { UserRole } from '../../models/PortalUser';
     MatMenuModule,
     MatButtonModule,
     MatIconModule,
+    RouterLink,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

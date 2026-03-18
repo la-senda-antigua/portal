@@ -6,10 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using lsa_web_apis.Entities;
 using lsa_web_apis.Extensions;
-using System;
 
 namespace lsa_web_apis.Controllers
-{    
+{
     [Route("[controller]")]
     [ApiController]
     public class UsersController(IAuthService authService, UserDbContext context, ILogger<UsersController> _logger) : ControllerBase
@@ -42,23 +41,7 @@ namespace lsa_web_apis.Controllers
                         Username = u.Username,
                         Name = u.Name,
                         LastName = u.LastName,
-                        Role = u.Role,
-                        CalendarsAsManager = context.CalendarManagers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList(),
-                        CalendarsAsMember = context.CalendarMembers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList()
+                        Role = u.Role
                     });
 
                 var result = await usersQuery
@@ -91,7 +74,8 @@ namespace lsa_web_apis.Controllers
                     Username = u.Username,
                     Name = u.Name,
                     LastName = u.LastName,
-                    Role = u.Role
+                    Role = u.Role,
+                    Preferences = u.Preferences
                 }).ToListAsync();
 
                 log.Debug("Returning {Count} users.", users.Count);
@@ -106,7 +90,7 @@ namespace lsa_web_apis.Controllers
 
         [HttpPost()]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<User>> Register(UserDto data)
+        public async Task<ActionResult<UserDto>> Register(UserDto data)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(Register), transactionId);
@@ -121,26 +105,45 @@ namespace lsa_web_apis.Controllers
                 var user = await authService.RegisterAsync(username, role, data.Name!, data.LastName!);
                 if (user is null)
                 {
-                    log.Warning("Register failed because username is already in use. Username: {Username}", username);
-                    return BadRequest("User name already in use.");
+                    log.Warning("User registration failed. Username: {Username}", username);
+                    return BadRequest("RegisterAsync returned null. User registration failed.");
                 }
 
                 List<CalendarMember> calendarsAsMember = new List<CalendarMember>();
-                foreach (var item in data.CalendarsAsMember)
-                    calendarsAsMember.Add(new CalendarMember { CalendarId = item.Id, UserId = user.Id });
+                foreach (var calendarId in data.CalendarsAsMember)
+                    calendarsAsMember.Add(new CalendarMember { CalendarId = calendarId, UserId = user.Id });
 
                 context.CalendarMembers.AddRange(calendarsAsMember);
 
                 List<CalendarManager> calendarsAsManager = new List<CalendarManager>();
-                foreach (var item in data.CalendarsAsManager)
-                    calendarsAsManager.Add(new CalendarManager { CalendarId = item.Id, UserId = user.Id });
+                foreach (var calendarId in data.CalendarsAsManager)
+                    calendarsAsManager.Add(new CalendarManager { CalendarId = calendarId, UserId = user.Id });
 
                 context.CalendarManagers.AddRange(calendarsAsManager);
+
+                List<UserGroupMember> userGroupMembers = [];
+                foreach (var userGroupId in data.Groups)
+                    userGroupMembers.Add(new UserGroupMember { UserGroupId = userGroupId, UserId = user.Id });
+
+                context.UserGroupMembers.AddRange(userGroupMembers);
+
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 log.Info("User created successfully. UserId: {UserId}, Username: {Username}", user.Id, user.Username);
-                return Ok(user);
+                var userDto = new UserDto
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Name = user.Name,
+                    LastName = user.LastName,
+                    Role = user.Role,
+                    Preferences = user.Preferences,
+                    CalendarsAsManager = data.CalendarsAsManager,
+                    CalendarsAsMember = data.CalendarsAsMember,
+                    Groups = data.Groups
+                };
+                return Ok(userDto);
             }
             catch (Exception ex)
             {
@@ -152,7 +155,7 @@ namespace lsa_web_apis.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
-        public async Task<ActionResult<User>> UpdateUser(Guid id, [FromBody] UserDto updateData)
+        public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromBody] UserDto updateData)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(UpdateUser), transactionId);
@@ -178,25 +181,44 @@ namespace lsa_web_apis.Controllers
 
                 var existingCalendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
                 var existingCalendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
+                var existingUserGroups = await context.UserGroupMembers.Where(ugm => ugm.UserId == id).ToListAsync();
                 context.CalendarManagers.RemoveRange(existingCalendarsAsManager);
                 context.CalendarMembers.RemoveRange(existingCalendarsAsMember);
+                context.UserGroupMembers.RemoveRange(existingUserGroups);
 
                 var newCalendarsAsManager = updateData.CalendarsAsManager
-                    .Select(calendar => new CalendarManager { CalendarId = calendar.Id, UserId = id })
+                    .Select(calendarId => new CalendarManager { CalendarId = calendarId, UserId = id })
                     .ToList();
 
                 var newCalendarsAsMember = updateData.CalendarsAsMember
-                    .Select(calendar => new CalendarMember { CalendarId = calendar.Id, UserId = id })
+                    .Select(calendarId => new CalendarMember { CalendarId = calendarId, UserId = id })
+                    .ToList();
+
+                var newUserGroups = updateData.Groups
+                    .Select(userGroupId => new UserGroupMember { UserGroupId = userGroupId, UserId = id })
                     .ToList();
 
                 context.CalendarManagers.AddRange(newCalendarsAsManager);
                 context.CalendarMembers.AddRange(newCalendarsAsMember);
+                context.UserGroupMembers.AddRange(newUserGroups);
 
                 await context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 log.Info("User updated successfully. UserId: {UserId}", id);
-                return Ok(user);
+                var userDto = new UserDto
+                {
+                    UserId = user.Id,
+                    Username = user.Username,
+                    Name = user.Name,
+                    LastName = user.LastName,
+                    Role = user.Role,
+                    Preferences = user.Preferences,
+                    CalendarsAsManager = updateData.CalendarsAsManager,
+                    CalendarsAsMember = updateData.CalendarsAsMember,
+                    Groups = updateData.Groups
+                };
+                return Ok(userDto);
             }
             catch (Exception ex)
             {
@@ -235,7 +257,7 @@ namespace lsa_web_apis.Controllers
                 return StatusCode(500, "An error occurred while deleting the user.");
             }
         }
-    
+
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,CalendarManager")]
         public async Task<ActionResult<UserDto>> GetUserById(Guid id)
@@ -246,6 +268,9 @@ namespace lsa_web_apis.Controllers
             try
             {
                 log.Info("Getting user by ID: {UserId}", id);
+                var calendarsAsManager = await context.CalendarManagers.Where(cm => cm.UserId == id).ToListAsync();
+                var calendarsAsMember = await context.CalendarMembers.Where(cm => cm.UserId == id).ToListAsync();
+                var userGroups = await context.UserGroupMembers.Where(ugm => ugm.UserId == id).ToListAsync();
                 var user = await context.PortalUsers
                     .AsNoTracking()
                     .Where(u => u.Id == id)
@@ -257,22 +282,9 @@ namespace lsa_web_apis.Controllers
                         LastName = u.LastName,
                         Role = u.Role,
                         Preferences = u.Preferences,
-                        CalendarsAsManager = context.CalendarManagers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList(),
-                        CalendarsAsMember = context.CalendarMembers
-                            .Where(cm => cm.UserId == u.Id)
-                            .Select(cm => new CalendarDto
-                            {
-                                Id = cm.Calendar.Id,
-                                Name = cm.Calendar.Name,
-                                Active = cm.Calendar.Active
-                            }).ToList()
+                        CalendarsAsManager = calendarsAsManager.Select(c => c.CalendarId).ToList(),
+                        CalendarsAsMember = calendarsAsMember.Select(c => c.CalendarId).ToList(),
+                        Groups = userGroups.Select(ug => ug.UserGroupId).ToList()
                     })
                     .FirstOrDefaultAsync();
 

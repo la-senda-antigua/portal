@@ -9,6 +9,7 @@ public class UserDto
     public string Role { get; set; } = string.Empty;
     public int RowId { get; set; }
     public string? Preferences { get; set; }
-    public List<CalendarDto> CalendarsAsManager { get; set; } = new List<CalendarDto>();
-    public List<CalendarDto> CalendarsAsMember { get; set; } = new List<CalendarDto>();
+    public List<Guid> CalendarsAsManager { get; set; } = [];
+    public List<Guid> CalendarsAsMember { get; set; } = [];
+    public List<Guid> Groups { get; set; } = [];
 }
