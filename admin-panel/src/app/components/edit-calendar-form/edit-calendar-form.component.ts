@@ -112,19 +112,6 @@ export class EditCalendarFormComponent implements OnInit {
 
   getDetails() {
     this.loadingUsers.set(true);
-    // this.calendarsService.getById(this.formData().data.id!).subscribe({
-    //   next: (data) => {
-    //     const members =
-    //       data.members?.map((u) => ({ ...u, role: 'User' } as CalendarMemberDto)) ?? [];
-    //     const managers =
-    //       data.managers?.map((u) => ({ ...u, role: 'Manager' } as CalendarMemberDto)) ?? [];
-    //     this.selectedUsers = [...members, ...managers];
-    //     this.loadingUsers.set(false);
-    //   },
-    //   error: () => {
-    //     this.loadingUsers.set(false);
-    //   },
-    // });
   }
 
   save() {
