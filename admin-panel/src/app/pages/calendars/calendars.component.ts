@@ -1,79 +1,50 @@
-import { DatePipe } from '@angular/common';
 import {
   Component,
   computed,
-  DestroyRef,
   effect,
   inject,
   signal,
-  viewChild,
   ViewEncapsulation,
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import {
   MatCheckboxChange,
   MatCheckboxModule,
 } from '@angular/material/checkbox';
-import { MatListModule, MatSelectionListChange } from '@angular/material/list';
-import { Calendar, CalendarDto } from '../../models/CalendarDto';
-import { CalendarsService } from '../../services/calendars.service';
-
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule, MatSelectionListChange } from '@angular/material/list';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-  FullCalendarComponent,
-  FullCalendarModule,
-} from '@fullcalendar/angular';
-import { EventInput } from '@fullcalendar/core';
+import { RouterLink } from '@angular/router';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { DatesSetArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
 import timeGridPlugin from '@fullcalendar/timegrid';
+
 import {
-  catchError,
-  filter,
-  map,
-  Observable,
-  of,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
-import { AddEventDialogComponent } from '../../components/add-event-dialog/add-event-dialog.component';
-import {
-  DeleteConfirmationComponent,
   DeleteConfirmationData,
 } from '../../components/delete-confirmation/delete-confirmation.component';
-import {
-  CalendarFormData,
-  EditCalendarFormComponent,
-} from '../../components/edit-calendar-form/edit-calendar-form.component';
-import { EventOptionsComponent } from '../../components/event-options/event-options.component';
-import { CalendarEvent } from '../../models/CalendarEvent';
+import { CalendarDto } from '../../models/CalendarDto';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
-import { PortalUser, UserRole } from '../../models/PortalUser';
-import { AuthService } from '../../services/auth.service';
-import { RouterLink } from '@angular/router';
-import { Store } from '@ngrx/store';
+import { PortalUser } from '../../models/PortalUser';
+import { CalendarsService } from '../../services/calendars.service';
+import { CalendarsDialogsService } from './calendars-dialogs.service';
+import { CalendarsFacade, ExtendedCalendar } from './calendars.facade';
 import {
-  selectCalendars,
-  selectCalendarsLoaded,
-  selectCurrentUser,
-  selectUsersLoaded,
-  selectCalendarEventsByRange,
-} from '../../state/appstate.selectors';
-import { CalendarsActions } from '../../state/calendars.actions';
-import { UsersActions } from '../../state/users.actions';
-
-interface ExtendedCalendar extends Calendar {
-  iAmManager: boolean;
-}
-
-export const LAST_SELECTED_CALENDARS_KEY = 'lastSelectedCalendars';
+  adjustDateByDays,
+  buildEventUniqueKey,
+  eventOverlapsRange,
+  getEventsForCalendarIds,
+  hydrateEventAssignees,
+  isRangeCovered,
+  mergeRanges,
+  normalizeDialogEventDto,
+  prepareCopyData,
+  toCalendarEventInput
+} from './calendars.utils';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
@@ -91,32 +62,145 @@ export const LAST_SELECTED_CALENDARS_KEY = 'lastSelectedCalendars';
   ],
   templateUrl: './calendars.component.html',
   styleUrl: './calendars.component.scss',
-  providers: [DatePipe],
 })
 export class CalendarsComponent {
-  readonly calendarEventsLoading = signal(false);
-  readonly calendarListLoading = signal(false);
-  readonly fullCalendarComponent = viewChild(FullCalendarComponent);
-  readonly fullCalendarApi = computed(() =>
-    this.fullCalendarComponent()?.getApi(),
+  /** Facade exposing calendars state, derived data and dispatch helpers. */
+  readonly facade = inject(CalendarsFacade);
+  /** Dialog orchestration for all calendars page modals. */
+  readonly dialogs = inject(CalendarsDialogsService);
+  /** Snackbar notifications for API errors and user feedback. */
+  readonly snackBar = inject(MatSnackBar);
+  /** Calendar data service and color assignment helper. */
+  readonly service = inject(CalendarsService);
+
+  readonly calendarEventsLoading = this.facade.calendarEventsLoading;
+  /** True only until the initial calendar list and user list have been fetched. */
+  readonly sidebarLoading = computed(
+    () => !this.facade.calendarListLoaded() || !this.facade.usersLoaded(),
   );
-  readonly destroyRef = inject(DestroyRef);
-  readonly authService = inject(AuthService);
-  readonly store = inject(Store);
-  readonly calendars$ = this.store.select(selectCalendars);
-  readonly calendarsLoaded$ = this.store.select(selectCalendarsLoaded);
-  readonly usersLoaded$ = this.store.select(selectUsersLoaded);
+  readonly error = this.facade.error;
 
-  readonly currentUserId = this.authService.currentUserId;
-  readonly currentUser = this.store.selectSignal(selectCurrentUser);
+  readonly users = this.facade.users;
+  readonly usersById = this.facade.usersById;
+  readonly currentUser = this.facade.currentUser;
+  readonly myCalendars = this.facade.myCalendars;
+  readonly calendarEventsByCalendarId = this.facade.calendarEventsByCalendarId;
+  readonly loadedEventRangesByCalendarId =
+    this.facade.loadedEventRangesByCalendarId;
+  readonly loadingEventRangesByCalendarId =
+    this.facade.loadingEventRangesByCalendarId;
 
+  readonly selectedCalendars = this.facade.selectedCalendars;
+
+  /** Current FullCalendar visible range in date-only format. */
+  readonly viewRange = computed(() => {
+    const dateSet = this.newCalendarViewDateSet();
+    if (!dateSet?.startStr || !dateSet?.endStr) {
+      return null;
+    }
+
+    return {
+      startDate: dateSet.startStr.split('T')[0],
+      endDate: dateSet.endStr.split('T')[0],
+    };
+  });
+  /** Calendar ids that should be loaded into cache regardless of UI filter visibility. */
+  readonly calendarIdsForDataLoad = computed(() =>
+    this.myCalendars().map((c) => c.id!),
+  );
+  /**
+   * Events for the current visible range.
+   * Applies assignee hydration and range filtering before UI mapping.
+   */
+  readonly calendarViewEvents = computed(() => {
+    const calendarIds = this.calendarIdsForDataLoad();
+    const viewRange = this.viewRange();
+    const usersById = this.usersById();
+
+    if (!viewRange || calendarIds.length === 0) {
+      return [];
+    }
+
+    return getEventsForCalendarIds(this.calendarEventsByCalendarId(), calendarIds)
+      .map((event) => hydrateEventAssignees(event, usersById))
+      .filter((event) => eventOverlapsRange(event, viewRange));
+  });
+  /**
+   * Event list transformed into FullCalendar `EventInput` objects.
+   * Applies selected-calendar visibility filter and deduplication.
+   */
+  readonly filteredEvents = computed(() => {
+    const dedupedEvents = new Map<string, EventInput>();
+
+    this.calendarViewEvents()
+      .filter((event) => this.selectedCalendars().includes(event.calendarId))
+      .forEach((event) => {
+        const uniqueKey = buildEventUniqueKey(event);
+        const existing = dedupedEvents.get(uniqueKey);
+
+        if (existing) {
+          const existingStart = existing.start?.toString() ?? '';
+          const candidateStart = event.start ?? '';
+          if (candidateStart >= existingStart) {
+            return;
+          }
+        }
+
+        dedupedEvents.set(
+          uniqueKey,
+          toCalendarEventInput(event, (calendarId) =>
+            this.service.getCalendarColor(calendarId),
+          ),
+        );
+      });
+
+    return Array.from(dedupedEvents.values());
+  });
+
+  // Calendar View State
+  /** FullCalendar datesSet payload for the currently visible grid window. */
+  readonly newCalendarViewDateSet = signal<DatesSetArg | undefined>(undefined);
+  /**
+   * Single batched load descriptor for the current view.
+   * Returns null when all relevant ranges are already loaded/in-flight.
+   */
+  readonly pendingEventLoad = computed(() => {
+    const viewRange = this.viewRange();
+    if (!viewRange) {
+      return null;
+    }
+
+    const loadedByCalendar = this.loadedEventRangesByCalendarId();
+    const loadingByCalendar = this.loadingEventRangesByCalendarId();
+    const calendarIds = this.calendarIdsForDataLoad().filter((calendarId) => {
+      const loadedRanges = loadedByCalendar[calendarId] ?? [];
+      const loadingRanges = loadingByCalendar[calendarId] ?? [];
+      const coveredRanges = mergeRanges([
+        ...loadedRanges,
+        ...loadingRanges,
+      ]);
+      return !isRangeCovered(viewRange, coveredRanges);
+    });
+
+    if (calendarIds.length === 0) {
+      return null;
+    }
+
+    return {
+      startDate: viewRange.startDate,
+      endDate: viewRange.endDate,
+      calendarIds,
+    };
+  });
+
+  // Calendar Configuration
+  /** Static FullCalendar options. Dynamic events are bound from `filteredEvents()` in template. */
   readonly calendarOptions = {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
     editable: true,
     selectable: true,
-    events: [] as EventInput,
-    datesSet: () => this.handleLoadCalendarEvents(),
+    datesSet: (args: DatesSetArg) => this.newCalendarViewDateSet.set(args),
     displayEventTime: true,
     eventTimeFormat: {
       hour: '2-digit' as const,
@@ -124,418 +208,134 @@ export class CalendarsComponent {
       hour12: true,
     },
     eventClick: (info: any) => this.showEventOptions(info),
-    dateClick: (inf: any) => this.openAddEventDialog(inf),
+    dateClick: (inf: DateClickArg) => this.openAddOrEditEventDialog(inf),
   };
 
-  myCalendars: ExtendedCalendar[] = [];
-  selectedCalendars: string[] = [];
-  private allEvents: any[] = [];
-
-  constructor(
-    private service: CalendarsService,
-    public dialog: MatDialog,
-    private snackBar: MatSnackBar,
-  ) {
-    if (this.currentUserId) {
-      this.store.dispatch(
-        UsersActions.loadCurrentUser({ userId: this.currentUserId }),
-      );
-    }
-
-    this.calendarsLoaded$
-      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-      .subscribe((loaded) => {
-        if (!loaded) {
-          this.store.dispatch(CalendarsActions.loadCalendars());
-        }
-      });
-
-    this.usersLoaded$
-      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-      .subscribe((loaded) => {
-        if (!loaded) {
-          this.store.dispatch(UsersActions.loadUsers());
-        }
-      });
-
-    effect(() => {
-      const currentUser = this.currentUser();
-
-      if (!currentUser) {
-        return;
-      }
-
-      // this avoid the flickering of the calendars first loading
-      if (currentUser.preferences === undefined) {
-        return;
-      }
-
-      const preferencesString = currentUser?.preferences ?? '{}';
-      let preferences = { [LAST_SELECTED_CALENDARS_KEY]: [] };
-      try {
-        preferences = JSON.parse(preferencesString);
-      } catch (error) {
-        console.error('Error parsing user preferences: ', error);
-      } finally {
-        const selectedCalendars =
-          preferences[LAST_SELECTED_CALENDARS_KEY] ?? [];
-
-        // this prevents unnecessary reloads when the calendars are already loaded and the user selects the same calendars again
-        const sameSelection =
-          this.myCalendars.length > 0 &&
-          selectedCalendars.length === this.selectedCalendars.length &&
-          selectedCalendars.every((id: string) =>
-            this.selectedCalendars.includes(id),
-          );
-
-        if (sameSelection) {
-          return;
-        }
-
-        this.loadCalendarsAndEvents(selectedCalendars);
-      }
-    });
+  constructor() {
+    this.facade.loadInitialData();
+    this.initializeEffects();
   }
 
+  /** Toggle handler for "Select all" in the calendar sidebar filter. */
   toggleSelectAll(event: MatCheckboxChange) {
-    if (event.checked) {
-      this.selectedCalendars = this.myCalendars.map((c) => c.id!);
-    } else {
-      this.selectedCalendars = [];
-    }
-    const e: MatSelectionListChange = {
-      source: {
-        selectedOptions: {
-          selected: this.selectedCalendars.map((id) => ({ value: id })) as any,
-        },
-      } as any,
-      options: [] as any,
-    };
-    this.onCalendarSelectionChange(e);
+    const selectedIds = event.checked
+      ? this.myCalendars().map((calendar) => calendar.id!)
+      : [];
+
+    this.facade.updateSelectedCalendars(selectedIds);
   }
 
-  loadCalendarsAndEvents(calendarSelection: string[]) {
-    this.loadCalendarList()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        tap((calendars) => {
-          this.selectedCalendars = calendarSelection.filter((id) =>
-            calendars.some((c) => c.id === id),
-          );
-          this.myCalendars = calendars.map((c) => ({
-            ...c,
-            iAmManager:
-              this.authService.hasRole(UserRole.Admin) ||
-              (c.managers?.some((m) => m.userId === this.currentUserId) ??
-                false),
-          }));
-        }),
-        switchMap(() => this.loadCalendarEvents()),
-        tap(() => {
-          this.handleLoadCalendarEvents();
-        }),
-      )
-      .subscribe(() => {
-        this.calendarListLoading.set(false);
-      });
-  }
-
-  handleLoadCalendarEvents() {
-    this.loadCalendarEvents().subscribe((events) => {
-      this.allEvents = events;
-      this.filterEvents();
-      this.calendarEventsLoading.set(false);
-    });
-  }
-
-  loadCalendarList(): Observable<Calendar[]> {
-    this.calendarListLoading.set(true);
-    return this.calendars$.pipe(
-      take(1),
-      map((calendars) =>
-        calendars.map((c) => ({
-          ...c,
-          color: this.service.getCalendarColor(c.id!),
-        })),
-      ),
-    );
-  }
-
-  loadCalendarEvents(): Observable<CalendarEvent[]> {
-    this.calendarEventsLoading.set(true);
-
-    const currentStart = this.fullCalendarApi()?.view.currentStart ?? new Date();
-    const month = currentStart.getMonth() + 1;
-    const year = currentStart.getFullYear();
-
-    const startDate = this.getInitialDateForMonthView(month, year);
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 41);
-
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
-    const calendarIds = this.myCalendars.map((c) => c.id!);
-    const cacheKey = this.buildEventsCacheKey(startDateStr,endDateStr,calendarIds);
-
-    return this.store.select(selectCalendarEventsByRange).pipe(
-      map((byRange) => ({
-        hasKey: Object.prototype.hasOwnProperty.call(byRange, cacheKey),
-        events: byRange[cacheKey] ?? [],
-      })),
-      tap(({ hasKey }) => {
-        if (!hasKey) {
-          this.store.dispatch(
-            CalendarsActions.loadCalendarEventsRange({
-              cacheKey,
-              startDate: startDateStr,
-              endDate: endDateStr,
-              calendarIds,
-            }),
-          );
-        }
-      }),
-      filter(({ hasKey }) => hasKey),
-      map(({ events }) => events),
-      take(1),
-    );
-  }
-
-  private filterEvents() {
-    const uniqueEvents = new Map<string, any>();
-
-    this.allEvents
-      .filter((e) => this.selectedCalendars.includes(e.calendarId))
-      .forEach((e) => {
-        if (uniqueEvents.has(e.id)) return;
-
-        let end = e.end?.replace(' ', 'T');
-
-        if (e.allDay && e.end) {
-          end = this.adjustDateByDays(e.end, 1);
-        }
-
-        const color = this.service.getCalendarColor(e.calendarId);
-
-        uniqueEvents.set(e.id, {
-          title: e.displayTitle ?? e.title,
-          backgroundColor: color,
-          borderColor: color,
-          start: e.start?.replace(' ', 'T'),
-          end: end,
-          allDay: e.allDay,
-          extendedProps: {
-            calendarId: e.calendarId,
-            description: e.description,
-            id: e.id,
-            originalTitle: e.title,
-            displayTitle: e.displayTitle,
-          },
-        } as EventInput);
-      });
-
-    this.calendarOptions.events = Array.from(uniqueEvents.values());
-  }
-
+  /** Selection-list change handler; persists selected calendar ids to user preferences. */
   onCalendarSelectionChange(event: MatSelectionListChange) {
-    this.selectedCalendars = event.source.selectedOptions.selected.map(
+    const selectedIds = event.source.selectedOptions.selected.map(
       (option) => option.value,
     );
-    this.filterEvents();
-    const preferences = {
-      [LAST_SELECTED_CALENDARS_KEY]: this.selectedCalendars,
-    };
-    const updatedUser: PortalUser = {
-      ...this.currentUser()!,
-      preferences: JSON.stringify(preferences),
-    };
-    this.store.dispatch(
-      UsersActions.updateUser({
-        userId: updatedUser.userId,
-        user: updatedUser,
-      }),
-    );
+    this.facade.updateSelectedCalendars(selectedIds);
   }
 
+  /** Opens calendar edit options and dispatches update/delete actions based on dialog result. */
   showCalendarOptions(event: MouseEvent, calendar: ExtendedCalendar) {
     event.stopPropagation();
 
-    const dialogRef = this.dialog.open(EditCalendarFormComponent, {
-      width: '450px',
-      maxHeight: '80vh',
-      data: {
-        mode: 'edit',
-        type: 'calendar',
-        data: { ...calendar },
-      } as CalendarFormData,
-    });
+    this.dialogs.openEditCalendarDialog(calendar).subscribe((dialogCloseResult) => {
+      if (!dialogCloseResult) return;
 
-    dialogRef
-      .afterClosed()
-      .pipe(
-        switchMap((dialogCloseResult) => {
-          if (!dialogCloseResult) return of(null);
-
-          const { data } = dialogCloseResult;
-          if (data.action === 'delete') {
-            this.deleteCalendar(data.id, data.name);
-            return of(null);
-          }
-
-          const selectedUsers = data.selectedUsers as CalendarMemberDto[];
-          const members: CalendarMemberDto[] = selectedUsers.filter(
-            (u) => u.role === 'User',
-          );
-
-          const managers: CalendarMemberDto[] = selectedUsers.filter(
-            (u) => u.role === 'Manager',
-          );
-
-          const calendar: CalendarDto = {
-            ...data,
-            members,
-            managers,
-          };
-          return this.service.edit(calendar);
-        }),
-        catchError(() => of(null)),
-      )
-      .subscribe((result) => {
-        if (result != null) {
-          this.loadCalendarsAndEvents(this.selectedCalendars);
-        }
-      });
-  }
-
-  openAddCalendarModal() {
-    const dialogRef = this.dialog.open(EditCalendarFormComponent, {
-      data: {
-        mode: 'add',
-        type: 'calendar',
-        data: {},
-      } as CalendarFormData,
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.calendarListLoading.set(true);
-        this.service.add(result.data).subscribe({
-          next: (response) => {
-            let calendarWithColor = {
-              ...result.data,
-              color: this.service.getCalendarColor(response.id!),
-            };
-            calendarWithColor.id = response.id;
-            calendarWithColor.iamManager = true;
-            this.myCalendars.push(calendarWithColor);
-            this.selectedCalendars.push(calendarWithColor.id!);
-            this.calendarListLoading.set(false);
-          },
-          error: (err) => {
-            this.calendarListLoading.set(false);
-            this.handleException(
-              err,
-              'There was a problem when attempting to add the calendar.',
-            );
-          },
-        });
-      }
-    });
-  }
-
-  openAddEventDialog(eventData?: any): void {
-    let assignees: PortalUser[] = [];
-    if (eventData?.id) {
-      assignees =
-        this.allEvents.find((e) => e.id === eventData.id)?.assignees || [];
-      eventData.assignees = assignees;
-    }
-
-    const dialogRef = this.dialog.open(AddEventDialogComponent, {
-      width: '500px',
-      maxHeight: '95vh',
-      data: {
-        calendars: this.myCalendars.filter((c) => c.iAmManager),
-        event: eventData,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result) {
+      const { data } = dialogCloseResult;
+      if (data.action === 'delete') {
+        this.deleteCalendar(data.id, data.name);
         return;
       }
 
-      this.calendarEventsLoading.set(true);
-      const isCopy = result.trigger === 'copy';
+      const selectedUsers = data.selectedUsers as CalendarMemberDto[];
+      const members: CalendarMemberDto[] = selectedUsers.filter(
+        (u) => u.role === 'User',
+      );
 
-      if (result.start && result.start.length === 5) {
-        result.start = result.start + ':00';
-      }
-      if (result.end) {
-        if (result.end.length === 5) {
-          result.end = result.end + ':00';
-        }
-      } else {
-        result.end = null;
-      }
+      const managers: CalendarMemberDto[] = selectedUsers.filter(
+        (u) => u.role === 'Manager',
+      );
 
-      result.eventDate = result.date;
-      result.assignees = result.assignees || [];
+      const calendar: CalendarDto = {
+        ...data,
+        members,
+        managers,
+      };
+      this.facade.updateCalendar(calendar.id!, calendar);
+    });
+  }
 
-      if (result.id) {
-        this.service.updateEvent(result).subscribe({
-          next: () => {
-            this.calendarEventsLoading.set(false);
-            this.loadCalendarsAndEvents(this.selectedCalendars);
-            if (isCopy) {
-              const copyData = this.prepareCopyData(result);
-              this.openAddEventDialog(copyData);
-            }
-          },
-          error: (err) => {
-            this.calendarEventsLoading.set(false);
-            this.handleException(
-              err,
-              'There was a problem updating the event.',
-            );
-          },
-        });
-      } else {
-        this.service.addEvent(result).subscribe({
-          next: () => {
-            this.calendarEventsLoading.set(false);
-            this.loadCalendarsAndEvents(this.selectedCalendars);
-            if (isCopy) {
-              const copyData = this.prepareCopyData(result);
-              this.openAddEventDialog(copyData);
-            }
-          },
-          error: (err) => {
-            this.calendarEventsLoading.set(false);
-            this.handleException(err, 'There was a problem adding the event.');
-          },
-        });
+  /** Opens the add calendar modal and dispatches create action on submit. */
+  openAddCalendarModal() {
+    this.dialogs.openAddCalendarDialog().subscribe((result) => {
+      if (result) {
+        this.facade.addCalendar(result.data);
       }
     });
   }
 
-  private prepareCopyData(result: any): any {
-    return {
-      allDay: result.allDay,
-      assignees: result.assignees,
-      calendarId: result.calendarId,
-      date: result.start.substring(0, 10),
-      description: result.description,
-      endDate: result.end
-        ? result.end.substring(0, 10)
-        : result.start.substring(0, 10),
-      title: `${result.title}`,
-      start: result.start
-        ? result.start.split('T')[1]?.substring(0, 5) || ''
-        : '',
-      end: result.end ? result.end.split('T')[1]?.substring(0, 5) || '' : '',
-    };
+  /** Opens add/edit event dialog, normalizes payload, and dispatches add/update actions. */
+  openAddOrEditEventDialog(eventData?: any): void {
+    this.dialogs.openAddOrEditEventDialog(this.myCalendars(), eventData).subscribe((eventDto) => {
+      if (!eventDto) {
+        return;
+      }
+      const normalizedEventDto = normalizeDialogEventDto(eventDto);
+      const isCopy = normalizedEventDto.trigger === 'copy';
+
+      if (eventDto.id) {
+        this.facade.updateEvent(normalizedEventDto.id, normalizedEventDto);
+      } else {
+        this.facade.addEvent(normalizedEventDto);
+      }
+
+      if (isCopy) {
+        const assignees = normalizedEventDto.assignees
+          .map((a: { userId: string }) => this.usersById().get(a.userId))
+          .filter((u: PortalUser): u is PortalUser => !!u);
+        const copyData = prepareCopyData({
+          ...normalizedEventDto,
+          assignees,
+        });
+        this.openAddOrEditEventDialog(copyData);
+      }
+    });
   }
 
+  /** Registers reactive effects for preference restore, selection sync, and range loading. */
+  private initializeEffects(): void {
+    effect(() => this.facade.restoreCalendarSelectionFromPreferences());
+    effect(() => this.facade.syncNewCalendarsIntoSelection(this.calendarIdsForDataLoad()));
+    effect(() => this.dispatchPendingEventLoad());
+    effect(() => this.showApiErrorToast());
+  }
+
+  /** Displays a generic API error snackbar when state error is populated. */
+  private showApiErrorToast(): void {
+    if (!this.error()) {
+      return;
+    }
+
+    this.handleException(
+      new Error(this.error()!),
+      'There was a problem with your request',
+    );
+  }
+
+  /** Dispatches a single batched events-range load when missing coverage exists. */
+  private dispatchPendingEventLoad(): void {
+    const pendingLoad = this.pendingEventLoad();
+    if (!pendingLoad) {
+      return;
+    }
+
+    this.facade.loadCalendarEventsRange(
+      pendingLoad.startDate,
+      pendingLoad.endDate,
+      pendingLoad.calendarIds,
+    );
+  }
+
+  /** Opens event context dialog and routes edit/delete actions. */
   showEventOptions(item: any) {
     const {
       allDay,
@@ -545,7 +345,7 @@ export class CalendarsComponent {
       title: displayTitle,
       backgroundColor,
     } = item.event;
-    const calendar = this.myCalendars.find(
+    const calendar = this.myCalendars().find(
       (c) => c.id === extendedProps.calendarId,
     );
 
@@ -553,38 +353,35 @@ export class CalendarsComponent {
       return;
     }
 
+    const existingEvent = this.calendarViewEvents().find(
+      (e) => e.id === extendedProps.id,
+    );
+
+    if (!existingEvent?.id) {
+      return;
+    }
+    const existingEventId = existingEvent.id;
+
     const startDate = allDay ? startStr : startStr.split('T')[0];
     let endDate = startDate;
 
     if (endStr) {
       if (allDay) {
-        endDate = this.adjustDateByDays(endStr, -1);
+        endDate = adjustDateByDays(endStr, -1);
       } else {
         endDate = endStr.split('T')[0];
       }
     }
 
-    const assignees: PortalUser[] =
-      this.allEvents.find((e) => e.id === extendedProps.id)?.assignees || [];
-    const originalTitle = this.allEvents.find(
-      (e) => e.id === extendedProps.id,
-    )?.title;
-
     const event = {
-      id: extendedProps.id,
-      title: originalTitle,
-      displayTitle: displayTitle,
-      description: extendedProps.description,
+      ...existingEvent,
+      calendarName: calendar.name,
+      backgroundColor,
+      canEdit: calendar.iAmManager,
       date: startDate,
       endDate: endDate,
       start: allDay ? '00:00' : startStr.split('T')[1]?.substring(0, 5) || '',
       end: allDay ? '23:59' : endStr?.split('T')[1]?.substring(0, 5) || '',
-      allDay: allDay,
-      calendarId: extendedProps.calendarId,
-      calendarName: calendar?.name,
-      color: backgroundColor,
-      assignees,
-      canEdit: calendar.iAmManager,
     };
 
     const dialogWidth = 400;
@@ -603,107 +400,45 @@ export class CalendarsComponent {
       top = screenHeight - dialogHeight - 20;
     }
 
-    const dialogRef = this.dialog.open(EventOptionsComponent, {
-      data: event,
-      width: `${dialogWidth}px`,
-      panelClass: 'event-options-panel',
-      position: {
-        top: `${top}px`,
-        left: `${left}px`,
-      },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogs.openEventOptionsDialog(event, top, left).subscribe((result) => {
       if (result?.action === 'edit') {
-        this.openAddEventDialog(result.event);
+        this.openAddOrEditEventDialog(result.event);
       } else if (result?.action === 'delete') {
         const deleteConfirmationData: DeleteConfirmationData = {
-          id: event.id,
+          id: existingEventId,
           requestMatchingString: false,
           prompt: `Are you sure you want to delete ${displayTitle}?`,
         };
-        const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
-          data: deleteConfirmationData,
-        });
 
-        dialogDelete.afterClosed().subscribe((result) => {
+        this.dialogs.openDeleteConfirmationDialog(deleteConfirmationData).subscribe((result) => {
           if (result) {
-            this.calendarEventsLoading.set(true);
-            this.service.deleteEvent(event.id).subscribe({
-              next: () => this.loadCalendarsAndEvents(this.selectedCalendars),
-              error: (err) => {
-                this.calendarEventsLoading.set(false);
-                this.handleException(
-                  err,
-                  'There was a problem when attempting to delete.',
-                );
-              },
-            });
+            this.facade.removeEvent(existingEventId);
           }
         });
       }
     });
   }
 
+  /** Opens delete confirmation for a calendar and dispatches removal when confirmed. */
   deleteCalendar(id: string, name: string) {
-    const dialogDelete = this.dialog.open(DeleteConfirmationComponent, {
-      data: {
-        id: id,
+    this.dialogs
+      .openDeleteConfirmationDialog({
+        id,
         requestMatchingString: false,
         prompt: `Are you sure you want to delete ${name}?`,
-      } as DeleteConfirmationData,
-    });
-
-    dialogDelete.afterClosed().subscribe((result) => {
+      } as DeleteConfirmationData)
+      .subscribe((result) => {
       if (result) {
-        this.calendarEventsLoading.set(true);
-        this.service.delete(id).subscribe({
-          next: () => this.loadCalendarsAndEvents(this.selectedCalendars),
-          error: (err) => {
-            this.calendarEventsLoading.set(false);
-            this.handleException(err, err.error);
-          },
-        });
+        this.facade.removeCalendar(id);
       }
     });
   }
 
-  handleException(e: Error, message: string) {
-    this.calendarEventsLoading.set(false);
+  /** Standardized local error display helper. */
+  private handleException(e: Error, message: string): void {
     console.error(e);
     this.snackBar.open(message, '', {
       duration: 4000,
     });
-  }
-
-  private adjustDateByDays(dateString: string, days: number): string {
-    const datePart = dateString.substring(0, 10);
-    const date = new Date(`${datePart}T00:00:00Z`);
-    date.setUTCDate(date.getUTCDate() + days);
-    return date.toISOString().split('T')[0];
-  }
-
-  /**
-   *
-   * @param month The month for which to calculate the initial date (1-12)
-   * @param year The year for which to calculate the initial date
-   * @returns A Date object representing the initial date to be used in the calendar, which is the Sunday on or before the first day of the given month and year
-   * This ensures that the calendar view always starts on a Sunday, even if the first day of the month is in the middle of the week
-   */
-  private getInitialDateForMonthView(month: number, year: number): Date {
-    const startOfMonth = new Date(year, month - 1, 1);
-    const indexOfFirstDay = startOfMonth.getDay();
-    const initialDate = new Date(startOfMonth);
-    initialDate.setDate(initialDate.getDate() - indexOfFirstDay);
-    return initialDate;
-  }
-
-  private buildEventsCacheKey(
-    startDate: string,
-    endDate: string,
-    calendarIds: string[],
-  ): string {
-    const sortedIds = [...calendarIds].sort();
-    return [startDate, endDate, sortedIds.join(',')].join('|');
   }
 }

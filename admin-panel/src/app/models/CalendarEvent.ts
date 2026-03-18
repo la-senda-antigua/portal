@@ -1,3 +1,5 @@
+import { PortalUser } from "./PortalUser";
+
 export interface CalendarEvent {
   id?: string;
   title: string;
@@ -9,4 +11,5 @@ export interface CalendarEvent {
   calendarId: string;
   displayTitle?: string;
   allDay?: boolean;
+  assignees?: PortalUser[];
 }

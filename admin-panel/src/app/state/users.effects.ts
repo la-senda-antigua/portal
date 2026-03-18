@@ -107,16 +107,4 @@ export class UsersEffects {
             )
         )
     );
-
-    loadCurrentUser$ = createEffect(() =>
-      this.actions$.pipe(
-        ofType(UsersActions.loadCurrentUser),
-        switchMap(({ userId }) =>
-          this.userService.getById(userId).pipe(
-            map(user => UsersApiActions.loadCurrentUserSuccess({ user })),
-            catchError(error => of(UsersApiActions.loadCurrentUserFailure({ error })))
-          )
-        )
-      )
-    );
 }

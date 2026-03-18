@@ -238,6 +238,7 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
         this.endTimeString = `${year}-${month}-${day}T${endTime}`;
         this.endDateValue = new Date(this.endTimeString);
         this.endTimeValue = new Date(this.endTimeString);
+        this.endDateChange.emit(this.endTimeString);
       }
 
       this.updateFormValues();

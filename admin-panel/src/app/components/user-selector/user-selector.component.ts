@@ -75,7 +75,7 @@ export class UserSelectorComponent implements OnInit, OnChanges {
     );
   });
   readonly selectedUsers = computed(() =>
-    this.initialSelectedUsers().filter((u) => this.allowedUsers().includes(u)),
+    this.initialSelectedUsers().filter((u) => this.allowedUsers().map((user) => user.userId).includes(u.userId)),
   );
 
   constructor() {

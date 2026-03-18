@@ -319,6 +319,8 @@ export class UsersPageComponent extends PageBaseComponent {
   editGroup(form: {
     data: { id: string; groupName: string; members: string[], delete: boolean };
   }) {
+    if(!form?.data) return;
+    
     if(form.data.delete){
       this.store.dispatch(UsersActions.removeUserGroup({ groupId: form.data.id }));
       this.triggerLoading('deleteUserGroup');

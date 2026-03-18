@@ -507,7 +507,7 @@ namespace lsa_web_apis.Controllers
         [HttpPost]
         [Authorize(Roles = "Admin,CalendarManager")]
         [Route("addEvent")]
-        public async Task<ActionResult> AddEvent(CalendarEventDto request)
+        public async Task<ActionResult<CalendarEventDto>> AddEvent(CalendarEventDto request)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(AddEvent), transactionId);
@@ -545,6 +545,7 @@ namespace lsa_web_apis.Controllers
                     CalendarId = request.CalendarId,
                     StartTime = request.Start!.Replace("T", " "),
                     AllDay = request.AllDay,
+                    Id = Guid.NewGuid()
                 };
 
                 if (!string.IsNullOrEmpty(request.End))
@@ -567,6 +568,8 @@ namespace lsa_web_apis.Controllers
 
                     _context.CalendarEventAssignees.AddRange(assignees);
                     await _context.SaveChangesAsync();
+
+                    calendarEvent.Assignees = assignees;
                 }
 
                 // Immediately send notifications for events happening within the next 14 days
@@ -610,7 +613,18 @@ namespace lsa_web_apis.Controllers
 
                 log.Info("Event created successfully for CalendarId: {CalendarId}", request.CalendarId);
 
-                return Ok();
+                var createdEventDto = new CalendarEventDto
+                {
+                    Id = calendarEvent.Id,
+                    Title = calendarEvent.Title,
+                    Description = calendarEvent.Description,
+                    CalendarId = calendarEvent.CalendarId,
+                    Start = calendarEvent.StartTime,
+                    End = calendarEvent.EndTime,
+                    AllDay = calendarEvent.AllDay,
+                    Assignees = request.Assignees
+                };
+                return Ok(createdEventDto);
             }
             catch (Exception ex)
             {
@@ -626,7 +640,7 @@ namespace lsa_web_apis.Controllers
         [HttpPut]
         [Authorize(Roles = "Admin,CalendarManager")]
         [Route("updateEvent")]
-        public async Task<ActionResult> UpdateEvent(CalendarEventDto request)
+        public async Task<ActionResult<CalendarEventDto>> UpdateEvent(CalendarEventDto request)
         {
             var transactionId = Guid.NewGuid();
             var log = CreateLogContext(nameof(UpdateEvent), transactionId);
@@ -689,7 +703,19 @@ namespace lsa_web_apis.Controllers
 
                 log.Info("Event updated successfully. EventId: {EventId}", request.Id);
 
-                return Ok();
+                var updatedEventDto = new CalendarEventDto
+                {
+                    Id = existingEvent.Id,
+                    Title = existingEvent.Title,
+                    Description = existingEvent.Description,
+                    CalendarId = existingEvent.CalendarId,
+                    Start = existingEvent.StartTime,
+                    End = existingEvent.EndTime,
+                    AllDay = existingEvent.AllDay,
+                    Assignees = [.. existingEvent.Assignees.Select(a => new UserDto { UserId = a.UserId })]
+                };
+
+                return Ok(updatedEventDto);
             }
             catch (Exception ex)
             {

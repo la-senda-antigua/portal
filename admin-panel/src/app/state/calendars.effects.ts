@@ -61,13 +61,71 @@ export class CalendarsEffects {
     loadCalendarEventsRange$ = createEffect(() =>
       this.actions$.pipe(
         ofType(CalendarsActions.loadCalendarEventsRange),
-        switchMap(({ cacheKey, startDate, endDate, calendarIds }) =>
+        mergeMap(({ startDate, endDate, calendarIds }) =>
           this.calendarsService.getEventsByDates(startDate, endDate, calendarIds).pipe(
             map(events =>
-              CalendarsApiActions.loadCalendarEventsRangeSuccess({ cacheKey, events }),
+              CalendarsApiActions.loadCalendarEventsRangeSuccess({
+                startDate,
+                endDate,
+                calendarIds,
+                events,
+              }),
             ),
             catchError(error =>
-              of(CalendarsApiActions.loadCalendarEventsRangeFailure({ error })),
+              of(
+                CalendarsApiActions.loadCalendarEventsRangeFailure({
+                  startDate,
+                  endDate,
+                  calendarIds,
+                  error,
+                }),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    updateEvent$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(CalendarsActions.updateEvent),
+        switchMap(({ event }) =>
+          this.calendarsService.updateEvent(event).pipe(
+            map(updatedEvent =>
+              CalendarsApiActions.updateEventSuccess({ event: updatedEvent }),
+            ),
+            catchError(error =>
+              of(CalendarsApiActions.updateEventFailure({ error })),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    addEvent$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(CalendarsActions.addEvent),
+        switchMap(({ event }) =>
+          this.calendarsService.addEvent(event).pipe(
+            map(newEvent =>
+              CalendarsApiActions.addEventSuccess({ event: newEvent }),
+            ),
+            catchError(error => of(CalendarsApiActions.addEventFailure({ error }))),
+          ),
+        ),
+      ),
+    );
+
+    removeEvent$ = createEffect(() =>
+      this.actions$.pipe(
+        ofType(CalendarsActions.removeEvent),
+        switchMap(({ eventId }) =>
+          this.calendarsService.deleteEvent(eventId).pipe(
+            map(() =>
+              CalendarsApiActions.removeEventSuccess({ eventId }),
+            ),
+            catchError(error =>
+              of(CalendarsApiActions.removeEventFailure({ error })),
             ),
           ),
         ),

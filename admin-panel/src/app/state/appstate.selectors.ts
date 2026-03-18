@@ -4,6 +4,11 @@ import { UserGroup } from '../models/UserGroup';
 import { Calendar, CalendarDto } from '../models/CalendarDto';
 import { CalendarEvent } from '../models/CalendarEvent';
 
+export interface LoadedDateRange {
+  startDate: string;
+  endDate: string;
+}
+
 export interface AppState {
   users: PortalUser[];
   userGroups: UserGroup[];
@@ -17,6 +22,8 @@ export interface AppState {
   error: string | null;
   currentUser: PortalUser | null;
   calendarEventsByRange: Record<string, CalendarEvent[]>;
+  loadedEventRangesByCalendarId: Record<string, LoadedDateRange[]>;
+  loadingEventRangesByCalendarId: Record<string, LoadedDateRange[]>;
   loadingCalendarEvents: boolean;
 }
 
@@ -72,20 +79,22 @@ export const selectCalendarEventsByRange = createSelector(
   (state) => state.calendarEventsByRange,
 );
 
+export const selectLoadedEventRangesByCalendarId = createSelector(
+  selectAppState,
+  (state) => state.loadedEventRangesByCalendarId,
+);
+
+export const selectLoadingEventRangesByCalendarId = createSelector(
+  selectAppState,
+  (state) => state.loadingEventRangesByCalendarId,
+);
+
 export const selectCalendarEventsLoading = createSelector(
   selectAppState,
   (state) => state.loadingCalendarEvents,
 );
 
-export const selectCalendarEventsForKey = (cacheKey: string) =>
-  createSelector(selectCalendarEventsByRange, (byRange) => byRange[cacheKey] ?? []);
-
 export const selectError = createSelector(
   selectAppState,
   (state) => state.error,
-);
-
-export const selectCurrentUser = createSelector(
-  selectAppState,
-  (state) => state.currentUser,
 );

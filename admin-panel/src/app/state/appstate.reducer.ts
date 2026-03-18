@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { AppState } from './appstate.selectors';
+import { AppState, LoadedDateRange } from './appstate.selectors';
 import { CalendarsActions, CalendarsApiActions } from './calendars.actions';
 import { UsersActions, UsersApiActions } from './users.actions';
 import {
@@ -15,6 +15,45 @@ import {
   updateCalendar,
   removeCalendar,
 } from './appstate.reducer.helpers';
+import { CalendarEvent } from '../models/CalendarEvent';
+
+const compareRanges = (a: LoadedDateRange, b: LoadedDateRange): number =>
+  a.startDate.localeCompare(b.startDate);
+
+const mergeRanges = (ranges: LoadedDateRange[]): LoadedDateRange[] => {
+  if (!ranges.length) {
+    return [];
+  }
+
+  const sorted = [...ranges].sort(compareRanges);
+  const merged: LoadedDateRange[] = [sorted[0]];
+
+  for (let i = 1; i < sorted.length; i++) {
+    const current = sorted[i];
+    const last = merged[merged.length - 1];
+
+    if (current.startDate <= last.endDate) {
+      merged[merged.length - 1] = {
+        startDate: last.startDate,
+        endDate:
+          current.endDate > last.endDate ? current.endDate : last.endDate,
+      };
+      continue;
+    }
+
+    merged.push(current);
+  }
+
+  return merged;
+};
+
+const removeRange = (
+  ranges: LoadedDateRange[],
+  target: LoadedDateRange,
+): LoadedDateRange[] =>
+  ranges.filter((r) => {
+    return !(r.startDate === target.startDate && r.endDate === target.endDate);
+  });
 
 const initialState: AppState = {
   users: [],
@@ -29,6 +68,8 @@ const initialState: AppState = {
   error: null,
   currentUser: null,
   calendarEventsByRange: {},
+  loadedEventRangesByCalendarId: {},
+  loadingEventRangesByCalendarId: {},
   loadingCalendarEvents: false,
 };
 
@@ -51,12 +92,6 @@ export const appStateReducer = createReducer(
   on(UsersActions.removeUser, (state) => ({
     ...state,
     loadingUsers: true,
-  })),
-  on(UsersApiActions.loadCurrentUserSuccess, (state, { user }) => ({
-    ...state,
-    currentUser: user,
-    loadingUsers: false,
-    error: null,
   })),
 
   // User Group Actions
@@ -95,29 +130,39 @@ export const appStateReducer = createReducer(
     loadingCalendars: true,
   })),
 
-  //Calendar Events Actions
-    on(CalendarsActions.loadCalendarEventsRange, (state) => ({
+  // Calendar Events Actions
+  on(
+    CalendarsActions.loadCalendarEventsRange,
+    (state, { startDate, endDate, calendarIds }) => {
+      const requestedRange: LoadedDateRange = { startDate, endDate };
+      const nextLoadingByCalendar = { ...state.loadingEventRangesByCalendarId };
+
+      calendarIds.forEach((calendarId) => {
+        const currentRanges = nextLoadingByCalendar[calendarId] ?? [];
+        nextLoadingByCalendar[calendarId] = mergeRanges([
+          ...currentRanges,
+          requestedRange,
+        ]);
+      });
+
+      return {
+        ...state,
+        loadingEventRangesByCalendarId: nextLoadingByCalendar,
+        loadingCalendarEvents: true,
+      };
+    },
+  ),
+  on(CalendarsActions.updateEvent, (state) => ({
     ...state,
     loadingCalendarEvents: true,
   })),
-
-  on(
-    CalendarsApiActions.loadCalendarEventsRangeSuccess,
-    (state, { cacheKey, events }) => ({
-      ...state,
-      loadingCalendarEvents: false,
-      calendarEventsByRange: {
-        ...state.calendarEventsByRange,
-        [cacheKey]: events,
-      },
-      error: null,
-    }),
-  ),
-
-  on(CalendarsApiActions.loadCalendarEventsRangeFailure, (state, { error }) => ({
+  on(CalendarsActions.addEvent, (state) => ({
     ...state,
-    loadingCalendarEvents: false,
-    error,
+    loadingCalendarEvents: true,
+  })),
+  on(CalendarsActions.removeEvent, (state) => ({
+    ...state,
+    loadingCalendarEvents: true,
   })),
 
   // User Success Actions
@@ -255,6 +300,112 @@ export const appStateReducer = createReducer(
     };
   }),
 
+  // Calendar Events Success Actions
+  on(
+    CalendarsApiActions.loadCalendarEventsRangeSuccess,
+    (state, { startDate, endDate, calendarIds, events }) => {
+      const coveredRange: LoadedDateRange = { startDate, endDate };
+      const nextLoadedByCalendar = { ...state.loadedEventRangesByCalendarId };
+      const nextLoadingByCalendar = { ...state.loadingEventRangesByCalendarId };
+      const nextEventsByCalendar = { ...state.calendarEventsByRange };
+
+      calendarIds.forEach((calendarId) => {
+        nextLoadedByCalendar[calendarId] = mergeRanges([
+          ...(nextLoadedByCalendar[calendarId] ?? []),
+          coveredRange,
+        ]);
+        nextLoadingByCalendar[calendarId] = removeRange(
+          nextLoadingByCalendar[calendarId] ?? [],
+          coveredRange,
+        );
+
+        const incomingForCalendar = events.filter(
+          (event) => event.calendarId === calendarId,
+        );
+        nextEventsByCalendar[calendarId] = [...(nextEventsByCalendar[calendarId] ?? []), ...incomingForCalendar];
+      });
+
+      return {
+        ...state,
+        calendarEventsByRange: nextEventsByCalendar,
+        loadedEventRangesByCalendarId: nextLoadedByCalendar,
+        loadingEventRangesByCalendarId: nextLoadingByCalendar,
+        loadingCalendarEvents: Object.values(nextLoadingByCalendar).some(
+          (ranges) => ranges.length > 0,
+        ),
+        error: null,
+      };
+    },
+  ),
+  on(CalendarsApiActions.updateEventSuccess, (state, { event }) => {
+    const updatedCalendarEventsByRange = Object.fromEntries(
+      Object.entries(state.calendarEventsByRange).map(([key, events]) => [
+        key,
+        events.map((e) => (e.id === event.id ? event : e)),
+      ]),
+    );
+
+    return {
+      ...state,
+      calendarEventsByRange: updatedCalendarEventsByRange,
+      loadingCalendarEvents: false,
+      error: null,
+    };
+  }),
+  on(CalendarsApiActions.addEventSuccess, (state, { event }) => {
+    const updatedCalendarEventsByRange = {
+      ...state.calendarEventsByRange,
+      [event.calendarId]: [
+        ...(state.calendarEventsByRange[event.calendarId] || []),
+        event,
+      ],
+    };
+
+    return {
+      ...state,
+      calendarEventsByRange: updatedCalendarEventsByRange,
+      loadingCalendarEvents: false,
+      error: null,
+    };
+  }),
+  on(CalendarsApiActions.removeEventSuccess, (state, { eventId }) => {
+    const updatedCalendarEventsByRange = Object.fromEntries(
+      Object.entries(state.calendarEventsByRange).map(([key, events]) => [
+        key,
+        events.filter((e) => e.id !== eventId),
+      ]),
+    );
+
+    return {
+      ...state,
+      calendarEventsByRange: updatedCalendarEventsByRange,
+      loadingCalendarEvents: false,
+      error: null,
+    };
+  }),
+  on(
+    CalendarsApiActions.loadCalendarEventsRangeFailure,
+    (state, { startDate, endDate, calendarIds }) => {
+      const requestedRange: LoadedDateRange = { startDate, endDate };
+      const nextLoadingByCalendar = { ...state.loadingEventRangesByCalendarId };
+
+      calendarIds.forEach((calendarId) => {
+        nextLoadingByCalendar[calendarId] = removeRange(
+          nextLoadingByCalendar[calendarId] ?? [],
+          requestedRange,
+        );
+      });
+
+      return {
+        ...state,
+        loadingEventRangesByCalendarId: nextLoadingByCalendar,
+        loadingCalendarEvents: Object.values(nextLoadingByCalendar).some(
+          (ranges) => ranges.length > 0,
+        ),
+      };
+    },
+  ),
+
   // Failure Actions
   on(
     UsersApiActions.loadUsersFailure,
@@ -269,11 +420,15 @@ export const appStateReducer = createReducer(
     CalendarsApiActions.addCalendarFailure,
     CalendarsApiActions.updateCalendarFailure,
     CalendarsApiActions.removeCalendarFailure,
+    CalendarsApiActions.updateEventFailure,
+    CalendarsApiActions.addEventFailure,
+    CalendarsApiActions.removeEventFailure,
     (state, { error }) => ({
       ...state,
       loadingUsers: false,
       loadingGroups: false,
       loadingCalendars: false,
+      loadingCalendarEvents: false,
       error: error?.message || 'An error occurred while loading data.',
     }),
   ),
