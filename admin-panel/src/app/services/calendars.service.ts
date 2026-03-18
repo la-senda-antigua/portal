@@ -44,7 +44,7 @@ export class CalendarsService extends GeneralServiceBase {
     return this.requestManager.delete<void>(url);
   }
 
-  deleteEvent(id: number): Observable<void> {
+  deleteEvent(id: string): Observable<void> {
     const url = `${this.apiUrl}/events/${id}`;
     return this.requestManager.delete<void>(url);
   }

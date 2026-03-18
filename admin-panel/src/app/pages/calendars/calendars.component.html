@@ -15,7 +15,7 @@
       </button>
     </div>
 
-    @if (calendarListLoading()) {
+    @if (sidebarLoading()) {
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     } @else {
       <mat-checkbox
@@ -76,6 +76,6 @@
       [class.invisible]="!calendarEventsLoading()"
     ></mat-progress-bar>
 
-    <full-calendar [options]="calendarOptions"></full-calendar>
+    <full-calendar [options]="calendarOptions" [events]="filteredEvents()"></full-calendar>
   </div>
 </div>

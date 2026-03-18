@@ -10,7 +10,6 @@ export const CalendarsActions = createActionGroup({
         'Remove Calendar': props<{ calendarId: string }>(),
         'Update Calendar': props<{ calendarId: string; calendar: CalendarDto }>(),
         'Load Calendar Events Range': props<{
-          cacheKey: string;
           startDate: string;
           endDate: string;
           calendarIds: string[];
@@ -36,10 +35,17 @@ export const CalendarsApiActions = createActionGroup({
         }>(),
         'Update Calendar Failure': props<{ error: any }>(),
         'Load Calendar Events Range Success': props<{
-          cacheKey: string;
+                    startDate: string;
+                    endDate: string;
+                    calendarIds: string[];
           events: CalendarEvent[];
         }>(),
-        'Load Calendar Events Range Failure': props<{ error: any }>(),
+                'Load Calendar Events Range Failure': props<{
+                    startDate: string;
+                    endDate: string;
+                    calendarIds: string[];
+                    error: any;
+                }>(),
         'Update Event Success': props<{ event: CalendarEvent }>(),
         'Update Event Failure': props<{ error: any }>(),
         'Add Event Success': props<{ event: CalendarEvent }>(),

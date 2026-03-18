@@ -29,7 +29,7 @@ export class EventOptionsComponent {
     }
 
     if (data.end) {
-      data.endDateObject = new Date(`${data.date}T${data.end}:00`);
+      data.endDateObject = new Date(`${data.endDate}T${data.end}:00`);
     }
   }
 

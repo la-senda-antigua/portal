@@ -613,7 +613,18 @@ namespace lsa_web_apis.Controllers
 
                 log.Info("Event created successfully for CalendarId: {CalendarId}", request.CalendarId);
 
-                return Ok(calendarEvent);
+                var createdEventDto = new CalendarEventDto
+                {
+                    Id = calendarEvent.Id,
+                    Title = calendarEvent.Title,
+                    Description = calendarEvent.Description,
+                    CalendarId = calendarEvent.CalendarId,
+                    Start = calendarEvent.StartTime,
+                    End = calendarEvent.EndTime,
+                    AllDay = calendarEvent.AllDay,
+                    Assignees = request.Assignees
+                };
+                return Ok(createdEventDto);
             }
             catch (Exception ex)
             {
