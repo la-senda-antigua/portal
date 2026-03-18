@@ -136,8 +136,14 @@ export class CalendarsComponent {
       .filter((event) => this.selectedCalendars().includes(event.calendarId))
       .forEach((event) => {
         const uniqueKey = buildEventUniqueKey(event);
-        if (dedupedEvents.has(uniqueKey)) {
-          return;
+        const existing = dedupedEvents.get(uniqueKey);
+
+        if (existing) {
+          const existingStart = existing.start?.toString() ?? '';
+          const candidateStart = event.start ?? '';
+          if (candidateStart >= existingStart) {
+            return;
+          }
         }
 
         dedupedEvents.set(

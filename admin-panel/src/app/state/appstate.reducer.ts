@@ -55,27 +55,6 @@ const removeRange = (
     return !(r.startDate === target.startDate && r.endDate === target.endDate);
   });
 
-const upsertEventsById = (
-  existing: CalendarEvent[],
-  incoming: CalendarEvent[],
-): CalendarEvent[] => {
-  const map = new Map<string, CalendarEvent>();
-
-  existing.forEach((event) => {
-    if (event.id) {
-      map.set(event.id, event);
-    }
-  });
-
-  incoming.forEach((event) => {
-    if (event.id) {
-      map.set(event.id, event);
-    }
-  });
-
-  return Array.from(map.values());
-};
-
 const initialState: AppState = {
   users: [],
   userGroups: [],
@@ -343,10 +322,7 @@ export const appStateReducer = createReducer(
         const incomingForCalendar = events.filter(
           (event) => event.calendarId === calendarId,
         );
-        nextEventsByCalendar[calendarId] = upsertEventsById(
-          nextEventsByCalendar[calendarId] ?? [],
-          incomingForCalendar,
-        );
+        nextEventsByCalendar[calendarId] = [...(nextEventsByCalendar[calendarId] ?? []), ...incomingForCalendar];
       });
 
       return {
