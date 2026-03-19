@@ -36,6 +36,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   bool canCreateEvents = false;
   String? currentUserId;
 
+  bool _isAdmin = false;
+
   DateTime currentDate = DateTime.now();
   String? previousDate;
   String? nextDate;
@@ -394,6 +396,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   List<Calendar> get _managedCalendarsForCurrentUser {
+    if (_isAdmin) {
+      return calendars;
+    }
     final userId = currentUserId?.trim().toLowerCase();
     if (userId == null || userId.isEmpty) {
       return const [];
@@ -530,10 +535,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       debugPrint('--- User role: $r');
     }
 
+    final isAdmin = normalizedRoles.contains('admin');
     if (!mounted) return;
     setState(() {
+      _isAdmin = isAdmin;
       canCreateEvents =
-          normalizedRoles.contains('admin') ||
+          isAdmin ||
           normalizedRoles.contains('calendarmanager');
     });
   }
@@ -693,7 +700,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                     onEventTap: (event) {},
                     onEditEvent: _editEvent,
                     onDeleteEvent: _deleteEvent,
-                    managedCalendarIds: _managedCalendarsForCurrentUser.map((c) => c.id).toSet(),
+                    managedCalendarIds: _isAdmin
+                        ? calendars.map((c) => c.id).toSet()
+                        : _managedCalendarsForCurrentUser.map((c) => c.id).toSet(),
                     showDate: viewMode == 'month',
                   ),
           ),
