@@ -283,13 +283,30 @@ class _AddEventModalState extends State<AddEventModal> {
 		);
 		if (picked == null) return;
 		setState(() {
+			final prevStart = _startDateTime;
 			_startDateTime = DateTime(
 				picked.year, picked.month, picked.day,
 				_startDateTime.hour, _startDateTime.minute,
 			);
-			// Ajustar fin si queda antes del inicio
-			if (_endDateTime != null && _endDateTime!.isBefore(_startDateTime)) {
-				_endDateTime = _startDateTime.add(const Duration(hours: 1));
+			if (_endDateTime != null && _endDateTime!.isBefore(_startDateTime)) {				
+				final isAddNew = widget.initialData == null;
+				if (isAddNew) {
+					_endDateTime = _startDateTime.add(const Duration(hours: 1));
+				} else {					
+					_endDateTime = DateTime(
+						_startDateTime.year,
+						_startDateTime.month,
+						_startDateTime.day,
+						_endDateTime!.hour,
+						_endDateTime!.minute,
+					);					
+					if (_endDateTime!.isBefore(_startDateTime)) {
+						final originalDuration = _endDateTime!.difference(prevStart);
+						_endDateTime = _startDateTime.add(
+							originalDuration > Duration.zero ? originalDuration : const Duration(hours: 1),
+						);
+					}
+				}
 			}
 		});
 		_checkAvailability();
@@ -316,12 +333,30 @@ class _AddEventModalState extends State<AddEventModal> {
 		);
 		if (picked == null) return;
 		setState(() {
+			final prevStart = _startDateTime;
 			_startDateTime = DateTime(
 				_startDateTime.year, _startDateTime.month, _startDateTime.day,
 				picked.hour, picked.minute,
 			);
 			if (_endDateTime != null && _endDateTime!.isBefore(_startDateTime)) {
-				_endDateTime = _startDateTime.add(const Duration(hours: 1));
+				final isAddNew = widget.initialData == null;
+				if (isAddNew) {
+					_endDateTime = _startDateTime.add(const Duration(hours: 1));
+				} else {
+					_endDateTime = DateTime(
+						_startDateTime.year,
+						_startDateTime.month,
+						_startDateTime.day,
+						_endDateTime!.hour,
+						_endDateTime!.minute,
+					);
+					if (_endDateTime!.isBefore(_startDateTime)) {
+						final originalDuration = _endDateTime!.difference(prevStart);
+						_endDateTime = _startDateTime.add(
+							originalDuration > Duration.zero ? originalDuration : const Duration(hours: 1),
+						);
+					}
+				}
 			}
 		});
 		_checkAvailability();

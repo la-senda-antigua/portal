@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:lsa_calendar_app/l10n/app_localizations.dart';
@@ -109,7 +108,6 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     }
   }
 
-  /// Maneja el flujo de agregar, editar y copiar eventos de forma unificada.
   Future<void> _eventFlow({Event? event}) async {
     final localization = AppLocalizations.of(context)!;
     final manageCalendars = _managedCalendarsForCurrentUser;
@@ -128,16 +126,15 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     if (isEdit) {
       prefill = AddEventModalInitialData.fromEvent(event!);
       eventId = event.id;
-    } else {
-      final now = DateTime.now();
+    } else {      
       if (viewMode == 'day') {
         prefill = AddEventModalInitialData(
           start: DateTime(
             currentDate.year,
             currentDate.month,
             currentDate.day,
-            now.hour,
-            now.minute,
+            9,
+            0,
           ),
         );
       } else if (viewMode == 'month') {
@@ -146,8 +143,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
             currentDate.year,
             currentDate.month,
             1,
-            now.hour,
-            now.minute,
+            9,
+            0,
           ),
         );
       }
