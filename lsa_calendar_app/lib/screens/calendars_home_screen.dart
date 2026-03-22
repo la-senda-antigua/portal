@@ -55,7 +55,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     return '$yyyy-$mm-${dd}T$hh:$min:$ss';
   }
 
-  Future<void> _saveEvent(AddEventModalResult result) async {
+  Future<void> _persistEvent({
+    required AddEventModalResult result,
+    Event? originalEvent,
+  }) async {
     final calendarId = result.calendarId;
     if (calendarId == null || calendarId.isEmpty) {
       return;
@@ -68,8 +71,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     late final DateTime normalizedEnd;
 
     if (result.allDay) {
-      normalizedStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
-      normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
+      normalizedStart = DateTime(startDate.year,startDate.month,startDate.day,0,0,0,0);
+      normalizedEnd = DateTime(endDate.year,endDate.month,endDate.day,23,59,59,);
     } else {
       normalizedStart = startDate;
       normalizedEnd = endDate.isBefore(startDate)
@@ -97,39 +100,66 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
           .toList(),
     };
 
-    await ApiService.post('/calendars/addEvent', body: payload);
+    final idValue = result.eventId ?? originalEvent?.id;
+    if (idValue != null) {
+      payload['id'] = idValue;
+      await ApiService.put('/calendars/updateEvent', body: payload);
+    } else {
+      await ApiService.post('/calendars/addEvent', body: payload);
+    }
   }
 
-  Future<void> _openAddEventFlow() async {
+  /// Maneja el flujo de agregar, editar y copiar eventos de forma unificada.
+  Future<void> _eventFlow({Event? event}) async {
     final localization = AppLocalizations.of(context)!;
     final manageCalendars = _managedCalendarsForCurrentUser;
     if (manageCalendars.isEmpty) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localization.noPermission)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(localization.noPermission)));
       return;
     }
 
-    AddEventModalInitialData? prefill;    
-    if (viewMode == 'day') {
+    AddEventModalInitialData? prefill;
+    String? eventId;
+    bool isEdit = event != null;
+
+    if (isEdit) {
+      prefill = AddEventModalInitialData.fromEvent(event!);
+      eventId = event.id;
+    } else {
       final now = DateTime.now();
-      prefill = AddEventModalInitialData(
-        start: DateTime(currentDate.year, currentDate.month, currentDate.day, now.hour, now.minute),
-      );
-    } else if (viewMode == 'month') {
-      final now = DateTime.now();
-      prefill = AddEventModalInitialData(
-        start: DateTime(currentDate.year, currentDate.month, 1, now.hour, now.minute),
-      );
+      if (viewMode == 'day') {
+        prefill = AddEventModalInitialData(
+          start: DateTime(
+            currentDate.year,
+            currentDate.month,
+            currentDate.day,
+            now.hour,
+            now.minute,
+          ),
+        );
+      } else if (viewMode == 'month') {
+        prefill = AddEventModalInitialData(
+          start: DateTime(
+            currentDate.year,
+            currentDate.month,
+            1,
+            now.hour,
+            now.minute,
+          ),
+        );
+      }
     }
 
+    bool isFirstCycle = true;
     while (mounted) {
       final result = await AddEventModal.show(
         context,
         calendars: manageCalendars,
         initialData: prefill,
-        eventId: null,
+        eventId: isEdit && isFirstCycle ? eventId : null,
       );
 
       if (result == null) {
@@ -138,79 +168,28 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
       try {
         setState(() => isLoadingEvents = true);
-        await _saveEvent(result);
+        await _persistEvent(
+          result: result,
+          originalEvent: isEdit && isFirstCycle ? event : null,
+        );
         setState(() {
-          currentDate = DateTime(result.start.year, result.start.month, result.start.day);
+          currentDate = DateTime(
+            result.start.year,
+            result.start.month,
+            result.start.day,
+          );
         });
         await fetchEvents();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.eventSaved)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(localization.eventSaved)));
       } catch (e) {
         if (!mounted) return;
         setState(() => isLoadingEvents = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.connectionError)),
-        );
-        return;
-      }
-
-      if (result.trigger != 'copy') {
-        return;
-      }
-
-      prefill = AddEventModalInitialData.fromResult(result);      
-    }
-  }
-
-  Future<void> _editEvent(Event event) async {
-    final localization = AppLocalizations.of(context)!;
-    final manageCalendars = _managedCalendarsForCurrentUser;
-    if (manageCalendars.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localization.noPermission)),
-      );
-      return;
-    }
-
-    AddEventModalInitialData? prefill;
-    bool isFirstCycle = true;
-
-    while (mounted) {
-      final result = await AddEventModal.show(
-        context,
-        calendars: manageCalendars,
-        initialData: prefill ?? AddEventModalInitialData.fromEvent(event),
-        eventId: prefill == null ? event.id : null, 
-      );
-
-      if (result == null) {
-        return;
-      }
-
-      try {
-        setState(() => isLoadingEvents = true);
-        if (isFirstCycle) {
-          await _updateEvent(result, event);
-        } else {
-          await _saveEvent(result);
-        }
-        setState(() {
-          currentDate = DateTime(result.start.year, result.start.month, result.start.day);
-        });
-        await fetchEvents();
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.eventSaved)),
-        );
-      } catch (e) {
-        if (!mounted) return;
-        setState(() => isLoadingEvents = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.connectionError)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(localization.connectionError)));
         return;
       }
 
@@ -223,15 +202,17 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     }
   }
 
+  Future<void> _editEvent(Event event) async {
+    await _eventFlow(event: event);
+  }
+
   Future<void> _deleteEvent(Event event) async {
     final localization = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(localization.deleteTitle),
-        content: Text(
-          localization.deleteConfirmation(event.displayTitle!),
-        ),
+        content: Text(localization.deleteConfirmation(event.displayTitle!)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -258,63 +239,19 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => isLoadingEvents = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localization.connectionError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(localization.connectionError)));
     }
-  }
-
-  Future<void> _updateEvent(AddEventModalResult result, Event originalEvent) async {
-    final calendarId = result.calendarId;
-    if (calendarId == null || calendarId.isEmpty) {
-      return;
-    }
-
-    final startDate = result.start;
-    final endDate = result.end ?? result.start.add(const Duration(hours: 1));
-
-    late final DateTime normalizedStart;
-    late final DateTime normalizedEnd;
-
-    if (result.allDay) {
-      normalizedStart = DateTime(startDate.year, startDate.month, startDate.day, 0, 0, 0);
-      normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59);
-    } else {
-      normalizedStart = startDate;
-      normalizedEnd = endDate.isBefore(startDate)
-          ? startDate.add(const Duration(hours: 1))
-          : endDate;
-    }
-
-    final payload = {
-      'id': result.eventId ?? originalEvent.id,
-      'title': result.title,
-      'description': result.description,
-      'calendarId': calendarId,
-      'start': _toApiDateTime(normalizedStart),
-      'end': _toApiDateTime(normalizedEnd),
-      'allDay': result.allDay,
-      'assignees': result.assignees
-          .map(
-            (user) => {
-              'userId': user.userId,
-              'username': user.username,
-              'name': user.name,
-              'lastName': user.lastName,
-              'role': user.role,
-            },
-          )
-          .toList(),
-    };
-
-    await ApiService.put('/calendars/updateEvent', body: payload);
   }
 
   Future<void> fetchCalendars() async {
     try {
       final data = await ApiService.get('/calendars/myCalendars');
       setState(() {
-        calendars = (data as List).map((json) => Calendar.fromJson(json)).toList();
+        calendars = (data as List)
+            .map((json) => Calendar.fromJson(json))
+            .toList();
       });
     } catch (e) {
       if (mounted) {
@@ -335,7 +272,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         'calendarIds': calendars.map((c) => c.id.toString()).toList(),
       };
 
-      final response = await ApiService.post('/calendars/GetEventsByMonth',body: body);     
+      final response = await ApiService.post(
+        '/calendars/GetEventsByMonth',
+        body: body,
+      );
 
       setState(() {
         events = [];
@@ -349,13 +289,18 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         }
 
         if (snapToFirst) {
-          final uniqueDates = events
-              .map((e) => "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}")
-              .toSet()
-              .toList()
-            ..sort();
-          final currentStr = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
-          if (uniqueDates.isNotEmpty && !uniqueDates.contains(currentStr)) {            
+          final uniqueDates =
+              events
+                  .map(
+                    (e) =>
+                        "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}",
+                  )
+                  .toSet()
+                  .toList()
+                ..sort();
+          final currentStr =
+              "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
+          if (uniqueDates.isNotEmpty && !uniqueDates.contains(currentStr)) {
             currentDate = DateTime.parse(uniqueDates.first);
           }
         }
@@ -376,12 +321,16 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   void _updateNavigationDates() {
     final uniqueDates =
         events
-            .map((e) => "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}")
+            .map(
+              (e) =>
+                  "${e.start.year}-${e.start.month.toString().padLeft(2, '0')}-${e.start.day.toString().padLeft(2, '0')}",
+            )
             .toSet()
             .toList()
           ..sort();
 
-    final currentStr = "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
+    final currentStr =
+        "${currentDate.year}-${currentDate.month.toString().padLeft(2, '0')}-${currentDate.day.toString().padLeft(2, '0')}";
     String? prev;
     String? next;
 
@@ -479,9 +428,14 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     await _loadViewMode();
     await fetchEvents();
 
-    final eventsOnDate = events.where((e) => 
-      e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day
-    ).toList();
+    final eventsOnDate = events
+        .where(
+          (e) =>
+              e.start.year == currentDate.year &&
+              e.start.month == currentDate.month &&
+              e.start.day == currentDate.day,
+        )
+        .toList();
 
     if (eventsOnDate.isEmpty) {
       final found = await _findAndSetNextEventDateFrom(currentDate);
@@ -491,11 +445,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   Future<bool> _findAndSetNextEventDateFrom(DateTime fromDate) async {
-    final uniqueDatesCurrent = events
-        .map((e) => DateTime(e.start.year, e.start.month, e.start.day))
-        .toSet()
-        .toList()
-      ..sort();
+    final uniqueDatesCurrent =
+        events
+            .map((e) => DateTime(e.start.year, e.start.month, e.start.day))
+            .toSet()
+            .toList()
+          ..sort();
 
     for (final d in uniqueDatesCurrent) {
       if (d.isAfter(DateTime(fromDate.year, fromDate.month, fromDate.day))) {
@@ -513,13 +468,20 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         'calendarIds': calendars.map((c) => c.id.toString()).toList(),
       };
       try {
-        final resp = await ApiService.post('/calendars/GetEventsByMonth', body: body);
+        final resp = await ApiService.post(
+          '/calendars/GetEventsByMonth',
+          body: body,
+        );
         final monthEvents = (resp as List)
             .map((json) => Event.fromJson(json))
             .toList();
         if (monthEvents.isNotEmpty) {
           monthEvents.sort((a, b) => a.start.compareTo(b.start));
-          final earliest = DateTime(monthEvents.first.start.year, monthEvents.first.start.month, monthEvents.first.start.day);
+          final earliest = DateTime(
+            monthEvents.first.start.year,
+            monthEvents.first.start.month,
+            monthEvents.first.start.day,
+          );
           setState(() => currentDate = earliest);
           _updateNavigationDates();
           return true;
@@ -537,7 +499,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
-      username = prefs.getString('username') ?? AppLocalizations.of(context)!.guestUser;
+      username =
+          prefs.getString('username') ??
+          AppLocalizations.of(context)!.guestUser;
       avatar = prefs.getString('avatar');
       email = prefs.getString('email');
     });
@@ -560,9 +524,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     if (!mounted) return;
     setState(() {
       _isAdmin = isAdmin;
-      canCreateEvents =
-          isAdmin ||
-          normalizedRoles.contains('calendarmanager');
+      canCreateEvents = isAdmin || normalizedRoles.contains('calendarmanager');
     });
   }
 
@@ -619,20 +581,29 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('--- Build. CurrentDate: $currentDate. Events: ${events.length}');
-    
+    debugPrint(
+      '--- Build. CurrentDate: $currentDate. Events: ${events.length}',
+    );
+
     final eventsToShow = viewMode == 'day'
-        ? events.where((e) =>
-            e.start.year == currentDate.year && e.start.month == currentDate.month && e.start.day == currentDate.day
-          ).toList()
+        ? events
+              .where(
+                (e) =>
+                    e.start.year == currentDate.year &&
+                    e.start.month == currentDate.month &&
+                    e.start.day == currentDate.day,
+              )
+              .toList()
         : events;
 
     final visibleEvents = eventsToShow.where((e) {
-      final matchesCalendar = selectedCalendarIds == null || selectedCalendarIds!.contains(e.calendarId);
+      final matchesCalendar =
+          selectedCalendarIds == null ||
+          selectedCalendarIds!.contains(e.calendarId);
       return matchesCalendar;
     }).toList();
 
-    if (viewMode == 'month') {      
+    if (viewMode == 'month') {
       final calendarNames = {for (var c in calendars) c.id.toString(): c.name};
       visibleEvents.sort((a, b) {
         final nameA = calendarNames[a.calendarId] ?? '';
@@ -668,17 +639,19 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       drawer: CalendarsDrawer(
         calendars: calendars,
         viewMode: viewMode,
-        onSelectedCalendarsChanged: (ids) => setState(() => selectedCalendarIds = ids),
+        onSelectedCalendarsChanged: (ids) =>
+            setState(() => selectedCalendarIds = ids),
         onViewModeChanged: (mode) {
           setState(() => viewMode = mode);
           _saveViewMode(mode);
         },
       ),
       onDrawerChanged: (isOpened) {},
-      floatingActionButton: (canCreateEvents && _managedCalendarsForCurrentUser.isNotEmpty)
+      floatingActionButton:
+          (canCreateEvents && _managedCalendarsForCurrentUser.isNotEmpty)
           ? FloatingActionButton(
               onPressed: () async {
-                await _openAddEventFlow();
+                await _eventFlow();
               },
               tooltip: AppLocalizations.of(context)!.addNewEvent,
               child: const Icon(Icons.add),
@@ -723,7 +696,9 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                     onDeleteEvent: _deleteEvent,
                     managedCalendarIds: _isAdmin
                         ? calendars.map((c) => c.id).toSet()
-                        : _managedCalendarsForCurrentUser.map((c) => c.id).toSet(),
+                        : _managedCalendarsForCurrentUser
+                              .map((c) => c.id)
+                              .toSet(),
                     showDate: viewMode == 'month',
                   ),
           ),

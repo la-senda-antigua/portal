@@ -473,9 +473,11 @@ namespace lsa_web_apis.Controllers
 
                     var intersectionStart = start.Date < request.StartDate?.Date ? request.StartDate.Value.Date : start.Date;
                     var intersectionEnd = end.Date > request.EndDate?.Date ? request.EndDate.Value.Date : end.Date;
+                    var totalDays = (intersectionEnd - intersectionStart).Days + 1;
 
                     for (var date = intersectionStart; date <= intersectionEnd; date = date.AddDays(1))
                     {
+                        var currentDay = (date - intersectionStart).Days + 1;
                         result.Add(new CalendarEventDto
                         {
                             Id = e.Id,
@@ -488,7 +490,9 @@ namespace lsa_web_apis.Controllers
                             Conflicts = conflicts,
                             Assignees = e.Assignees,
                             DisplayTitle = !string.IsNullOrWhiteSpace(e.Title) ? e.Title :
-                                           string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}"))
+                                           string.Join(", ", e.Assignees.Select(a => $"{a.Name} {a.LastName}")),
+                            CurrentDay = currentDay,
+                            TotalDays = totalDays,
                         });
                     }
                 }
