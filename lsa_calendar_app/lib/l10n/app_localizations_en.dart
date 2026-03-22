@@ -163,7 +163,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit => 'Edit';
 
   @override
-  String get delete => 'Delete';
+  String get deleteTitle => 'Delete';
+
+  @override
+  String deleteConfirmation(Object displayTitle) {
+    return 'Are you sure you want to delete the event $displayTitle?';
+  }
 
   @override
   String get deleted => 'deleted';

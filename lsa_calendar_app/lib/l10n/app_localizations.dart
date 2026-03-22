@@ -380,11 +380,17 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get edit;
 
-  /// No description provided for @delete.
+  /// No description provided for @deleteTitle.
   ///
   /// In en, this message translates to:
   /// **'Delete'**
-  String get delete;
+  String get deleteTitle;
+
+  /// No description provided for @deleteConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the event {displayTitle}?'**
+  String deleteConfirmation(Object displayTitle);
 
   /// No description provided for @deleted.
   ///

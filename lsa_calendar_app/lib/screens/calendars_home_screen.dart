@@ -101,16 +101,26 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   Future<void> _openAddEventFlow() async {
+    final localization = AppLocalizations.of(context)!;
     final manageCalendars = _managedCalendarsForCurrentUser;
     if (manageCalendars.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.noPermission)),
+        SnackBar(content: Text(localization.noPermission)),
       );
       return;
     }
 
     AddEventModalInitialData? prefill;
+    if (viewMode == 'day') {
+      prefill = AddEventModalInitialData(
+        start: DateTime(currentDate.year, currentDate.month, currentDate.day),
+      );
+    } else if (viewMode == 'month') {
+      prefill = AddEventModalInitialData(
+        start: DateTime(currentDate.year, currentDate.month, 1),
+      );
+    }
 
     while (mounted) {
       final result = await AddEventModal.show(
@@ -132,13 +142,13 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         await fetchEvents();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.eventSaved)),
+          SnackBar(content: Text(localization.eventSaved)),
         );
       } catch (e) {
         if (!mounted) return;
         setState(() => isLoadingEvents = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.connectionError)),
+          SnackBar(content: Text(localization.connectionError)),
         );
         return;
       }
@@ -152,11 +162,12 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   Future<void> _editEvent(Event event) async {
+    final localization = AppLocalizations.of(context)!;
     final manageCalendars = _managedCalendarsForCurrentUser;
     if (manageCalendars.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.noPermission)),
+        SnackBar(content: Text(localization.noPermission)),
       );
       return;
     }
@@ -184,13 +195,13 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         await fetchEvents();
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.eventSaved)),
+          SnackBar(content: Text(localization.eventSaved)),
         );
       } catch (e) {
         if (!mounted) return;
         setState(() => isLoadingEvents = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.connectionError)),
+          SnackBar(content: Text(localization.connectionError)),
         );
         return;
       }
@@ -204,21 +215,22 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   }
 
   Future<void> _deleteEvent(Event event) async {
+    final localization = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.delete),
+        title: Text(localization.deleteTitle),
         content: Text(
-          '${AppLocalizations.of(context)!.delete} "${event.title}"?',
+          localization.deleteConfirmation(event.displayTitle!),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(localization.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.delete),
+            child: Text(localization.deleteTitle),
           ),
         ],
       ),
@@ -232,13 +244,13 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       await fetchEvents();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${event.title} ${AppLocalizations.of(context)!.deleted}')),
+        SnackBar(content: Text('${event.title} ${localization.deleted}')),
       );
     } catch (e) {
       if (!mounted) return;
       setState(() => isLoadingEvents = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.connectionError)),
+        SnackBar(content: Text(localization.connectionError)),
       );
     }
   }

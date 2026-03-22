@@ -7,6 +7,7 @@ import 'package:lsa_calendar_app/models/calendar.dart';
 import 'package:lsa_calendar_app/models/event.dart';
 import 'package:lsa_calendar_app/models/user_group.dart';
 import 'package:lsa_calendar_app/services/api_service.dart';
+import 'package:intl/intl.dart';
 
 class AddEventModalResult {
 	final String? calendarId;
@@ -377,8 +378,9 @@ class _AddEventModalState extends State<AddEventModal> {
 		_checkAvailability();
 	}
 
-	String _formatDate(DateTime dt) {
-		return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+	String _formatDate(DateTime dt) {		
+		final locale = Localizations.localeOf(context).toString();
+		return DateFormat.yMd(locale).format(dt);
 	}
 
 	String _formatTime(DateTime dt) {

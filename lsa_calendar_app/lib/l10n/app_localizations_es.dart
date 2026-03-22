@@ -164,7 +164,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get edit => 'Editar';
 
   @override
-  String get delete => 'Eliminar';
+  String get deleteTitle => 'Eliminar';
+
+  @override
+  String deleteConfirmation(Object displayTitle) {
+    return '¿Está seguro de querer eliminar el evento $displayTitle?';
+  }
 
   @override
   String get deleted => 'eliminado';

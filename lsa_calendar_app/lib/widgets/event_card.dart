@@ -286,7 +286,7 @@ class _EventCardState extends State<EventCard> {
                   backgroundColor: AppColors.danger,
                   foregroundColor: AppColors.light,
                   icon: Icons.delete,
-                  label: AppLocalizations.of(context)!.delete,
+                  label: AppLocalizations.of(context)!.deleteTitle,
                 ),
             ],
           ),
