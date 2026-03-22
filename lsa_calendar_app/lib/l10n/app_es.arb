@@ -48,7 +48,7 @@
   "edit": "Editar",
   "deleteTitle": "Eliminar",
   "deleteConfirmation": "¿Está seguro de querer eliminar el evento {displayTitle}?",
-  "deleted": "eliminado",
+  "deleted": "Elemento eliminado correctamente",
   "startDate": "Fecha de inicio",
   "startTime": "Hora de inicio",
   "endDate": "Fecha de fin",

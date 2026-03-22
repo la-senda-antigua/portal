@@ -48,7 +48,7 @@
   "edit": "Edit",
   "deleteTitle": "Delete",
   "deleteConfirmation": "Are you sure you want to delete the event {displayTitle}?",
-  "deleted": "deleted",
+  "deleted": "Item deleted successfully.",
   "startDate": "Start date",
   "startTime": "Start time",
   "endDate": "End date",

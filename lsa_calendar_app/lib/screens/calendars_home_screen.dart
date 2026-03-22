@@ -111,14 +111,16 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       return;
     }
 
-    AddEventModalInitialData? prefill;
+    AddEventModalInitialData? prefill;    
     if (viewMode == 'day') {
+      final now = DateTime.now();
       prefill = AddEventModalInitialData(
-        start: DateTime(currentDate.year, currentDate.month, currentDate.day),
+        start: DateTime(currentDate.year, currentDate.month, currentDate.day, now.hour, now.minute),
       );
     } else if (viewMode == 'month') {
+      final now = DateTime.now();
       prefill = AddEventModalInitialData(
-        start: DateTime(currentDate.year, currentDate.month, 1),
+        start: DateTime(currentDate.year, currentDate.month, 1, now.hour, now.minute),
       );
     }
 
@@ -127,6 +129,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         context,
         calendars: manageCalendars,
         initialData: prefill,
+        eventId: null,
       );
 
       if (result == null) {
@@ -157,7 +160,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         return;
       }
 
-      prefill = AddEventModalInitialData.fromResult(result);
+      prefill = AddEventModalInitialData.fromResult(result);      
     }
   }
 
@@ -173,13 +176,14 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
     }
 
     AddEventModalInitialData? prefill;
+    bool isFirstCycle = true;
 
     while (mounted) {
       final result = await AddEventModal.show(
         context,
         calendars: manageCalendars,
         initialData: prefill ?? AddEventModalInitialData.fromEvent(event),
-        eventId: event.id,
+        eventId: prefill == null ? event.id : null, 
       );
 
       if (result == null) {
@@ -188,7 +192,11 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
       try {
         setState(() => isLoadingEvents = true);
-        await _updateEvent(result, event);
+        if (isFirstCycle) {
+          await _updateEvent(result, event);
+        } else {
+          await _saveEvent(result);
+        }
         setState(() {
           currentDate = DateTime(result.start.year, result.start.month, result.start.day);
         });
@@ -211,6 +219,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       }
 
       prefill = AddEventModalInitialData.fromResult(result);
+      isFirstCycle = false;
     }
   }
 

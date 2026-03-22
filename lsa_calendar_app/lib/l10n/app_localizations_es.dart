@@ -172,7 +172,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get deleted => 'eliminado';
+  String get deleted => 'Elemento eliminado correctamente';
 
   @override
   String get startDate => 'Fecha de inicio';

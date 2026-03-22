@@ -395,7 +395,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleted.
   ///
   /// In en, this message translates to:
-  /// **'deleted'**
+  /// **'Item deleted successfully.'**
   String get deleted;
 
   /// No description provided for @startDate.

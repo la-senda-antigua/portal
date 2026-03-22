@@ -171,7 +171,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleted => 'deleted';
+  String get deleted => 'Item deleted successfully.';
 
   @override
   String get startDate => 'Start date';

@@ -173,7 +173,7 @@ class _AddEventModalState extends State<AddEventModal> {
 				allDay: _allDay,
 				assignees: List<AssignableUser>.from(_selectedAssignees),
 				trigger: trigger,
-				eventId: widget.eventId,
+				eventId: trigger == 'copy' ? null : widget.eventId,
 			),
 		);
 	}
