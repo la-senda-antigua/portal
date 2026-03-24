@@ -1,39 +1,42 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
-  Inject,
-  signal,
   computed,
-  OnInit,
+  DestroyRef,
+  Inject,
   OnDestroy,
-  Output,
-  EventEmitter,
+  OnInit,
+  signal
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import {
-  MatDialogRef,
   MAT_DIALOG_DATA,
   MatDialogModule,
+  MatDialogRef,
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { CommonModule } from '@angular/common';
+import { Subject, Subscription } from 'rxjs';
+import {
+  debounceTime,
+  startWith
+} from 'rxjs/operators';
 import { CalendarDto } from '../../models/CalendarDto';
+import { CalendarMemberConflict } from '../../models/CalendarMemberDto';
+import { PortalUser } from '../../models/PortalUser';
+import { CalendarsService } from '../../services/calendars.service';
 import { DateTimePickerComponent } from '../date-time-picker/date-time-picker.component';
 import { UserSelectorComponent } from '../user-selector/user-selector.component';
-import { PortalUser } from '../../models/PortalUser';
-import { Subscription } from 'rxjs';
-import { pairwise, startWith } from 'rxjs/operators';
-import { CalendarsService } from '../../services/calendars.service';
-import { CalendarMemberConflict } from '../../models/CalendarMemberDto';
-import { MatProgressBar } from '@angular/material/progress-bar';
 
 export interface DialogData {
   calendars: CalendarDto[];
@@ -68,6 +71,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   allowedUserIds: any[] = [];
 
   private calendarSubscription?: Subscription;
+  private availabilityCheckTrigger$ = new Subject<void>();
 
   isEditMode = signal(false);
   isCheckingAvailability = signal(false);
@@ -95,6 +99,7 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<AddEventDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     private calendarsService: CalendarsService,
+    private destroyRef: DestroyRef
   ) {
     this.calendars = data.calendars;
     this.isEditMode.set(!!data.event?.id);
@@ -164,7 +169,12 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.checkAssigneesAvailability();
+    this.availabilityCheckTrigger$
+      .asObservable()
+      .pipe(takeUntilDestroyed(this.destroyRef), debounceTime(200))
+      .subscribe(() => {
+        this.checkAssigneesAvailabilityNow();
+      });
 
     const calendarControl = this.eventForm.get('calendarId');
     if (calendarControl) {
@@ -187,6 +197,8 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
           }
         });
     }
+
+    this.checkAssigneesAvailability();
   }
 
   ngOnDestroy(): void {
@@ -201,6 +213,10 @@ export class AddEventDialogComponent implements OnInit, OnDestroy {
   }
 
   checkAssigneesAvailability(): void {
+    this.availabilityCheckTrigger$.next();
+  }
+
+  private checkAssigneesAvailabilityNow(): void {
     this.isCheckingAvailability.set(true);
 
     const userIds = this.assignees.map((u) => u.userId);
