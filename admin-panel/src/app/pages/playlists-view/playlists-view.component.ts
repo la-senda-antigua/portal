@@ -71,7 +71,7 @@ export class PlaylistsViewComponent extends PageBaseComponent {
     });
   }
 
-  override parseForm(form: EditIdNameFormData): VideoPlaylist {
+  override parseUserForm(form: EditIdNameFormData): VideoPlaylist {
     const item = {
       id: form.data.id,
       name: form.data.name,

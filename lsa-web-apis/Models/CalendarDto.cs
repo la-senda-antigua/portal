@@ -7,8 +7,8 @@ namespace lsa_web_apis.Models
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool Active { get; set; } = true;
-        public List<CalendarManagerDto>? Managers { get; set; }
-        public List<CalendarMemberDto>? Members { get; set; }
+        public List<Guid>? Managers { get; set; }
+        public List<Guid>? Members { get; set; }
         public bool IsPublic { get; set; } = false;
         public bool IsHidden { get; set; } = false;
     }
@@ -66,7 +66,7 @@ namespace lsa_web_apis.Models
     {
         public Guid? Id { get; set; }
         public string GroupName { get; set; } = string.Empty;
-        public List<UserGroupMemberDto>? Members { get; set; } = new List<UserGroupMemberDto>();
+        public List<Guid>? Members { get; set; } = [];
 
     }
 

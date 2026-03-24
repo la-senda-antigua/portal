@@ -1,76 +1,119 @@
+@if (!hideDefaultHeader()) {
 <div class="header">
-  <a href="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
+  <a routerLink="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
   <h1>{{ tableTitle() }}</h1>
   <span class="spacer"></span>
-  <button mat-fab (click)="openCreateForm()"><mat-icon class="plus-icon">add_2</mat-icon></button>
+  @if(createForm() != undefined){
+    <button mat-fab (click)="openCreateForm()">
+      <mat-icon class="plus-icon">add_2</mat-icon>
+    </button>
+  }@else if(addMenuOptions() != undefined){
+    <button mat-fab [matMenuTriggerFor]="addMenu">
+      <mat-icon class="plus-icon">add_2</mat-icon>
+    </button>
+    <mat-menu #addMenu="matMenu" yPosition="below" xPosition="before" [overlapTrigger]="true">
+      @for(option of addMenuOptions(); track option){
+        <button mat-menu-item (click)="openCreateForm(option.form)">{{option.option}}</button>
+      }
+    </mat-menu>
+  }
 </div>
+}
 
 <div class="table-container">
   @if (isLoading()) {
-  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
   }
-  @if(tableDatasource != undefined) {
-  <mat-form-field appearance="outline" class="w-full">
-    <input matInput placeholder="search..." [(ngModel)]="searchTerm" required (keydown.enter)="search()"/>
-  </mat-form-field>
+  @if (tableDatasource != undefined) {
+    <mat-form-field appearance="outline" class="w-full">
+      <input
+        matInput
+        placeholder="search..."
+        [(ngModel)]="searchTerm"
+        (keyup)="search()"
+      />
+    </mat-form-field>
 
-  <table mat-table [dataSource]="tableDatasource!" class="mat-elevation-z8">
-  @for (field of datasource().columns; track $index) {
-    <ng-container [matColumnDef]="field.datasourceName">
-      <th mat-header-cell *matHeaderCellDef>{{ field.displayName }}</th>
-      <td mat-cell *matCellDef="let entry">
-        @if (field.isArray) {
-
-          <mat-chip-listbox >
-            @for (item of entry[field.datasourceName]; track $index) {
-              <mat-chip selected>
-                {{ field.displayProperty ? item[field.displayProperty] : item }}
-              </mat-chip>
+    <table mat-table [dataSource]="tableDatasource!">
+      @for (field of datasource().columns; track $index) {
+        <ng-container [matColumnDef]="field.datasourceName">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            [style.width]="field.width ? field.width : 'auto'"
+          >
+            <div class="header-cell">
+              {{ field.displayName }}
+              @if (field.filterOptions && field.filterOptions.length > 0) {
+                <button mat-icon-button [matMenuTriggerFor]="filterMenu">
+                  <mat-icon [class.filled]="selectedOptions.selectedOptions.selected.length > 0">filter_alt</mat-icon>
+                </button>
+                <mat-menu #filterMenu="matMenu">
+                  <mat-selection-list
+                    #selectedOptions
+                    (multiple)="(true)"
+                    (selectionChange)="
+                      applyFilter(
+                        field.datasourceName,
+                        selectedOptions.selectedOptions.selected
+                      )
+                    "
+                  >
+                    @for (option of field.filterOptions; track option) {
+                      <mat-list-option
+                        [value]="option.value"
+                        (click)="$event.stopPropagation()"
+                      >
+                        {{ option.viewValue }}
+                      </mat-list-option>
+                    }
+                  </mat-selection-list>
+                </mat-menu>
+              }
+            </div>
+          </th>
+          <td mat-cell *matCellDef="let entry">
+            <div class="cell-content" [matTooltip]="getTooltip(entry, field.datasourceName, field.displayProperty)">
+            @if (field.isArray) {
+                @for (item of entry[field.datasourceName]; track $index) {
+                  <div class="chip">
+                    {{ field.displayProperty ? item[field.displayProperty] : item }}
+                  </div>
+                }
+            } @else {
+              {{ entry[field.datasourceName] }}
             }
-          </mat-chip-listbox>
-        } @else {
-          {{ entry[field.datasourceName] }}
-        }
-      </td>
-    </ng-container>
-  }
-  @if(showActions()){
-    <!-- Actions Column -->
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let entry">
-        @if(showDisableButton()){
-          <button mat-icon-button (click)="openDisableConfirmation(entry)" title="Cancel">
-            <mat-icon>block</mat-icon>
-          </button>
-        }
-        <button mat-icon-button (click)="openEditForm(entry)">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="openDeleteConfirmation(entry)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-  }
-  @if(showDetailsButton()){
-    <ng-container matColumnDef="details">
-      <th mat-header-cell *matHeaderCellDef>Details</th>
-      <td mat-cell *matCellDef="let entry">
-        <button mat-icon-button (click)="goToDetails(entry)" title="details">
-          <mat-icon>list_alt</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-  }
+          </div>
+          </td>
+        </ng-container>
+      }
+      @if (showActions()) {
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef style="width: 112px"></th>
+          <td mat-cell *matCellDef="let entry">
+            <button mat-icon-button (click)="openEditForm(entry)" [disabled]="disableActions()?.disableEdit">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="openDeleteConfirmation(entry)"
+              [disabled]="disableActions()?.disableDelete"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+      }
 
-    <!-- Header & Row Declarations -->
-    <tr
-      mat-header-row
-      *matHeaderRowDef="columnsAndActions(); sticky: true"
-    ></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsAndActions()"></tr>
-  </table>
+      <!-- Header & Row Declarations -->
+      <tr
+        mat-header-row
+        *matHeaderRowDef="columnsAndActions(); sticky: true"
+      ></tr>
+      <tr mat-row *matRowDef="let row; columns: columnsAndActions()"></tr>
+    </table>
   }
 </div>
 <mat-divider></mat-divider>

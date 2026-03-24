@@ -1,3 +1,5 @@
+import { UserGroup } from "./UserGroup";
+
 export interface PortalUser {
   userId: string;
   username: string;
@@ -6,6 +8,7 @@ export interface PortalUser {
   role: string;
   calendarsAsManager?: any[];
   calendarsAsMember?: any[];
+  groups?: UserGroup[];
   preferences?: string;
 }
 

@@ -9,6 +9,7 @@ class AppColors {
   static const Color dark = Color(0xFF111111);  
   static const Color background = Color(0XFFFDF9F0);
   static const Color warning = Color(0xFFFFEB3B);
+  static const Color danger = Color(0xFFF44336);
 
   static Color getCalendarColor(int index) {
     if (index == -1) return Colors.grey;

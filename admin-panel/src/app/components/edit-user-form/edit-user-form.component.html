@@ -1,6 +1,6 @@
 <mat-card>
   <mat-card-header>
-    <mat-card-title>{{ formData().mode | titlecase }} User</mat-card-title>
+    <mat-card-title>{{ formData.mode | titlecase }} User</mat-card-title>
   </mat-card-header>
   <mat-card-content class="form-group" [formGroup]="userForm">
     <!-- Username -->
@@ -38,7 +38,7 @@
           *ngFor="let role of roles"
           [value]="role"
           [disabled]="
-            role === rolesEnum.User || (role !== rolesEnum.Admin && isAdmin())
+            role === rolesEnum.User || (role !== rolesEnum.Admin && adminRoleSelected())
           "
         >
           {{ role }}
@@ -48,7 +48,7 @@
 
     <!-- Manager of -->
       <mat-form-field appearance="outline">
-        <mat-label>Manager of</mat-label>
+        <mat-label><mat-icon>supervisor_account</mat-icon>Manager of</mat-label>
         <mat-select
           [formControl]="userForm.controls.calendarsAsManager"
           multiple
@@ -65,7 +65,7 @@
 
     <!-- Calendars -->
     <mat-form-field appearance="outline">
-      <mat-label>Calendars</mat-label>
+      <mat-label><mat-icon>calendar_today</mat-icon>Calendars</mat-label>
       <mat-select
         [formControl]="userForm.controls.calendarsAsMember"
         multiple
@@ -73,6 +73,20 @@
       >
         <mat-option *ngFor="let calendar of noManagerCalendars()" [value]="calendar">
           {{ calendar.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- User Groups -->
+    <mat-form-field appearance="outline">
+      <mat-label><mat-icon>group</mat-icon>User groups</mat-label>
+      <mat-select
+        [formControl]="userForm.controls.groups"
+        multiple
+        [compareWith]="compareGroups"
+      >
+        <mat-option *ngFor="let group of userGroups()" [value]="group">
+          {{ group.groupName }}
         </mat-option>
       </mat-select>
     </mat-form-field>

@@ -13,7 +13,6 @@ import { MediaMenuComponent } from './pages/media-menu/media-menu.component';
 import { RoleGuard } from './role.guard';
 import { UsersPageComponent } from './pages/users-page/users-page.component';
 import { CalendarsComponent } from './pages/calendars/calendars.component';
-import { UserGroupsComponent } from './pages/user-groups/user-groups.component';
 import { UserRole } from './models/PortalUser';
 
 export const routes: Routes = [
@@ -81,15 +80,9 @@ export const routes: Routes = [
     data: { roles: [UserRole.Admin, UserRole.CalendarManager] }
   },
   {
-    path: 'userGroups',
-    component: UserGroupsComponent,
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: [UserRole.Admin] }
-  },
-  {
     path: 'users',
     component: UsersPageComponent,
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: [UserRole.Admin] }
+    data: { roles: [UserRole.Admin, UserRole.CalendarManager] },
   },
 ];

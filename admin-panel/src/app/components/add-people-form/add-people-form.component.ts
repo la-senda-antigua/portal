@@ -41,9 +41,6 @@ export class AddPeopleFormComponent {
   }
 
   save() {
-    this.selectedUsers.forEach((element) => {
-      element.role = 'User';
-    });
     this.dialogRef.close(this.selectedUsers);
   }
 

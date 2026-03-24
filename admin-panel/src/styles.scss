@@ -1,32 +1,63 @@
+@use "@angular/material" as mat;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 mat-icon {
-  font-family: 'Material Symbols Outlined' !important;
+  font-family: "Material Symbols Outlined" !important;
   margin-bottom: 5px;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
-.container{
-    padding: 40px;
+mat-icon.filled {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
+.mat-mdc-fab mat-icon {
+  margin-bottom: 0;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  line-height: 24px;
+}
 
-.dialog-container{
+.container {
+  padding: 40px;
+}
+
+.dialog-container {
   padding: 16px;
   min-width: 400px;
 }
 
-.flex-grow-1{flex-grow: 1;}
-.flex-grow-2{flex-grow: 2;}
+.flex-grow-1 {
+  flex-grow: 1;
+}
+.flex-grow-2 {
+  flex-grow: 2;
+}
 
-.back-button{
+.back-button {
   position: absolute !important;
   top: 8px;
   left: 8px;
 }
 
-app-logout{
+app-logout {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -58,8 +89,9 @@ app-logout{
   display: block;
 }
 
-.full-width{width: 100%;}
-
+.full-width {
+  width: 100%;
+}
 
 .chip {
   display: inline-flex;
@@ -125,7 +157,7 @@ app-logout{
   color: #333;
 }
 
-.warning-conflicts-text{
+.warning-conflicts-text {
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
@@ -133,4 +165,22 @@ app-logout{
   border-radius: 4px;
   margin-bottom: 8px;
   font-size: smaller;
+}
+
+.snackbar-error {
+  @include mat.snack-bar-overrides(
+    (
+      container-color: #c35a5a,
+      supporting-text-color: white,
+    )
+  );
+}
+
+.snackbar-success {
+  @include mat.snack-bar-overrides(
+    (
+      container-color: #3c3cc2,
+      supporting-text-color: white,
+    )
+  );
 }

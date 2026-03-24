@@ -78,7 +78,17 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 60),
+          SafeArea(
+            bottom: false,
+            child: Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+            ),
+          ),
           const Divider(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

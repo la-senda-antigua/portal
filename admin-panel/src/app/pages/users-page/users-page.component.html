@@ -1,3 +1,29 @@
+<header>
+  <a routerLink="/" mat-stroked-button><mat-icon>arrow_back</mat-icon>back</a>
+  <h1>Users</h1>
+  <span class="spacer"></span>
+  <button mat-fab extended [matMenuTriggerFor]="editGroupMenu">
+    <mat-icon>group</mat-icon>
+    Edit group
+    <mat-icon>arrow_drop_down</mat-icon>
+  </button>
+  <mat-menu #editGroupMenu="matMenu">
+    @for (group of userGroups(); track group) {
+      <button mat-menu-item (click)="openEditGroupForm(group)">
+        {{ group.groupName }}
+      </button>
+    }
+  </mat-menu>
+  <button mat-fab extended (click)="openAddGroupForm()">
+    <mat-icon>group_add</mat-icon>
+    Add group
+  </button>
+  <button mat-fab extended (click)="openAddUserForm()" [disabled]="!isAdmin">
+    <mat-icon>person_add</mat-icon>
+    Add User
+  </button>
+</header>
+
 <div class="container">
   <app-table-view
     [isLoading]="isLoading()"
@@ -6,11 +32,13 @@
     [createForm]="createForm"
     [editForm]="editForm"
     [deleteConfirmationFields]="deleteFields"
-    [viewType]="tableViewTypes.calendar"
+    [viewType]="tableViewTypes.usergroup"
+    [disableActions]="{ disableDelete: !isAdmin }"
+    [loadWithPagination]="false"
+    [hideDefaultHeader]="true"
     (pageChange)="onPageChange($event)"
-    (createRequest)="onAdd($event)"
-    (editRequest)="onEdit($event)"
-    (deleteRequest)="onDelete($event)"
-    (onSearch)="onSearch($event)"
+    (createRequest)="handleCreateRequest($event)"
+    (editRequest)="handleEditRequest($event)"
+    (deleteRequest)="deleteUser($event)"
   ></app-table-view>
 </div>

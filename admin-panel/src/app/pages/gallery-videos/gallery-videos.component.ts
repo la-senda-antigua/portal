@@ -69,7 +69,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
     });
   }
 
-  override parseForm(form: VideoFormData): GalleryVideo {
+  override parseUserForm(form: VideoFormData): GalleryVideo {
     const item = {
       date: form.data.date.toISOString().substring(0, 10),
       title: form.data.title,
@@ -87,7 +87,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
     this.isLoading.set(true);
 
     const formData = new FormData();
-    const videoData = this.parseForm(form);
+    const videoData = this.parseUserForm(form);
     formData.append('galleryStr', JSON.stringify(videoData));
     if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);
@@ -103,7 +103,7 @@ export class GalleryVideosComponent extends PageBaseComponent {
   override onEdit(form: VideoFormData) {
     this.isLoading.set(true);
     const formData = new FormData();
-    const videoData = this.parseForm(form);
+    const videoData = this.parseUserForm(form);
     formData.append('galleryStr', JSON.stringify(videoData));
     if (form.data.cover instanceof File) {
       formData.append('coverImage', form.data.cover);

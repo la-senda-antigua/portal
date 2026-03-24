@@ -104,4 +104,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get assignees => 'Assignees';
+
+  @override
+  String get selectAssignees => 'Select assignees';
+
+  @override
+  String get selectCalendarFirst => 'Select a calendar first';
+
+  @override
+  String get searchAssignees => 'Search people or groups';
+
+  @override
+  String get noResultsFound => 'No results found';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get eventSaved => 'Event saved successfully';
+
+  @override
+  String get group => 'Group';
+
+  @override
+  String get addNewEvent => 'Add New Event';
+
+  @override
+  String get calendar => 'Calendar';
+
+  @override
+  String get calendarRequired => 'Calendar is required';
+
+  @override
+  String get eventTitle => 'Event Title';
+
+  @override
+  String get titleRequired => 'Title is required';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get start => 'Start';
+
+  @override
+  String get end => 'End';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get saveAndCopy => 'Save and Copy';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get deleteTitle => 'Delete';
+
+  @override
+  String deleteConfirmation(Object displayTitle) {
+    return 'Are you sure you want to delete the event $displayTitle?';
+  }
+
+  @override
+  String get deleted => 'Item deleted successfully.';
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get startTime => 'Start time';
+
+  @override
+  String get endDate => 'End date';
+
+  @override
+  String get endTime => 'End time';
 }

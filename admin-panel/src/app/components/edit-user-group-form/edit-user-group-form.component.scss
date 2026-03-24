@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.form-field {
+  margin-top: 4px;
+  width: 100%;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.warn {
+  color: var(--mat-sys-error);
+}
+
+mat-dialog-content {
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
