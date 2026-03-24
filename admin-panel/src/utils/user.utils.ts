@@ -27,7 +27,7 @@ export function getUserColor(userId: string): string {
   return colors[index % colors.length];
 }
 
-export function getInitial(user: PortalUser | UserGroupMember | CalendarMemberDto): string {
+export function getUserInitial(user: PortalUser | UserGroupMember | CalendarMemberDto): string {
   const name = (user as PortalUser).name || user.username || '';
   return name.charAt(0).toUpperCase();
 }

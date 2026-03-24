@@ -83,7 +83,7 @@ export class CalendarsComponent {
   readonly users = this.facade.users;
   readonly usersById = this.facade.usersById;
   readonly currentUser = this.facade.currentUser;
-  readonly myCalendars = this.facade.myCalendars;
+  readonly myCalendars = this.facade.calendars;
   readonly calendarEventsByCalendarId = this.facade.calendarEventsByCalendarId;
   readonly loadedEventRangesByCalendarId =
     this.facade.loadedEventRangesByCalendarId;
@@ -246,21 +246,7 @@ export class CalendarsComponent {
         return;
       }
 
-      const selectedUsers = data.selectedUsers as CalendarMemberDto[];
-      const members: CalendarMemberDto[] = selectedUsers.filter(
-        (u) => u.role === 'User',
-      );
-
-      const managers: CalendarMemberDto[] = selectedUsers.filter(
-        (u) => u.role === 'Manager',
-      );
-
-      const calendar: CalendarDto = {
-        ...data,
-        members,
-        managers,
-      };
-      this.facade.updateCalendar(calendar.id!, calendar);
+      this.facade.updateCalendar(calendar.id!, data);
     });
   }
 

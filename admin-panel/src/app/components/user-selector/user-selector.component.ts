@@ -26,7 +26,7 @@ import { UsersService } from '../../services/users.service';
 import { UserGroupsService } from '../../services/userGroups.service';
 import {
   getDisplayName,
-  getInitial,
+  getUserInitial,
   getUserColor,
 } from '../../../utils/user.utils';
 import { Store } from '@ngrx/store';
@@ -59,7 +59,7 @@ export class UserSelectorComponent implements OnInit, OnChanges {
   filteredUsers: Observable<(PortalUser | UserGroup)[]>;
 
   protected readonly getUserColor = getUserColor;
-  protected readonly getInitial = getInitial;
+  protected readonly getInitial = getUserInitial;
   protected readonly getDisplayName = getDisplayName;
 
   readonly store = inject(Store);
