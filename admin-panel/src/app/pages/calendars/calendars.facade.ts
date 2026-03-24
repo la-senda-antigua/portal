@@ -69,9 +69,6 @@ export class CalendarsFacade {
       })),
   );
 
-  readonly myCalendars = computed(() =>
-    this.calendars().filter((calendar) => calendar.iAmManager),
-  );
   readonly usersById = computed(
     () => new Map(this.users().map((user) => [user.userId, user])),
   );
@@ -193,8 +190,18 @@ export class CalendarsFacade {
     this.store.dispatch(CalendarsActions.addCalendar({ calendar }));
   }
 
-  updateCalendar(calendarId: string, calendar: CalendarDto): void {
-    this.store.dispatch(CalendarsActions.updateCalendar({ calendarId, calendar }));
+  updateCalendar(calendarId: string, calendar: Calendar): void {
+    const calendarDto: CalendarDto = {
+      id: calendarId,
+      name: calendar.name,
+      active: calendar.active,
+      color: calendar.color,
+      isPublic: calendar.isPublic,
+      isHidden: calendar.isHidden,
+      managers: calendar.managers?.map((m) => m.userId) ?? [],
+      members: calendar.members?.map((m) => m.userId) ?? [],
+    };
+    this.store.dispatch(CalendarsActions.updateCalendar({ calendarId, calendar: calendarDto }));
   }
 
   removeCalendar(calendarId: string): void {
