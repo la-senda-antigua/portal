@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:lsa_calendar_app/core/app_colors.dart';
 import 'package:lsa_calendar_app/core/app_text_styles.dart';
@@ -10,6 +11,9 @@ class EventCard extends StatefulWidget {
   final Event event;
   final List<Calendar> calendars;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final bool isManaged;
   final String? dateLabel;
   final bool isMonthView;
 
@@ -18,6 +22,9 @@ class EventCard extends StatefulWidget {
     required this.event,
     required this.calendars,
     this.onTap,
+    this.onEdit,
+    this.onDelete,
+    this.isManaged = false,
     this.dateLabel,
     this.isMonthView = false,
   });
@@ -114,10 +121,24 @@ class _EventCardState extends State<EventCard> {
       )!.eventDateRange(startStr, endStr);
     }
 
-    return Card(
+    const itemMargin = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
+    const borderRadius = BorderRadius.all(Radius.circular(12));
+    final hasActions = widget.isManaged && (widget.onEdit != null || widget.onDelete != null);
+
+    // On swipe, the card has a flat right side to be flush with the actions.
+    final cardBorderRadius = hasActions
+        ? const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            bottomLeft: Radius.circular(12),
+          )
+        : borderRadius;
+
+    final cardContent = Card(
       color: color,
       elevation: 0,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: cardBorderRadius),
+      clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
           Column(
@@ -229,6 +250,48 @@ class _EventCardState extends State<EventCard> {
               ),
             ),
         ],
+      ),
+    );
+
+    if (!hasActions) {
+      return Padding(
+        padding: itemMargin,
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: cardContent,
+        ),
+      );
+    }
+
+    return Padding(
+      padding: itemMargin,
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Slidable(
+          key: ValueKey(widget.event.id),
+          endActionPane: ActionPane(
+            motion: const ScrollMotion(),
+            children: [
+              if (widget.onEdit != null)
+                SlidableAction(
+                  onPressed: (_) => widget.onEdit!(),
+                  backgroundColor: AppColors.accent,
+                  foregroundColor: AppColors.light,
+                  icon: Icons.edit,
+                  label: AppLocalizations.of(context)!.edit,
+                ),
+              if (widget.onDelete != null)
+                SlidableAction(
+                  onPressed: (_) => widget.onDelete!(),
+                  backgroundColor: AppColors.danger,
+                  foregroundColor: AppColors.light,
+                  icon: Icons.delete,
+                  label: AppLocalizations.of(context)!.deleteTitle,
+                ),
+            ],
+          ),
+          child: cardContent,
+        ),
       ),
     );
   }

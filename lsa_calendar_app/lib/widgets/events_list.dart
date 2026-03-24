@@ -11,6 +11,9 @@ class EventsList extends StatelessWidget {
   final String? error;
   final RefreshCallback onRefresh;
   final void Function(Event)? onEventTap;
+  final void Function(Event)? onEditEvent;
+  final void Function(Event)? onDeleteEvent;
+  final Set<String> managedCalendarIds;
   final bool showDate;
 
   const EventsList({
@@ -21,6 +24,9 @@ class EventsList extends StatelessWidget {
     this.error,
     required this.onRefresh,
     this.onEventTap,
+    this.onEditEvent,
+    this.onDeleteEvent,
+    this.managedCalendarIds = const {},
     this.showDate = false,
   });
 
@@ -89,6 +95,9 @@ class EventsList extends StatelessWidget {
           event: event,
           calendars: calendars,
           onTap: onEventTap != null ? () => onEventTap!(event) : null,
+          onEdit: onEditEvent != null ? () => onEditEvent!(event) : null,
+          onDelete: onDeleteEvent != null ? () => onDeleteEvent!(event) : null,
+          isManaged: managedCalendarIds.contains(event.calendarId),
           dateLabel: dateLabel,
           isMonthView: showDate,
         );
