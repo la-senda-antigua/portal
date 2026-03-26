@@ -256,19 +256,21 @@
       "sections": [
         {
           "name": "header",
-          "title": "Galería de eventos",
-          "floating-description": {
-            "position": "center",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE Grandes cosas ha hecho Jehová con nosotros; estaremos alegres.",
-                "REF Salmos 126:3"
-              ]
-            }
-          },
-          "background-image": "assets/images/choir.jpeg",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "Galería de eventos",
+            "floating-description": {
+              "position": "center",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "QUOTE Grandes cosas ha hecho Jehová con nosotros; estaremos alegres.",
+                  "REF Salmos 126:3"
+                ]
+              }
+            },
+            "background-image": "assets/images/choir.jpeg",
+            "background-color": "#3f4a49"
+          }
         },
         {
           "name": "section-1",
@@ -316,19 +318,21 @@
       "sections": [
         {
           "name": "header",
-          "title": "La Obra Misionera",
-          "floating-description": {
-            "position": "left",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE Y respondiendo el Rey, les dirá: De cierto os digo que en cuanto lo hicisteis a uno de estos mis hermanos más pequeños, a mí lo hicisteis.",
-                "REF Mateo 25:40"
-              ]
-            }
-          },
-          "background-image": "assets/images/missions.jpg",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "La Obra Misionera",
+            "floating-description": {
+              "position": "left",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "QUOTE Y respondiendo el Rey, les dirá: De cierto os digo que en cuanto lo hicisteis a uno de estos mis hermanos más pequeños, a mí lo hicisteis.",
+                  "REF Mateo 25:40"
+                ]
+              }
+            },
+            "background-image": "assets/images/missions.jpg",
+            "background-color": "#3f4a49"
+          }
         },
         {
           "name": "section-1",
@@ -441,18 +445,20 @@
       "sections": [
         {
           "name": "header",
-          "background-image": "assets/images/thankyou.jpg",
-          "background-color": "#3f4a49",
-          "background-position": "center",
-          "title": "Gracias",
-          "floating-description": {
-            "position": "center",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "Gracias por su contribución a este ministerio.",
-                "El Señor de la mies le recompensará grandemente."
-              ]
+          "background-image-with-floating-text": {
+            "background-image": "assets/images/thankyou.jpg",
+            "background-color": "#3f4a49",
+            "background-position": "center",
+            "title": "Gracias",
+            "floating-description": {
+              "position": "center",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "Gracias por su contribución a este ministerio.",
+                  "El Señor de la mies le recompensará grandemente."
+                ]
+              }
             }
           }
         }
@@ -473,18 +479,20 @@
       "sections": [
         {
           "name": "header",
-          "title": "Estamos Trabajando",
-          "floating-description": {
-            "position": "center",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "Perdone nuestro desorden, estamos trabajando y muy pronto encontrará el contenido que está buscando. "
-              ]
-            }
-          },
-          "background-image": "assets/images/guatemala_7.jpg",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "Estamos Trabajando",
+            "floating-description": {
+              "position": "center",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "Perdone nuestro desorden, estamos trabajando y muy pronto encontrará el contenido que está buscando. "
+                ]
+              }
+            },
+            "background-image": "assets/images/guatemala_7.jpg",
+            "background-color": "#3f4a49"
+          }
         }
       ]
     },
@@ -596,19 +604,21 @@
       "sections": [
         {
           "name": "header",
-          "title": "Escuela en casa",
-          "floating-description": {
-            "position": "right",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE ... y todos tus hijos serán enseñados por Jehová; y se multiplicará la paz de tus hijos.",
-                "REF Isaías 54:13"
-              ]
-            }
-          },
-          "background-image": "assets/images/Homeschool-collage.png",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "Escuela en casa",
+            "floating-description": {
+              "position": "right",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "QUOTE ... y todos tus hijos serán enseñados por Jehová; y se multiplicará la paz de tus hijos.",
+                  "REF Isaías 54:13"
+                ]
+              }
+            },
+            "background-image": "assets/images/Homeschool-collage.png",
+            "background-color": "#3f4a49"
+          }
         },
         {
           "name": "section-1",
@@ -718,7 +728,13 @@
       },
       {
         "index": 5,
-        "text": "Calendario",
+        "text": "Misiones",
+        "link": "/contribute"
+      },
+
+      {
+        "index": 5,
+        "text": "Eventos",
         "link": "/calendar"
       }
     ],

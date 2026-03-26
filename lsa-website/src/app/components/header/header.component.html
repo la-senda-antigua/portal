@@ -1,6 +1,6 @@
-@if (headerConfig().carousel == undefined) {
+@if (headerConfig().backgroundImageWithFloatingText?.isNullOrEmpty() === false) {
   <lsa-background-image-with-floating-text
-    [config]="headerConfig()"
+    [config]="headerConfig().backgroundImageWithFloatingText!"
   ></lsa-background-image-with-floating-text>
 } @else {
   <lsa-carousel
