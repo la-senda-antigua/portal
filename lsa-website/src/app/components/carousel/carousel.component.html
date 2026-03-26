@@ -1,0 +1,49 @@
+<section class="carousel">
+	<button
+		type="button"
+		class="carousel-control prev"
+		aria-label="Previous slide"
+		(click)="previous()"
+		[disabled]="!hasMultipleSlides()"
+	>
+		&#10094;
+	</button>
+
+	<div class="carousel-viewport">
+		@if (hasSlides()) {
+			<div class="carousel-track" [style.transform]="trackTransform()">
+				@for (slide of projectedSlides(); track $index) {
+					<div class="carousel-slide">
+						<ng-container [ngTemplateOutlet]="slide"></ng-container>
+					</div>
+				}
+			</div>
+		} @else {
+			<div class="carousel-empty">No slides were provided.</div>
+		}
+	</div>
+
+	<button
+		type="button"
+		class="carousel-control next"
+		aria-label="Next slide"
+		(click)="next()"
+		[disabled]="!hasMultipleSlides()"
+	>
+		&#10095;
+	</button>
+</section>
+
+@if (hasMultipleSlides()) {
+	<div class="carousel-dots">
+		@for (slide of projectedSlides(); track $index) {
+			<button
+				type="button"
+				class="carousel-dot"
+				[class.active]="activeIndex() === $index"
+				[attr.aria-label]="'Go to slide ' + ($index + 1)"
+				(click)="goTo($index)"
+			></button>
+		}
+	</div>
+}
