@@ -11,7 +11,11 @@
 
 	<div class="carousel-viewport">
 		@if (hasSlides()) {
-			<div class="carousel-track" [style.transform]="trackTransform()">
+			<div
+				class="carousel-track"
+				[class.transitioning]="isTransitioning()"
+				[style.transform]="trackTransform()"
+			>
 				<ng-content></ng-content>
 			</div>
 		} @else {

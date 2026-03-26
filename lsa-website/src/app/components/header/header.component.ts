@@ -18,8 +18,4 @@ import { VerseOfTheDayComponent } from '../verse-of-the-day/verse-of-the-day.com
 })
 export class HeaderComponent {
   readonly headerConfig = input.required<SectionConfig>();
-
-  ngOnInit(): void {
-    console.log('Header config:', this.headerConfig());
-  }
 }
