@@ -12,11 +12,7 @@
 	<div class="carousel-viewport">
 		@if (hasSlides()) {
 			<div class="carousel-track" [style.transform]="trackTransform()">
-				@for (slide of projectedSlides(); track $index) {
-					<div class="carousel-slide">
-						<ng-container [ngTemplateOutlet]="slide"></ng-container>
-					</div>
-				}
+				<ng-content></ng-content>
 			</div>
 		} @else {
 			<div class="carousel-empty">No slides were provided.</div>
@@ -36,13 +32,13 @@
 
 @if (hasMultipleSlides()) {
 	<div class="carousel-dots">
-		@for (slide of projectedSlides(); track $index) {
+		@for (index of slideIndexes(); track index) {
 			<button
 				type="button"
 				class="carousel-dot"
-				[class.active]="activeIndex() === $index"
-				[attr.aria-label]="'Go to slide ' + ($index + 1)"
-				(click)="goTo($index)"
+				[class.active]="activeIndex() === index"
+				[attr.aria-label]="'Go to slide ' + (index + 1)"
+				(click)="goTo(index)"
 			></button>
 		}
 	</div>

@@ -5,7 +5,10 @@ import {
   computed,
   input,
 } from '@angular/core';
-import { SectionConfig } from 'src/app/models/app.config.models';
+import {
+  BackgroundImageWithFloatingTextConfig,
+  SectionConfig,
+} from 'src/app/models/app.config.models';
 
 @Component({
   selector: 'lsa-background-image-with-floating-text',
@@ -15,7 +18,7 @@ import { SectionConfig } from 'src/app/models/app.config.models';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BackgroundImageWithFloatingTextComponent {
-  readonly config = input.required<SectionConfig>();
+  readonly config = input.required<BackgroundImageWithFloatingTextConfig>();
 
   readonly title = computed(() => this.config().title);
 

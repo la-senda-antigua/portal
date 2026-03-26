@@ -1,12 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { SectionConfig } from 'src/app/models/app.config.models';
 import { BackgroundImageWithFloatingTextComponent } from '../background-image-with-floating-text/background-image-with-floating-text.component';
 import { CarouselComponent } from '../carousel/carousel.component';
 
 @Component({
   selector: 'lsa-header',
-  imports: [CommonModule, BackgroundImageWithFloatingTextComponent, CarouselComponent],
+  imports: [
+    CommonModule,
+    BackgroundImageWithFloatingTextComponent,
+    CarouselComponent,
+  ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })

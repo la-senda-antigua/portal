@@ -1,10 +1,7 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  TemplateRef,
   computed,
-  contentChildren,
   effect,
   input,
   signal,
@@ -12,7 +9,7 @@ import {
 
 @Component({
   selector: 'lsa-carousel',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './carousel.component.html',
   styleUrls: ['./carousel.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,19 +17,24 @@ import {
 export class CarouselComponent { 
   readonly autoRotateMs = input<number | undefined>(undefined);
   readonly loop = input<boolean>(true);
+  readonly slideCount = input<number | undefined>(undefined);
 
-  readonly projectedSlides = contentChildren(TemplateRef);
   readonly activeIndex = signal(0);
 
-  readonly hasSlides = computed(() => this.projectedSlides().length > 0);
-  readonly hasMultipleSlides = computed(() => this.projectedSlides().length > 1);
+  readonly totalSlides = computed(() => this.slideCount() ?? 0);
+
+  readonly slideIndexes = computed(() =>
+    Array.from({ length: this.totalSlides() }, (_, index) => index)
+  );
+  readonly hasSlides = computed(() => this.totalSlides() > 0);
+  readonly hasMultipleSlides = computed(() => this.totalSlides() > 1);
   readonly trackTransform = computed(
     () => `translateX(-${this.activeIndex() * 100}%)`
   );
 
   constructor() {
     effect(() => {
-      const maxIndex = this.projectedSlides().length - 1;
+      const maxIndex = this.totalSlides() - 1;
       if (maxIndex < 0) {
         this.activeIndex.set(0);
         return;
@@ -62,7 +64,7 @@ export class CarouselComponent {
     const current = this.activeIndex();
     if (current === 0) {
       if (this.loop()) {
-        this.activeIndex.set(this.projectedSlides().length - 1);
+        this.activeIndex.set(this.totalSlides() - 1);
       }
       return;
     }
@@ -71,7 +73,7 @@ export class CarouselComponent {
 
   next() {
     const current = this.activeIndex();
-    const lastIndex = this.projectedSlides().length - 1;
+    const lastIndex = this.totalSlides() - 1;
     if (current >= lastIndex) {
       if (this.loop()) {
         this.activeIndex.set(0);
@@ -82,7 +84,7 @@ export class CarouselComponent {
   }
 
   goTo(index: number) {
-    if (index < 0 || index > this.projectedSlides().length - 1) {
+    if (index < 0 || index > this.totalSlides() - 1) {
       return;
     }
     this.activeIndex.set(index);

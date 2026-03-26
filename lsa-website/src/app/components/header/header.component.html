@@ -3,13 +3,22 @@
     [config]="headerConfig()"
   ></lsa-background-image-with-floating-text>
 } @else {
-  <lsa-carousel [autoRotateMs]="headerConfig().carousel!.autoRotateMs" [loop]="headerConfig().carousel!.loop ?? true"> >
+  <lsa-carousel
+    [autoRotateMs]="headerConfig().carousel!.autoRotateMs"
+    [loop]="headerConfig().carousel!.loop ?? true"
+    [slideCount]="headerConfig().carousel!.slides.length"
+  >
     @for (slide of headerConfig().carousel!.slides; track $index) {
-      <ng-template>
-        <lsa-background-image-with-floating-text
-          [config]="slide"
-        ></lsa-background-image-with-floating-text>
-      </ng-template>
+      @if (slide.backgroundImageWithFloatingText) {
+        <div
+          class="carousel-slide"
+          style="flex: 0 0 100%; width: 100%; height: 100%; display: flex"
+        >
+          <lsa-background-image-with-floating-text
+            [config]="slide.backgroundImageWithFloatingText"
+          ></lsa-background-image-with-floating-text>
+        </div>
+      }
     }
   </lsa-carousel>
 }
