@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -10,7 +11,6 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   MatAutocompleteModule,
@@ -19,18 +19,17 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { Store } from '@ngrx/store';
 import { Observable, map, startWith } from 'rxjs';
-import { PortalUser, UserRole } from '../../models/PortalUser';
-import { UserGroup } from '../../models/UserGroup';
-import { UsersService } from '../../services/users.service';
-import { UserGroupsService } from '../../services/userGroups.service';
 import {
   getDisplayName,
-  getUserInitial,
   getUserColor,
+  getUserInitial,
 } from '../../../utils/user.utils';
-import { Store } from '@ngrx/store';
-import { selectUserGroups, selectUsers } from '../../state/appstate.selectors';
+import { PortalUser, UserRole } from '../../models/PortalUser';
+import { UserGroup } from '../../models/UserGroup';
+import { selectUserGroups, selectUserGroupsLoaded, selectUserGroupsLoading, selectUsers, selectUsersLoaded, selectUsersLoading } from '../../state/appstate.selectors';
+import { UsersActions } from '../../state/users.actions';
 
 @Component({
   selector: 'app-user-selector',
@@ -64,7 +63,12 @@ export class UserSelectorComponent implements OnInit, OnChanges {
 
   readonly store = inject(Store);
   readonly allUsers = this.store.selectSignal(selectUsers);
+  readonly usersLoading = this.store.selectSignal(selectUsersLoading);
+  readonly usersLoaded = this.store.selectSignal(selectUsersLoaded);
   readonly allGroups = this.store.selectSignal(selectUserGroups);
+  readonly userGroupsLoading = this.store.selectSignal(selectUserGroupsLoading);
+  readonly userGroupsLoaded = this.store.selectSignal(selectUserGroupsLoaded);
+  
   readonly allowedUsers = computed(() => {
     if (!this.allowedUserIds()?.length) {
       return this.allUsers();
@@ -86,6 +90,14 @@ export class UserSelectorComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    if(!this.usersLoaded() && !this.usersLoading()) {
+      this.store.dispatch(UsersActions.loadUsers());
+    }
+
+    if(!this.userGroupsLoaded() && !this.userGroupsLoading()) {
+      this.store.dispatch(UsersActions.loadUserGroups());
+    }
+
     if (this.disabled) {
       this.userCtrl.disable();
     }
