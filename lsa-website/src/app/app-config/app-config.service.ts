@@ -19,6 +19,8 @@ import {
   SectionConfig,
   VerseConfig,
   VideoGalleryConfig,
+  BackgroundImageWithFloatingTextConfig,
+  CarouselConfig,
 } from '../models/app.config.models';
 
 @Injectable({
@@ -33,8 +35,8 @@ export class AppConfigService {
   get currentPageConfig() {
     return computed(() =>
       this.appConfig()?.pages.find(
-        (page) => page.name === this.currentPageName()
-      )
+        (page) => page.name === this.currentPageName(),
+      ),
     );
   }
 
@@ -77,7 +79,7 @@ export class AppConfigService {
   private parseConfigPage(page: any): PageConfig {
     return {
       name: page.name,
-      title: page.title,      
+      title: page.title,
       navigation: {
         textColor: page.navigation?.['text-color'] ?? 'light',
         useShadow: page.navigation?.['use-shadow'] ?? true,
@@ -88,7 +90,7 @@ export class AppConfigService {
         show: page.footer?.show ?? false,
         textColor: page.footer?.['text-color'],
         backgroundColor: page.footer?.['background-color'],
-      }
+      },
     };
   }
 
@@ -102,17 +104,17 @@ export class AppConfigService {
       backgroundImage: section['background-image'],
       backgroundPosition: section['background-position'],
       floatingDescription: this.parseFloatingDescription(
-        section['floating-description']
+        section['floating-description'],
       ),
       descriptionBlock: this.parseDescriptionBlock(
-        section['description-block']
+        section['description-block'],
       ),
       searchBox: this.parseSearchBox(section['search-box']),
       recentServices: this.parseRecentServicesConfig(
-        section['recent-services']
+        section['recent-services'],
       ),
       preachingPlaylists: this.parsePreachingPlaylistsConfig(
-        section['preaching-playlists']
+        section['preaching-playlists'],
       ),
       bibleCourses: this.parseBibleCoursesConfig(section['bible-courses']),
       videoGallery: this.parseVideoGalleryConfig(section['video-gallery']),
@@ -120,7 +122,43 @@ export class AppConfigService {
       imageCard: this.parseImageCard(section['image-card']),
       verseOfTheDay: this.parseVerseOfTheDay(section['verse-of-the-day']),
       quickLinks: this.parseQuickLinks(section['quick-links']),
-      calendarListView: this.parseCalendarListView(section['calendar-list-view']),
+      calendarListView: this.parseCalendarListView(
+        section['calendar-list-view'],
+      ),
+      backgroundImageWithFloatingText:
+        this.parseBackgroundImageWithFloatingTextConfig(
+          section['background-image-with-floating-text'],
+        ),
+
+      carousel: this.parseCarouselConfig(section.carousel),
+    };
+  }
+
+  private parseBackgroundImageWithFloatingTextConfig(
+    config: any,
+  ): BackgroundImageWithFloatingTextConfig {
+    if (!config) {
+      return {} as BackgroundImageWithFloatingTextConfig;
+    }
+    return {
+      title: config.title,
+      backgroundColor: config['background-color'],
+      backgroundImage: config['background-image'],
+      backgroundPosition: config['background-position'],
+      floatingDescription: this.parseFloatingDescription(
+        config['floating-description'],
+      ),
+    };
+  }
+
+  private parseCarouselConfig(config: any): CarouselConfig {
+    if (!config) {
+      return {} as CarouselConfig;
+    }
+    return {
+      autoRotateMs: config['auto-rotate-ms'],
+      loop: config.loop,
+      slides: config.slides.map(this.parseConfigSection.bind(this)),
     };
   }
 
@@ -132,7 +170,7 @@ export class AppConfigService {
       initialLoad: videoList['initial-load'] ?? 100,
       searchBox: this.parseSearchBox(videoList['search-box']),
       descriptionBlock: this.parseDescriptionBlock(
-        videoList['description-block']
+        videoList['description-block'],
       ),
       notFound: videoList['not-found'],
     };
@@ -161,14 +199,14 @@ export class AppConfigService {
   }
 
   private parsePreachingPlaylistsConfig(
-    sectionConfig: any
+    sectionConfig: any,
   ): PreachingPlaylistsConfig {
     if (sectionConfig == undefined) {
       return {};
     }
     return {
       descriptionBlock: this.parseDescriptionBlock(
-        sectionConfig['description-block']
+        sectionConfig['description-block'],
       ),
     };
   }
@@ -187,14 +225,14 @@ export class AppConfigService {
   }
 
   private parseFloatingDescription(
-    floatingDescription: any
+    floatingDescription: any,
   ): FloatingDescriptionConfig {
     if (!floatingDescription) {
       return {} as FloatingDescriptionConfig;
     }
     return {
       descriptionBlock: this.parseDescriptionBlock(
-        floatingDescription['description-block']
+        floatingDescription['description-block'],
       ),
       position: floatingDescription.position,
     };
@@ -287,7 +325,7 @@ export class AppConfigService {
 
     return {
       title: data['title'],
-      description: this.parseDescriptionBlock(data['description-block'])
-    }
+      description: this.parseDescriptionBlock(data['description-block']),
+    };
   }
 }

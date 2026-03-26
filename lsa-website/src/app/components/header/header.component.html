@@ -1,26 +1,15 @@
-<div
-  class="header-container"
-  [style.backgroundImage]="backgroundImage() ? 'url(' + backgroundImage() + ')' : ''"
-  [style.backgroundColor]="!backgroundImage() ? backgroundColor() ?? '' : ''"
-  [style.backgroundPosition]="backgroundPosition() ??''"
->
-  @if(overlayColor()){
-  <div class="header-overlay" [style]="overlayColor()"></div>
-  }
-
-  <div class="header-content">
-    <div
-      class="floating-description"
-      [style.color]="textColor()"
-      [style]="textPosition()"
-    >
-      <h1>{{ title() }}</h1>
-      @for(line of description(); track line){
-        <div class="description-line" [class.quote-ref]="line.includes('REF')" [ngStyle]="getStyleForQuoteRef(line)">          
-          <span class="quote" *ngIf="line.includes('QUOTE')">“</span>
-          <span >{{ line.replace("QUOTE", "").replace("REF", "") }}</span> 
-        </div>
-      }
-    </div>
-  </div>
-</div>
+@if (headerConfig().carousel == undefined) {
+  <lsa-background-image-with-floating-text
+    [config]="headerConfig()"
+  ></lsa-background-image-with-floating-text>
+} @else {
+  <lsa-carousel [autoRotateMs]="headerConfig().carousel!.autoRotateMs" [loop]="headerConfig().carousel!.loop ?? true"> >
+    @for (slide of headerConfig().carousel!.slides; track $index) {
+      <ng-template>
+        <lsa-background-image-with-floating-text
+          [config]="slide"
+        ></lsa-background-image-with-floating-text>
+      </ng-template>
+    }
+  </lsa-carousel>
+}

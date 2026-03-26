@@ -135,6 +135,22 @@ export interface SectionConfig {
   bibleCourses?: BibleCoursesConfig;
   videoGallery?: VideoGalleryConfig;
   calendarListView?: CalendarListViewConfig;
+  backgroundImageWithFloatingText?: BackgroundImageWithFloatingTextConfig;
+  carousel?: CarouselConfig;
+}
+
+export interface CarouselConfig {
+  autoRotateMs?: number;
+  loop?: boolean;
+  slides: SectionConfig[];
+}
+
+export interface BackgroundImageWithFloatingTextConfig {
+  title: string;
+  backgroundColor?: string;
+  backgroundImage?: string;
+  backgroundPosition?: string;
+  floatingDescription?: FloatingDescriptionConfig;
 }
 
 export interface PageConfig {

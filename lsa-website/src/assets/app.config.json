@@ -12,19 +12,29 @@
       "sections": [
         {
           "name": "header",
-          "title": "Bienvenidos a Iglesia La Senda Antigua",
-          "floating-description": {
-            "position": "left",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
-                "REF Jeremías 6:16"
-              ]
-            }
-          },
-          "background-image": "assets/images/pastor_preaching_sepia.jpeg",
-          "background-color": "#3f4a49"
+          "carousel": {
+            "auto-rotate-ms": 2000,
+            "loop": true,
+            "slides": [
+              {
+                "background-image-with-floating-text": {
+                  "title": "Bienvenidos a Iglesia La Senda Antigua",
+                  "floating-description": {
+                    "position": "left",
+                    "description-block": {
+                      "text-color": "#ffffff",
+                      "lines": [
+                        "QUOTE Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
+                        "REF Jeremías 6:16"
+                      ]
+                    }
+                  },
+                  "background-image": "assets/images/pastor_preaching_sepia.jpeg",
+                  "background-color": "#3f4a49"
+                }
+              }
+            ]
+          }
         },
         {
           "name": "section-1",
@@ -134,7 +144,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true
       }
     },
@@ -235,7 +245,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
@@ -382,7 +392,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true
       }
     },
@@ -413,7 +423,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
@@ -536,7 +546,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
@@ -626,7 +636,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
