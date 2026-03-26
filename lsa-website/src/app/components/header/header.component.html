@@ -9,14 +9,18 @@
     [slideCount]="headerConfig().carousel!.slides.length"
   >
     @for (slide of headerConfig().carousel!.slides; track $index) {
-      @if (slide.backgroundImageWithFloatingText) {
-        <div
-          class="carousel-slide"
-          style="flex: 0 0 100%; width: 100%; height: 100%; display: flex"
-        >
+      @if (slide.backgroundImageWithFloatingText?.isNullOrEmpty() === false) {
+        <div class="carousel-slide">
           <lsa-background-image-with-floating-text
-            [config]="slide.backgroundImageWithFloatingText"
+            [config]="slide.backgroundImageWithFloatingText!"
           ></lsa-background-image-with-floating-text>
+        </div>
+      }
+      @if(slide.verseOfTheDay?.isNullOrEmpty() === false) {
+        <div class="carousel-slide">
+          <lsa-verse-of-the-day
+            [config]="slide.verseOfTheDay!"
+          ></lsa-verse-of-the-day>
         </div>
       }
     }

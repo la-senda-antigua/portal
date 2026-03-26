@@ -23,7 +23,7 @@
 	display: flex;
 	width: 100%;
 	height: 100%;
-	transition: transform 350ms ease;
+	transition: transform 600ms ease;
 	will-change: transform;
 }
 
@@ -62,7 +62,14 @@
 	display: flex;
 	justify-content: center;
 	gap: 0.45rem;
-	margin-top: 0.65rem;
+	position: absolute;
+	left: 50%;
+	bottom: 0.2rem;
+	transform: translateX(-50%);
+	z-index: 2;
+	padding: 0.2rem 0.45rem;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.85);
 }
 
 .carousel-dot {

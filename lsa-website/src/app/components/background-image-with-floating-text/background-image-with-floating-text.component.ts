@@ -5,14 +5,15 @@ import {
   computed,
   input,
 } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterLink } from '@angular/router';
 import {
   BackgroundImageWithFloatingTextConfig,
-  SectionConfig,
 } from 'src/app/models/app.config.models';
 
 @Component({
   selector: 'lsa-background-image-with-floating-text',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink, MatButtonModule],
   templateUrl: './background-image-with-floating-text.component.html',
   styleUrl: './background-image-with-floating-text.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,8 +36,7 @@ export class BackgroundImageWithFloatingTextComponent {
   );
 
   readonly description = computed(() => {
-    const block = this.config().floatingDescription?.descriptionBlock;
-    return block?.lines || [];
+    return this.config().floatingDescription?.descriptionBlock;
   });
 
   readonly textColor = computed(

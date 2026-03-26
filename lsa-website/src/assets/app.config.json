@@ -13,9 +13,21 @@
         {
           "name": "header",
           "carousel": {
-            "auto-rotate-ms": 2000,
+            "auto-rotate-ms": 5000,
             "loop": true,
             "slides": [
+              {
+                "name": "verse-of-the-day-slide",
+                "verse-of-the-day": {
+                  "title": "El verso del día",
+                  "text-align": "center",
+                  "copyright": "REINA-VALERA 1960",
+                  "overlay-color": "#3f4a49",
+                  "text-color": "#ffffff",
+                  "background-position": "center",
+                  "show-background-image": true
+                }
+              },
               {
                 "background-image-with-floating-text": {
                   "title": "Bienvenidos a Iglesia La Senda Antigua",
@@ -30,6 +42,27 @@
                     }
                   },
                   "background-image": "assets/images/pastor_preaching_sepia.jpeg",
+                  "background-color": "#3f4a49"
+                }
+              },
+              {
+                "background-image-with-floating-text": {
+                  "title": "El Libro de Génesis",
+                  "floating-description": {
+                    "position": "left",
+                    "description-block": {
+                      "text-color": "#ffffff",
+                      "lines": [
+                        "Acompáñenos en este estudio del libro de Génesis,",
+                        "en donde encontramos joyas escondidas desde el principio de la fundación del mundo."
+                      ],
+                      "button": {
+                        "text": "Ver estudio",
+                        "link": "/biblestudies"
+                      }
+                    }
+                  },
+                  "background-image": "assets/images/genesis.jpg",
                   "background-color": "#3f4a49"
                 }
               }
@@ -55,7 +88,8 @@
           "verse-of-the-day": {
             "title": "El verso del día",
             "text-align": "center",
-            "copyright": "REINA-VALERA 1960"
+            "copyright": "REINA-VALERA 1960",
+            "show-background-image": false
           },
           "background-color": "rgb(220, 217, 208)"
         },

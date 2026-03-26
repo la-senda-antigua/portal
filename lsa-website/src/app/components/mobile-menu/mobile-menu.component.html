@@ -9,20 +9,20 @@
 
   <div class="menu-content">
     <mat-accordion>
-      @for (item of options; track item) {
-      <mat-expansion-panel class="mat-elevation-z0" hideToggle>
-        <mat-expansion-panel-header
-          [class.active]="isSelected(item)"
-          (click)="setActiveOption(item)"          
-        >
-          <a [routerLink]="item.link" class="header-menu" >{{ item.text }}</a>
-        </mat-expansion-panel-header>
+      @for (item of options; track item; let first = $first) {
+      <mat-expansion-panel class="mat-elevation-z0" hideToggle [expanded]="first">
+      <mat-expansion-panel-header
+        [class.active]="isSelected(item)"
+        (click)="setActiveOption(item)"
+      >
+        <a [routerLink]="item.link" class="header-menu" >{{ item.text }}</a>
+      </mat-expansion-panel-header>
 
-        @for(subItem of item.options; track subItem){
-        <a [routerLink]="subItem.link" class="sub-item" (click)="close.emit()">
-          {{ subItem.text }}
-        </a>
-        }
+      @for(subItem of item.options; track subItem){
+      <a [routerLink]="subItem.link" class="sub-item" (click)="close.emit()">
+        {{ subItem.text }}
+      </a>
+      }
       </mat-expansion-panel>
       }
     </mat-accordion>

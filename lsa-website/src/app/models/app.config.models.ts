@@ -72,6 +72,10 @@ export interface VerseConfig {
   title: string;
   copyright: string;
   textAlign: string;
+  overlayColor?: string;
+  backgroundPosition?: string;
+  showBackgroundImage?: boolean;
+  textColor?: string;
 }
 
 export interface QuickLinksConfig {

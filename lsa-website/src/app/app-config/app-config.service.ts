@@ -294,6 +294,10 @@ export class AppConfigService {
       title: verseOfTheDay.title,
       copyright: verseOfTheDay.copyright,
       textAlign: verseOfTheDay['text-align'],
+      overlayColor: verseOfTheDay['overlay-color'],
+      backgroundPosition: verseOfTheDay['background-position'],
+      showBackgroundImage: verseOfTheDay['show-background-image'],
+      textColor: verseOfTheDay['text-color'],
     };
   }
 
