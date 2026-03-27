@@ -14,11 +14,14 @@ mat-form-field {
 }
 
 .red-color {
-  color: red;
+  color: red;  
 }
 
 .delete-button {
   color: #bd0000;
+  &:disabled {
+    color: rgba(0, 0, 0, 0.26) !important; 
+  }
 }
 .users-list {
   display: flex;

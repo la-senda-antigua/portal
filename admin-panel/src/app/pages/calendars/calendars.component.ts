@@ -27,8 +27,6 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import {
   DeleteConfirmationData,
 } from '../../components/delete-confirmation/delete-confirmation.component';
-import { CalendarDto } from '../../models/CalendarDto';
-import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarsService } from '../../services/calendars.service';
 import { CalendarsDialogsService } from './calendars-dialogs.service';
@@ -45,7 +43,6 @@ import {
   prepareCopyData,
   toCalendarEventInput
 } from './calendars.utils';
-import { AuthService } from '../../services/auth.service';
 
 @Component({
   encapsulation: ViewEncapsulation.None,
