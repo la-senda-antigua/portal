@@ -114,6 +114,59 @@ public class CalendarsControllerTests
     }
 
     [Fact]
+    public async Task Edit_Calendar_Promotes_User_To_CalendarManager()
+    {
+        var options = new DbContextOptionsBuilder<UserDbContext>()
+            .UseInMemoryDatabase(databaseName: $"TestDatabase_Edit_Promotion_{Guid.NewGuid()}")
+            .Options;
+
+        using var context = new UserDbContext(options);
+
+        // Create a calendar 
+        var existingCalendarId = Guid.NewGuid();
+        context.Calendars.Add(new Calendar
+        {
+            Id = existingCalendarId,
+            Name = "Original Calendar",
+            Active = true
+        });
+
+        var userId = Guid.NewGuid();
+        context.PortalUsers.Add(new User 
+        { 
+            Id = userId, 
+            Username = "test@user.com", 
+            Role = "User",
+            Name = "Test",
+            LastName = "User"
+        });
+        // Add user as a member
+        context.CalendarMembers.Add(new CalendarMember
+        {
+            CalendarId = existingCalendarId,
+            UserId = userId
+        });
+        await context.SaveChangesAsync();
+
+        var controller = new CalendarsController(context, Helpers.MockFirebaseNotificationService.GetMock(), NullLogger<CalendarsController>.Instance);
+        var adminUser = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] { 
+            new Claim(ClaimTypes.Role, "Admin"),
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString())
+        }, "mock"));
+        controller.ControllerContext = new ControllerContext() { HttpContext = new DefaultHttpContext() { User = adminUser } };
+
+        // Edit calendar and update 
+        var updateDto = new CalendarDto { Name = "Updated Calendar", Managers = new List<Guid> { userId } };
+        await controller.Edit(existingCalendarId, updateDto);
+
+        var updatedUser = await context.PortalUsers.FindAsync(userId);
+        Assert.NotNull(updatedUser);
+        var roles = updatedUser.Role.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(r => r.Trim()).ToList();
+        Assert.Contains("User", roles);
+        Assert.Contains("CalendarManager", roles);
+    }
+
+    [Fact]
     public async Task Delete_Calendar()
     {
         var options = new DbContextOptionsBuilder<UserDbContext>()
@@ -202,5 +255,3 @@ public class CalendarsControllerTests
         Assert.Contains(calendars, c => c.Id == calendar2Id);
     }
 }
-
-
