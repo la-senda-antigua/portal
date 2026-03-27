@@ -206,7 +206,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,CalendarManager")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var transactionId = Guid.NewGuid();
