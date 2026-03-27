@@ -29,8 +29,9 @@ import {
   getUserColor,
   getUserInitial,
 } from '../../../utils/user.utils';
+import { AuthService } from '../../services/auth.service';
 import { CalendarMemberDto } from '../../models/CalendarMemberDto';
-import { PortalUser } from '../../models/PortalUser';
+import { PortalUser, UserRole } from '../../models/PortalUser';
 import { ExtendedCalendar } from '../../pages/calendars/calendars.facade';
 import { AddPeopleFormComponent } from '../add-people-form/add-people-form.component';
 import { TableViewFormData } from '../table-view/table-view.component';
@@ -65,16 +66,19 @@ export class EditCalendarFormComponent implements OnInit {
   readonly formBuilder = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<EditCalendarFormComponent>);
   readonly formData = inject<CalendarFormData>(MAT_DIALOG_DATA);
+  private readonly authService = inject(AuthService);
 
   readonly selectedCalendar = this.formData.data;
+  readonly isAdmin = this.authService.hasRole(UserRole.Admin);
 
   readonly datePipe = inject(DatePipe);
   readonly dialog = inject(MatDialog);
   readonly calendarForm = computed(() => {
+    const disabled = !this.isAdmin;
     return new FormGroup({
-      name: new FormControl(this.formData.data.name, Validators.required),
-      isPublic: new FormControl(this.formData.data.isPublic ?? false),
-      isHidden: new FormControl(this.formData.data.isHidden ?? false),
+      name: new FormControl({ value: this.formData.data.name, disabled }, Validators.required),
+      isPublic: new FormControl({ value: this.formData.data.isPublic ?? false, disabled }),
+      isHidden: new FormControl({ value: this.formData.data.isHidden ?? false, disabled }),
     });
   });
   selectedUsers: CalendarMemberDto[] = [];
