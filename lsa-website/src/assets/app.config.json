@@ -12,19 +12,62 @@
       "sections": [
         {
           "name": "header",
-          "title": "Bienvenidos a Iglesia La Senda Antigua",
-          "floating-description": {
-            "position": "left",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
-                "REF Jeremías 6:16"
-              ]
-            }
-          },
-          "background-image": "assets/images/pastor_preaching_sepia.jpeg",
-          "background-color": "#3f4a49"
+          "carousel": {
+            "auto-rotate-ms": 5000,
+            "loop": true,
+            "slides": [
+              {
+                "name": "verse-of-the-day-slide",
+                "verse-of-the-day": {
+                  "title": "El verso del día",
+                  "text-align": "center",
+                  "copyright": "REINA-VALERA 1960",
+                  "overlay-color": "#3f4a49",
+                  "text-color": "#ffffff",
+                  "background-position": "center",
+                  "show-background-image": true
+                }
+              },
+              {
+                "background-image-with-floating-text": {
+                  "title": "Bienvenidos a Iglesia La Senda Antigua",
+                  "floating-description": {
+                    "position": "left",
+                    "description-block": {
+                      "text-color": "#ffffff",
+                      "lines": [
+                        "QUOTE Paraos en los caminos, y mirad, y preguntad por las sendas antiguas, cuál sea el buen camino, y andad por él, y hallaréis descanso para vuestra alma.",
+                        "REF Jeremías 6:16"
+                      ]
+                    }
+                  },
+                  "background-image": "assets/images/pastor_preaching_sepia.jpeg",
+                  "background-color": "#3f4a49"
+                }
+              },
+              {
+                "background-image-with-floating-text": {
+                  "title": "El Libro de Génesis",
+                  "floating-description": {
+                    "position": "left",
+                    "description-block": {
+                      "text-color": "#ffffff",
+                      "lines": [
+                        "Acompáñenos en este estudio del libro de Génesis,",
+                        "en donde encontramos joyas escondidas desde el principio de la fundación del mundo."
+                      ],
+                      "button": {
+                        "text": "Ver estudio",
+                        "link": "/biblestudies"
+                      }
+                    }
+                  },
+                  "background-image": "assets/images/genesis.jpg",
+                  "background-color": "#3f4a49"
+                }
+              }
+            ]
+          }
         },
         {
           "name": "section-1",
@@ -45,7 +88,8 @@
           "verse-of-the-day": {
             "title": "El verso del día",
             "text-align": "center",
-            "copyright": "REINA-VALERA 1960"
+            "copyright": "REINA-VALERA 1960",
+            "show-background-image": false
           },
           "background-color": "rgb(220, 217, 208)"
         },
@@ -134,7 +178,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true
       }
     },
@@ -212,19 +256,21 @@
       "sections": [
         {
           "name": "header",
-          "title": "Galería de eventos",
-          "floating-description": {
-            "position": "center",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE Grandes cosas ha hecho Jehová con nosotros; estaremos alegres.",
-                "REF Salmos 126:3"
-              ]
-            }
-          },
-          "background-image": "assets/images/choir.jpeg",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "Galería de eventos",
+            "floating-description": {
+              "position": "center",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "QUOTE Grandes cosas ha hecho Jehová con nosotros; estaremos alegres.",
+                  "REF Salmos 126:3"
+                ]
+              }
+            },
+            "background-image": "assets/images/choir.jpeg",
+            "background-color": "#3f4a49"
+          }
         },
         {
           "name": "section-1",
@@ -235,7 +281,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
@@ -272,19 +318,21 @@
       "sections": [
         {
           "name": "header",
-          "title": "La Obra Misionera",
-          "floating-description": {
-            "position": "left",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE Y respondiendo el Rey, les dirá: De cierto os digo que en cuanto lo hicisteis a uno de estos mis hermanos más pequeños, a mí lo hicisteis.",
-                "REF Mateo 25:40"
-              ]
-            }
-          },
-          "background-image": "assets/images/missions.jpg",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "La Obra Misionera",
+            "floating-description": {
+              "position": "left",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "QUOTE Y respondiendo el Rey, les dirá: De cierto os digo que en cuanto lo hicisteis a uno de estos mis hermanos más pequeños, a mí lo hicisteis.",
+                  "REF Mateo 25:40"
+                ]
+              }
+            },
+            "background-image": "assets/images/missions.jpg",
+            "background-color": "#3f4a49"
+          }
         },
         {
           "name": "section-1",
@@ -382,7 +430,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true
       }
     },
@@ -397,23 +445,25 @@
       "sections": [
         {
           "name": "header",
-          "background-image": "assets/images/thankyou.jpg",
-          "background-color": "#3f4a49",
-          "background-position": "center",
-          "title": "Gracias",
-          "floating-description": {
-            "position": "center",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "Gracias por su contribución a este ministerio.",
-                "El Señor de la mies le recompensará grandemente."
-              ]
+          "background-image-with-floating-text": {
+            "background-image": "assets/images/thankyou.jpg",
+            "background-color": "#3f4a49",
+            "background-position": "center",
+            "title": "Gracias",
+            "floating-description": {
+              "position": "center",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "Gracias por su contribución a este ministerio.",
+                  "El Señor de la mies le recompensará grandemente."
+                ]
+              }
             }
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
@@ -429,18 +479,20 @@
       "sections": [
         {
           "name": "header",
-          "title": "Estamos Trabajando",
-          "floating-description": {
-            "position": "center",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "Perdone nuestro desorden, estamos trabajando y muy pronto encontrará el contenido que está buscando. "
-              ]
-            }
-          },
-          "background-image": "assets/images/guatemala_7.jpg",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "Estamos Trabajando",
+            "floating-description": {
+              "position": "center",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "Perdone nuestro desorden, estamos trabajando y muy pronto encontrará el contenido que está buscando. "
+                ]
+              }
+            },
+            "background-image": "assets/images/guatemala_7.jpg",
+            "background-color": "#3f4a49"
+          }
         }
       ]
     },
@@ -536,7 +588,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
@@ -552,19 +604,21 @@
       "sections": [
         {
           "name": "header",
-          "title": "Escuela en casa",
-          "floating-description": {
-            "position": "right",
-            "description-block": {
-              "text-color": "#ffffff",
-              "lines": [
-                "QUOTE ... y todos tus hijos serán enseñados por Jehová; y se multiplicará la paz de tus hijos.",
-                "REF Isaías 54:13"
-              ]
-            }
-          },
-          "background-image": "assets/images/Homeschool-collage.png",
-          "background-color": "#3f4a49"
+          "background-image-with-floating-text": {
+            "title": "Escuela en casa",
+            "floating-description": {
+              "position": "right",
+              "description-block": {
+                "text-color": "#ffffff",
+                "lines": [
+                  "QUOTE ... y todos tus hijos serán enseñados por Jehová; y se multiplicará la paz de tus hijos.",
+                  "REF Isaías 54:13"
+                ]
+              }
+            },
+            "background-image": "assets/images/Homeschool-collage.png",
+            "background-color": "#3f4a49"
+          }
         },
         {
           "name": "section-1",
@@ -626,7 +680,7 @@
           }
         }
       ],
-      "footer":{
+      "footer": {
         "show": true,
         "background-color": "#f5f5f5"
       }
@@ -674,7 +728,13 @@
       },
       {
         "index": 5,
-        "text": "Calendario",
+        "text": "Misiones",
+        "link": "/contribute"
+      },
+
+      {
+        "index": 5,
+        "text": "Eventos",
         "link": "/calendar"
       }
     ],

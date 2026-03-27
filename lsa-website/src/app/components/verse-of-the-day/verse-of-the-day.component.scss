@@ -1,29 +1,44 @@
 @use "../../../styles_variables" as lsa_var;
 
-.verse-of-the-day{
-  display: flex;  
+.verse-of-the-day {
+  position: relative;
+  display: flex;
+  height: 100%;
+  width: 100%;
   padding: 0;
-  justify-content:center;
-  
-  & .content{
-    position:relative;
-    max-width: 1600px;    
-    & .title{
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+
+  & .content {
+    position: relative;
+    max-width: 1600px;
+    & .title {
       text-align: left;
       font-weight: normal;
       font-size: lsa_var.$fs-m;
     }
-  
-    & .text{    
+
+    & .text {
       font-size: lsa_var.$fs-xxxl;
     }
-    
-    & .reference{
+
+    & .reference {
       font-size: lsa_var.$fs-lg;
       font-weight: 300;
       text-align: right;
-  
-      & small{font-weight: bold;}
+
+      & small {
+        font-weight: bold;
+      }
     }
   }
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }

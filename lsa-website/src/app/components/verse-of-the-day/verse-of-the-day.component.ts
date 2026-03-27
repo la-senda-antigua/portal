@@ -1,4 +1,4 @@
-import { Component, input, OnInit, signal } from '@angular/core';
+import { Component, computed, input, OnInit, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { VerseConfig } from 'src/app/models/app.config.models';
 
@@ -6,6 +6,7 @@ interface Verse {
   id: number;
   text: string;
   reference: string;
+  image: string;
 }
 
 @Component({
@@ -19,7 +20,17 @@ interface Verse {
 export class VerseOfTheDayComponent implements OnInit {
   readonly verseOfTheDay = signal<Verse | null>(null)
   readonly config = input.required<VerseConfig>();
-
+  readonly overlayColor = computed(() => {
+    if (!this.config()?.overlayColor) {
+      return undefined;
+    }
+    return `background-image: radial-gradient(rgba(56,56,56,0.4), ${this.config()?.overlayColor})`;
+  });
+  readonly backgroundPosition = computed(() => this.config()?.backgroundPosition ?? '');
+  readonly backgroundImage = computed(() => this.config()?.showBackgroundImage ? `url(assets/${this.verseOfTheDay()?.image})` : '');
+  readonly textColor = computed(() => this.config()?.textColor ?? 'auto');
+  readonly textShadow = computed(() => this.config()?.showBackgroundImage ? 'black 1px 1px 5px' : 'none');
+  
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {

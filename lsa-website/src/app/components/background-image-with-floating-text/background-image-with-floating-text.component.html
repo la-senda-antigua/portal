@@ -1,0 +1,53 @@
+<div
+  class="container"
+  [style.backgroundImage]="
+    backgroundImage() ? 'url(' + backgroundImage() + ')' : ''
+  "
+  [style.backgroundColor]="!backgroundImage() ? (backgroundColor() ?? '') : ''"
+  [style.backgroundPosition]="backgroundPosition() ?? ''"
+>
+  @if (overlayColor()) {
+    <div class="overlay" [style]="overlayColor()"></div>
+  }
+
+  <div class="content">
+    <div
+      class="floating-description"
+      [style.color]="textColor()"
+      [style]="textPosition()"
+    >
+      <h1>{{ title() }}</h1>
+      @for (line of description()?.lines; track line) {
+        <div
+          class="description-line"
+          [class.quote-ref]="line.includes('REF')"
+          [ngStyle]="getStyleForQuoteRef(line)"
+        >
+          <span class="quote" *ngIf="line.includes('QUOTE')">“</span>
+          <span>{{ line.replace("QUOTE", "").replace("REF", "") }}</span>
+        </div>
+      }
+      @if (description()?.button?.isNullOrEmpty() === false) {
+        @if (description()!.button!.link.includes("http")) {
+          <a
+            [href]="description()!.button!.link"
+            mat-flat-button
+            class="button"
+            [attr.target]="description()!.button!.target"
+          >
+            {{ description()!.button!.text }}
+          </a>
+        } @else {
+          <a
+            [routerLink]="description()!.button!.link"
+            mat-flat-button
+            class="button"
+            [attr.target]="description()!.button!.target"
+          >
+            {{ description()!.button!.text }}
+          </a>
+        }
+      }
+    </div>
+  </div>
+</div>

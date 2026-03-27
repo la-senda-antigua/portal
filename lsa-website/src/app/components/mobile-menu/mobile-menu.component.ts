@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, output, signal,ChangeDetectionStrategy } from '@angular/core';
+import { Component, effect, output, signal,ChangeDetectionStrategy, untracked } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -40,6 +40,7 @@ export class MobileMenuComponent {
       this.homeLink = config?.link ?? '/';
       this.button = config?.button;
       this.options = config?.options ?? [];
+      untracked(() => this.activeOption.set(this.options[0] ?? null));
     });
   }
 
