@@ -70,14 +70,13 @@ export class CalendarsComponent {
   readonly snackBar = inject(MatSnackBar);
   /** Calendar data service and color assignment helper. */
   readonly service = inject(CalendarsService);
-    
+
   readonly calendarEventsLoading = this.facade.calendarEventsLoading;
   /** True only until the initial calendar list and user list have been fetched. */
   readonly sidebarLoading = computed(
     () => !this.facade.calendarListLoaded() || !this.facade.usersLoaded(),
   );
   readonly error = this.facade.error;
-    
   readonly users = this.facade.users;
   readonly usersById = this.facade.usersById;
   readonly currentUser = this.facade.currentUser;  
@@ -212,7 +211,7 @@ export class CalendarsComponent {
 
   constructor() {
     this.facade.loadInitialData();
-    this.initializeEffects();    
+    this.initializeEffects();
   }
 
   /** Toggle handler for "Select all" in the calendar sidebar filter. */
