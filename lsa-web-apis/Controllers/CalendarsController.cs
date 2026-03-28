@@ -197,7 +197,7 @@ namespace lsa_web_apis.Controllers
                             .Select(r => r.Trim())
                             .ToList();
 
-                        if (!roles.Contains("CalendarManager", StringComparer.OrdinalIgnoreCase))
+                        if (!roles.Contains("CalendarManager", StringComparer.OrdinalIgnoreCase) || !roles.Contains("Admin", StringComparer.OrdinalIgnoreCase))
                         {
                             roles.Add("CalendarManager");
                             newCalendarManager.Role = string.Join(",", roles);
