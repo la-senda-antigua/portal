@@ -218,11 +218,17 @@ export class UsersPageComponent extends PageBaseComponent {
         this.deleteUserGroupTriggered.update(() => false);
       }
     });
-    effect(() => {
+    effect(() => {      
       if (this.error()) {
+        let displayMessage = 'There was a problem with your request';
+
+        if (this.error().status === 409 && this.error().error?.code === 'LAST_ADMIN_PROTECTION') {
+          displayMessage = this.error().error.message;
+        }
+
         this.handleException(
-          new Error(this.error()!),
-          'There was a problem with your request',
+          new Error(this.error().message || 'Unknown Error'),
+          displayMessage,
         );
       }
     });
