@@ -45,6 +45,7 @@ class _AssigneeSelectorSheetState extends State<AssigneeSelectorSheet> {
 			.replaceAll('é', 'e')
 			.replaceAll('í', 'i')
 			.replaceAll('ó', 'o')
+      .replaceAll('ñ', 'n')
 			.replaceAll('ú', 'u');
 	}
 
@@ -84,20 +85,36 @@ class _AssigneeSelectorSheetState extends State<AssigneeSelectorSheet> {
 		});
 	}
 
-	void _selectGroup(UserGroup group) {
-		setState(() {
-			final availableById = {
-				for (final user in widget.availableUsers) user.userId: user,
-			};
-			final selectedIds = _selectedUsers.map((user) => user.userId).toSet();
+	bool _isGroupSelected(UserGroup group) {
+		final selectedIds = _selectedUsers.map((u) => u.userId).toSet();
+		final availableIds = widget.availableUsers.map((u) => u.userId).toSet();
+		final membersInThisCalendar = group.memberIds.where((id) => availableIds.contains(id)).toList();
 
-			for (final memberId in group.memberIds) {
-				final user = availableById[memberId];
-				if (user == null || selectedIds.contains(memberId)) {
-					continue;
+		if (membersInThisCalendar.isEmpty) return false;
+
+		return membersInThisCalendar.every((id) => selectedIds.contains(id));
+	}
+
+	void _toggleGroup(UserGroup group) {
+		final isComplete = _isGroupSelected(group);
+		final groupMemberIdsSet = group.memberIds.toSet();
+
+		setState(() {
+			if (isComplete) {
+				_selectedUsers = _selectedUsers
+					.where((user) => !groupMemberIdsSet.contains(user.userId))
+					.toList();
+			} else {
+				final currentSelectedIds = _selectedUsers.map((u) => u.userId).toSet();
+				final toAdd = <AssignableUser>[];
+
+				for (final user in widget.availableUsers) {
+					if (groupMemberIdsSet.contains(user.userId) &&
+						!currentSelectedIds.contains(user.userId)) {
+						toAdd.add(user);
+					}
 				}
-				_selectedUsers.add(user);
-				selectedIds.add(memberId);
+				_selectedUsers = [..._selectedUsers, ...toAdd];
 			}
 		});
 	}
@@ -156,14 +173,26 @@ class _AssigneeSelectorSheetState extends State<AssigneeSelectorSheet> {
 											trailing: Icon(_selectedUsers.any((item) => item.userId == user.userId) ? Icons.check_circle : Icons.add_circle_outline, color: _selectedUsers.any((item) => item.userId == user.userId) ? AppColors.accent : AppColors.dark.withOpacity(0.6)),
 											onTap: () => _toggleUser(user),
 										)),
-										...filteredGroups.map((group) => ListTile(
-											contentPadding: EdgeInsets.zero,
-											leading: CircleAvatar(backgroundColor: AppColors.dark.withOpacity(0.08), child: const Icon(Icons.group_outlined, color: AppColors.dark)),
-											title: Text(group.groupName),
-											subtitle: Text('${group.memberIds.length}'),
-											trailing: const Icon(Icons.add_circle_outline),
-											onTap: () => _selectGroup(group),
-										)),
+										...filteredGroups.map((group) {
+											final isSelected = _isGroupSelected(group);
+											return ListTile(
+												contentPadding: EdgeInsets.zero,
+												leading: CircleAvatar(
+													backgroundColor: isSelected ? AppColors.accent.withOpacity(0.12) : AppColors.dark.withOpacity(0.08),
+													child: Icon(
+														isSelected ? Icons.group : Icons.group_outlined,
+														color: isSelected ? AppColors.accent : AppColors.dark
+													),
+												),
+												title: Text(group.groupName),
+												subtitle: Text('${group.memberIds.length}'),
+												trailing: Icon(
+													isSelected ? Icons.check_circle : Icons.add_circle_outline,
+													color: isSelected ? AppColors.accent : AppColors.dark.withOpacity(0.6),
+												),
+												onTap: () => _toggleGroup(group),
+											);
+										}),
 									],
 								],
 							),

@@ -136,6 +136,7 @@ class _AddEventModalState extends State<AddEventModal> {
 	DateTime? _endDateTime;
 	bool _allDay = false;
 	bool _isCheckingConflicts = false;
+	bool _isAssigneesExpanded = false;
 	String _conflictMessage = '';
 
 	@override
@@ -585,16 +586,34 @@ class _AddEventModalState extends State<AddEventModal> {
 											onTap: _openAssigneeSelector,
 										),
 										if (_selectedAssignees.isNotEmpty) ...[
-											const SizedBox(height: 10),
-											Wrap(
-												spacing: 8,
-												runSpacing: 8,
-												children: _selectedAssignees.map((assignee) {
-													return Chip(
-														label: Text(assignee.displayName),
-														onDeleted: () => _removeAssignee(assignee.userId),
-													);
-												}).toList(),
+											const SizedBox(height: 12),
+											AnimatedSize(
+												duration: const Duration(milliseconds: 250),
+												curve: Curves.easeInOut,
+												child: Wrap(
+													spacing: 8,
+													runSpacing: 8,
+													children: [
+														...(_isAssigneesExpanded 
+																? _selectedAssignees 
+																: _selectedAssignees.take(5)
+															).map((assignee) {
+															return Chip(
+																label: Text(assignee.displayName),
+																onDeleted: () => _removeAssignee(assignee.userId),
+															);
+														}),
+														if (_selectedAssignees.length > 5)
+															ActionChip(
+																avatar: Icon(_isAssigneesExpanded ? Icons.expand_less : Icons.add, size: 16),
+																label: Text(_isAssigneesExpanded 
+																	? '...' 
+																	: '+${_selectedAssignees.length - 5} ...'),
+																onPressed: () => setState(() => _isAssigneesExpanded = !_isAssigneesExpanded),
+																backgroundColor: AppColors.accent.withOpacity(0.1),
+															),
+													],
+												),
 											),
 										],
 										const SizedBox(height: 12),
