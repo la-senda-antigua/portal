@@ -184,4 +184,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get endTime => 'End time';
+
+  @override
+  String get assignedToMe => 'Assigned to me';
 }

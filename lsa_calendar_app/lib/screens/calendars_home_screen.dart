@@ -582,16 +582,22 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       '--- Build. CurrentDate: $currentDate. Events: ${events.length}',
     );
 
-    final eventsToShow = viewMode == 'day'
-        ? events
-              .where(
-                (e) =>
-                    e.start.year == currentDate.year &&
-                    e.start.month == currentDate.month &&
-                    e.start.day == currentDate.day,
-              )
-              .toList()
-        : events;
+    final eventsToShow = switch (viewMode) {
+      'day' => events
+          .where(
+            (e) =>
+                e.start.year == currentDate.year &&
+                e.start.month == currentDate.month &&
+                e.start.day == currentDate.day,
+          )
+          .toList(),
+      'assigned' => events.where((e) {
+          final userIdentifier = email;
+          return e.assignees.any((a) =>
+              a.username.toLowerCase() == userIdentifier?.toLowerCase());
+        }).toList(),
+      _ => events,
+    };
 
     final visibleEvents = eventsToShow.where((e) {
       final matchesCalendar =
@@ -600,7 +606,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       return matchesCalendar;
     }).toList();
 
-    if (viewMode == 'month') {
+    if (viewMode == 'month' || viewMode == 'assigned') {
       final calendarNames = {for (var c in calendars) c.id.toString(): c.name};
       visibleEvents.sort((a, b) {
         final nameA = calendarNames[a.calendarId] ?? '';
@@ -696,7 +702,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
                         : _managedCalendarsForCurrentUser
                               .map((c) => c.id)
                               .toSet(),
-                    showDate: viewMode == 'month',
+                    showDate: viewMode != 'day',
                   ),
           ),
         ],

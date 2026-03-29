@@ -140,6 +140,26 @@ class _CalendarsDrawerState extends State<CalendarsDrawer> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: () => widget.onViewModeChanged('assigned'),
+                  icon: const Icon(Icons.assignment_ind),
+                  label: Text(AppLocalizations.of(context)!.assignedToMe),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: widget.viewMode == 'assigned'
+                        ? AppColors.accent
+                        : AppColors.secondary,
+                    foregroundColor: widget.viewMode == 'assigned'
+                        ? AppColors.secondary
+                        : AppColors.accent,
+                    elevation: 0,
+                  ),
+                ),
+              ),
             ],
           ),
           Divider(),

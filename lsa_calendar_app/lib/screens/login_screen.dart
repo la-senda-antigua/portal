@@ -234,12 +234,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final String token = response['accesToken'] ?? response['accessToken'];
       final String? refreshToken = response['refreshToken'];
-
+      
       await _saveData(
         token,
         refreshToken,
-        _usernameController.text,
-        null,
+        'Test User',
+        _usernameController.text.trim(),
         null,
       );
       await _syncUserRolesFromToken();
