@@ -218,7 +218,7 @@ export class UsersPageComponent extends PageBaseComponent {
         this.deleteUserGroupTriggered.update(() => false);
       }
     });
-    effect(() => {      
+    effect(() => {
       if (this.error()) {
         let displayMessage = 'There was a problem with your request';
 
