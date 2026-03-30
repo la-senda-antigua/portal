@@ -13,7 +13,7 @@
         {
           "name": "header",
           "carousel": {
-            "auto-rotate-ms": 5000,
+            "auto-rotate-ms": 7000,
             "loop": true,
             "slides": [
               {
@@ -691,6 +691,11 @@
     "link": "/home",
     "options": [
       {
+        "index": 0,
+        "text": "Inicio",
+        "link": "/home"
+      },
+      {
         "index": 1,
         "text": "Iglesia local",
         "options": [
@@ -717,23 +722,23 @@
         ]
       },
       {
-        "index": 3,
+        "index": 2,
         "text": "Radio",
         "link": "/radio"
       },
       {
-        "index": 4,
+        "index": 5,
         "text": "Contáctenos",
         "link": "/contact"
       },
       {
-        "index": 5,
+        "index": 3,
         "text": "Misiones",
         "link": "/contribute"
       },
 
       {
-        "index": 5,
+        "index": 4,
         "text": "Eventos",
         "link": "/calendar"
       }

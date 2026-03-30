@@ -20,7 +20,7 @@
     }
 
     & .text {
-      font-size: lsa_var.$fs-xxxl;
+      font-size: clamp(1.5rem, 5vw, 2.5rem);
     }
 
     & .reference {
