@@ -171,11 +171,13 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
           originalEvent: isEdit && isFirstCycle ? event : null,
         );
         setState(() {
-          currentDate = DateTime(
+          final newDate = DateTime(
             result.start.year,
             result.start.month,
             result.start.day,
           );
+          _isMovingForward = newDate.isAfter(currentDate);
+          currentDate = newDate;
         });
         await fetchEvents();
         if (!mounted) return;
@@ -452,7 +454,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
     for (final d in uniqueDatesCurrent) {
       if (d.isAfter(DateTime(fromDate.year, fromDate.month, fromDate.day))) {
-        setState(() => currentDate = d);
+        setState(() {
+          _isMovingForward = d.isAfter(currentDate);
+          currentDate = d;
+        });
         _updateNavigationDates();
         return true;
       }
@@ -480,7 +485,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
             monthEvents.first.start.month,
             monthEvents.first.start.day,
           );
-          setState(() => currentDate = earliest);
+          setState(() {
+            _isMovingForward = earliest.isAfter(currentDate);
+            currentDate = earliest;
+          });
           _updateNavigationDates();
           return true;
         }
