@@ -10,6 +10,7 @@
         mat-icon-button
         class="add-button"
         (click)="openAddCalendarModal()"
+        [disabled]="!isAdmin"
       >
         <mat-icon>add</mat-icon>
       </button>

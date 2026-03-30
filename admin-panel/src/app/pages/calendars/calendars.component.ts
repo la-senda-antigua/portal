@@ -27,8 +27,6 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import {
   DeleteConfirmationData,
 } from '../../components/delete-confirmation/delete-confirmation.component';
-import { CalendarDto } from '../../models/CalendarDto';
-import { CalendarMemberDto } from '../../models/CalendarMemberDto';
 import { PortalUser } from '../../models/PortalUser';
 import { CalendarsService } from '../../services/calendars.service';
 import { CalendarsDialogsService } from './calendars-dialogs.service';
@@ -79,10 +77,10 @@ export class CalendarsComponent {
     () => !this.facade.calendarListLoaded() || !this.facade.usersLoaded(),
   );
   readonly error = this.facade.error;
-
   readonly users = this.facade.users;
   readonly usersById = this.facade.usersById;
-  readonly currentUser = this.facade.currentUser;
+  readonly currentUser = this.facade.currentUser;  
+  readonly isAdmin = this.facade.isAdmin;
   readonly myCalendars = this.facade.calendars;
   readonly calendarEventsByCalendarId = this.facade.calendarEventsByCalendarId;
   readonly loadedEventRangesByCalendarId =
