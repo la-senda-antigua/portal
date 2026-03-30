@@ -118,7 +118,7 @@ class _EventCardState extends State<EventCard> {
       ).format(widget.event.originalEnd);
       dateRangeText = AppLocalizations.of(
         context,
-      )!.eventDateRange(startStr, endStr);
+      )!.eventDateRange(endStr, startStr);
     }
 
     const itemMargin = EdgeInsets.symmetric(horizontal: 16, vertical: 8);

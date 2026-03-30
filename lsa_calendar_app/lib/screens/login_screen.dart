@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,6 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    if (kDebugMode) {      
+      _usernameController.text = dotenv.env['DEV_USERNAME'] ?? '';
+      _passwordController.text = dotenv.env['DEV_PASSWORD'] ?? '';
+    }
     _loadAppVersion();
     _checkExistingSession();
   }
