@@ -39,7 +39,9 @@ export class MobileMenuComponent {
       this.title = config?.title ?? '';
       this.homeLink = config?.link ?? '/';
       this.button = config?.button;
-      this.options = config?.options ?? [];
+      const options = config?.options?.sort((a, b) => a.index - b.index) ?? [];
+      options.map(o => o.options?.sort((a, b) => a.index - b.index));
+      this.options = options;
       untracked(() => this.activeOption.set(this.options[0] ?? null));
     });
   }
