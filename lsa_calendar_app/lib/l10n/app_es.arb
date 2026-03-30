@@ -52,5 +52,6 @@
   "startDate": "Fecha de inicio",
   "startTime": "Hora de inicio",
   "endDate": "Fecha de fin",
-  "endTime": "Hora de fin"
+  "endTime": "Hora de fin",
+  "assignedToMe": "Mis asignaciones"
 }
