@@ -38,6 +38,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   bool _isAdmin = false;
 
   DateTime currentDate = DateTime.now();
+  bool _isMovingForward = true;
   String? previousDate;
   String? nextDate;
   String viewMode = 'day';
@@ -170,11 +171,13 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
           originalEvent: isEdit && isFirstCycle ? event : null,
         );
         setState(() {
-          currentDate = DateTime(
+          final newDate = DateTime(
             result.start.year,
             result.start.month,
             result.start.day,
           );
+          _isMovingForward = newDate.isAfter(currentDate);
+          currentDate = newDate;
         });
         await fetchEvents();
         if (!mounted) return;
@@ -451,7 +454,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
     for (final d in uniqueDatesCurrent) {
       if (d.isAfter(DateTime(fromDate.year, fromDate.month, fromDate.day))) {
-        setState(() => currentDate = d);
+        setState(() {
+          _isMovingForward = d.isAfter(currentDate);
+          currentDate = d;
+        });
         _updateNavigationDates();
         return true;
       }
@@ -479,7 +485,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
             monthEvents.first.start.month,
             monthEvents.first.start.day,
           );
-          setState(() => currentDate = earliest);
+          setState(() {
+            _isMovingForward = earliest.isAfter(currentDate);
+            currentDate = earliest;
+          });
           _updateNavigationDates();
           return true;
         }
@@ -558,8 +567,10 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
 
   void _goToDate(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return;
+    final newDate = DateTime.parse(dateStr);
     setState(() {
-      currentDate = DateTime.parse(dateStr);
+      _isMovingForward = newDate.isAfter(currentDate);
+      currentDate = newDate;
       _updateNavigationDates();
     });
   }
@@ -567,6 +578,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
   void _changeMonth(int offset) {
     debugPrint('--- _changeMonth called. Offset: $offset');
     setState(() {
+      _isMovingForward = offset > 0;
       currentDate = DateTime(currentDate.year, currentDate.month + offset, 1);
       debugPrint('--- New currentDate: $currentDate');
       events = [];
@@ -677,33 +689,56 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
               onDateSelected: (dateStr) => _goToDate(dateStr),
             ),
           Expanded(
-            child: (visibleEvents.isEmpty && eventsToShow.isNotEmpty)
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Text(
-                        AppLocalizations.of(context)!.selectCalendarMessage,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                final isIncoming = child.key == ValueKey(currentDate);
+                final Offset begin = _isMovingForward
+                    ? (isIncoming ? const Offset(1.0, 0.0) : const Offset(-1.0, 0.0))
+                    : (isIncoming ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0));
+
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: begin,
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeInOut,
+                  )),
+                  child: child,
+                );
+              },
+              child: SizedBox.expand(
+                key: ValueKey(currentDate),
+                child: (visibleEvents.isEmpty && eventsToShow.isNotEmpty)
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Text(
+                            AppLocalizations.of(context)!.selectCalendarMessage,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      )
+                    : EventsList(
+                        events: visibleEvents,
+                        calendars: calendars,
+                        isLoading: isLoading || isLoadingEvents,
+                        error: error,
+                        onRefresh: () => _loadData(showLoading: false),
+                        onEventTap: (event) {},
+                        onEditEvent: _editEvent,
+                        onDeleteEvent: _deleteEvent,
+                        managedCalendarIds: _isAdmin
+                            ? calendars.map((c) => c.id).toSet()
+                            : _managedCalendarsForCurrentUser
+                                  .map((c) => c.id)
+                                  .toSet(),
+                        showDate: viewMode != 'day',
                       ),
-                    ),
-                  )
-                : EventsList(
-                    events: visibleEvents,
-                    calendars: calendars,
-                    isLoading: isLoading || isLoadingEvents,
-                    error: error,
-                    onRefresh: () => _loadData(showLoading: false),
-                    onEventTap: (event) {},
-                    onEditEvent: _editEvent,
-                    onDeleteEvent: _deleteEvent,
-                    managedCalendarIds: _isAdmin
-                        ? calendars.map((c) => c.id).toSet()
-                        : _managedCalendarsForCurrentUser
-                              .map((c) => c.id)
-                              .toSet(),
-                    showDate: viewMode != 'day',
-                  ),
+              ),
+            ),
           ),
         ],
       ),
