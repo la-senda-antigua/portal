@@ -19,7 +19,7 @@ export interface AppState {
   usersLoaded: boolean;
   userGroupsLoaded: boolean;
   calendarsLoaded: boolean;
-  error: string | null;
+  error: any | null;
   currentUser: PortalUser | null;
   calendarEventsByRange: Record<string, CalendarEvent[]>;
   loadedEventRangesByCalendarId: Record<string, LoadedDateRange[]>;

@@ -173,6 +173,23 @@ namespace lsa_web_apis.Controllers
                     return NotFound("User not found.");
                 }
 
+                // Ensure the last administrator is not removed when changing his role
+                var isAdmin = user.Role.Split(',').Any(r => r.Trim().Equals("Admin", StringComparison.OrdinalIgnoreCase));
+                var newRoleIsAdmin = updateData.Role.Split(',').Any(r => r.Trim().Equals("Admin", StringComparison.OrdinalIgnoreCase));
+
+                if (isAdmin && !newRoleIsAdmin)
+                {
+                    var adminCount = await context.PortalUsers.CountAsync(u => u.Role.Contains("Admin"));
+                    if (adminCount <= 1)
+                    {
+                        log.Warning("Attempt to change the role of the last administrator. UserId: {UserId}", id);
+                        return Conflict(new {
+                            code = "LAST_ADMIN_PROTECTION",
+                            message = "Cannot change the role of the last administrator. Assign another user as administrator before."
+                        });
+                    }
+                }
+
                 user.Username = updateData.Username;
                 user.Role = updateData.Role;
                 user.Name = updateData.Name;
@@ -243,6 +260,20 @@ namespace lsa_web_apis.Controllers
                 {
                     log.Warning("User not found. UserId: {UserId}", id);
                     return NotFound("User not found.");
+                }
+
+                // Ensure the last administrator is not deleted
+                if (user.Role.Split(',').Any(r => r.Trim().Equals("Admin", StringComparison.OrdinalIgnoreCase)))
+                {
+                    var adminCount = await context.PortalUsers.CountAsync(u => u.Role.Contains("Admin"));
+                    if (adminCount <= 1)
+                    {
+                        log.Warning("Attempt to delete the last administrator. UserId: {UserId}", id);
+                        return Conflict(new { 
+                            code = "LAST_ADMIN_PROTECTION",
+                            message= "Cannot delete the last administrator. Assign another user as administrator before."
+                        });
+                    }
                 }
 
                 context.PortalUsers.Remove(user);

@@ -102,10 +102,11 @@ export class PageRendererComponent {
 
     effect(() => {
       const _ = this.pageConfig();
-
-      document
-        .getElementById('page-content')
-        ?.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        document
+          .getElementById('page-content')
+          ?.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 200);
     });
   }
 }

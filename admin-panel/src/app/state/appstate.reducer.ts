@@ -429,7 +429,7 @@ export const appStateReducer = createReducer(
       loadingGroups: false,
       loadingCalendars: false,
       loadingCalendarEvents: false,
-      error: error?.message || 'An error occurred while loading data.',
+      error: error,
     }),
   ),
 );

@@ -1,26 +1,28 @@
-<div
-  class="header-container"
-  [style.backgroundImage]="backgroundImage() ? 'url(' + backgroundImage() + ')' : ''"
-  [style.backgroundColor]="!backgroundImage() ? backgroundColor() ?? '' : ''"
-  [style.backgroundPosition]="backgroundPosition() ??''"
->
-  @if(overlayColor()){
-  <div class="header-overlay" [style]="overlayColor()"></div>
-  }
-
-  <div class="header-content">
-    <div
-      class="floating-description"
-      [style.color]="textColor()"
-      [style]="textPosition()"
-    >
-      <h1>{{ title() }}</h1>
-      @for(line of description(); track line){
-        <div class="description-line" [class.quote-ref]="line.includes('REF')" [ngStyle]="getStyleForQuoteRef(line)">          
-          <span class="quote" *ngIf="line.includes('QUOTE')">“</span>
-          <span >{{ line.replace("QUOTE", "").replace("REF", "") }}</span> 
+@if (headerConfig().backgroundImageWithFloatingText?.isNullOrEmpty() === false) {
+  <lsa-background-image-with-floating-text
+    [config]="headerConfig().backgroundImageWithFloatingText!"
+  ></lsa-background-image-with-floating-text>
+} @else {
+  <lsa-carousel
+    [autoRotateMs]="headerConfig().carousel!.autoRotateMs"
+    [loop]="headerConfig().carousel!.loop ?? true"
+    [slideCount]="headerConfig().carousel!.slides.length"
+  >
+    @for (slide of headerConfig().carousel!.slides; track $index) {
+      @if (slide.backgroundImageWithFloatingText?.isNullOrEmpty() === false) {
+        <div class="carousel-slide">
+          <lsa-background-image-with-floating-text
+            [config]="slide.backgroundImageWithFloatingText!"
+          ></lsa-background-image-with-floating-text>
         </div>
       }
-    </div>
-  </div>
-</div>
+      @if(slide.verseOfTheDay?.isNullOrEmpty() === false) {
+        <div class="carousel-slide">
+          <lsa-verse-of-the-day
+            [config]="slide.verseOfTheDay!"
+          ></lsa-verse-of-the-day>
+        </div>
+      }
+    }
+  </lsa-carousel>
+}

@@ -185,6 +185,24 @@ namespace lsa_web_apis.Controllers
                     }).ToList();
 
                     await _context.CalendarManagers.AddRangeAsync(newManagers);
+
+                    // Update user role if needed
+                    var newCalendarManagers = await _context.PortalUsers
+                        .Where(u => dto.Managers.Contains(u.Id))
+                        .ToListAsync();
+
+                    foreach (var newCalendarManager in newCalendarManagers)
+                    {
+                        var roles = (newCalendarManager.Role ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(r => r.Trim())
+                            .ToList();
+
+                        if (!roles.Contains("CalendarManager", StringComparer.OrdinalIgnoreCase) && !roles.Contains("Admin", StringComparer.OrdinalIgnoreCase))
+                        {
+                            roles.Add("CalendarManager");
+                            newCalendarManager.Role = string.Join(",", roles);
+                        }
+                    }
                 }
 
                 await _context.SaveChangesAsync();
@@ -206,7 +224,7 @@ namespace lsa_web_apis.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,CalendarManager")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var transactionId = Guid.NewGuid();
@@ -247,7 +265,7 @@ namespace lsa_web_apis.Controllers
             {
                 if (useTransaction)
                     await _context.Database.RollbackTransactionAsync();
-                    
+
                 log.Error(ex, "An error occurred while deleting the calendar with ID: {CalendarId}", id);
                 return StatusCode(500, "An error occurred while deleting the calendar.");
             }

@@ -185,4 +185,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get endTime => 'Hora de fin';
+
+  @override
+  String get assignedToMe => 'Mis asignaciones';
 }

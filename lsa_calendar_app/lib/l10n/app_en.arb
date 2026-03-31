@@ -52,5 +52,6 @@
   "startDate": "Start date",
   "startTime": "Start time",
   "endDate": "End date",
-  "endTime": "End time"
+  "endTime": "End time",
+  "assignedToMe": "Assigned to me"
 }
