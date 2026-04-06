@@ -29,7 +29,6 @@ export class CalendarListViewComponent implements OnInit {
     this.calendarEventService.loadEvents();
   }
 
-  // Estos métodos se hacen privados porque solo se usarán internamente en getFormattedDateRange
   private isMultiDay(start: string | Date, end?: string | Date): boolean {
     if (!end) return false;
     const s = new Date(start);
