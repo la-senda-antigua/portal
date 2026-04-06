@@ -23,8 +23,11 @@
         <table class="table-info">
           @if (calendarEvent.allDay) {
             <tr>
-              <td>Todo el día</td>
-            </tr>
+              <td>Fecha:</td>
+              <td> 
+                <b>{{ calendarEvent.start | date: "MMM d, y" }} </b> <span>(Todo el día)</span>
+              </td>
+            </tr>    
           } @else {
             <tr>
               <td>Inicio:</td>
