@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     CommonModule,
     DescriptionBlockComponent,
     MatProgressSpinnerModule,
-    DatePipe, 
+    DatePipe,
   ],
   providers: [DatePipe],
   templateUrl: './calendar-list-view.component.html',
@@ -23,7 +23,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class CalendarListViewComponent implements OnInit {
   readonly config = input.required<CalendarListViewConfig>();
 
-  constructor(public calendarEventService: CalendarEventService, private datePipe: DatePipe) {}
+  constructor(public calendarEventService: CalendarEventService, private datePipe: DatePipe) { }
 
   ngOnInit(): void {
     this.calendarEventService.loadEvents();
@@ -56,21 +56,33 @@ export class CalendarListViewComponent implements OnInit {
     const endDate = end ? new Date(end) : undefined;
 
     if (!endDate || !this.isMultiDay(startDate, endDate)) {
-      return `<b>${this.datePipe.transform(startDate, 'MMM d, y')}</b>, todo el día.`;
+      return `<b class="capitalize-text">${this.datePipe.transform(startDate, 'MMM d, y', '', 'es')}</b>, todo el día.`;
     }
 
     // Multiple days events
     if (this.isSameYear(startDate, endDate)) {
       if (this.isSameMonth(startDate, endDate)) {
         // Same year, same month
-        return `Del <b>${this.datePipe.transform(startDate, 'd')}</b> al <b>${this.datePipe.transform(endDate, 'd')}</b> de <b>${this.datePipe.transform(startDate, 'MMMM')}</b>, de <b>${this.datePipe.transform(startDate, 'y')}</b>`;
+        return `Del <b>${this.datePipe.transform(startDate, 'd', '', 'es')}</b> 
+                al <b>${this.datePipe.transform(endDate, 'd', '', 'es')}</b> 
+                de <b class="capitalize-text">${this.datePipe.transform(startDate, 'MMMM', '', 'es')}</b>, 
+                de <b>${this.datePipe.transform(startDate, 'y', '', 'es')}</b>`;
       } else {
         // Same year, different month
-        return `Del <b>${this.datePipe.transform(startDate, 'd \'de\' MMMM')}</b> al <b>${this.datePipe.transform(endDate, 'd \'de\' MMMM')}</b>, de <b>${this.datePipe.transform(startDate, 'y')}</b>`;
+        return `Del <b>${this.datePipe.transform(startDate, 'd', '', 'es')} de 
+                <span class="capitalize-text">${this.datePipe.transform(startDate, 'MMMM', '', 'es')}</span></b> 
+                al <b>${this.datePipe.transform(endDate, 'd', '', 'es')} 
+                de <span class="capitalize-text">${this.datePipe.transform(endDate, 'MMMM', '', 'es')}</span></b>, 
+                de <b>${this.datePipe.transform(startDate, 'y', '', 'es')}</b>`;
       }
     } else {
       // Different year
-      return `Del <b>${this.datePipe.transform(startDate, 'd \'de\' MMMM, y')}</b> al <b>${this.datePipe.transform(endDate, 'd \'de\' MMMM, y')}</b>`;
+      return `Del <b>${this.datePipe.transform(startDate, 'd', '', 'es')} de 
+              <span class="capitalize-text">${this.datePipe.transform(startDate, 'MMMM', '', 'es')}</span>, 
+              ${this.datePipe.transform(startDate, 'y', '', 'es')}</b> 
+              al <b>${this.datePipe.transform(endDate, 'd', '', 'es')} 
+              de <span class="capitalize-text">${this.datePipe.transform(endDate, 'MMMM', '', 'es')}</span>, 
+              ${this.datePipe.transform(endDate, 'y', '', 'es')}</b>`;
     }
   }
 }

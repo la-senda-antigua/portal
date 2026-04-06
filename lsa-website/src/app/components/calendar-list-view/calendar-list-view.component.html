@@ -30,7 +30,7 @@
             <tr>
               <td>Inicio:</td>
               <td>
-                <b>{{ calendarEvent.start | date: "MMM d, y hh:mm a" }}</b>
+                <b class="capitalize-text">{{ calendarEvent.start | date: "MMMM d, y hh:mm a" : "" : "es" }}</b>
               </td>
             </tr>
 
@@ -38,7 +38,7 @@
               <tr>
                 <td>Fin:</td>
                 <td>
-                  <b>{{ calendarEvent.end | date: "MMM d, y hh:mm a" }}</b>
+                  <b class="capitalize-text">{{ calendarEvent.end | date: "MMMM d, y hh:mm a" : "" : "es" }}</b>
                 </td>
               </tr>
             }
