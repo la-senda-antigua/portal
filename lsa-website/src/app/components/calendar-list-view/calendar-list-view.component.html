@@ -22,10 +22,8 @@
         <p>{{ calendarEvent.description }}</p>
         <table class="table-info">
           @if (calendarEvent.allDay) {
-            <tr>
-              <td>Fecha:</td>
-              <td> 
-                <b>{{ calendarEvent.start | date: "MMM d, y" }} </b> <span>(Todo el día)</span>
+            <tr>              
+              <td [innerHTML]="getFormattedDateRange(calendarEvent.start, calendarEvent.end)">
               </td>
             </tr>    
           } @else {
