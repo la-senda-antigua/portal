@@ -29,6 +29,7 @@ export class LiveServiceSnackbarComponent {
     const { videoUrl } = this.liveService.liveServiceState();
 
     this.matDialog.open(LiveServiceDialogComponent, {
+      id: 'lsa-live-dialog',
       data: { videoUrl },
       closeOnNavigation: false,
       disableClose: true,
