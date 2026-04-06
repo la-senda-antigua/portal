@@ -11,7 +11,7 @@ export class PlaylistViewerService {
   openPlaylistViewer(playlist: HydratedVideoPlaylist) {
     this.dialog.open(PlaylistViewerComponent, {
       width: '90vw',
-      minHeight: '90vh',
+      height: '90svh',
       data: {
         playlist,
       },
