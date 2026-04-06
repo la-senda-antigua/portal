@@ -11,13 +11,6 @@
   </button>
 </span>
 <mat-dialog-content>
-  <audio #audioElement (error)="playState.set('paused')">
-    <source
-      [src]="'https://play10.tikast.com/proxy/lasenda?mp=/stream'"
-      type="audio/mpeg"
-    />
-    Your browser does not support the audio element.
-  </audio>
   <h3 class="title">Radio La Senda Antigua</h3>
 
   <div class="radio-controls">
@@ -41,7 +34,7 @@
       </button>
 
       <mat-slider [max]="100" [min]="0" [step]="10">
-        <input matSliderThumb [(value)]="volumeValue" />
+        <input matSliderThumb [value]="volumeValue()" (valueChange)="volumeValue.set($event)" />
       </mat-slider>
     </div>
   </div>

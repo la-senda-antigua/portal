@@ -20,6 +20,8 @@ export class RadioService {
     artist: '',
     album: '',
   });
+
+  private audio = new Audio('https://play10.tikast.com/proxy/lasenda?mp=/stream');
   private readonly matDialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly titleService = inject(Title);
@@ -36,6 +38,19 @@ export class RadioService {
         this.titleService.setTitle(`${track.title} - ${track.artist} | La Senda`);
       }
     });
+
+    effect(() => {
+      this.audio.volume = this.volumeValue() / 100;
+    });
+
+    this.audio.addEventListener('playing', () => this.playState.set('playing'));
+    this.audio.addEventListener('pause', () => this.playState.set('paused'));
+    this.audio.addEventListener('waiting', () => this.playState.set('loading'));
+    this.audio.addEventListener('error', () => {
+      this.playState.set('paused');
+      console.error('Error on audio stream');
+    });
+
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.baseUrl + '/radio-info-hub')
       .withAutomaticReconnect()
@@ -49,6 +64,18 @@ export class RadioService {
       };
       this.currentTrack.set(formattedTrackInfo);
     });
+  }
+
+  togglePlay() {
+    if (this.playState() === 'playing') {
+      this.audio.pause();
+    } else {
+      this.playState.set('loading');
+      this.audio.play().catch(err => {
+        console.error("Error on player:", err);
+        this.playState.set('paused');
+      });
+    }
   }
 
   popUpRadio() {
