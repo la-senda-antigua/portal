@@ -14,6 +14,7 @@ import { LsaServiceHubService } from 'src/app/services/lsa-service-hub.service';
 import { AppConfigService } from '../../app-config/app-config.service';
 import { HeaderComponent } from '../header/header.component';
 import { LiveServiceDialogComponent } from '../live-service-dialog/live-service-dialog.component';
+import { LiveServiceSnackbarComponent } from '../live-service-snackbar/live-service-snackbar.component';
 import { RadioService } from '../radio-dialog/radio.service';
 import { SectionRendererComponent } from '../section-renderer/section-renderer.component';
 import { FooterComponent } from '../footer/footer.component';
@@ -45,9 +46,10 @@ export class PageRendererComponent {
   readonly pageName = input<string>();
   readonly matDialog = inject(MatDialog);
   readonly router = inject(Router);
-  private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
   private snackBar = inject(MatSnackBar);
   private radioService = inject(RadioService);
+  private isServiceRunning = false;
+  private liveServiceDialog?: MatDialogRef<LiveServiceDialogComponent>;
 
   constructor(
     private configService: AppConfigService,
@@ -59,22 +61,24 @@ export class PageRendererComponent {
     );
     effect(() => {
       const { isServiceOn, videoUrl } = liveService.liveServiceState();
-      if (isServiceOn) {
-        if (this.liveServiceDialog !== undefined) {
-          this.liveServiceDialog.close();
-        }
+            
+      if (isServiceOn && !this.isServiceRunning) {
         this.liveServiceDialog = this.matDialog.open(
           LiveServiceDialogComponent,
           {
+            id: 'lsa-live-dialog',
             data: { videoUrl },
             disableClose: true,
             hasBackdrop: true,
           }
         );
-      } else {
+      } else if (!isServiceOn && this.isServiceRunning) {
         this.liveServiceDialog?.close();
-        this.snackBar._openedSnackBarRef?.dismiss();
+        this.snackBar.dismiss();        
+        this.matDialog.getDialogById('lsa-live-dialog')?.close();
       }
+      
+      this.isServiceRunning = isServiceOn;
     });
 
     effect(() => {
