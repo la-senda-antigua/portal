@@ -127,4 +127,10 @@ export class RadioService {
       .then(() => console.log('RadioInfoHub Connection stopped'))
       .catch((err) => console.error('Error while stopping connection: ' + err));
   }
+
+  stopRadio() {
+    this.audio.pause();
+    this.audio.currentTime = 0;
+    this.stopHubConnection();
+  }
 }
