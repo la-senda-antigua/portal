@@ -111,7 +111,7 @@ export class RadioDialogComponent implements OnInit {
 
   close() {
     this.dialogRef.close();
-    this.radioService.stopHubConnection();
+    this.radioService.stopRadio();
   }
 
   minimize() {
