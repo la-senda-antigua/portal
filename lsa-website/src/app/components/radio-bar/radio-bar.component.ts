@@ -27,22 +27,12 @@ export class RadioBarComponent implements OnInit {
   readonly matDialog = inject(MatDialog);
   readonly playState = this.radioService.playState;
   readonly volumeValue = this.radioService.volumeValue;
-  readonly audioElement = viewChild<ElementRef>('audioElement');
   readonly currentTrack = this.radioService.currentTrack;
   readonly resetCurrentTrack = signal(false);
   private lastTrack: RadioTrackInfo | undefined;
   readonly streamInfoElement = viewChild<ElementRef>('streaminfo');
 
   constructor() {
-    effect(() => {
-      if (this.audioElement()?.nativeElement) {
-        const volume = this.volumeValue() / 100;
-        this.audioElement()!.nativeElement.volume = volume;
-        if (this.playState() === 'playing') {
-          this.audioElement()!.nativeElement.play();
-        }
-      }
-    });
     effect(() => {
       const infoElement = this.streamInfoElement()
         ?.nativeElement as HTMLSpanElement;
