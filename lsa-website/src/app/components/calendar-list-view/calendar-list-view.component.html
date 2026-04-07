@@ -22,14 +22,15 @@
         <p>{{ calendarEvent.description }}</p>
         <table class="table-info">
           @if (calendarEvent.allDay) {
-            <tr>
-              <td>Todo el día</td>
-            </tr>
+            <tr>              
+              <td [innerHTML]="getFormattedDateRange(calendarEvent.start, calendarEvent.end)">
+              </td>
+            </tr>    
           } @else {
             <tr>
               <td>Inicio:</td>
               <td>
-                <b>{{ calendarEvent.start | date: "MMM d, y hh:mm a" }}</b>
+                <b class="capitalize-text">{{ calendarEvent.start | date: "MMMM d, y hh:mm a" : "" : "es" }}</b>
               </td>
             </tr>
 
@@ -37,7 +38,7 @@
               <tr>
                 <td>Fin:</td>
                 <td>
-                  <b>{{ calendarEvent.end | date: "MMM d, y hh:mm a" }}</b>
+                  <b class="capitalize-text">{{ calendarEvent.end | date: "MMMM d, y hh:mm a" : "" : "es" }}</b>
                 </td>
               </tr>
             }
