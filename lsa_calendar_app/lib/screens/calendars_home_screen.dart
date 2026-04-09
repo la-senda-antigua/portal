@@ -618,7 +618,7 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
       return matchesCalendar;
     }).toList();
 
-    if (viewMode == 'month' || viewMode == 'assigned') {
+    if (viewMode == 'month') {
       final calendarNames = {for (var c in calendars) c.id.toString(): c.name};
       visibleEvents.sort((a, b) {
         final nameA = calendarNames[a.calendarId] ?? '';
@@ -627,6 +627,8 @@ class _CalendarsHomeScreenState extends State<CalendarsHomeScreen> {
         if (cmp != 0) return cmp;
         return a.start.compareTo(b.start);
       });
+    } else if (viewMode == 'assigned') {
+      visibleEvents.sort((a, b) => a.start.compareTo(b.start));
     }
 
     debugPrint('--- Visible events: ${visibleEvents.length}');

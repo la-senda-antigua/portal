@@ -259,7 +259,7 @@ export class CalendarsComponent {
 
   /** Opens add/edit event dialog, normalizes payload, and dispatches add/update actions. */
   openAddOrEditEventDialog(eventData?: any): void {
-    this.dialogs.openAddOrEditEventDialog(this.myCalendars(), eventData).subscribe((eventDto) => {
+    this.dialogs.openAddOrEditEventDialog(this.myCalendars().filter((c) => c.iAmManager), eventData).subscribe((eventDto) => {
       if (!eventDto) {
         return;
       }

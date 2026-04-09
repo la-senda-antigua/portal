@@ -17,6 +17,6 @@ class AppColors {
   }
 
   static Color getContrastColor(Color color) {
-    return color.computeLuminance() > 0.15 ? Colors.black : Colors.white;
+    return color.computeLuminance() > 0.25 ? Colors.black : Colors.white;
   }
 }
