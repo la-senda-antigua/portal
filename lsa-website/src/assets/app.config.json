@@ -17,6 +17,24 @@
             "loop": true,
             "slides": [
               {
+                "background-image-with-floating-text": {
+                  "title": "Escuela Bíblica de Vacaciones",
+                  "background-position": "70% top",
+                  "floating-description": {
+                    "position": "left",
+                    "description-block": {
+                      "text-color": "#ffffff",
+                      "lines": [
+                        "Del 15 al 19 de junio, de 2026",
+                        "¡Regístrate hoy y reserva tu lugar!"                        
+                      ]
+                    }
+                  },
+                  "background-image": "assets/images/bible_school.jpeg",
+                  "background-color": "#3f4a49"
+                }
+              },
+              {
                 "name": "verse-of-the-day-slide",
                 "verse-of-the-day": {
                   "title": "El verso del día",
