@@ -26,8 +26,14 @@
                       "text-color": "#ffffff",
                       "lines": [
                         "Del 15 al 19 de junio, de 2026",
-                        "¡Regístrate hoy y reserva tu lugar!"                        
-                      ]
+                        "¡Regístrate hoy y reserva tu lugar!",
+                        ""
+                      ],
+                      "button": {
+                        "text": "Registrarse",
+                        "target": "_blank",
+                        "link": "https://ilsa.myanswers.com/keepers-of-the-kingdom/"
+                      }
                     }
                   },
                   "background-image": "assets/images/bible_school.jpeg",
