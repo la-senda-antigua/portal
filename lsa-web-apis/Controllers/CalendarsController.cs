@@ -773,7 +773,10 @@ namespace lsa_web_apis.Controllers
                 var dateString = dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss");
 
                 var events = await _context.CalendarEvents
-                  .Where(e => string.Compare(e.StartTime, dateString) > 0 && e.CalendarId == calendar.Id)
+                  .Where(e => e.CalendarId == calendar.Id && 
+                              (string.IsNullOrEmpty(e.EndTime) 
+                                  ? string.Compare(e.StartTime, dateString) > 0 
+                                  : string.Compare(e.EndTime, dateString) > 0))
                   .OrderBy(e => e.StartTime)
                   .Select(e => new CalendarEventDto
                   {
