@@ -22,7 +22,14 @@ export class LiveServiceSnackbarComponent {
   );
   private readonly matDialog = inject(MatDialog);
   private readonly liveService = inject(LsaServiceHubService);
-  readonly message = signal(this.data.message);
+  readonly message = signal(this.decodeHtmlEntities(this.data.message));
+
+  private decodeHtmlEntities(text: string): string {
+    if (!text) return '';
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(text, 'text/html');
+    return dom.documentElement.textContent || text;
+  }
 
   expand() {
     this.snackBarRef.dismiss();
