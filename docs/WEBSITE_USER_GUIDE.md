@@ -41,6 +41,8 @@ Se utiliza para mostrar una galería de imágenes rotativas en la cabecera.
     *   **`auto-rotate-ms`**: Tiempo en milisegundos entre diapositivas (ej. `7000`).
     *   **`loop`**: Valor booleano (`true` o `false`) para reiniciar la secuencia automáticamente.
 
+![Ejemplo de Carrusel](../images/website/01_carousel_example.jpg)
+
 ```json
 {
   "carousel": {
@@ -55,6 +57,8 @@ Se utiliza para mostrar una galería de imágenes rotativas en la cabecera.
 Se emplea como fondo de impacto con información superpuesta.
 *   **`floating-description`**: Contiene la `position` y el bloque de texto.
 *   **`button`**: Se puede incluir un enlace con `target` (`"_blank"` para nueva pestaña o `"_self"` para la misma).
+
+![Ejemplo de Imagen con Texto Flotante](../images/website/02_background_floating_text.jpg)
 
 ```json
 {
@@ -79,6 +83,8 @@ Se utiliza para textos informativos simples o destacados.
     *   `QUOTE `: Aplica un estilo de cita resaltada.
     *   `REF `: Aplica un estilo de referencia bíblica o fuente.
 
+![Ejemplo de Bloque de Descripción](../images/website/03_description_block.jpg)
+
 ```json
 {
   "description-block": {
@@ -93,6 +99,8 @@ Se utiliza para textos informativos simples o destacados.
 Muestra una imagen junto a un bloque de texto informativo.
 *   **`image-position`**: `"left"` o `"right"`.
 *   **`background-size`**: `"cover"` (llena el espacio) o `"contain"` (muestra la imagen completa).
+
+![Ejemplo de Tarjeta de Imagen](../images/website/04_image_card.jpg)
 
 ```json
 {
@@ -114,6 +122,8 @@ Componente especializado para mostrar textos bíblicos.
 *   **`show-background-image`**: `true` o `false`.
 *   **`overlay-color`**: Color que cubre la imagen para mejorar la lectura del texto.
 
+![Ejemplo de Versículo del Día](../images/website/05_verse_of_day.jpg)
+
 ```json
 {
   "verse-of-the-day": {
@@ -128,6 +138,8 @@ Componente especializado para mostrar textos bíblicos.
 ### 6. Mapa y Horarios (`map-widget`)
 Se emplea para mostrar la ubicación y tablas de horarios de servicios.
 *   **`src`**: Enlace de incrustación (Embed) de Google Maps.
+
+![Ejemplo de Mapa y Horarios](../images/website/06_map_widget.jpg)
 
 ```json
 {
@@ -145,6 +157,8 @@ Se emplea para mostrar la ubicación y tablas de horarios de servicios.
 
 ### 7. Enlaces Rápidos (`quick-links`)
 Fila de iconos con accesos directos. Los iconos deben residir en `assets/icons/`.
+
+![Ejemplo de Enlaces Rápidos](../images/website/07_quick_links.jpg)
 
 ```json
 {
@@ -164,11 +178,15 @@ Existen componentes que listan contenido automáticamente desde la base de datos
 *   **`video-gallery`**: Muestra la galería histórica de videos.
 *   **`search-box`**: Configuración del buscador dentro de estas secciones. Opciones de `position`: `"center"`, `"left"`.
 
+![Ejemplo de Secciones de Video](../images/website/08_video_sections.jpg)
+
 ---
 
 ## 🖼️ Manejo de Archivos Multimedia
 
 Para asegurar la calidad visual y el rendimiento del sitio:
+
+![Estructura de Archivos Multimedia](../images/website/11_multimedia_structure.jpg)
 
 1.  **Ubicación**: Las imágenes deben almacenarse en `src/assets/images/`.
 2.  **Nomenclatura**: Se deben evitar espacios, eñes o tildes. Se recomienda el uso de guiones bajos o medios (ej. `misiones_guatemala.jpg`).
@@ -181,6 +199,8 @@ Para asegurar la calidad visual y el rendimiento del sitio:
 Define la estructura del menú superior global.
 *   **`options`**: Lista de enlaces. Se puede crear un submenú añadiendo una propiedad `options` dentro de un elemento.
 *   **`button`**: Define el botón destacado al final del menú.
+
+![Ejemplo de Menú de Navegación](../images/website/09_navigation_menu.jpg)
 
 ```json
 "navigation": {
@@ -199,6 +219,8 @@ Define la estructura del menú superior global.
 ## 📢 Notificación en Vivo (`live`)
 Controla la barra de aviso de transmisiones en tiempo real.
 *   **`background-color`**: Se recomienda un color contrastante para llamar la atención del usuario.
+
+![Ejemplo de Barra de Transmisión en Vivo](../images/website/10_live_notification.jpg)
 
 ---
 

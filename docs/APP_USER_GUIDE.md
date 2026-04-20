@@ -83,6 +83,8 @@ La aplicación de Calendario LSA ofrece múltiples formas de iniciar sesión par
 
 ### Métodos de Inicio de Sesión Disponibles
 
+![Pantalla de Inicio de Sesión](../images/mobile_app/02_login_screen.jpg)
+
 #### 1. Inicio de Sesión con Usuario y Contraseña
 - **Campos requeridos**:
   - **Usuario**: Ingresa tu nombre de usuario proporcionado por el administrador del sistema.
@@ -133,6 +135,8 @@ La aplicación de Calendario LSA ofrece múltiples formas de iniciar sesión par
 Una vez que inicies sesión, accederás a la pantalla principal de la app, que es el centro de gestión de calendarios y eventos. Esta pantalla está diseñada para ser intuitiva y eficiente, permitiéndote navegar rápidamente entre fechas, cambiar modos de vista y acceder a funciones clave.
 
 ### Elementos de la Interfaz
+
+![Pantalla Principal](../images/mobile_app/03_home_screen.jpg)
 
 #### 1. Barra Superior (App Bar)
 - **Botón de Menú (izquierda)**: Ícono de tres líneas horizontales (☰) en la esquina superior izquierda. Al hacer clic, abre el drawer lateral (menú de navegación).
@@ -212,6 +216,8 @@ Los calendarios son contenedores organizativos que agrupan eventos relacionados.
 2. Se abrirá el drawer lateral desde el lado izquierdo de la pantalla.
 3. El drawer contiene dos secciones principales: modos de vista y lista de calendarios.
 
+![Menú de Calendarios (Drawer)](../images/mobile_app/04_drawer_calendars.jpg)
+
 ### Ver Calendarios Disponibles
 - En la sección "Mis Calendarios", verás una lista de todos los calendarios a los que tienes acceso.
 - Cada calendario se muestra con:
@@ -273,6 +279,8 @@ La visibilidad y gestión de calendarios depende de tu rol en el sistema:
 ## 5. Visualización de Eventos
 
 Los eventos son las actividades o compromisos programados dentro de los calendarios. La app proporciona múltiples formas de visualizar eventos, cada una optimizada para diferentes necesidades y contextos. Los eventos se muestran de manera diferente según el modo de vista seleccionado.
+
+![Lista de Eventos](../images/mobile_app/05_events_list.jpg)
 
 ### Cómo se Muestran los Eventos en Cada Modo de Vista
 
@@ -403,6 +411,8 @@ La creación y edición de eventos es una funcionalidad central de la app. El pr
   - El botón solo aparece si tienes permisos suficientes.
 
 ### Formulario de Creación/Edición de Eventos
+
+![Formulario de Creación de Evento](../images/mobile_app/06_create_event.jpg)
 
 El formulario modal se abre desde la parte inferior de la pantalla. Contiene los siguientes campos:
 
@@ -611,6 +621,8 @@ La eliminación de eventos es una operación irreversible que requiere confirmac
     - "Cancelar" (lado izquierdo): Descarta la eliminación y cierra el diálogo.
     - "Eliminar" (lado derecho, en rojo): Confirma la eliminación irreversible.
 
+![Diálogo de Confirmación de Eliminación](../images/mobile_app/07_delete_confirmation.jpg)
+
 #### Paso 4: Evento Eliminado
 - Si confirmas, el evento se elimina del servidor.
 - La lista de eventos se actualiza automáticamente.
@@ -667,6 +679,8 @@ La eliminación de eventos es una operación irreversible que requiere confirmac
 La app utiliza notificaciones push para mantener a los usuarios informados sobre cambios en calendarios y eventos en tiempo real. Las actualizaciones pueden ocurrir automáticamente o manualmente según el contexto.
 
 ### Notificaciones Push
+
+![Notificaciones Push](../images/mobile_app/08_notifications.jpg)
 
 #### Cómo Funcionan las Notificaciones
 - Al iniciar sesión, la app se registra automáticamente en el servidor de notificaciones con un token FCM (Firebase Cloud Messaging).
@@ -777,6 +791,8 @@ Cerrar sesión es importante para proteger tu cuenta y asegurar que tu informaci
 3. Toca "Cerrar Sesión".
 4. Confirma la acción si se solicita (algunas versiones pueden requerir confirmación).
 5. Se cierra la sesión automáticamente y vuelves a la pantalla de login.
+
+![Menú de Perfil de Usuario](../images/mobile_app/09_user_menu.jpg)
 
 #### Método 2: Automático
 - La app cierra sesión automáticamente si:
@@ -987,6 +1003,8 @@ Esta sección cubre errores comunes, soluciones rápidas y cuándo contactar con
 ## 11. Configuraciones Avanzadas
 
 Esta sección cubre opciones de configuración disponibles dentro de la app para personalizar tu experiencia.
+
+![Menú de Configuración](../images/mobile_app/10_settings_menu.jpg)
 
 ### Idioma de la App
 
