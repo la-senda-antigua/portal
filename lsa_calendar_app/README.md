@@ -1,7 +1,5 @@
 # lsa_calendar_app
-
-A new Flutter project.
-
+A Flutter project
 
 # for building ios
 flutter build ipa --release --dart-define=ENV_FILE=.env.testing
