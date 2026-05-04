@@ -90,10 +90,18 @@ namespace lsa_web_apis.Controllers
             try
             {
                 log.InfoJson("Creating user group. Values:", dto);
-                _context.UserGroups.Add(new UserGroup { GroupName = dto.GroupName, Active = true });
+                var userGroup = new UserGroup
+                {
+                    GroupName = dto.GroupName,
+                    Active = true,
+                };
+
+                _context.UserGroups.Add(userGroup);
                 await _context.SaveChangesAsync();
-                log.Info("User group created successfully. GroupName: {GroupName}", dto.GroupName);
-                return Ok(dto);
+
+                dto.Id = userGroup.Id;
+                log.Info("User group created successfully. UserGroupId: {UserGroupId}, GroupName: {GroupName}", userGroup.Id, dto.GroupName);
+                return CreatedAtAction(nameof(Get), new { id = userGroup.Id }, dto);
             }
             catch (Exception ex)
             {
