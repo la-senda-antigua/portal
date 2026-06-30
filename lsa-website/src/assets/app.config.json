@@ -15,31 +15,7 @@
           "carousel": {
             "auto-rotate-ms": 7000,
             "loop": true,
-            "slides": [
-              {
-                "background-image-with-floating-text": {
-                  "title": "Escuela Bíblica de Vacaciones",
-                  "background-position": "70% top",
-                  "floating-description": {
-                    "position": "left",
-                    "description-block": {
-                      "text-color": "#ffffff",
-                      "lines": [
-                        "Del 15 al 19 de junio, de 2026",
-                        "¡Regístrate hoy y reserva tu lugar!",
-                        ""
-                      ],
-                      "button": {
-                        "text": "Registrarse",
-                        "target": "_blank",
-                        "link": "https://ilsa.myanswers.com/keepers-of-the-kingdom/"
-                      }
-                    }
-                  },
-                  "background-image": "assets/images/bible_school.jpeg",
-                  "background-color": "#3f4a49"
-                }
-              },
+            "slides": [              
               {
                 "name": "verse-of-the-day-slide",
                 "verse-of-the-day": {
@@ -71,14 +47,14 @@
               },
               {
                 "background-image-with-floating-text": {
-                  "title": "El Libro de Génesis",
+                  "title": "La Conducta Cristiana",
                   "floating-description": {
                     "position": "left",
                     "description-block": {
                       "text-color": "#ffffff",
                       "lines": [
-                        "Acompáñenos en este estudio del libro de Génesis,",
-                        "en donde encontramos joyas escondidas desde el principio de la fundación del mundo."
+                        "Acompáñenos en este estudio sobre la conducta cristiana,",
+                        "en donde aprenderemos a reflejar el carácter de Cristo en nuestra vida diaria."
                       ],
                       "button": {
                         "text": "Ver estudio",
@@ -86,7 +62,8 @@
                       }
                     }
                   },
-                  "background-image": "assets/images/genesis.jpg",
+                  "background-image": "assets/images/conducta.webp",
+                  "background-position": "center",
                   "background-color": "#3f4a49"
                 }
               }
@@ -168,7 +145,7 @@
               }
             },
             "background-color": "#ffffff",
-            "image": "assets/images/homeschool_kids_2.jpg"
+            "image": "assets/images/homeschool_kids_2.webp"
           }
         },
         {
@@ -387,7 +364,7 @@
                 "link": "https://www.paypal.com/donate/?hosted_button_id=AWLXY42R2EHHA"
               }
             },
-            "image": "assets/images/kids.png"
+            "image": "assets/images/kids.webp"
           }
         },
         {
@@ -639,7 +616,7 @@
                 ]
               }
             },
-            "background-image": "assets/images/Homeschool-collage.png",
+            "background-image": "assets/images/Homeschool-collage.webp",
             "background-color": "#3f4a49"
           }
         },
