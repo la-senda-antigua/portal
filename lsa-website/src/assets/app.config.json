@@ -63,7 +63,7 @@
                     }
                   },
                   "background-image": "assets/images/dones.webp",
-                  "background-position": "center",
+                  "background-position": "right",
                   "background-color": "#3f4a49"
                 }
               }
