@@ -47,14 +47,14 @@
               },
               {
                 "background-image-with-floating-text": {
-                  "title": "La Conducta Cristiana",
+                  "title": "Los Dones del Espíritu",
                   "floating-description": {
                     "position": "left",
                     "description-block": {
                       "text-color": "#ffffff",
                       "lines": [
-                        "Acompáñenos en este estudio sobre la conducta cristiana,",
-                        "en donde aprenderemos a reflejar el carácter de Cristo en nuestra vida diaria."
+                        "Acompáñenos en este estudio sobre los dones espirituales,",
+                        "en donde aprenderemos cómo el Espíritu Santo obra en la vida del creyente."
                       ],
                       "button": {
                         "text": "Ver estudio",
@@ -62,8 +62,8 @@
                       }
                     }
                   },
-                  "background-image": "assets/images/conducta.webp",
-                  "background-position": "center",
+                  "background-image": "assets/images/dones.webp",
+                  "background-position": "right",
                   "background-color": "#3f4a49"
                 }
               }
